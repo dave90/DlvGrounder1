@@ -20,6 +20,7 @@ StatementBuilder::StatementBuilder() {
 	 variable="";
 	 id="";
 	 number=0;
+	 negativeTerm=false;
 }
 
 void StatementBuilder::printStats() {
@@ -32,9 +33,9 @@ void StatementBuilder::printStats() {
 	cout << "Literal: " << literal << endl;
 	cout << "Term: " << term << endl;
 
-	MapTermTable tm=termsFactory.getMap();
-	for(long i=0;i<tm.getSize();i++){
-		tm.getTerm(i)->print();
+	TermTable *tm=termsFactory.getMap();
+	for(long i=0;i<tm->getSize();i++){
+		tm->getTerm(i)->print();
 	}
 }
 
@@ -73,14 +74,14 @@ void StatementBuilder::resetLiteral() {
 
 void StatementBuilder::addTerm() {
 	if(variable.size()>0){
-		termsFactory.createVariable(variable);
+		termsFactory.createVariable(variable,negativeTerm);
 	}else if(strcmp("+number",id.c_str())==0){
 		ostringstream convert;
 		convert << number;
 		id=convert.str();
-		termsFactory.createConstant(id);
+		termsFactory.createConstant(id,negativeTerm);
 	}else if(id.size()>0){
-		termsFactory.createConstant(id);
+		termsFactory.createConstant(id,negativeTerm);
 	}
 
 
@@ -93,6 +94,7 @@ void StatementBuilder::resetTerm(){
 	 variable="";
 	 id="";
 	 number=0;
+	 negativeTerm=false;
 }
 
 void StatementBuilder::addVariable(const char& c) {
@@ -110,11 +112,15 @@ void StatementBuilder::addNumber(const int n) {
 }
 
 void StatementBuilder::addTermFunction() {
-	termsFactory.createFunction(id);
+	termsFactory.createFunction(id,negativeTerm);
 	resetTerm();
 }
 
 void StatementBuilder::endTermFunction() {
 	termsFactory.endFunction();
 	resetTerm();
+}
+
+void StatementBuilder::setNegativeTerm() {
+	negativeTerm=true;
 }

@@ -31,3 +31,9 @@ Term* MapTermTable::getTerm(long index) {
 long MapTermTable::getSize() {
 	return hash.size();
 }
+
+MapTermTable::~MapTermTable() {
+	for(map<long,Term*>::iterator it=hash.begin();it!=hash.end();it++){
+		delete (it->second);
+	}
+}

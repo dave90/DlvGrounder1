@@ -16,17 +16,19 @@
 class TermFactory {
 public:
 	TermFactory();
-	void createVariable(string variable);
-	void createConstant(string constant);
-	void createFunction(string name);
+	void createVariable(string variable,bool negative);
+	void createConstant(string constant,bool negative);
+	void createFunction(string name,bool negative);
 	void endFunction();
 	//TO-DELETE
-	MapTermTable getMap(){
+	TermTable* getMap(){
 		return termsMap;
 	}
+	~TermFactory();
 private:
 	vector<Term*> terms;
-	MapTermTable termsMap;
+	TermTable *termsMap;
 };
+
 
 #endif /* TERMFACTORY_H_ */

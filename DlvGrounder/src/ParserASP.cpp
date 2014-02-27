@@ -70,6 +70,10 @@ void addVariable(const char &c){
 	builder.addVariable(c);
 }
 
+void addAnonymusVariable(){
+	builder.addVariable('_');
+}
+
 void addId(const char& c) {
 	builder.addId(c);
 }
@@ -84,6 +88,10 @@ void addFunctionTerm(){
 
 void endFunctionTerm(){
 	builder.endTermFunction();
+}
+
+void addNegativeTerm(){
+	builder.setNegativeTerm();
 }
 
 }
@@ -104,13 +112,15 @@ struct asp_grammar: qi::grammar<Iterator, ascii::space_type> {
 		using qi::lit;
 		using qi::alnum;
 		using qi::lexeme;
+		using qi::eol;
 
 		statements = +statement[&client::addStatement];
 
 		statement = (CONS >> -body >> DOT[&client::addConstraint])
 				| (head >> -(CONS >> -body) >> DOT)
 				| (WCONS >> -body >> DOT >> SQUARE_OPEN >> weight_at_level
-						>> SQUARE_CLOSE[&client::addWeak]) | (optimize >> DOT);
+						>> SQUARE_CLOSE[&client::addWeak]) | (optimize >> DOT)  ;
+
 
 		head = disjunction[&client::addDisjunction]
 				| choice[&client::addChoiche];
@@ -162,9 +172,9 @@ struct asp_grammar: qi::grammar<Iterator, ascii::space_type> {
 
 		terms = term % COMMA;
 
-		term = -MINUS
+		term = -MINUS[&client::addNegativeTerm]
 				>> (ID>> -(PAREN_OPEN[&client::addFunctionTerm] >> terms >> PAREN_CLOSE[&client::endFunctionTerm]) | NUMBER
-						| VARIABLE | ANONYMOUS_VARIABLE | STRING)[&client::addTerm]
+						| VARIABLE | ANONYMOUS_VARIABLE[&client::addAnonymusVariable] | STRING)[&client::addTerm]
 				>> -arithop_term;
 
 		arithop_term = arithop >> term;
@@ -207,11 +217,13 @@ struct asp_grammar: qi::grammar<Iterator, ascii::space_type> {
 		AT = lit("@");
 		MAXIMIZE = lit("#maximize");
 		MINIMIZE = lit("#minimize");
+		PERCENTAGE=lit("%");
 	}
 
 	qi::rule<Iterator, ascii::space_type> program;
 	qi::rule<Iterator, ascii::space_type> statements;
 	qi::rule<Iterator, ascii::space_type> statement;
+	qi::rule<Iterator, ascii::space_type> comment;
 	qi::rule<Iterator, ascii::space_type> head;
 	qi::rule<Iterator, ascii::space_type> disjunction;
 	qi::rule<Iterator, ascii::space_type> choice;
@@ -241,7 +253,7 @@ struct asp_grammar: qi::grammar<Iterator, ascii::space_type> {
 			LESS_OR_EQ, GREATER_OR_EQ, CONS, COLON, AT, VARIABLE,
 			ANONYMOUS_VARIABLE, PLUS, TIMES, DIV, STRING, CURLY_OPEN,
 			CURLY_CLOSE, AGGREGATE_COUNT, AGGREGATE_MAX, AGGREGATE_MIN,
-			AGGREGATE_SUM, SQUARE_OPEN, SQUARE_CLOSE, WCONS, MAXIMIZE, MINIMIZE;
+			AGGREGATE_SUM, SQUARE_OPEN, SQUARE_CLOSE, WCONS, MAXIMIZE, MINIMIZE,PERCENTAGE;
 
 };
 

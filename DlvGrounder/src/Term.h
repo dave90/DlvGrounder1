@@ -19,6 +19,8 @@ public:
 	Term();
 	long getIndex();
 	void setIndex(long index);
+	bool isNegative();
+	void setNegative(bool n);
 	bool operator==(const Term& t);
 	virtual string getVariable()=0;
 	virtual void setVariable(string name)=0;
@@ -29,6 +31,7 @@ public:
 	virtual void print()=0;
 private:
 	long index;
+	bool negative;
 };
 
 #endif /* TERM_H_ */

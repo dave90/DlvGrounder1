@@ -8,7 +8,8 @@
 #include "TermTable.h"
 
 TermTable::TermTable() {
-	// TODO Auto-generated constructor stub
 
 }
 
+TermTable::~TermTable() {
+}

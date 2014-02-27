@@ -35,7 +35,7 @@ vector<int> FunctionTerm::getTerms() {
 }
 
 void FunctionTerm::print() {
-	cout<<"Function Term "<<name<<" index: "<<getIndex()<<" "<<" Terms:";
+	cout<<"Function Term "<<name<<" index: "<<getIndex()<<" Negation: "<<isNegative()<<" "<<" Terms:";
 	for(int i=0;i<terms.size();i++)
 		cout<<terms[i]<<" ";
 	cout<<endl;

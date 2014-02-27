@@ -9,6 +9,7 @@
 
 Term::Term() {
 	index=-1;
+	negative=false;
 }
 
 long Term::getIndex() {
@@ -21,4 +22,12 @@ void Term::setIndex(long index) {
 
 bool Term::operator ==(const Term& t) {
 	return t.index==index;
+}
+
+bool Term::isNegative() {
+	return negative;
+}
+
+void Term::setNegative(bool n) {
+	negative=n;
 }

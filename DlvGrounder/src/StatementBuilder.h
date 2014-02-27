@@ -36,6 +36,7 @@ public:
 	void addNumber(const int n);
 	void addTermFunction();
 	void endTermFunction();
+	void setNegativeTerm();
 
 private:
 	int statement;
@@ -49,6 +50,7 @@ private:
 	string variable;
 	string id;
 	int number;
+	bool negativeTerm;
 
 	TermFactory termsFactory;
 };

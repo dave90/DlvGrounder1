@@ -9,6 +9,7 @@
 #define MAPTERMTABLE_H_
 
 #include <map>
+
 #include "TermTable.h"
 
 using namespace std;
@@ -19,7 +20,8 @@ public:
 	long addTerm(Term *t);
 	void removeTerm(long index);
 	Term* getTerm(long index);
-	long getSize();
+	virtual long getSize();
+	~MapTermTable();
 private:
 	map<long,Term*> hash;
 	long counter;

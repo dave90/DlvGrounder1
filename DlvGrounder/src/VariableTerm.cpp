@@ -35,5 +35,5 @@ vector<int> VariableTerm::getTerms() {
 }
 
 void VariableTerm::print() {
-	cout<<"Variable Term "<<variable<<" index: "<<getIndex()<<endl;
+	cout<<"Variable Term "<<variable<<" index: "<<getIndex()<<" Negation: "<<isNegative()<<endl;
 }
