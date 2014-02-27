@@ -9,7 +9,7 @@
 #define TERMTABLE_H_
 
 
-#include "Term.h"
+#include "../term/Term.h"
 
 using namespace std;
 

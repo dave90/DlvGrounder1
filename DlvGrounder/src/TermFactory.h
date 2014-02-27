@@ -8,10 +8,11 @@
 #ifndef TERMFACTORY_H_
 #define TERMFACTORY_H_
 
-#include "VariableTerm.h"
-#include "FunctionTerm.h"
-#include "ConstantTerm.h"
-#include "MapTermTable.h"
+#include "term/VariableTerm.h"
+#include "term/FunctionTerm.h"
+#include "term/ConstantTerm.h"
+
+#include "table/MapTermTable.h"
 
 class TermFactory {
 public:

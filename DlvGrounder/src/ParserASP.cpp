@@ -17,8 +17,6 @@
 
 #include "StatementBuilder.h"
 
-#include "VariableTerm.h"
-
 using namespace std;
 
 namespace qi = boost::spirit::qi;
