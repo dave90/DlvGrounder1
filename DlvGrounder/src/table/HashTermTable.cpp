@@ -43,11 +43,11 @@ void HashTermTable::removeTerm(unsigned long index) {
 }
 
 Term* HashTermTable::getTerm(unsigned long index) {
-	Term *t=new Term;
-	t->setIndex(index);
+	Term t;
+	t.setIndex(index);
 	Term *termFinded=0;
-	if(hash.find(t)!=hash.end())
-		termFinded=*(hash.find(t));
+	if(hash.find(&t)!=hash.end())
+		termFinded=*(hash.find(&t));
 
 
 	return termFinded;
