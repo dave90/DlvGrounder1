@@ -12,7 +12,9 @@
 #include "term/FunctionTerm.h"
 #include "term/ConstantTerm.h"
 
+#include "table/HashTermTable.h"
 #include "table/MapTermTable.h"
+#include "table/BoostTermTable.h"
 
 class TermFactory {
 public:

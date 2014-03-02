@@ -11,20 +11,34 @@ MapTermTable::MapTermTable() {
 	counter=0;
 }
 
-long MapTermTable::addTerm(Term* t) {
-	t->setIndex(counter);
-	counter++;
-	pair<long,Term*> pair(t->getIndex(),t);
-	hash.insert(pair);
+unsigned long MapTermTable::addTerm(Term* t) {
 
-	return t->getIndex();
+	unsigned long index;
+
+	if(!nameToIndex.count(t->getName())){
+		t->setIndex(counter);
+		counter++;
+
+		pair<unsigned long,Term*> p1(t->getIndex(),t);
+		hash.insert(p1);
+		index=t->getIndex();
+
+		pair<string,unsigned long> p2(t->getName(),index);
+		nameToIndex.insert(p2);
+
+	}else{
+		index=nameToIndex.find(t->getName())->second;
+		delete t;
+	}
+
+	return index;
 }
 
-void MapTermTable::removeTerm(long index) {
+void MapTermTable::removeTerm(unsigned long index) {
 
 }
 
-Term* MapTermTable::getTerm(long index) {
+Term* MapTermTable::getTerm(unsigned long index) {
 	return hash.find(index)->second;
 }
 
@@ -33,7 +47,7 @@ long MapTermTable::getSize() {
 }
 
 MapTermTable::~MapTermTable() {
-	for(map<long,Term*>::iterator it=hash.begin();it!=hash.end();it++){
+	for(map<unsigned long,Term*>::iterator it=hash.begin();it!=hash.end();it++){
 		delete (it->second);
 	}
 }

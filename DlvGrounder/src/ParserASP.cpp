@@ -14,6 +14,7 @@
 #include <boost/config/warning_disable.hpp>
 #include <boost/lambda/lambda.hpp>
 #include <boost/bind.hpp>
+#include <boost/timer.hpp>
 
 #include "StatementBuilder.h"
 
@@ -88,7 +89,8 @@ void endFunctionTerm(){
 	builder.endTermFunction();
 }
 
-void addNegativeTerm(){
+void addNegativeTerm(string minus){
+	cout<<minus<<endl;
 	builder.setNegativeTerm();
 }
 
@@ -246,7 +248,7 @@ struct asp_grammar: qi::grammar<Iterator, ascii::space_type> {
 	qi::rule<Iterator, ascii::space_type> arithop;
 	qi::rule<Iterator, ascii::space_type> arithop_term;
 	qi::rule<Iterator, ascii::space_type> term;
-	qi::rule<Iterator, ascii::space_type> COMMA, PAREN_OPEN, PAREN_CLOSE, MINUS,
+	qi::rule<Iterator,string(), ascii::space_type> COMMA, PAREN_OPEN, PAREN_CLOSE, MINUS,
 			ID, OR, DOT, NAF, NUMBER, SEMICOLON, EQUAL, UNEQEUAL, LESS, GREATER,
 			LESS_OR_EQ, GREATER_OR_EQ, CONS, COLON, AT, VARIABLE,
 			ANONYMOUS_VARIABLE, PLUS, TIMES, DIV, STRING, CURLY_OPEN,
@@ -271,9 +273,15 @@ struct Term_hash
 
 int main() {
 
+	boost::timer t1;
+
 	ifstream ifs("test.txt");
 	string str((std::istreambuf_iterator<char>(ifs)),
 			(std::istreambuf_iterator<char>()));
+
+	cout<<"Read string "<<t1.elapsed()<<endl;
+
+	t1.restart();
 
 	string::const_iterator iter = str.begin();
 	string::const_iterator end = str.end();
@@ -291,6 +299,8 @@ int main() {
 		cout << "stopped at: \": " << rest << "\"\n";
 		cout << "-------------------------\n";
 	}
+
+	cout<<"Parserization "<<t1.elapsed()<<endl;
 
 	client::builder.printStats();
 

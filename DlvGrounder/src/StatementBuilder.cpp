@@ -34,9 +34,13 @@ void StatementBuilder::printStats() {
 	cout << "Term: " << term << endl;
 
 	TermTable *tm=termsFactory.getMap();
+	cout<<"Size Map "<<tm->getSize()<<endl;
+	boost::timer t1;
 	for(long i=0;i<tm->getSize();i++){
-		tm->getTerm(i)->print();
+		tm->getTerm(i);
 	}
+	cout<<"Time for visit: "<<t1.elapsed()<<endl;
+
 }
 
 void StatementBuilder::addStatement() {

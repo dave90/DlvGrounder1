@@ -11,26 +11,20 @@ VariableTerm::VariableTerm() {
 
 }
 
-string VariableTerm::getVariable() {
+string VariableTerm::getName() {
 	return variable;
 }
 
-void VariableTerm::setVariable(string name) {
+void VariableTerm::setName(string name) {
 	variable=name;
 }
 
-string VariableTerm::getConstant() {
-	return "";
+
+void VariableTerm::addTerm(unsigned long termIndex) {
 }
 
-void VariableTerm::setCostant(string constant) {
-}
-
-void VariableTerm::addTerm(int termIndex) {
-}
-
-vector<int> VariableTerm::getTerms() {
-	vector<int> v;
+vector<unsigned long> VariableTerm::getTerms() {
+	vector<unsigned long> v;
 	return v;
 }
 

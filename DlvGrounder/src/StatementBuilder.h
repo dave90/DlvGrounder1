@@ -12,6 +12,7 @@
 #include <iostream>
 #include <sstream>
 
+#include <boost/timer.hpp>
 
 #include "TermFactory.h"
 

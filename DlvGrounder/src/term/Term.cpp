@@ -12,11 +12,11 @@ Term::Term() {
 	negative=false;
 }
 
-long Term::getIndex() {
+unsigned long Term::getIndex() {
 	return index;
 }
 
-void Term::setIndex(long index) {
+void Term::setIndex(unsigned long index) {
 	this->index=index;
 }
 
@@ -30,4 +30,19 @@ bool Term::isNegative() {
 
 void Term::setNegative(bool n) {
 	negative=n;
+}
+
+void Term::setName(string name) {
+}
+
+void Term::addTerm(unsigned long termIndex) {
+}
+
+vector<unsigned long> Term::getTerms() {
+}
+
+void Term::print() {
+}
+
+string Term::getName() {
 }

@@ -12,26 +12,20 @@ ConstantTerm::ConstantTerm() {
 
 }
 
-string ConstantTerm::getVariable() {
-	return "";
-}
 
-void ConstantTerm::setVariable(string name) {
-}
-
-string ConstantTerm::getConstant() {
+string ConstantTerm::getName() {
 	return constant;
 }
 
-void ConstantTerm::setCostant(string constant) {
+void ConstantTerm::setName(string constant) {
 	this->constant=constant;
 }
 
-void ConstantTerm::addTerm(int termIndex) {
+void ConstantTerm::addTerm(unsigned long termIndex) {
 }
 
-vector<int> ConstantTerm::getTerms() {
-	vector<int> v;
+vector<unsigned long> ConstantTerm::getTerms() {
+	vector<unsigned long> v;
 	return v;
 }
 

@@ -9,14 +9,14 @@
 
 TermFactory::TermFactory() {
 
-	termsMap=new MapTermTable;
+	termsMap=new BoostTermTable;
 
 }
 
 void TermFactory::createVariable(string variable,bool negative) {
 	Term *v=new VariableTerm();
 
-	v->setVariable(variable);
+	v->setName(variable);
 	v->setNegative(negative);
 
 	int index=termsMap->addTerm(v);
@@ -31,7 +31,7 @@ void TermFactory::createVariable(string variable,bool negative) {
 void TermFactory::createConstant(string constant,bool negative) {
 	Term *c=new ConstantTerm();
 
-	c->setCostant(constant);
+	c->setName(constant);
 	c->setNegative(negative);
 
 	int index=termsMap->addTerm(c);
@@ -45,7 +45,7 @@ void TermFactory::createConstant(string constant,bool negative) {
 void TermFactory::createFunction(string name,bool negative) {
 	Term *ft=new FunctionTerm();
 
-	ft->setCostant(name);
+	ft->setName(name);
 	ft->setNegative(negative);
 
 	terms.push_back(ft);

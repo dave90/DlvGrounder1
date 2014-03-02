@@ -11,26 +11,20 @@ FunctionTerm::FunctionTerm() {
 
 }
 
-string FunctionTerm::getVariable() {
-	return "";
-}
 
-void FunctionTerm::setVariable(string name) {
-}
-
-string FunctionTerm::getConstant() {
+string FunctionTerm::getName() {
 	return name;
 }
 
-void FunctionTerm::setCostant(string constant) {
+void FunctionTerm::setName(string constant) {
 	name=constant;
 }
 
-void FunctionTerm::addTerm(int termIndex) {
+void FunctionTerm::addTerm(unsigned long termIndex) {
 	terms.push_back(termIndex);
 }
 
-vector<int> FunctionTerm::getTerms() {
+vector<unsigned long> FunctionTerm::getTerms() {
 	return terms;
 }
 

@@ -15,16 +15,14 @@ using namespace std;
 class FunctionTerm: public Term {
 public:
 	FunctionTerm();
-	virtual string getVariable();
-	virtual void setVariable(string name);
-	virtual string getConstant();
-	virtual void setCostant(string constant);
-	virtual void addTerm(int termIndex);
-	virtual vector<int> getTerms();
+	virtual string getName();
+	virtual void setName(string name);
+	virtual void addTerm(unsigned long termIndex);
+	virtual vector<unsigned long> getTerms();
 	virtual void print();
 private:
 	string name;
-	vector<int> terms;
+	vector<unsigned long> terms;
 };
 
 #endif /* FUNCTIONTERM_H_ */
