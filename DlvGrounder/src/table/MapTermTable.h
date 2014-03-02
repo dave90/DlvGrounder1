@@ -8,6 +8,10 @@
 #ifndef MAPTERMTABLE_H_
 #define MAPTERMTABLE_H_
 
+/*
+ *  Extends TermTable and use a stl map for storing the terms
+ */
+
 #include <map>
 #include <string>
 
@@ -24,8 +28,12 @@ public:
 	virtual long getSize();
 	~MapTermTable();
 private:
+	//All the term are saved in that map, the key is a term index
 	map<unsigned long,Term*> hash;
+	// The map save the index of a name of a term, for saving space save only one Term per name
+	// SOLVING THE PROBLEM OF A FUNCTION, f(X) != f(23)
 	map<string,unsigned long> nameToIndex;
+	//counter for assign the index of one term
 	unsigned long counter;
 
 };

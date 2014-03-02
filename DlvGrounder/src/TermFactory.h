@@ -8,28 +8,46 @@
 #ifndef TERMFACTORY_H_
 #define TERMFACTORY_H_
 
+/*
+ *  TermFactory  create a Term and push in the Term Table
+ */
+
 #include "term/VariableTerm.h"
 #include "term/FunctionTerm.h"
 #include "term/ConstantTerm.h"
-
 #include "table/HashTermTable.h"
 #include "table/MapTermTable.h"
 #include "table/BoostTermTable.h"
 
+
 class TermFactory {
 public:
 	TermFactory();
+	// Create a Variable term
 	void createVariable(string variable,bool negative);
+	//Create Constant term
 	void createConstant(string constant,bool negative);
+	//Create Function Term and push it in a queue
 	void createFunction(string name,bool negative);
+	// Put the Function term in the tail of a queue in the Table Term
 	void endFunction();
-	//TO-DELETE
+
+	//TO-DELETE decide where put tha Term Table
 	TermTable* getMap(){
 		return termsMap;
 	}
+
 	~TermFactory();
 private:
+	/*
+	 *  Store the order of the term function encountered for nested function
+	 *
+	 */
 	vector<Term*> terms;
+
+	/*
+	 *  Table of the all terms, TEMPORARY POSITION
+	 */
 	TermTable *termsMap;
 };
 

@@ -24,12 +24,15 @@ namespace qi = boost::spirit::qi;
 namespace ascii = boost::spirit::ascii;
 
 /*
-
- Function called from the parser
-
- */
+*
+* Function called from the parser
+*
+*/
 namespace client {
 
+/*
+ * This functions forward the action to the StatementBuilder object
+ */
 StatementBuilder builder;
 
 
@@ -98,10 +101,10 @@ void addNegativeTerm(string minus){
 }
 
 /*
-
- Definition of the grammar
-
- */
+*
+* Definition of the grammar
+*
+*/
 template<typename Iterator>
 struct asp_grammar: qi::grammar<Iterator, ascii::space_type> {
 
@@ -135,7 +138,6 @@ struct asp_grammar: qi::grammar<Iterator, ascii::space_type> {
 
 		disjunction = classical_literal % OR;
 
-		//attenzione binop presente entrambi
 		body = (naf_litteral | aggregate[&client::addAggregate]) % COMMA;
 
 		aggregate = -(term >> binop) >> aggregate_function >> CURLY_OPEN
@@ -175,7 +177,7 @@ struct asp_grammar: qi::grammar<Iterator, ascii::space_type> {
 
 		term = -MINUS[&client::addNegativeTerm]
 				>> (
-						  ( ID[&client::addNameFunction]>> PAREN_OPEN[&client::addFunctionTerm]  >> terms >> PAREN_CLOSE[&client::endFunctionTerm] )
+						( ID[&client::addNameFunction]>> PAREN_OPEN[&client::addFunctionTerm]  >> terms >> PAREN_CLOSE[&client::endFunctionTerm] )
 						|  ID[&client::addId]
 						|	NUMBER[&client::addNumber]
 						| VARIABLE[&client::addVariable]
@@ -267,17 +269,6 @@ struct asp_grammar: qi::grammar<Iterator, ascii::space_type> {
 
 
 
-struct Term_hash
-    : std::unary_function<VariableTerm, std::size_t>
-{
-    std::size_t operator()(Term * const& p) const
-    {
-
-    	long index=p->getIndex();
-        std::size_t seed = index;
-        return seed;
-    }
-};
 
 int main() {
 

@@ -7,6 +7,9 @@
 
 #include "TermFactory.h"
 
+
+
+
 TermFactory::TermFactory() {
 
 	termsMap=new HashTermTable;

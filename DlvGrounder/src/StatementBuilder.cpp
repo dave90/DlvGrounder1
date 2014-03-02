@@ -5,7 +5,13 @@
  *      Author: Davide
  */
 
+
+
 #include "StatementBuilder.h"
+
+#include <cstring>
+#include <iostream>
+#include <sstream>
 
 StatementBuilder::StatementBuilder() {
 	 statement = 0;
@@ -70,23 +76,6 @@ void StatementBuilder::addLiteral() {
 }
 
 
-//void StatementBuilder::addTerm() {
-//	if(variable.size()>0){
-//		termsFactory.createVariable(variable,negativeTerm);
-//	}else if(strcmp("+number",id.c_str())==0){
-//		ostringstream convert;
-//		convert << number;
-//		id=convert.str();
-//		termsFactory.createConstant(id,negativeTerm);
-//	}else if(id.size()>0){
-//		termsFactory.createConstant(id,negativeTerm);
-//	}
-//
-//
-//	resetTerm();
-//
-//	term++;
-//}
 
 void StatementBuilder::resetTerm(){
 	 id="";

@@ -8,6 +8,10 @@
 #ifndef VARIABLETERM_H_
 #define VARIABLETERM_H_
 
+/*
+ *  Extends the Term class and represent a variable term
+ */
+
 #include "Term.h"
 
 using namespace std;

@@ -8,6 +8,10 @@
 #ifndef CONSTANTTERM_H_
 #define CONSTANTTERM_H_
 
+/*
+ *  Extends the Term class and represent a costant term
+ */
+
 #include "Term.h"
 
 class ConstantTerm: public Term {

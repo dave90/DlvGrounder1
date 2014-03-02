@@ -12,6 +12,16 @@ Term::Term() {
 	negative=false;
 }
 
+Term::Term(string name) {
+	setName(name);
+}
+
+Term::Term(string name, bool negatine) {
+	setName(name);
+	setNegative(negatine);
+}
+
+
 unsigned long Term::getIndex() {
 	return index;
 }
@@ -46,3 +56,5 @@ void Term::print() {
 
 string Term::getName() {
 }
+
+

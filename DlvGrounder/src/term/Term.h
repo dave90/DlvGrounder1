@@ -8,6 +8,13 @@
 #ifndef TERM_H_
 #define TERM_H_
 
+/*
+ *  Term is an abstract class that represent one general Term.
+ *  All the term have one index that represent our id.
+ *
+ *  The structure of a Term is based on the Composite pattern
+ */
+
 #include <string>
 #include <vector>
 #include <iostream>
@@ -17,18 +24,36 @@ using namespace std;
 class Term {
 public:
 	Term();
+	Term(string name);
+	Term(string name,bool negatine);
+	//Get the index of the term
 	unsigned long getIndex();
+	//Set the index of the term
 	void setIndex(unsigned long index);
+	// Return the negation of the term
 	bool isNegative();
+	//Set the negation of the term
 	void setNegative(bool n);
+	// Equal with term, based on the index of the terms
 	bool operator==(const Term& t);
+	// Return the name of the term
 	virtual string getName();
+	//Set the name of the term
 	virtual void setName(string name);
+	// Add the index of a term inside the function term, used only with the FunctionTerm
 	virtual void addTerm(unsigned long termIndex);
+	// Return the terms in the function term, used only with the FunctionTerm
 	virtual vector<unsigned long> getTerms();
+	//print with the cout the term
 	virtual void print();
 private:
+	/*
+	 * Index of a term
+	 */
 	unsigned long index;
+	/*
+	 *  True if the term is negated, else false
+	 */
 	bool negative;
 };
 

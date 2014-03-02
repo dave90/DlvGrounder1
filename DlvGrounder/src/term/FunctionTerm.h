@@ -8,6 +8,10 @@
 #ifndef FUNCTIONTERM_H_
 #define FUNCTIONTERM_H_
 
+/*
+ *  Extends the Term class and represent a function term.
+ */
+
 #include "Term.h"
 
 using namespace std;
@@ -22,6 +26,8 @@ public:
 	virtual void print();
 private:
 	string name;
+
+	// All the index of the terms inside the function
 	vector<unsigned long> terms;
 };
 
