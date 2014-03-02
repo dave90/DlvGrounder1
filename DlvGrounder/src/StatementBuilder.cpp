@@ -16,11 +16,9 @@ StatementBuilder::StatementBuilder() {
 	 aggregate = 0;
 	 literal = 0;
 	 term = 0;
-	 variable="";
-	 variable="";
-	 id="";
-	 number=0;
+
 	 negativeTerm=false;
+	 id="";
 }
 
 void StatementBuilder::printStats() {
@@ -36,7 +34,7 @@ void StatementBuilder::printStats() {
 	TermTable *tm=termsFactory.getMap();
 	cout<<"Size Map "<<tm->getSize()<<endl;
 	boost::timer t1;
-	for(long i=0;i<tm->getSize();i++){
+	for(unsigned long i=0;i<tm->getSize();i++){
 		tm->getTerm(i);
 	}
 	cout<<"Time for visit: "<<t1.elapsed()<<endl;
@@ -67,57 +65,67 @@ void StatementBuilder::addAggregate() {
 }
 
 void StatementBuilder::addLiteral() {
-	resetLiteral();
 
 	literal++;
 }
 
-void StatementBuilder::resetLiteral() {
-	id="";
+
+//void StatementBuilder::addTerm() {
+//	if(variable.size()>0){
+//		termsFactory.createVariable(variable,negativeTerm);
+//	}else if(strcmp("+number",id.c_str())==0){
+//		ostringstream convert;
+//		convert << number;
+//		id=convert.str();
+//		termsFactory.createConstant(id,negativeTerm);
+//	}else if(id.size()>0){
+//		termsFactory.createConstant(id,negativeTerm);
+//	}
+//
+//
+//	resetTerm();
+//
+//	term++;
+//}
+
+void StatementBuilder::resetTerm(){
+	 id="";
+	 negativeTerm=false;
 }
 
-void StatementBuilder::addTerm() {
-	if(variable.size()>0){
-		termsFactory.createVariable(variable,negativeTerm);
-	}else if(strcmp("+number",id.c_str())==0){
-		ostringstream convert;
-		convert << number;
-		id=convert.str();
-		termsFactory.createConstant(id,negativeTerm);
-	}else if(id.size()>0){
-		termsFactory.createConstant(id,negativeTerm);
-	}
-
-
+void StatementBuilder::addVariable(string & name) {
+	termsFactory.createVariable(name,negativeTerm);
 	resetTerm();
 
 	term++;
 }
 
-void StatementBuilder::resetTerm(){
-	 variable="";
-	 id="";
-	 number=0;
-	 negativeTerm=false;
+void StatementBuilder::addId(string & name) {
+	termsFactory.createConstant(name,negativeTerm);
+	resetTerm();
+
+	term++;
 }
 
-void StatementBuilder::addVariable(const char& c) {
-	variable.push_back(c);
-}
+void StatementBuilder::addNumber(int & name) {
+	ostringstream convert;
+	convert << name;
+	string id=convert.str();
+	termsFactory.createConstant(id,negativeTerm);
+	resetTerm();
 
-void StatementBuilder::addId(const char& c) {
-	id.push_back(c);
-}
-
-void StatementBuilder::addNumber(const int n) {
-	//Set id="+number" for remember that there is a number
-	id="+number";
-	number=n;
+	term++;
 }
 
 void StatementBuilder::addTermFunction() {
 	termsFactory.createFunction(id,negativeTerm);
 	resetTerm();
+
+	term++;
+}
+
+void StatementBuilder::addNameFunction(string & name) {
+	id=name;
 }
 
 void StatementBuilder::endTermFunction() {

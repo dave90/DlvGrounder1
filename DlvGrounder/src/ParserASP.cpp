@@ -61,24 +61,26 @@ void addLiteral() {
 	builder.addLiteral();
 }
 
-void addTerm() {
-	builder.addTerm();
+
+
+void addVariable(string &name){
+	builder.addVariable(name);
 }
 
-void addVariable(const char &c){
-	builder.addVariable(c);
+void addAnonymusVariable(string& name){
+	builder.addVariable(name);
 }
 
-void addAnonymusVariable(){
-	builder.addVariable('_');
+void addId(string &name) {
+	builder.addId(name);
 }
 
-void addId(const char& c) {
-	builder.addId(c);
+void addNumber(int &name) {
+	builder.addNumber(name);
 }
 
-void addNumber(const int n) {
-	builder.addNumber(n);
+void addNameFunction(string &name){
+	builder.addNameFunction(name);
 }
 
 void addFunctionTerm(){
@@ -90,7 +92,6 @@ void endFunctionTerm(){
 }
 
 void addNegativeTerm(string minus){
-	cout<<minus<<endl;
 	builder.setNegativeTerm();
 }
 
@@ -173,9 +174,16 @@ struct asp_grammar: qi::grammar<Iterator, ascii::space_type> {
 		terms = term % COMMA;
 
 		term = -MINUS[&client::addNegativeTerm]
-				>> (ID>> -(PAREN_OPEN[&client::addFunctionTerm] >> terms >> PAREN_CLOSE[&client::endFunctionTerm]) | NUMBER
-						| VARIABLE | ANONYMOUS_VARIABLE[&client::addAnonymusVariable] | STRING)[&client::addTerm]
+				>> (
+						  ( ID[&client::addNameFunction]>> PAREN_OPEN[&client::addFunctionTerm]  >> terms >> PAREN_CLOSE[&client::endFunctionTerm] )
+						|  ID[&client::addId]
+						|	NUMBER[&client::addNumber]
+						| VARIABLE[&client::addVariable]
+						| ANONYMOUS_VARIABLE[&client::addAnonymusVariable]
+						|	STRING[&client::addId])
 				>> -arithop_term;
+
+
 
 		arithop_term = arithop >> term;
 
@@ -187,7 +195,7 @@ struct asp_grammar: qi::grammar<Iterator, ascii::space_type> {
 		CONS = lit(":-");
 		WCONS = lit(":~");
 		MINUS = lit("-");
-		ID = lexeme[char_("a-z")[&client::addId] > *char_("a-zA-Z0-9_")[&client::addId]];
+		ID = lexeme[char_("a-z") > *char_("a-zA-Z0-9_")];
 		OR = lit("|");
 		DOT = lit(".");
 		EQUAL = lit("=");
@@ -197,9 +205,9 @@ struct asp_grammar: qi::grammar<Iterator, ascii::space_type> {
 		LESS_OR_EQ = lit("<=");
 		GREATER_OR_EQ = lit(">=");
 		NAF = lit("not");
-		NUMBER = int_[&client::addNumber];
-		STRING = char_("\"")[&client::addId] > +(char_ - char_("\""))[&client::addId] > char_("\"")[&client::addId];
-		VARIABLE = lexeme[char_("A-Z")[&client::addVariable] > *char_("a-zA-Z0-9_")[&client::addVariable]];
+		NUMBER = int_;
+		STRING = char_("\"") > +(char_ - char_("\"")) > char_("\"");
+		VARIABLE = lexeme[char_("A-Z")> *char_("a-zA-Z0-9_")];
 		ANONYMOUS_VARIABLE = lit("_");
 		PLUS = lit("+");
 		TIMES = lit("*");
@@ -249,12 +257,12 @@ struct asp_grammar: qi::grammar<Iterator, ascii::space_type> {
 	qi::rule<Iterator, ascii::space_type> arithop_term;
 	qi::rule<Iterator, ascii::space_type> term;
 	qi::rule<Iterator,string(), ascii::space_type> COMMA, PAREN_OPEN, PAREN_CLOSE, MINUS,
-			ID, OR, DOT, NAF, NUMBER, SEMICOLON, EQUAL, UNEQEUAL, LESS, GREATER,
+			ID, OR, DOT, NAF, SEMICOLON, EQUAL, UNEQEUAL, LESS, GREATER,
 			LESS_OR_EQ, GREATER_OR_EQ, CONS, COLON, AT, VARIABLE,
 			ANONYMOUS_VARIABLE, PLUS, TIMES, DIV, STRING, CURLY_OPEN,
 			CURLY_CLOSE, AGGREGATE_COUNT, AGGREGATE_MAX, AGGREGATE_MIN,
 			AGGREGATE_SUM, SQUARE_OPEN, SQUARE_CLOSE, WCONS, MAXIMIZE, MINIMIZE,PERCENTAGE;
-
+	qi::rule<Iterator,int(), ascii::space_type> NUMBER;
 };
 
 

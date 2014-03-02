@@ -9,7 +9,7 @@
 
 TermFactory::TermFactory() {
 
-	termsMap=new BoostTermTable;
+	termsMap=new HashTermTable;
 
 }
 

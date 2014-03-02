@@ -11,6 +11,7 @@
 #include <cstring>
 #include <iostream>
 #include <sstream>
+#include <string>
 
 #include <boost/timer.hpp>
 
@@ -29,12 +30,11 @@ public:
 	void addDisjunction();
 	void addAggregate();
 	void addLiteral();
-	void resetLiteral();
-	void addTerm();
 	void resetTerm();
-	void addVariable(const char &c);
-	void addId(const char &c);
-	void addNumber(const int n);
+	void addVariable(string & name);
+	void addId(string & name);
+	void addNumber(int & name);
+	void addNameFunction(string & name);
 	void addTermFunction();
 	void endTermFunction();
 	void setNegativeTerm();
@@ -48,10 +48,9 @@ private:
 	int aggregate;
 	int literal;
 	int term;
-	string variable;
-	string id;
-	int number;
+
 	bool negativeTerm;
+	string id;
 
 	TermFactory termsFactory;
 };
