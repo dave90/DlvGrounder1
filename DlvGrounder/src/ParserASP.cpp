@@ -10,11 +10,14 @@
 #include <string>
 #include <fstream>
 
+
+
 #include <boost/spirit/include/qi.hpp>
 #include <boost/config/warning_disable.hpp>
 #include <boost/lambda/lambda.hpp>
 #include <boost/bind.hpp>
 #include <boost/timer.hpp>
+
 
 #include "StatementBuilder.h"
 
@@ -269,23 +272,29 @@ struct asp_grammar: qi::grammar<Iterator, ascii::space_type> {
 
 
 
+typedef string::const_iterator string_const_it;
+typedef boost::spirit::istream_iterator iter_file;
+typedef asp_grammar<string_const_it> asp_parser;
+
 
 int main() {
 
-	boost::timer t1;
 
 	ifstream ifs("test.txt");
 	string str((std::istreambuf_iterator<char>(ifs)),
 			(std::istreambuf_iterator<char>()));
 
-	cout<<"Read string "<<t1.elapsed()<<endl;
+//	iter_file iter(ifs);
+//	iter_file end;
 
-	t1.restart();
 
-	string::const_iterator iter = str.begin();
-	string::const_iterator end = str.end();
+	boost::timer t1;
 
-	asp_grammar<string::const_iterator> parser;
+
+	string_const_it iter = str.begin();
+	string_const_it end = str.end();
+
+	asp_parser parser;
 	bool r = phrase_parse(iter, end, parser, ascii::space);
 	if (r && iter == end) {
 		cout << "-------------------------\n";

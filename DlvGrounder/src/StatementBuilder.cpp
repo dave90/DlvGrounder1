@@ -40,7 +40,7 @@ void StatementBuilder::printStats() {
 	TermTable *tm=termsFactory.getMap();
 	cout<<"Size Map "<<tm->getSize()<<endl;
 	for(unsigned long i=0;i<tm->getSize();i++){
-		tm->getTerm(i)->print();
+		tm->getTerm(i);
 	}
 
 }
