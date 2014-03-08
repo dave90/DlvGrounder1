@@ -23,6 +23,7 @@ public:
 	virtual void setName(string name);
 	virtual void addTerm(unsigned long termIndex);
 	virtual vector<unsigned long> getTerms();
+	virtual string getNameToHash();
 	virtual void print();
 private:
 	string name;

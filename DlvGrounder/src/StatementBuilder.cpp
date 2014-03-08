@@ -25,6 +25,11 @@ StatementBuilder::StatementBuilder() {
 
 	 negativeTerm=false;
 	 id="";
+
+}
+
+void StatementBuilder::setTableType(TermTableType type) {
+	termsFactory.setTableType(type);
 }
 
 void StatementBuilder::printStats() {
@@ -39,7 +44,7 @@ void StatementBuilder::printStats() {
 
 	TermTable *tm=termsFactory.getMap();
 	cout<<"Size Map "<<tm->getSize()<<endl;
-	for(unsigned long i=0;i<tm->getSize();i++){
+	for(long i=0;i<tm->getSize();i++){
 		tm->getTerm(i);
 	}
 
@@ -123,3 +128,5 @@ void StatementBuilder::endTermFunction() {
 void StatementBuilder::setNegativeTerm() {
 	negativeTerm=true;
 }
+
+

@@ -19,10 +19,17 @@
 #include "table/MapTermTable.h"
 #include "table/BoostTermTable.h"
 
+enum TermTableType{
+	BOOST,STL,MAP
+};
 
 class TermFactory {
 public:
+	// Set table to hash stl table of terms
 	TermFactory();
+	// Parameter select the type of the map
+	TermFactory(TermTableType type);
+	void setTableType(TermTableType type);
 	// Create a Variable term
 	void createVariable(string variable,bool negative);
 	//Create Constant term

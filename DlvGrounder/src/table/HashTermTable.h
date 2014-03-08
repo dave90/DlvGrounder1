@@ -14,7 +14,6 @@
 #include <cstring>
 
 #include "TermTable.h"
-#include "../term/VariableTerm.h"
 
 using namespace std;
 
@@ -30,8 +29,7 @@ public:
 	virtual ~HashTermTable();
 private:
 	unordered_set<Term*,hashTerm,equalTerm> hash;
-	unordered_multimap<string,unsigned long> nameToIndex;
-	unsigned long counter;
+	IdManager idManager;
 };
 
 #endif /* HASHTERMTABLE_H_ */

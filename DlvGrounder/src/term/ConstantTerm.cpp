@@ -29,6 +29,11 @@ vector<unsigned long> ConstantTerm::getTerms() {
 	return v;
 }
 
+string ConstantTerm::getNameToHash() {
+	return constant;
+}
+
 void ConstantTerm::print() {
 	cout<<"Constant Term "<<constant<<" index: "<<getIndex()<<" Negation: "<<isNegative()<<endl;
 }
+

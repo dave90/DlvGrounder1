@@ -44,6 +44,8 @@ public:
 	virtual void addTerm(unsigned long termIndex);
 	// Return the terms in the function term, used only with the FunctionTerm
 	virtual vector<unsigned long> getTerms();
+	// Return the string used to hash the term
+	virtual string getNameToHash();
 	//print with the cout the term
 	virtual void print();
 private:

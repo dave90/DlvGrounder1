@@ -7,13 +7,27 @@
 
 #include "TermFactory.h"
 
-
-
-
 TermFactory::TermFactory() {
-
 	termsMap=new HashTermTable;
+}
 
+
+TermFactory::TermFactory(TermTableType type) {
+
+	setTableType(type);
+
+}
+
+void TermFactory::setTableType(TermTableType type) {
+	cout<<"Set TermTable to "<<type<<endl;
+	if(type==TermTableType::BOOST)
+		termsMap=new BoostTermTable;
+	else if(type==TermTableType::STL)
+		termsMap=new HashTermTable;
+	else if(type==TermTableType::MAP)
+		termsMap=new MapTermTable;
+	else
+		termsMap=new HashTermTable;
 }
 
 void TermFactory::createVariable(string variable,bool negative) {
@@ -68,3 +82,5 @@ void TermFactory::endFunction() {
 TermFactory::~TermFactory() {
 	delete termsMap;
 }
+
+

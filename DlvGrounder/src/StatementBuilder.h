@@ -23,6 +23,8 @@ using namespace std;
 class StatementBuilder {
 public:
 	StatementBuilder();
+	//set table of terms type
+	void setTableType(TermTableType type);
 	// Print the statistics
 	void printStats();
 	void addStatement();

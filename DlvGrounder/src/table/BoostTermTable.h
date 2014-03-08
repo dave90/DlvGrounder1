@@ -27,8 +27,7 @@ public:
 	virtual ~BoostTermTable();
 private:
 	boost::unordered_set<Term*,hashTerm,equalTerm> hash;
-	unordered_multimap<string,unsigned long> nameToIndex;
-	unsigned long counter;
+	IdManager idManager;
 };
 
 #endif /* BOOSTTERMTABLE_H_ */

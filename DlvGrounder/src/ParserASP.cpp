@@ -277,15 +277,22 @@ typedef boost::spirit::istream_iterator iter_file;
 typedef asp_grammar<string_const_it> asp_parser;
 
 
-int main() {
+int main(int argc, char* argv[]) {
 
+	//Set name of the file
+	string nameFile=argv[argc-1];
 
-	ifstream ifs("test.txt");
+	for(int i=0;i<argc;i++){
+		//Set the type of the table
+		if (strcmp(argv[i], "-termTable=STL") == 0)
+			client::builder.setTableType(TermTableType::STL);
+		else if (strcmp(argv[i], "-termTable=BOOST") == 0)
+			client::builder.setTableType(TermTableType::BOOST);
+	}
+
+	ifstream ifs(nameFile);
 	string str((std::istreambuf_iterator<char>(ifs)),
 			(std::istreambuf_iterator<char>()));
-
-//	iter_file iter(ifs);
-//	iter_file end;
 
 
 	boost::timer t1;

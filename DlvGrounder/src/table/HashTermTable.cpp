@@ -8,35 +8,19 @@
 #include "HashTermTable.h"
 
 HashTermTable::HashTermTable() {
-	counter=0;
 }
 
 unsigned long HashTermTable::addTerm(Term* t) {
-	unsigned long index;
+	pair_long_bool p=idManager.insert(t->getNameToHash());
 
-	if(!nameToIndex.count(t->getName())){
-		t->setIndex(counter);
-		counter++;
-
+	unsigned long id=p.first;
+	if(!p.second){
+		t->setIndex(id);
 		hash.insert(t);
-		index=t->getIndex();
-
-		pair<string,unsigned long> p2(t->getName(),index);
-		nameToIndex.insert(p2);
-
 	}else{
-		auto its = nameToIndex.equal_range(t->getName());
-		for (auto it = its.first; it != its.second; ++it) {
-		    if(strcmp(t->getName().c_str(),it->first.c_str())==0){
-		    	index=it->second;
-		    	break;
-		    }
-		}
-
 		delete t;
 	}
-
-	return index;
+	return id;
 }
 
 void HashTermTable::removeTerm(unsigned long index) {

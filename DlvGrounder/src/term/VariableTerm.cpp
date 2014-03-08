@@ -28,6 +28,11 @@ vector<unsigned long> VariableTerm::getTerms() {
 	return v;
 }
 
+string VariableTerm::getNameToHash() {
+	return variable;
+}
+
 void VariableTerm::print() {
 	cout<<"Variable Term "<<variable<<" index: "<<getIndex()<<" Negation: "<<isNegative()<<endl;
 }
+
