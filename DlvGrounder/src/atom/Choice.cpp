@@ -39,10 +39,11 @@ void Choice::setSecondCompareTerm(unsigned long secondCompareTerm) {
 	this->secondCompareTerm = secondCompareTerm;
 }
 
-const vector<unsigned long>& Choice::getChoiceElements() const {
+const vector<vector<unsigned long> >& Choice::getChoiceElements() const {
 	return choiceElements;
 }
 
-void Choice::setChoiceElements(const vector<unsigned long>& choiceElements) {
+void Choice::setChoiceElements(
+		const vector<vector<unsigned long> >& choiceElements) {
 	this->choiceElements = choiceElements;
 }

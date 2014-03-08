@@ -22,8 +22,8 @@ public:
 	void setSecondBinop(const string& secondBinop);
 	unsigned long getSecondCompareTerm() const;
 	void setSecondCompareTerm(unsigned long secondCompareTerm);
-	const vector<unsigned long>& getChoiceElements() const;
-	void setChoiceElements(const vector<unsigned long>& choiceElements);
+	const vector<vector<unsigned long> >& getChoiceElements() const;
+	void setChoiceElements(const vector<vector<unsigned long> >& choiceElements);
 
 	virtual ~Choice();
 
@@ -33,9 +33,11 @@ private:
 	unsigned long secondCompareTerm;
 	string secondBinop;
 
-	/*choiceElements[0] is the classical literals
-	 * and the remaining elements are the naf literals*/
-	vector<unsigned long> choiceElements;
+	/* For each vector in choiceElements:
+	 * the first element is the classical literals
+	 * and the remaining elements are the naf literals
+	 * */
+	vector<vector<unsigned long>> choiceElements;
 
 };
 
