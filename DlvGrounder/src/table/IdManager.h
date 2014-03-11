@@ -34,7 +34,17 @@ struct stl_hash_string {
 
 };
 
-
+struct stl_hash_string_java {
+		size_t operator()(const pair_string_id &p) const {
+			const char* sx=p.first;
+			int length=p.first.length();
+			int hash=0;
+			for (int i = 0; i < length; ++i) {
+				hash+=sx[0]*pow(31.0,length-(i+1));
+			}
+			return hash;
+		}
+};
 
 struct equalString {
 	bool operator()(const pair_string_id &p1, const pair_string_id &p2) const {
@@ -50,7 +60,7 @@ public:
 	//return the number of collision
 	unsigned long getCollision();
 private:
-	unordered_multiset<pair_string_id, stl_hash_string, equalString> hashId;
+	unordered_multiset<pair_string_id, stl_hash_string_java, equalString> hashId;
 	unsigned long counter;
 };
 
