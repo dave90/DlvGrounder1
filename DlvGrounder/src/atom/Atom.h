@@ -32,9 +32,9 @@ public:
 	/*
 	 * 	TODO Virtual methods for fields that are not common to the whole hierarchy should be put here?
 	 * 	Like for predicate?
-	*/
-	virtual unsigned long getPredicate() const;
-	virtual void setPredicate(unsigned long predicate);
+	 */
+	virtual unsigned long getPredicate() const = 0;
+	virtual void setPredicate(unsigned long predicate) = 0;
 
 	virtual void print();
 	virtual ~Atom();

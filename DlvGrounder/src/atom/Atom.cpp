@@ -10,7 +10,7 @@
 using namespace std;
 
 Atom::Atom(unsigned long predicate){
-	setPredicate(predicate);
+//	setPredicate(predicate);
 }
 
 unsigned long Atom::getIndex() const {

@@ -7,6 +7,14 @@
 
 #include "AggregateElement.h"
 
+AggregateElement::AggregateElement(){
+
+}
+
+AggregateElement::~AggregateElement(){
+
+}
+
 const vector<unsigned long>& AggregateElement::getNafLiterals() const {
 	return nafLiterals;
 }
