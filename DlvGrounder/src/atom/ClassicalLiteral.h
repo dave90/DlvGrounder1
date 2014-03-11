@@ -9,6 +9,7 @@
 #define CLASSICALLITERAL_H_
 
 #include <vector>
+#include "Atom.h"
 using namespace std;
 
 class ClassicalLiteral : public Atom {

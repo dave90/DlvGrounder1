@@ -9,6 +9,8 @@
 #define BUILTINATOM_H_
 
 #include "NafLiteral.h"
+#include <string>
+using namespace std;
 
 class BuiltInAtom: public Atom {
 public:

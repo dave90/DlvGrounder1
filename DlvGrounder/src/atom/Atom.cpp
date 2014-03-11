@@ -6,6 +6,8 @@
  */
 
 #include "Atom.h"
+#include <iostream>
+using namespace std;
 
 Atom::Atom(unsigned long predicate){
 	setPredicate(predicate);

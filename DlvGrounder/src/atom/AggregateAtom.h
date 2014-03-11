@@ -9,6 +9,9 @@
 #define AGGREGATEATOM_H_
 
 #include <vector>
+#include <string>
+#include "AggregateElement.h"
+#include "Atom.h"
 using namespace std;
 
 class AggregateAtom: public Atom {

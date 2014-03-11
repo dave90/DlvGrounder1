@@ -9,6 +9,9 @@
 #define CHOICE_H_
 
 #include "Atom.h"
+#include <string>
+#include <vector>
+using namespace std;
 
 class Choice: public Atom {
 public:
@@ -34,7 +37,7 @@ private:
 	string secondBinop;
 
 	/* For each vector in choiceElements:
-	 * the first element is the classical literals
+	 * the first element is the classical literal
 	 * and the remaining elements are the naf literals
 	 * */
 	vector<vector<unsigned long>> choiceElements;
