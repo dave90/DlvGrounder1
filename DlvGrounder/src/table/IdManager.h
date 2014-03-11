@@ -46,7 +46,7 @@ class IdManager {
 public:
 	IdManager();
 	//return an index and if the string exist
-	pair_long_bool insert(string &s);
+	pair_long_bool insert(string s);
 	//return the number of collision
 	unsigned long getCollision();
 private:

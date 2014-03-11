@@ -12,7 +12,7 @@ IdManager::IdManager() {
 	counter = 0;
 }
 
-pair_long_bool IdManager::insert(string &s) {
+pair_long_bool IdManager::insert(string s) {
 
 	pair_string_id pString_Id(s, 0);
 	auto its = hashId.equal_range(pString_Id);
