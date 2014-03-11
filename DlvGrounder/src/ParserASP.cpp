@@ -16,10 +16,11 @@
 #include <boost/config/warning_disable.hpp>
 #include <boost/lambda/lambda.hpp>
 #include <boost/bind.hpp>
-#include <boost/timer.hpp>
 
 
 #include "StatementBuilder.h"
+#include "utility/Timer.h"
+
 
 using namespace std;
 
@@ -99,6 +100,10 @@ void endFunctionTerm(){
 
 void addNegativeTerm(string minus){
 	builder.setNegativeTerm();
+}
+
+void addArithTerm(string &op){
+	builder.addArithTerm(op);
 }
 
 }
@@ -192,7 +197,7 @@ struct asp_grammar: qi::grammar<Iterator, ascii::space_type> {
 
 		arithop_term = arithop >> term;
 
-		arithop = PLUS | MINUS | TIMES | DIV;
+		arithop = PLUS[&client::addArithTerm] | MINUS[&client::addArithTerm] | TIMES[&client::addArithTerm] | DIV[&client::addArithTerm];
 
 		COMMA = lit(",");
 		PAREN_OPEN = lit("(");
@@ -295,7 +300,7 @@ int main(int argc, char* argv[]) {
 			(std::istreambuf_iterator<char>()));
 
 
-	boost::timer t1;
+	Timer::getInstance()->start("Parse time");
 
 
 	string_const_it iter = str.begin();
@@ -315,9 +320,10 @@ int main(int argc, char* argv[]) {
 		cout << "-------------------------\n";
 	}
 
-	cout<<"Parserization "<<t1.elapsed()<<endl;
+	Timer::getInstance()->end();
 
 	client::builder.printStats();
+
 
 	return 0;
 }

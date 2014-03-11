@@ -21,6 +21,7 @@ unsigned long HashTermTable::addTerm(Term* t) {
 		delete t;
 	}
 	return id;
+
 }
 
 void HashTermTable::removeTerm(unsigned long index) {
@@ -44,4 +45,5 @@ long HashTermTable::getSize() {
 HashTermTable::~HashTermTable() {
 	for(unordered_set<Term*>::iterator it=hash.begin();it!=hash.end();it++)
 		delete (*it);
+
 }

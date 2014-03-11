@@ -57,5 +57,8 @@ void Term::print() {
 string Term::getName() {
 }
 
+double Term::calculate() {
+}
 string Term::getNameToHash() {
 }
+

@@ -8,6 +8,8 @@
 
 
 #include "StatementBuilder.h"
+#include "utility/Timer.h"
+
 
 #include <cstring>
 #include <iostream>
@@ -42,11 +44,15 @@ void StatementBuilder::printStats() {
 	cout << "Literal: " << literal << endl;
 	cout << "Term: " << term << endl;
 
+	Timer::getInstance()->start("Time read");
 	TermTable *tm=termsFactory.getMap();
 	cout<<"Size Map "<<tm->getSize()<<endl;
 	for(long i=0;i<tm->getSize();i++){
-		tm->getTerm(i);
+		tm->getTerm(i)->print();
 	}
+	Timer::getInstance()->end();
+
+	Timer::getInstance()->print();
 
 }
 
@@ -129,4 +135,6 @@ void StatementBuilder::setNegativeTerm() {
 	negativeTerm=true;
 }
 
-
+void StatementBuilder::addArithTerm(string &op) {
+	termsFactory.addArithTerm(op);
+}

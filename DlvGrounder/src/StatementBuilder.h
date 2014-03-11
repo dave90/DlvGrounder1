@@ -50,6 +50,8 @@ public:
 	void endTermFunction();
 	// Set the current term a negative term
 	void setNegativeTerm();
+	//Add Arithmetic term and pass the operator
+	void addArithTerm(string &op);
 
 private:
 	/*

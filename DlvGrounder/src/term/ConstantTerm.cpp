@@ -5,7 +5,11 @@
  *      Author: Davide
  */
 
+
 #include "ConstantTerm.h"
+
+
+#include <stdlib.h>
 
 ConstantTerm::ConstantTerm() {
 	// TODO Auto-generated constructor stub
@@ -37,3 +41,6 @@ void ConstantTerm::print() {
 	cout<<"Constant Term "<<constant<<" index: "<<getIndex()<<" Negation: "<<isNegative()<<endl;
 }
 
+double ConstantTerm::calculate() {
+	return atof(constant.c_str());
+}

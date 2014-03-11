@@ -15,6 +15,7 @@
 #include "term/VariableTerm.h"
 #include "term/FunctionTerm.h"
 #include "term/ConstantTerm.h"
+#include "term/ArithTerm.h"
 #include "table/HashTermTable.h"
 #include "table/MapTermTable.h"
 #include "table/BoostTermTable.h"
@@ -38,6 +39,11 @@ public:
 	void createFunction(string name,bool negative);
 	// Put the Function term in the tail of a queue in the Table Term
 	void endFunction();
+	//Add Arithmetic term
+	void addArithTerm(string op);
+
+	//Add term to the terms
+	void addTermsDependency(unsigned long index);
 
 	//TO-DELETE decide where put tha Term Table
 	TermTable* getMap(){
@@ -56,6 +62,16 @@ private:
 	 *  Table of the all terms, TEMPORARY POSITION
 	 */
 	TermTable *termsMap;
+
+	/*
+	 *  Last term putted in the table
+	 */
+	unsigned long lastTerm;
+
+	/*
+	 *  True if meet atirhmetic term
+	 */
+	bool arith;
 };
 
 

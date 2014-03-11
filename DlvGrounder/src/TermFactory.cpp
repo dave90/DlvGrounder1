@@ -9,6 +9,7 @@
 
 TermFactory::TermFactory() {
 	termsMap=new HashTermTable;
+	arith=false;
 }
 
 
@@ -38,9 +39,11 @@ void TermFactory::createVariable(string variable,bool negative) {
 
 	int index=termsMap->addTerm(v);
 
-	if(terms.size()>0){
-		terms[terms.size()-1]->addTerm(index);
-	}
+	lastTerm=index;
+
+
+	addTermsDependency(index);
+
 }
 
 
@@ -53,9 +56,10 @@ void TermFactory::createConstant(string constant,bool negative) {
 
 	int index=termsMap->addTerm(c);
 
-	if(terms.size()>0){
-		terms[terms.size()-1]->addTerm(index);
-	}
+	lastTerm=index;
+
+	addTermsDependency(index);
+
 
 }
 
@@ -74,9 +78,42 @@ void TermFactory::endFunction() {
 
 	int index=termsMap->addTerm(ft);
 
+
+	lastTerm=index;
+
+	addTermsDependency(index);
+}
+
+void TermFactory::addTermsDependency(unsigned long index) {
 	if(terms.size()>0){
 		terms[terms.size()-1]->addTerm(index);
+
+		if(arith){
+			arith=false;
+			Term *at=terms[terms.size()-1];
+			terms.pop_back();
+			index=termsMap->addTerm(at);
+			lastTerm=index;
+		}
 	}
+}
+
+void TermFactory::addArithTerm(string op) {
+	Term *t=0;
+
+	if(strcmp(op.c_str(),ArithTerm::getNameOperator(Operator::PLUS).c_str())==0)
+		t=new ArithTermP(termsMap);
+	else if(strcmp(op.c_str(),ArithTerm::getNameOperator(Operator::MINUS).c_str())==0)
+		t=new ArithTermM(termsMap);
+	else if(strcmp(op.c_str(),ArithTerm::getNameOperator(Operator::TIMES).c_str())==0)
+		t=new ArithTermT(termsMap);
+	else if(strcmp(op.c_str(),ArithTerm::getNameOperator(Operator::DIV).c_str())==0)
+		t=new ArithTermD(termsMap);
+
+
+	t->addTerm(lastTerm);
+	arith=true;
+	terms.push_back(t);
 }
 
 TermFactory::~TermFactory() {
