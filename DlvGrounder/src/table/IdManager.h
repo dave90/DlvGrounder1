@@ -12,7 +12,8 @@
 #include <string>
 #include <cstring>
 #include <stdlib.h>
-#include "Hash.h"
+
+#include "HashString.h"
 
 /*
  * This class manage the id for the string
@@ -23,17 +24,16 @@ using namespace std;
 typedef pair<string, unsigned long> pair_string_id;
 typedef pair<unsigned long, bool> pair_long_bool;
 
+
 /*
  *  The hash for the string
  */
-struct hash_string {
-	static Hash* ptr_hash;
+struct hash_string_table {
+	static HashString* hash;
 	size_t operator()(const pair_string_id &p) const {
-		return ptr_hash->computeHash(p.first);
+		return hash->computeHash(p.first);
 	}
 };
-
-Hash* hash_string::ptr_hash=0;
 
 
 struct equalString {
@@ -53,7 +53,7 @@ public:
 	//return the number of collision
 	unsigned long getCollision();
 private:
-	unordered_multiset<pair_string_id, hash_string, equalString> hashId;
+	unordered_multiset<pair_string_id, hash_string_table, equalString> hashId;
 	unsigned long counter;
 	HashType hashType;
 

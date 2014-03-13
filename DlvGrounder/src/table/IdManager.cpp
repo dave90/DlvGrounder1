@@ -7,28 +7,24 @@
 
 #include "IdManager.h"
 #include <iostream>
-#include "JavaHash.h"
-#include "BoostHash.h"
-#include "STLHash.h"
+
+HashString* hash_string_table::hash;
 
 void IdManager::setHashType() {
-	JavaHash java;
-	BoostHash boost;
-	STLHash stl;
-//	switch (hashType) {
-//	case 0:
-//		hash_string::h = &stl;
-//		break;
-//	case 1:
-//		hash_string::h = &boost;
-//		break;
-//	case 2:
-//		hash_string::h = &java;
-//		break;
-//	default:
-		hash_string::ptr_hash = &stl;
-//		break;
-//	}
+	switch (hashType) {
+	case HashType::STL_HASH:
+		hash_string_table::hash = new STLHashString;
+		break;
+	case HashType::BOOST_HASH:
+		hash_string_table::hash = new BOOSTHashString;
+		break;
+	case HashType::JAVA_HASH:
+		hash_string_table::hash=new JavaHashString;
+		break;
+	default:
+		hash_string_table::hash = new STLHashString;
+		break;
+	}
 }
 
 IdManager::IdManager() {

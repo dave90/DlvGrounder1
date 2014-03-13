@@ -64,7 +64,7 @@ void addAggregate() {
 	builder.addAggregate();
 }
 
-void addLiteral() {
+void addLiteral(string & name) {
 	builder.addLiteral();
 }
 

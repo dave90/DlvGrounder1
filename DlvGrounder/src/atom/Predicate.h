@@ -9,6 +9,7 @@
 #define PREDICATE_H_
 
 #include <string>
+#include <cstring>
 using namespace std;
 
 class Predicate {
@@ -23,6 +24,10 @@ public:
 	void setName(string name);
 	unsigned long getIndex() const;
 	void setIndex(unsigned long index);
+	bool operator==(Predicate &p);
+
+	// Return the hash string name+arity
+	string getNameToHash();
 
 private:
 	unsigned long index;
