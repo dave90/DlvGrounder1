@@ -7,9 +7,39 @@
 
 #include "IdManager.h"
 #include <iostream>
+#include "JavaHash.h"
+#include "BoostHash.h"
+#include "STLHash.h"
+
+void IdManager::setHashType() {
+	JavaHash java;
+	BoostHash boost;
+	STLHash stl;
+//	switch (hashType) {
+//	case 0:
+//		hash_string::h = &stl;
+//		break;
+//	case 1:
+//		hash_string::h = &boost;
+//		break;
+//	case 2:
+//		hash_string::h = &java;
+//		break;
+//	default:
+		hash_string::ptr_hash = &stl;
+//		break;
+//	}
+}
 
 IdManager::IdManager() {
 	counter = 0;
+	hashType = HashType::STL_HASH;
+	setHashType();
+}
+IdManager::IdManager(HashType t) {
+	counter = 0;
+	hashType = t;
+	setHashType();
 }
 
 pair_long_bool IdManager::insert(string s) {

@@ -12,6 +12,7 @@
 #include <string>
 #include <cstring>
 #include <stdlib.h>
+#include "Hash.h"
 
 /*
  * This class manage the id for the string
@@ -25,26 +26,15 @@ typedef pair<unsigned long, bool> pair_long_bool;
 /*
  *  The hash for the string
  */
-struct stl_hash_string {
+struct hash_string {
+	static Hash* ptr_hash;
 	size_t operator()(const pair_string_id &p) const {
-		hash<string> hash_fn;
-		size_t str_hash = hash_fn(p.first);
-		return str_hash;
+		return ptr_hash->computeHash(p.first);
 	}
-
 };
 
-struct stl_hash_string_java {
-		size_t operator()(const pair_string_id &p) const {
-			const char* sx=p.first;
-			int length=p.first.length();
-			int hash=0;
-			for (int i = 0; i < length; ++i) {
-				hash+=sx[0]*pow(31.0,length-(i+1));
-			}
-			return hash;
-		}
-};
+Hash* hash_string::ptr_hash=0;
+
 
 struct equalString {
 	bool operator()(const pair_string_id &p1, const pair_string_id &p2) const {
@@ -52,16 +42,22 @@ struct equalString {
 	}
 };
 
+enum HashType { STL_HASH=0,BOOST_HASH,JAVA_HASH };
+
 class IdManager {
 public:
 	IdManager();
+	IdManager(HashType t);
 	//return an index and if the string exist
 	pair_long_bool insert(string s);
 	//return the number of collision
 	unsigned long getCollision();
 private:
-	unordered_multiset<pair_string_id, stl_hash_string_java, equalString> hashId;
+	unordered_multiset<pair_string_id, hash_string, equalString> hashId;
 	unsigned long counter;
+	HashType hashType;
+
+	void setHashType();
 };
 
 #endif /* IDMANAGER_H_ */
