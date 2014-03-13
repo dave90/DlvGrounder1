@@ -42,12 +42,10 @@ struct equalString {
 	}
 };
 
-enum HashType { STL_HASH=0,BOOST_HASH,JAVA_HASH };
 
 class IdManager {
 public:
 	IdManager();
-	IdManager(HashType t);
 	//return an index and if the string exist
 	pair_long_bool insert(string s);
 	//return the number of collision
@@ -55,7 +53,6 @@ public:
 private:
 	unordered_multiset<pair_string_id, hash_string_table, equalString> hashId;
 	unsigned long counter;
-	HashType hashType;
 
 	void setHashType();
 };

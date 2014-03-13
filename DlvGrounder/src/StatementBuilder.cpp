@@ -30,9 +30,6 @@ StatementBuilder::StatementBuilder() {
 
 }
 
-void StatementBuilder::setTableType(TermTableType type) {
-	termsFactory.setTableType(type);
-}
 
 void StatementBuilder::printStats() {
 	cout << "Statement: " << statement << endl;

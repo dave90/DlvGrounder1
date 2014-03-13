@@ -7,25 +7,24 @@
 
 #include "TermFactory.h"
 
+#include "utility/Config.h"
+
 TermFactory::TermFactory() {
 	termsMap=new HashTermTable;
 	arith=false;
+
+	setTableType();
 }
 
 
-TermFactory::TermFactory(TermTableType type) {
 
-	setTableType(type);
-
-}
-
-void TermFactory::setTableType(TermTableType type) {
-	cout<<"Set TermTable to "<<type<<endl;
-	if(type==TermTableType::BOOST)
+void TermFactory::setTableType() {
+	cout<<"Set TermTable to "<<Config::getInstance()->getTermTableType()<<endl;
+	if(Config::getInstance()->getTermTableType()==TermTableType::BOOST)
 		termsMap=new BoostTermTable;
-	else if(type==TermTableType::STL)
+	else if(Config::getInstance()->getTermTableType()==TermTableType::STL)
 		termsMap=new HashTermTable;
-	else if(type==TermTableType::MAP)
+	else if(Config::getInstance()->getTermTableType()==TermTableType::MAP)
 		termsMap=new MapTermTable;
 	else
 		termsMap=new HashTermTable;

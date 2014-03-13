@@ -8,10 +8,14 @@
 #include "IdManager.h"
 #include <iostream>
 
+#include "../utility/Config.h"
+
+
 HashString* hash_string_table::hash;
 
 void IdManager::setHashType() {
-	switch (hashType) {
+	cout<<"Set hash to "<<Config::getInstance()->getHashType()<<endl;
+	switch (Config::getInstance()->getHashType()) {
 	case HashType::STL_HASH:
 		hash_string_table::hash = new STLHashString;
 		break;
@@ -29,14 +33,10 @@ void IdManager::setHashType() {
 
 IdManager::IdManager() {
 	counter = 0;
-	hashType = HashType::STL_HASH;
+
 	setHashType();
 }
-IdManager::IdManager(HashType t) {
-	counter = 0;
-	hashType = t;
-	setHashType();
-}
+
 
 pair_long_bool IdManager::insert(string s) {
 
@@ -72,3 +72,4 @@ unsigned long IdManager::getCollision() {
 
 	return collision;
 }
+

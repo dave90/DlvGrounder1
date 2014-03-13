@@ -10,17 +10,14 @@
 #include <string>
 #include <fstream>
 
-
-
 #include <boost/spirit/include/qi.hpp>
 #include <boost/config/warning_disable.hpp>
 #include <boost/lambda/lambda.hpp>
 #include <boost/bind.hpp>
 
-
 #include "StatementBuilder.h"
 #include "utility/Timer.h"
-
+#include "utility/Config.h"
 
 using namespace std;
 
@@ -28,91 +25,88 @@ namespace qi = boost::spirit::qi;
 namespace ascii = boost::spirit::ascii;
 
 /*
-*
-* Function called from the parser
-*
-*/
+ *
+ * Function called from the parser
+ *
+ */
 namespace client {
 
 /*
  * This functions forward the action to the StatementBuilder object
  */
-StatementBuilder builder;
-
+StatementBuilder *builder;
 
 void addStatement() {
-	builder.addStatement();
+	builder->addStatement();
 }
 
 void addWeak() {
-	builder.addWeak();
+	builder->addWeak();
 }
 
 void addConstraint() {
-	builder.addConstraint();
+	builder->addConstraint();
 }
 
 void addChoiche() {
-	builder.addChoiche();
+	builder->addChoiche();
 }
 
 void addDisjunction() {
-	builder.addDisjunction();
+	builder->addDisjunction();
 }
 
 void addAggregate() {
-	builder.addAggregate();
+	builder->addAggregate();
 }
 
 void addLiteral(string & name) {
-	builder.addLiteral();
+	builder->addLiteral();
 }
 
-
-
-void addVariable(string &name){
-	builder.addVariable(name);
+void addVariable(string &name) {
+	builder->addVariable(name);
 }
 
-void addAnonymusVariable(string& name){
-	builder.addVariable(name);
+void addAnonymusVariable(string& name) {
+	builder->addVariable(name);
 }
 
 void addId(string &name) {
-	builder.addId(name);
+	builder->addId(name);
 }
 
 void addNumber(int &name) {
-	builder.addNumber(name);
+	builder->addNumber(name);
 }
 
-void addNameFunction(string &name){
-	builder.addNameFunction(name);
+void addNameFunction(string &name) {
+	builder->addNameFunction(name);
 }
 
-void addFunctionTerm(){
-	builder.addTermFunction();
+void addFunctionTerm() {
+	builder->addTermFunction();
 }
 
-void endFunctionTerm(){
-	builder.endTermFunction();
+void endFunctionTerm() {
+	builder->endTermFunction();
 }
 
-void addNegativeTerm(string minus){
-	builder.setNegativeTerm();
+void addNegativeTerm(string minus) {
+	builder->setNegativeTerm();
 }
 
-void addArithTerm(string &op){
-	builder.addArithTerm(op);
+void addArithTerm(string &op) {
+	builder->addArithTerm(op);
 }
 
 }
 
 /*
-*
-* Definition of the grammar
-*
-*/
+ *
+ * Definition of the grammar
+ *
+ */
 template<typename Iterator>
 struct asp_grammar: qi::grammar<Iterator, ascii::space_type> {
 
@@ -131,8 +125,7 @@ struct asp_grammar: qi::grammar<Iterator, ascii::space_type> {
 		statement = (CONS >> -body >> DOT[&client::addConstraint])
 				| (head >> -(CONS >> -body) >> DOT)
 				| (WCONS >> -body >> DOT >> SQUARE_OPEN >> weight_at_level
-						>> SQUARE_CLOSE[&client::addWeak]) | (optimize >> DOT)  ;
-
+						>> SQUARE_CLOSE[&client::addWeak]) | (optimize >> DOT);
 
 		head = disjunction[&client::addDisjunction]
 				| choice[&client::addChoiche];
@@ -184,20 +177,18 @@ struct asp_grammar: qi::grammar<Iterator, ascii::space_type> {
 		terms = term % COMMA;
 
 		term = -MINUS[&client::addNegativeTerm]
-				>> (
-						( ID[&client::addNameFunction]>> PAREN_OPEN[&client::addFunctionTerm]  >> terms >> PAREN_CLOSE[&client::endFunctionTerm] )
-						|  ID[&client::addId]
-						|	NUMBER[&client::addNumber]
+				>> ((ID[&client::addNameFunction]
+						>> PAREN_OPEN[&client::addFunctionTerm] >> terms
+						>> PAREN_CLOSE[&client::endFunctionTerm])
+						| ID[&client::addId] | NUMBER[&client::addNumber]
 						| VARIABLE[&client::addVariable]
 						| ANONYMOUS_VARIABLE[&client::addAnonymusVariable]
-						|	STRING[&client::addId])
-				>> -arithop_term;
-
-
+						| STRING[&client::addId]) >> -arithop_term;
 
 		arithop_term = arithop >> term;
 
-		arithop = PLUS[&client::addArithTerm] | MINUS[&client::addArithTerm] | TIMES[&client::addArithTerm] | DIV[&client::addArithTerm];
+		arithop = PLUS[&client::addArithTerm] | MINUS[&client::addArithTerm]
+				| TIMES[&client::addArithTerm] | DIV[&client::addArithTerm];
 
 		COMMA = lit(",");
 		PAREN_OPEN = lit("(");
@@ -217,7 +208,7 @@ struct asp_grammar: qi::grammar<Iterator, ascii::space_type> {
 		NAF = lit("not");
 		NUMBER = int_;
 		STRING = char_("\"") > +(char_ - char_("\"")) > char_("\"");
-		VARIABLE = lexeme[char_("A-Z")> *char_("a-zA-Z0-9_")];
+		VARIABLE = lexeme[char_("A-Z") > *char_("a-zA-Z0-9_")];
 		ANONYMOUS_VARIABLE = lit("_");
 		PLUS = lit("+");
 		TIMES = lit("*");
@@ -235,7 +226,7 @@ struct asp_grammar: qi::grammar<Iterator, ascii::space_type> {
 		AT = lit("@");
 		MAXIMIZE = lit("#maximize");
 		MINIMIZE = lit("#minimize");
-		PERCENTAGE=lit("%");
+		PERCENTAGE = lit("%");
 	}
 
 	qi::rule<Iterator, ascii::space_type> program;
@@ -266,42 +257,46 @@ struct asp_grammar: qi::grammar<Iterator, ascii::space_type> {
 	qi::rule<Iterator, ascii::space_type> arithop;
 	qi::rule<Iterator, ascii::space_type> arithop_term;
 	qi::rule<Iterator, ascii::space_type> term;
-	qi::rule<Iterator,string(), ascii::space_type> COMMA, PAREN_OPEN, PAREN_CLOSE, MINUS,
-			ID, OR, DOT, NAF, SEMICOLON, EQUAL, UNEQEUAL, LESS, GREATER,
-			LESS_OR_EQ, GREATER_OR_EQ, CONS, COLON, AT, VARIABLE,
+	qi::rule<Iterator, string(), ascii::space_type> COMMA, PAREN_OPEN,
+			PAREN_CLOSE, MINUS, ID, OR, DOT, NAF, SEMICOLON, EQUAL, UNEQEUAL,
+			LESS, GREATER, LESS_OR_EQ, GREATER_OR_EQ, CONS, COLON, AT, VARIABLE,
 			ANONYMOUS_VARIABLE, PLUS, TIMES, DIV, STRING, CURLY_OPEN,
 			CURLY_CLOSE, AGGREGATE_COUNT, AGGREGATE_MAX, AGGREGATE_MIN,
-			AGGREGATE_SUM, SQUARE_OPEN, SQUARE_CLOSE, WCONS, MAXIMIZE, MINIMIZE,PERCENTAGE;
-	qi::rule<Iterator,int(), ascii::space_type> NUMBER;
+			AGGREGATE_SUM, SQUARE_OPEN, SQUARE_CLOSE, WCONS, MAXIMIZE, MINIMIZE,
+			PERCENTAGE;
+	qi::rule<Iterator, int(), ascii::space_type> NUMBER;
 };
-
-
 
 typedef string::const_iterator string_const_it;
 typedef boost::spirit::istream_iterator iter_file;
 typedef asp_grammar<string_const_it> asp_parser;
 
-
 int main(int argc, char* argv[]) {
 
 	//Set name of the file
-	string nameFile=argv[argc-1];
+	string nameFile = argv[argc - 1];
 
-	for(int i=0;i<argc;i++){
+	for (int i = 0; i < argc; i++) {
 		//Set the type of the table
 		if (strcmp(argv[i], "-termTable=STL") == 0)
-			client::builder.setTableType(TermTableType::STL);
+			Config::getInstance()->setTermTableType(TermTableType::STL);
 		else if (strcmp(argv[i], "-termTable=BOOST") == 0)
-			client::builder.setTableType(TermTableType::BOOST);
+			Config::getInstance()->setTermTableType(TermTableType::BOOST);
+		else if (strcmp(argv[i], "-hash=BOOST") == 0)
+			Config::getInstance()->setHashType(HashType::BOOST_HASH);
+		else if (strcmp(argv[i], "-hash=JAVA") == 0)
+			Config::getInstance()->setHashType(HashType::JAVA_HASH);
+		else if (strcmp(argv[i], "-hash=STL") == 0)
+			Config::getInstance()->setHashType(HashType::STL_HASH);
+
 	}
+	client::builder=new StatementBuilder;
 
 	ifstream ifs(nameFile);
 	string str((std::istreambuf_iterator<char>(ifs)),
 			(std::istreambuf_iterator<char>()));
 
-
 	Timer::getInstance()->start("Parse time");
-
 
 	string_const_it iter = str.begin();
 	string_const_it end = str.end();
@@ -322,8 +317,9 @@ int main(int argc, char* argv[]) {
 
 	Timer::getInstance()->end();
 
-	client::builder.printStats();
+	client::builder->printStats();
 
+	delete client::builder;
 
 	return 0;
 }
