@@ -38,3 +38,5 @@ bool ClassicalLiteral::isNegative() const {
 void ClassicalLiteral::setNegative(bool negative) {
 	this->negative = negative;
 }
+
+ClassicalLiteral::~ClassicalLiteral(){}
