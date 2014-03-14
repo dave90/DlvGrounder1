@@ -11,6 +11,7 @@ using namespace std;
 
 Atom::Atom(unsigned long predicate){
 //	setPredicate(predicate);
+	index=0;
 }
 
 unsigned long Atom::getIndex() const {
@@ -29,3 +30,4 @@ void Atom::print(){
 	cout<<"Atom\t"<<"Index: "<<index<<endl;
 }
 
+Atom::~Atom(){}
