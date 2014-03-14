@@ -17,7 +17,6 @@
 #include "term/ConstantTerm.h"
 #include "term/ArithTerm.h"
 #include "table/HashTermTable.h"
-#include "table/MapTermTable.h"
 #include "table/BoostTermTable.h"
 
 

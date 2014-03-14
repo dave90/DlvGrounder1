@@ -10,7 +10,6 @@
 #include "utility/Config.h"
 
 TermFactory::TermFactory() {
-	termsMap=new HashTermTable;
 	arith=false;
 
 	setTableType();
@@ -19,13 +18,10 @@ TermFactory::TermFactory() {
 
 
 void TermFactory::setTableType() {
-	cout<<"Set TermTable to "<<Config::getInstance()->getTermTableType()<<endl;
 	if(Config::getInstance()->getTermTableType()==TermTableType::BOOST)
 		termsMap=new BoostTermTable;
 	else if(Config::getInstance()->getTermTableType()==TermTableType::STL)
 		termsMap=new HashTermTable;
-	else if(Config::getInstance()->getTermTableType()==TermTableType::MAP)
-		termsMap=new MapTermTable;
 	else
 		termsMap=new HashTermTable;
 }

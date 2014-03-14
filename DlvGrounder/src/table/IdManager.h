@@ -9,6 +9,7 @@
 #define IDMANAGER_H_
 
 #include <unordered_set>
+#include <unordered_map>
 #include <string>
 #include <cstring>
 #include <stdlib.h>
@@ -30,8 +31,8 @@ typedef pair<unsigned long, bool> pair_long_bool;
  */
 struct hash_string_table {
 	static HashString* hash;
-	size_t operator()(const pair_string_id &p) const {
-		return hash->computeHash(p.first);
+	size_t operator()(const string &p) const {
+		return hash->computeHash(p);
 	}
 };
 
@@ -51,7 +52,7 @@ public:
 	//return the number of collision
 	unsigned long getCollision();
 private:
-	unordered_multiset<pair_string_id, hash_string_table, equalString> hashId;
+	unordered_map<string, unsigned long,hash_string_table> hashId;
 	unsigned long counter;
 
 	void setHashType();

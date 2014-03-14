@@ -12,7 +12,6 @@ HashTermTable::HashTermTable() {
 
 unsigned long HashTermTable::addTerm(Term* t) {
 	pair_long_bool p=idManager.insert(t->getNameToHash());
-
 	unsigned long id=p.first;
 	if(!p.second){
 		t->setIndex(id);
@@ -46,4 +45,8 @@ HashTermTable::~HashTermTable() {
 	for(unordered_set<Term*,hashTerm,equalTerm>::iterator it=hash.begin();it!=hash.end();it++)
 		delete (*it);
 
+}
+
+int HashTermTable::getCollision() {
+	return idManager.getCollision();
 }

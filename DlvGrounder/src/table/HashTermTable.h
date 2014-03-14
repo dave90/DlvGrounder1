@@ -26,6 +26,7 @@ public:
 	virtual void removeTerm(unsigned long index);
 	virtual Term* getTerm(unsigned long index);
 	virtual long getSize();
+	virtual int getCollision();
 	virtual ~HashTermTable();
 private:
 	unordered_set<Term*,hashTerm,equalTerm> hash;

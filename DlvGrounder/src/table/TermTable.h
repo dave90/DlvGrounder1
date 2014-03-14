@@ -48,6 +48,8 @@ public:
 	virtual Term* getTerm(unsigned long index)=0;
 	// Get size of the table
 	virtual long getSize()=0;
+	// Get the collision of the IdManager
+	virtual int getCollision()=0;
 	virtual ~TermTable();
 };
 

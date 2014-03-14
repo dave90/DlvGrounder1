@@ -288,6 +288,8 @@ int main(int argc, char* argv[]) {
 			Config::getInstance()->setHashType(HashType::JAVA_HASH);
 		else if (strcmp(argv[i], "-hash=STL") == 0)
 			Config::getInstance()->setHashType(HashType::STL_HASH);
+		else if (strcmp(argv[i], "-hash=MUR") == 0)
+			Config::getInstance()->setHashType(HashType::MUR_HASH);
 
 	}
 	client::builder=new StatementBuilder;

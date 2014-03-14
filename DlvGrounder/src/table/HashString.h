@@ -10,6 +10,8 @@
 
 #include <string>
 #include <functional>
+#include <stdlib.h>
+#include <ctime>
 
 using namespace std;
 
@@ -37,6 +39,14 @@ public:
 	JavaHashString(){};
 	virtual size_t computeHash(string s);
 
+};
+
+class MurMurHashString: public HashString{
+public:
+	MurMurHashString(){srand (time(NULL));seed=rand();};
+	virtual size_t computeHash(string s);
+private:
+	int seed;
 };
 
 #endif /* HASHSTRING_H_ */

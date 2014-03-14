@@ -9,6 +9,7 @@
 
 #include "StatementBuilder.h"
 #include "utility/Timer.h"
+#include "utility/Config.h"
 
 
 #include <cstring>
@@ -32,6 +33,9 @@ StatementBuilder::StatementBuilder() {
 
 
 void StatementBuilder::printStats() {
+	cout<<"Term table: "<<Config::getInstance()->getTermTableType()<<endl;
+	cout<<"Hash: "<<Config::getInstance()->getHashType()<<endl;
+	cout<<endl;
 	cout << "Statement: " << statement << endl;
 	cout << "Constraint: " << constraint << endl;
 	cout << "Weak: " << weak << endl;
@@ -43,13 +47,16 @@ void StatementBuilder::printStats() {
 
 	Timer::getInstance()->start("Time read");
 	TermTable *tm=termsFactory.getMap();
-	cout<<"Size Map "<<tm->getSize()<<endl;
+	cout<<"Size TermTable "<<tm->getSize()<<endl;
 	for(long i=0;i<tm->getSize();i++){
-		tm->getTerm(i)->print();
+		tm->getTerm(i);
 	}
 	Timer::getInstance()->end();
 
 	Timer::getInstance()->print();
+
+	cout<<endl;
+	cout<<"Collision term Id Manager: "<<tm->getCollision()<<endl;
 
 }
 
