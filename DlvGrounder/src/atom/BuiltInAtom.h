@@ -8,30 +8,36 @@
 #ifndef BUILTINATOM_H_
 #define BUILTINATOM_H_
 
-#include "NafLiteral.h"
-#include <string>
+#include "Atom.h"
+#include "../table/TermTable.h"
 using namespace std;
 
 class BuiltInAtom: public Atom {
 public:
-	BuiltInAtom(): firstTerm(0), secondTerm(0), negative(false) {};
-	BuiltInAtom(unsigned long firstTerm, unsigned long secondTerm, string binop, bool negative): firstTerm(firstTerm), secondTerm(secondTerm), binop(binop), negative(negative)  {};
+	BuiltInAtom(TermTable* t): termTable(t), firstTerm(0), secondTerm(0), binop(Binop::NONE_OP), negative(false) {};
+	BuiltInAtom(TermTable* t, unsigned long firstTerm, unsigned long secondTerm, Binop binop, bool negative):
+		termTable(t), firstTerm(firstTerm), secondTerm(secondTerm), binop(binop), negative(negative)  {};
 
-	const string& getBinop() const;
-	void setBinop(const string& binop);
-	unsigned long getFirstTerm() const;
-	void setFirstTerm(unsigned long firstTerm);
-	unsigned long getSecondTerm() const;
-	void setSecondTerm(unsigned long secondTerm);
-	bool isNegative() const;
-	void setNegative(bool negative);
+	Binop getBinop() const {return binop;};
+	void setBinop(Binop binop) {this->binop = binop;};
+	unsigned long getFirstTerm() const {return firstTerm;};
+	void setFirstTerm(unsigned long firstTerm) {this->firstTerm = firstTerm;};
+	bool isNegative() const {return negative;};
+	void setNegative(bool negative) {this->negative = negative;};
+	unsigned long getSecondTerm() const {return secondTerm;};
+	void setSecondTerm(unsigned long secondTerm) {this->secondTerm = secondTerm;};
 
-	virtual ~BuiltInAtom();
+	string getNameToHash();
+
+	bool evaluate();
+
+	~BuiltInAtom() {};
 
 private:
+	TermTable *termTable;
 	unsigned long firstTerm;
 	unsigned long secondTerm;
-	string binop;
+	Binop binop;
 	bool negative;
 };
 

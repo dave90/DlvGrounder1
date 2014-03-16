@@ -6,35 +6,31 @@
  */
 
 #include "BuiltInAtom.h"
+#include <sstream>
 
-const string& BuiltInAtom::getBinop() const {
-	return binop;
+bool BuiltInAtom::evaluate(){ //TODO Operatori in Term
+	if(binop==Binop::EQUAL)
+		return termTable->getTerm(firstTerm)==termTable->getTerm(secondTerm);
+	if(binop==Binop::UNEQUAL)
+		return termTable->getTerm(firstTerm)!=termTable->getTerm(secondTerm);
+	if(binop==Binop::LESS)
+		return termTable->getTerm(firstTerm)<termTable->getTerm(secondTerm);
+	if(binop==Binop::LESS_OR_EQ)
+			return termTable->getTerm(firstTerm)<=termTable->getTerm(secondTerm);
+	if(binop==Binop::GREATER)
+			return termTable->getTerm(firstTerm)>termTable->getTerm(secondTerm);
+	if(binop==Binop::GREATER_OR_EQ)
+			return termTable->getTerm(firstTerm)>=termTable->getTerm(secondTerm);
+	return false;
 }
 
-void BuiltInAtom::setBinop(const string& binop) {
-	this->binop = binop;
-}
-
-unsigned long BuiltInAtom::getFirstTerm() const {
-	return firstTerm;
-}
-
-void BuiltInAtom::setFirstTerm(unsigned long firstTerm) {
-	this->firstTerm = firstTerm;
-}
-
-unsigned long BuiltInAtom::getSecondTerm() const {
-	return secondTerm;
-}
-
-void BuiltInAtom::setSecondTerm(unsigned long secondTerm) {
-	this->secondTerm = secondTerm;
-}
-
-bool BuiltInAtom::isNegative() const {
-	return negative;
-}
-
-void BuiltInAtom::setNegative(bool negative) {
-	this->negative = negative;
+string BuiltInAtom::getNameToHash(){
+	ostringstream convert;
+	convert << firstTerm;
+	string name=convert.str();
+	convert << binop;
+	name+="*"+convert.str();
+	convert << secondTerm;
+	name+="*"+convert.str();
+	return name;
 }
