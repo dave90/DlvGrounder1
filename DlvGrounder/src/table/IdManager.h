@@ -31,7 +31,7 @@ typedef pair<unsigned long, bool> pair_long_bool;
  */
 struct hash_string_table {
 	static HashString* hash;
-	size_t operator()(const string &p) const {
+	size_t operator()(string p) const {
 		return hash->computeHash(p);
 	}
 };
@@ -49,6 +49,8 @@ public:
 	IdManager();
 	//return an index and if the string exist
 	pair_long_bool insert(string s);
+	//insert with pre hash
+	pair_long_bool insert(size_t hash,string s);
 	//return the number of collision
 	unsigned long getCollision();
 private:

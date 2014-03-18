@@ -290,6 +290,8 @@ int main(int argc, char* argv[]) {
 			Config::getInstance()->setHashType(HashType::STL_HASH);
 		else if (strcmp(argv[i], "-hash=MUR") == 0)
 			Config::getInstance()->setHashType(HashType::MUR_HASH);
+		else if (strcmp(argv[i], "-hash=BOOST_RANGE") == 0)
+			Config::getInstance()->setHashType(HashType::BOOST_RANGE_HASH);
 
 	}
 	client::builder=new StatementBuilder;

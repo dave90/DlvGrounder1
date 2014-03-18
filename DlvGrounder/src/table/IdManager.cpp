@@ -27,6 +27,9 @@ void IdManager::setHashType() {
 	case HashType::MUR_HASH:
 		hash_string_table::hash=new MurMurHashString;
 		break;
+	case HashType::BOOST_RANGE_HASH:
+		hash_string_table::hash=new BOOSTHashRange;
+		break;
 	default:
 		hash_string_table::hash = new STLHashString;
 		break;
@@ -59,14 +62,12 @@ pair_long_bool IdManager::insert(string s) {
 unsigned long IdManager::getCollision() {
 
 	unsigned long collision = 0;
-
 	for (unsigned i = 0; i < hashId.bucket_count(); ++i) {
-		for (auto it = hashId.begin(i); it != hashId.end(i); ++it)
-			if (it != hashId.begin(i))
+		if(hashId.bucket_size(i)>1)
 				collision++;
-
 	}
 
 	return collision;
 }
+
 

@@ -19,6 +19,7 @@ class HashString {
 public:
 	HashString(){};
 	virtual size_t computeHash(string s) = 0;
+	virtual ~HashString(){};
 };
 
 class STLHashString: public HashString{
@@ -37,6 +38,13 @@ public:
 class JavaHashString: public HashString{
 public:
 	JavaHashString(){};
+	virtual size_t computeHash(string s);
+
+};
+
+class BOOSTHashRange: public HashString{
+public:
+	BOOSTHashRange(){};
 	virtual size_t computeHash(string s);
 
 };
