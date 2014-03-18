@@ -17,17 +17,19 @@ public:
 	ClassicalLiteral(): predicate(0), hasMinus(false), negative(false){};
 	ClassicalLiteral(unsigned long p, vector<unsigned long> t, bool hM, bool n): predicate(p), terms(t), hasMinus(hM), negative(n) {};
 
-	const vector<unsigned long>& getTerms() const;
-	void setTerms(const vector<unsigned long>& terms);
-	unsigned long getPredicate() const;
-	void setPredicate(unsigned long predicate);
-	bool isHasMinus() const;
-	void setHasMinus(bool hasMinus);
-	bool isNegative() const;
-	void setNegative(bool negative);
+	const vector<unsigned long> getTerms() const {return terms;};
+	void setTerms(const vector<unsigned long>& terms){this->terms=terms;};
+	unsigned long getPredicate() const {return predicate;};
+	void setPredicate(unsigned long predicate) {this->predicate=predicate;};
+	bool isHasMinus() const {return hasMinus;};
+	void setHasMinus(bool hasMinus) {this->hasMinus=hasMinus;};
+	bool isNegative() const {return negative;};
+	void setNegative(bool negative) {this->negative=negative;};
 
-	//TODO metodi accesso lista termnini + commentare
-	virtual ~ClassicalLiteral();
+	string getNameToHash();
+
+	//TODO metodi accesso lista termini
+	~ClassicalLiteral() {};
 
 private:
 	unsigned long predicate;

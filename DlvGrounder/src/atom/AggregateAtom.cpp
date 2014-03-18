@@ -6,60 +6,34 @@
  */
 
 #include "AggregateAtom.h"
+#include <sstream>
+using namespace std;
 
-const string& AggregateAtom::getAggregateFunction() const {
-	return aggregateFunction;
-}
-
-void AggregateAtom::setAggregateFunction(const string& agggregateFunction) {
-	this->aggregateFunction = agggregateFunction;
-}
-
-const vector<AggregateElement>& AggregateAtom::getAggregateElements() const {
-	return aggregateElements;
-}
-
-void AggregateAtom::setAggregateElements(
-		const vector<AggregateElement>& aggregateElements) {
-	this->aggregateElements = aggregateElements;
-}
-
-const string& AggregateAtom::getFirstBinop() const {
-	return firstBinop;
-}
-
-void AggregateAtom::setFirstBinop(const string& firstBinop) {
-	this->firstBinop = firstBinop;
-}
-
-unsigned long AggregateAtom::getFirstCompareTerm() const {
-	return firstCompareTerm;
-}
-
-void AggregateAtom::setFirstCompareTerm(unsigned long firstCompareTerm) {
-	this->firstCompareTerm = firstCompareTerm;
-}
-
-const string& AggregateAtom::getSecondBinop() const {
-	return secondBinop;
-}
-
-void AggregateAtom::setSecondBinop(const string& secondBinop) {
-	this->secondBinop = secondBinop;
-}
-
-unsigned long AggregateAtom::getSecondCompareTerm() const {
-	return secondCompareTerm;
-}
-
-void AggregateAtom::setSecondCompareTerm(unsigned long secondCompareTerm) {
-	this->secondCompareTerm = secondCompareTerm;
-}
-
-bool AggregateAtom::isNegative() const {
-	return negative;
-}
-
-void AggregateAtom::setNegative(bool negative) {
-	this->negative = negative;
+string AggregateAtom::getNameToHash(){
+	ostringstream convert;
+	convert << firstCompareTerm;
+	string name=convert.str();
+	convert << firstBinop;
+	name+="*"+convert.str();
+	convert << aggregateFunction;
+	name+="*"+convert.str()+"*";
+	for (unsigned int i = 0; i < aggregateElements.size(); i++) {
+		vector<unsigned long> v=aggregateElements[i].getNafLiterals();
+		for (unsigned int j = 0; j < v.size(); j++) {
+			convert << v[i];
+			name+=convert.str()+"*";
+		}
+	}
+	for (unsigned int i = 0; i < aggregateElements.size(); i++) {
+		vector<unsigned long> v=aggregateElements[i].getTerms();
+		for (unsigned int j = 0; j < v.size(); j++) {
+			convert << v[i];
+			name+=convert.str()+"*";
+		}
+	}
+	convert << secondBinop;
+	name+="*"+convert.str();
+	convert << secondCompareTerm;
+	name+="*"+convert.str()+"*";
+	return name;
 }

@@ -10,31 +10,32 @@
 
 #include "Atom.h"
 #include <string>
-#include <vector>
 using namespace std;
 
 class Choice: public Atom {
 public:
-	Choice(): firstCompareTerm(0), secondCompareTerm(0) {};
+	Choice(): firstCompareTerm(0), firstBinop(Binop::NONE_OP), secondCompareTerm(0), secondBinop(Binop::NONE_OP) {};
 
-	const string& getFirstBinop() const;
-	void setFirstBinop(const string& firstBinop);
-	unsigned long getFirstCompareTerm() const;
-	void setFirstCompareTerm(unsigned long firstCompareTerm);
-	const string& getSecondBinop() const;
-	void setSecondBinop(const string& secondBinop);
-	unsigned long getSecondCompareTerm() const;
-	void setSecondCompareTerm(unsigned long secondCompareTerm);
-	const vector<vector<unsigned long> >& getChoiceElements() const;
-	void setChoiceElements(const vector<vector<unsigned long> >& choiceElements);
+	const vector<vector<unsigned long>> getChoiceElements() const {return choiceElements;};
+	void setChoiceElements(const vector<vector<unsigned long> >& choiceElements) {this->choiceElements = choiceElements;};
+	Binop getFirstBinop() const {return firstBinop;};
+	void setFirstBinop(Binop firstBinop) {this->firstBinop = firstBinop;};
+	unsigned long getFirstCompareTerm() const {return firstCompareTerm;};
+	void setFirstCompareTerm(unsigned long firstCompareTerm) {this->firstCompareTerm = firstCompareTerm;};
+	Binop getSecondBinop() const {return secondBinop;};
+	void setSecondBinop(Binop secondBinop) {this->secondBinop = secondBinop;};
+	unsigned long getSecondCompareTerm() const {return secondCompareTerm;};
+	void setSecondCompareTerm(unsigned long secondCompareTerm) {this->secondCompareTerm = secondCompareTerm;};
 
-	virtual ~Choice();
+	string getNameToHash();
+
+	~Choice() {};
 
 private:
 	unsigned long firstCompareTerm;
-	string firstBinop;
+	Binop firstBinop;
 	unsigned long secondCompareTerm;
-	string secondBinop;
+	Binop secondBinop;
 
 	/* For each vector in choiceElements:
 	 * the first element is the classical literal

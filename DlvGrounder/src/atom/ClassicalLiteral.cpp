@@ -6,37 +6,16 @@
  */
 
 #include "ClassicalLiteral.h"
+#include <sstream>
 
-const vector<unsigned long>& ClassicalLiteral::getTerms() const {
-	return terms;
+string ClassicalLiteral::getNameToHash(){
+	ostringstream convert;
+	convert << predicate;
+	string name = convert.str()+"*";
+	for (unsigned int i = 0; i < terms.size(); i++){
+		convert << terms[i];
+		name+=convert.str()+"*";
+	}
+	return name;
 }
 
-void ClassicalLiteral::setTerms(const vector<unsigned long>& terms) {
-	this->terms = terms;
-}
-
-bool ClassicalLiteral::isHasMinus() const {
-	return hasMinus;
-}
-
-void ClassicalLiteral::setHasMinus(bool hasMinus) {
-	this->hasMinus = hasMinus;
-}
-
-unsigned long ClassicalLiteral::getPredicate() const {
-	return predicate;
-}
-
-void ClassicalLiteral::setPredicate(unsigned long predicate) {
-	this->predicate = predicate;
-}
-
-bool ClassicalLiteral::isNegative() const {
-	return negative;
-}
-
-void ClassicalLiteral::setNegative(bool negative) {
-	this->negative = negative;
-}
-
-ClassicalLiteral::~ClassicalLiteral(){}
