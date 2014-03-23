@@ -35,6 +35,30 @@ size_t JavaHashString::computeHash(string s) {
 		return hash;
 }
 
+size_t PerlBernsteinHashString::computeHash(string s) {
+		const char* sx=s.c_str();
+		int i_hash=s.length();
+		size_t hash_perl=0;
+		while(i_hash--)
+			hash_perl=(hash_perl*33) + *sx++;
+		return hash_perl + (hash_perl>>5);
+}
+
+size_t PerlJenkinsHashString::computeHash(string s) {
+	const char* sx=s.c_str();
+	size_t hash, i;
+    for(hash = i = 0; i < s.length(); ++i)
+    {
+        hash += sx[i];
+        hash += (hash << 10);
+        hash ^= (hash >> 6);
+    }
+    hash += (hash << 3);
+    hash ^= (hash >> 11);
+    hash += (hash << 15);
+    return hash;
+}
+
 size_t MurMurHashString::computeHash(string s) {
 	const uint64_t m = 0xc6a4a7935bd1e995;
 	const int r = 47;

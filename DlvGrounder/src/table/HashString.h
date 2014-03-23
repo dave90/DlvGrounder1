@@ -42,6 +42,20 @@ public:
 
 };
 
+class PerlBernsteinHashString: public HashString{
+public:
+	PerlBernsteinHashString(){};
+	virtual size_t computeHash(string s);
+
+};
+
+class PerlJenkinsHashString: public HashString{
+public:
+	PerlJenkinsHashString(){};
+	virtual size_t computeHash(string s);
+
+};
+
 class BOOSTHashRange: public HashString{
 public:
 	BOOSTHashRange(){};
