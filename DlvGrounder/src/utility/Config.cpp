@@ -19,6 +19,7 @@ Config* Config::getInstance() {
 Config::Config() {
 	hashType=HashType::STL_HASH;
 	termTableType=TermTableType::STL;
+	indexType=IndexType::DEFAULT;
 }
 
 HashType Config::getHashType() const {
@@ -35,4 +36,12 @@ TermTableType Config::getTermTableType() const {
 
 void Config::setTermTableType(TermTableType termTableType) {
 	this->termTableType = termTableType;
+}
+
+IndexType Config::getIndexType() const {
+	return indexType;
+}
+
+void Config::setIndexType(IndexType indexType) {
+	this->indexType = indexType;
 }

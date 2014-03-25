@@ -16,6 +16,10 @@ enum HashType {
 	STL_HASH , BOOST_HASH, JAVA_HASH, MUR_HASH,BOOST_RANGE_HASH
 };
 
+enum IndexType {
+	DEFAULT
+};
+
 class Config {
 public:
 	static Config* getInstance();
@@ -23,11 +27,15 @@ public:
 	void setHashType(HashType hashType);
 	TermTableType getTermTableType() const;
 	void setTermTableType(TermTableType termTableType);
+	IndexType getIndexType() const;
+	void setIndexType(IndexType indexType);
+
 private:
 	Config();
 	static Config* config;
 	TermTableType termTableType;
 	HashType hashType;
+	IndexType indexType;
 
 };
 
