@@ -24,32 +24,31 @@ using namespace std;
 class Term {
 public:
 	Term();
-	Term(string name);
-	Term(string name,bool negatine);
+	Term(unsigned long i,bool b):index(i),negative(b){};
 	//Get the index of the term
-	unsigned long getIndex();
+	unsigned long getIndex(){return index;};
 	//Set the index of the term
-	void setIndex(unsigned long index);
+	void setIndex(unsigned long index){	this->index=index;};
 	// Return the negation of the term
-	bool isNegative();
+	bool isNegative(){return negative;};
 	//Set the negation of the term
-	void setNegative(bool n);
+	void setNegative(bool n){negative=n;};
 	// Equal with term, based on the index of the terms
-	bool operator==(const Term& t);
+	bool operator==(const Term& t){	return t.index==index;};
 	// Return the name of the term
 	virtual string getName();
 	//Set the name of the term
-	virtual void setName(string name);
+	virtual void setName(string name){};
 	// Add the index of a term inside the function term, used only with the FunctionTerm
-	virtual void addTerm(unsigned long termIndex);
+	virtual void addTerm(unsigned long termIndex){};
 	// Return the terms in the function term, used only with the FunctionTerm
-	virtual vector<unsigned long> getTerms();
+	virtual vector<unsigned long> getTerms(){};
 	// Return the calculate for the arithmetic term
-	virtual double calculate();
+	virtual double calculate(){};
 	// Return the string used to hash the term
-	virtual string getNameToHash();
+	virtual string getNameToHash(){};
 	//print with the cout the term
-	virtual void print();
+	virtual void print(){};
 private:
 	/*
 	 * Index of a term

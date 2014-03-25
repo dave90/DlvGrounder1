@@ -20,18 +20,17 @@ enum Operator {
 class ArithTerm: public Term {
 public:
 	//Take the TableTerm for the calculation
-	ArithTerm(TermTable *t);
+	ArithTerm(TermTable *t){	termTable=t;};
 	// Get the operator for the calculation
 	virtual Operator getOperator()=0;
 	// Calculate the operation
 	virtual double calculate();
 	//Add term for the calculation
-	virtual void addTerm(unsigned long termIndex);
+	virtual void addTerm(unsigned long termIndex){terms.push_back(termIndex);};
 	virtual string getNameToHash();
 	virtual void print();
 	// Return the operator in string
 	static string getNameOperator(Operator op);
-	virtual ~ArithTerm();
 private:
 	// All the index of the terms to calculate the operation
 	vector<unsigned long> terms;

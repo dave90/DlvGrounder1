@@ -19,10 +19,11 @@ using namespace std;
 class FunctionTerm: public Term {
 public:
 	FunctionTerm();
-	virtual string getName();
-	virtual void setName(string name);
-	virtual void addTerm(unsigned long termIndex);
-	virtual vector<unsigned long> getTerms();
+	FunctionTerm(string v,unsigned long index):name(v){setIndex(index);};
+	virtual string getName(){return name;};
+	virtual void setName(string name){this->name=name;};
+	virtual void addTerm(unsigned long termIndex){terms.push_back(termIndex);};
+	virtual vector<unsigned long> getTerms(){return terms;};
 	virtual string getNameToHash();
 	virtual void print();
 private:

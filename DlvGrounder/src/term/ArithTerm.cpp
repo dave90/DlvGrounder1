@@ -8,9 +8,6 @@
 #include "ArithTerm.h"
 #include <sstream>
 
-ArithTerm::ArithTerm(TermTable *t) {
-	termTable=t;
-}
 
 double ArithTerm::calculate() {
 	double result = termTable->getTerm(terms[0])->calculate();
@@ -28,12 +25,7 @@ double ArithTerm::calculate() {
 	return result;
 }
 
-void ArithTerm::addTerm(unsigned long termIndex) {
-	terms.push_back(termIndex);
-}
 
-ArithTerm::~ArithTerm() {
-}
 
 string ArithTerm::getNameToHash() {
 	string name = getOperator()+"*";

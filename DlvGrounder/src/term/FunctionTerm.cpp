@@ -13,22 +13,6 @@ FunctionTerm::FunctionTerm() {
 }
 
 
-string FunctionTerm::getName() {
-	return name;
-}
-
-void FunctionTerm::setName(string constant) {
-	name=constant;
-}
-
-void FunctionTerm::addTerm(unsigned long termIndex) {
-	terms.push_back(termIndex);
-}
-
-vector<unsigned long> FunctionTerm::getTerms() {
-	return terms;
-}
-
 string FunctionTerm::getNameToHash() {
 	string hashString=name+"*";
 
