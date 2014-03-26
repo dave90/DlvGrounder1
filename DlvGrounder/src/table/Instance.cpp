@@ -7,18 +7,24 @@
 
 #include "Instance.h"
 #include "../utility/Config.h"
+#include "IdsManager.h"
 
-Instance::Instance(unsigned long predicate){
+Instances::Instances(unsigned long predicate){
 	this->predicate=predicate;
-	switch(Config::getInstance()){
+	switch(Config::getInstance()->getIndexType()){
 		default:
 			indexAtom=0; //FIXME
 			break;
 	}
 }
 
-Instance::~Instance(){
+Instances::~Instances(){
 	for(auto it = facts.begin(); it!= facts.end(); it++) delete(*it);
-	for(auto it = nofacts.begin(); it!= nofacts.end(); it++) delete(*it);
+	for(auto it = nofacts.begin(); it!= nofacts.end(); it++) delete(it->atom);
 	delete(indexAtom);
 };
+
+void Instances::computeAtomIndex(Atom*& a){
+	pair<unsigned long, bool> index = IdsManager::getIndex(IdsManager::PREDICATE_ID_MANAGER, a->getNameToHash());
+	a->setIndex(index.first);
+}

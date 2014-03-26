@@ -6,12 +6,13 @@
  */
 
 #include "BoostTermTable.h"
+#include "IdsManager.h"
 
 BoostTermTable::BoostTermTable() {
 }
 
 unsigned long BoostTermTable::addTerm(Term* t) {
-	pair_long_bool p=idManager.insert(t->getNameToHash());
+	pair_long_bool p=IdsManager::getIndex(IdsManager::TERM_ID_MANAGER, t->getNameToHash());
 
 	unsigned long id=p.first;
 	if(!p.second){
@@ -47,5 +48,5 @@ BoostTermTable::~BoostTermTable() {
 }
 
 int BoostTermTable::getCollision() {
-	return idManager.getCollision();
+	//return idManager.getCollision(); FIXME
 }

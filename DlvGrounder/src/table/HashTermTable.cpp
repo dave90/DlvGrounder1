@@ -6,12 +6,13 @@
  */
 
 #include "HashTermTable.h"
+#include "IdsManager.h"
 
 HashTermTable::HashTermTable() {
 }
 
 unsigned long HashTermTable::addTerm(Term* t) {
-	pair_long_bool p=idManager.insert(t->getNameToHash());
+	pair_long_bool p=IdsManager::getIndex(IdsManager::TERM_ID_MANAGER, t->getNameToHash());
 	unsigned long id=p.first;
 	if(!p.second){
 		t->setIndex(id);
@@ -48,5 +49,5 @@ HashTermTable::~HashTermTable() {
 }
 
 int HashTermTable::getCollision() {
-	return idManager.getCollision();
+	//return idManager.getCollision(); FIXME
 }

@@ -28,7 +28,6 @@ public:
 	virtual ~BoostTermTable();
 private:
 	boost::unordered_set<Term*,hashTerm,equalTerm> hash;
-	IdManager idManager;
 };
 
 #endif /* BOOSTTERMTABLE_H_ */
