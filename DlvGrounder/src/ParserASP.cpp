@@ -290,11 +290,13 @@ int main(int argc, char* argv[]) {
 			Config::getInstance()->setHashType(HashType::STL_HASH);
 		else if (strcmp(argv[i], "-hash=MUR") == 0)
 			Config::getInstance()->setHashType(HashType::MUR_HASH);
-		else if (strcmp(argv[i], "-hash=BOOST_RANGE") == 0)
-			Config::getInstance()->setHashType(HashType::BOOST_RANGE_HASH);
+		else if (strcmp(argv[i], "-hash=PERL_DJ") == 0)
+			Config::getInstance()->setHashType(HashType::PERL_DJ);
+		else if (strcmp(argv[i], "-hash=PERL_B") == 0)
+			Config::getInstance()->setHashType(HashType::PERL_B);
 
 	}
-	client::builder=new StatementBuilder;
+	client::builder = new StatementBuilder;
 
 	ifstream ifs(nameFile);
 	string str((std::istreambuf_iterator<char>(ifs)),

@@ -101,15 +101,3 @@ size_t MurMurHashString::computeHash(string s) {
 	return h;
 }
 
-size_t BOOSTHashRange::computeHash(string s) {
-	size_t seed=0;
-	std::istringstream iss(s);
-	std::string token;
-	while(getline(iss, token, '*'))
-	{
-		size_t st=(const uint64_t )token.c_str();
-	     boost::hash_combine(seed,st);
-	}
-
-	return seed;
-}
