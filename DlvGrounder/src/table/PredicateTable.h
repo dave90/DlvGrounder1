@@ -39,7 +39,6 @@ public:
 	Predicate getPredicate(unsigned long id);
 
 private:
-	IdManager manager;
 	unordered_set<Predicate,hashPredicate,equalPredicate> hash;
 };
 

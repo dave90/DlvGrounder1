@@ -30,7 +30,6 @@ public:
 	virtual ~HashTermTable();
 private:
 	unordered_set<Term*,hashTerm,equalTerm> hash;
-	IdManager idManager;
 };
 
 #endif /* HASHTERMTABLE_H_ */
