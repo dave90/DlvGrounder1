@@ -14,7 +14,6 @@
  */
 
 #include "../term/Term.h"
-#include "IdManager.h"
 
 using namespace std;
 

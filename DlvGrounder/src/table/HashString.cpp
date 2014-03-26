@@ -27,7 +27,6 @@ size_t JavaHashString::computeHash(string s) {
 		const char* sx=s.c_str();
 		int length=s.length();
 		size_t hash=0;
-		// sx[0] max conflict
 		for (int i = 0; i < length; i++) {
 			hash+=sx[i]*pow(31.0,length-(i));
 		}

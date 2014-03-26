@@ -49,5 +49,5 @@ HashTermTable::~HashTermTable() {
 }
 
 int HashTermTable::getCollision() {
-	//return idManager.getCollision(); FIXME
+	return IdsManager::getConflict(IdsManager::TERM_ID_MANAGER);
 }

@@ -11,7 +11,7 @@
 #include <unordered_set>
 #include <vector>
 #include "../atom/Atom.h"
-#include "IdManager.h"
+
 using namespace std;
 
 struct PairAtomBool{

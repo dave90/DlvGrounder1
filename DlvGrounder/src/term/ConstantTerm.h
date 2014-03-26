@@ -19,7 +19,7 @@
 
 class ConstantTerm: public Term {
 public:
-	ConstantTerm();
+	ConstantTerm(){};
 	ConstantTerm(string v,unsigned long index):constant(v){setIndex(index);};
 	virtual string getName(){return constant;};
 	virtual void setName(string name){constant=name;};

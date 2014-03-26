@@ -36,7 +36,7 @@ public:
 	// Equal with term, based on the index of the terms
 	bool operator==(const Term& t){	return t.index==index;};
 	// Return the name of the term
-	virtual string getName();
+	virtual string getName(){};
 	//Set the name of the term
 	virtual void setName(string name){};
 	// Add the index of a term inside the function term, used only with the FunctionTerm
@@ -49,6 +49,7 @@ public:
 	virtual string getNameToHash(){};
 	//print with the cout the term
 	virtual void print(){};
+	virtual ~Term(){};
 private:
 	/*
 	 * Index of a term

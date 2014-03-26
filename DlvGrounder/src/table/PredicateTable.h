@@ -8,8 +8,9 @@
 #ifndef PREDICATETABLE_H_
 #define PREDICATETABLE_H_
 
+#include <unordered_set>
+
 #include "../atom/Predicate.h"
-#include "IdManager.h"
 
 /*
  * Hash function for the class Predicate

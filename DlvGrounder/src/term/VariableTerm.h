@@ -18,7 +18,7 @@ using namespace std;
 
 class VariableTerm: public Term {
 public:
-	VariableTerm();
+	VariableTerm(){};
 	VariableTerm(string v,unsigned long index):variable(v){setIndex(index);};
 	virtual string getName(){return variable;};
 	virtual void setName(string name){	variable=name;};
