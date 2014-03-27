@@ -28,9 +28,13 @@ void IdManager::setHashType() {
 	case HashType::MUR_HASH:
 		hash_string_table::hash=new MurMurHashString;
 		break;
-	case HashType::BOOST_RANGE_HASH:
-		hash_string_table::hash=new BOOSTHashRange;
+	case HashType::PERL_DJ:
+		hash_string_table::hash=new PerlJenkinsHashString;
 		break;
+	case HashType::PERL_B:
+		hash_string_table::hash=new PerlBernsteinHashString;
+		break;
+
 	default:
 		hash_string_table::hash = new STLHashString;
 		break;

@@ -13,7 +13,7 @@ enum TermTableType {
 };
 
 enum HashType {
-	STL_HASH , BOOST_HASH, JAVA_HASH, MUR_HASH,BOOST_RANGE_HASH
+	STL_HASH , BOOST_HASH, JAVA_HASH, MUR_HASH,PERL_DJ,PERL_B
 };
 
 enum IndexType {
