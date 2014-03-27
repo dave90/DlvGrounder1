@@ -15,7 +15,7 @@ using namespace std;
 class Predicate {
 public:
 	Predicate() : index(0), arity(0) {};
-	Predicate(unsigned long index, string name, int arity) : index(index), arity(arity), name(name) {};
+	Predicate(string name, int arity) : index(0), arity(arity), name(name) {};
 
 	//Getters and Setters
 	int getArity();
