@@ -27,7 +27,7 @@ void Timer::end() {
 }
 
 void Timer::print() {
-	for(int i=0;i<stamps.size();i++)
+	for(unsigned int i=0;i<stamps.size();i++)
 		stamps[i].print();
 }
 

@@ -97,7 +97,7 @@ private:
  * Hash function for the class Atom
  */
 struct hashInstance {
-	  size_t operator()(Instances i) const {
+	  size_t operator()(const Instances& i) const {
 		 return i.getPredicate();
 	  }
 };
@@ -106,7 +106,7 @@ struct hashInstance {
  * Equal function for the class Atom
  */
 struct equalInstance {
-	  bool operator()( Instances i1,  Instances i2)const{
+	  bool operator()(const Instances &i1, const Instances& i2)const{
 		  return i1.getPredicate()==i2.getPredicate();
 	  }
 };
@@ -115,11 +115,11 @@ class InstancesTable{
 public:
 	void addInstance(unsigned long i) { Instances is(i); instanceTable.insert(is); };
 	// Get term by the index
-	const Instances* getInstance(unsigned long i) {Instances is(i); return &(*instanceTable.find(is)); };
+	Instances* getInstance(unsigned long i) {Instances is(i); return &(*instanceTable.find(is)); };
 	// Get size of the table
 	long getSize() {return instanceTable.size();};
 private:
-	unordered_set<Instances, hashInstance, equalInstance> instanceTable;
+	unordered_set<shared_ptr<Instances>, hashInstance, equalInstance> instanceTable;
 };
 
 
