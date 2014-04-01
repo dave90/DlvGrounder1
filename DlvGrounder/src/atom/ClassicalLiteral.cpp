@@ -7,6 +7,9 @@
 
 #include "ClassicalLiteral.h"
 #include <sstream>
+#include <iostream>
+#include <string>
+using namespace std;
 
 string ClassicalLiteral::getNameToHash(){
 	ostringstream convert;
@@ -17,5 +20,13 @@ string ClassicalLiteral::getNameToHash(){
 		name+=convert.str()+"*";
 	}
 	return name;
+}
+
+
+void ClassicalLiteral::print(){
+	string print;
+	for (unsigned int i = 0; i < terms.size(); ++i)
+		print+=terms[i]+", ";
+	cout<<"Classical Atom: "<<predicate<<"("<<print<<")\n";
 }
 

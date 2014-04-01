@@ -25,8 +25,10 @@ public:
 	void setHasMinus(bool hasMinus) {this->hasMinus=hasMinus;};
 	bool isNegative() const {return negative;};
 	void setNegative(bool negative) {this->negative=negative;};
+	void print();
 
 	string getNameToHash();
+
 
 	//TODO metodi accesso lista termini
 	~ClassicalLiteral() {};

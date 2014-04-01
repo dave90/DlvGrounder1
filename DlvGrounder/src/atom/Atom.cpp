@@ -19,6 +19,6 @@ bool Atom::operator==(const Atom& a){
 }
 
 void Atom::print(){
-	cout<<"Atom\t"<<"Index: "<<index<<endl;
+	cout<<"Atom: "<<index<<endl;
 }
 
