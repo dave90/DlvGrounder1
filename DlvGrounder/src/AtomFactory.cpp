@@ -24,6 +24,7 @@ void AtomFactory::addGClassicalLiteral(vector<unsigned long> terms,
 	unsigned long index=predicateTable.insertPredicate(p);
 	instancesTable.addInstance(index);
 	Atom* atom=new ClassicalLiteral(index,terms,hashMinus,negative);
-	Instances *i=instancesTable.getInstance(index)->addFact(atom);
+	Instances *i=instancesTable.getInstance(index);
+	i->addFact(atom);
 
 }

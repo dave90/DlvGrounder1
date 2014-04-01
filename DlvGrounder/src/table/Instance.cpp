@@ -28,3 +28,7 @@ void Instances::computeAtomIndex(Atom*& a){
 	pair<unsigned long, bool> index = IdsManager::getIndex(IdsManager::PREDICATE_ID_MANAGER, a->getNameToHash());
 	a->setIndex(index.first);
 }
+
+InstancesTable::~InstancesTable() {
+	for(Instances* i:instanceTable){delete i;}
+}

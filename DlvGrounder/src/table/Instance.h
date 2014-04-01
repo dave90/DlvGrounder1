@@ -29,27 +29,22 @@ struct hashAtom {
 	  size_t operator()(PairAtomBool pb) const {
 			 return pb.atom->getIndex();
 	  }
-
-};
-
-/*
- * Equal function for the class Atom
- */
-struct equalAtom{
 	  bool operator()( Atom* t1,  Atom* t2)const{
 		  return t1->getIndex()==t2->getIndex();
 	  }
 	  bool operator()( PairAtomBool pb1, PairAtomBool pb2)const{
 	 		  return pb1.atom->getIndex()==pb2.atom->getIndex();
 	  }
+
 };
 
-typedef unordered_set<Atom*, hashAtom, equalAtom> AtomTable;
-typedef unordered_set<PairAtomBool, hashAtom, equalAtom> PairAtomBoolTable;
+
+typedef unordered_set<Atom*, hashAtom, hashAtom> AtomTable;
+typedef unordered_set<PairAtomBool, hashAtom, hashAtom> PairAtomBoolTable;
 
 class IndexAtom {
 	public:
-		IndexAtom(AtomTable*);
+		IndexAtom(AtomTable* a){atoms=a;};
 		/* 	These methods given a vector of terms indices, and a vector of values for that terms returns the first atom (as vector of
 			indices of his terms) that satisfy the match.  */
 		virtual vector<unsigned long> firstMatch(vector<unsigned long> termsIndex, vector<long> values)=0;
@@ -97,29 +92,24 @@ private:
  * Hash function for the class Atom
  */
 struct hashInstance {
-	  size_t operator()(const Instances& i) const {
-		 return i.getPredicate();
+	  size_t operator()(Instances* i) const {
+		 return i->getPredicate();
 	  }
-};
-
-/*
- * Equal function for the class Atom
- */
-struct equalInstance {
-	  bool operator()(const Instances &i1, const Instances& i2)const{
-		  return i1.getPredicate()==i2.getPredicate();
+	  bool operator()(Instances *i1,  Instances* i2)const{
+		  return i1->getPredicate()==i2->getPredicate();
 	  }
 };
 
 class InstancesTable{
 public:
-	void addInstance(unsigned long i) { Instances is(i); instanceTable.insert(is); };
+	void addInstance(unsigned long i) { Instances is(i); instanceTable.insert(&is); };
 	// Get term by the index
-	Instances* getInstance(unsigned long i) {Instances is(i); return &(*instanceTable.find(is)); };
+	Instances* getInstance(unsigned long i) {Instances is(i); return *instanceTable.find(&is); };
 	// Get size of the table
 	long getSize() {return instanceTable.size();};
+	~InstancesTable();
 private:
-	unordered_set<shared_ptr<Instances>, hashInstance, equalInstance> instanceTable;
+	unordered_set<Instances*, hashInstance, hashInstance> instanceTable;
 };
 
 
