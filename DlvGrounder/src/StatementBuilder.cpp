@@ -29,6 +29,9 @@ StatementBuilder::StatementBuilder() {
 	 negativeTerm=false;
 	 id="";
 
+	 negativeAtom=false;
+	 hashMinusAtom=false;
+
 }
 
 
@@ -58,6 +61,8 @@ void StatementBuilder::printStats() {
 	cout<<endl;
 	cout<<"Collision term Id Manager: "<<tm->getCollision()<<endl;
 
+	atomFactory.print();
+
 }
 
 void StatementBuilder::addStatement() {
@@ -83,12 +88,27 @@ void StatementBuilder::addAggregate() {
 	aggregate++;
 }
 
-void StatementBuilder::addLiteral() {
+void StatementBuilder::addLiteral(string name) {
+	atomFactory.addPredicate(name);
 
 	literal++;
 }
 
+void StatementBuilder::addClassicalLiteral() {
+	atomFactory.addGClassicalLiteral(termsInAtom,hashMinusAtom,negativeAtom);
 
+	termsInAtom.clear();
+	hashMinusAtom=false;
+	negativeAtom=false;
+}
+
+void StatementBuilder::setNegativeAtom() {
+	negativeAtom=true;
+}
+
+void StatementBuilder::setStrongNegativeAtom() {
+	hashMinusAtom=true;
+}
 
 void StatementBuilder::resetTerm(){
 	 id="";
@@ -96,16 +116,18 @@ void StatementBuilder::resetTerm(){
 }
 
 void StatementBuilder::addVariable(string & name) {
-	termsFactory.createVariable(name,negativeTerm);
+	unsigned long index=termsFactory.createVariable(name,negativeTerm);
 	resetTerm();
 
+	if(index!=-1)termsInAtom.push_back(index);
 	term++;
 }
 
 void StatementBuilder::addId(string & name) {
-	termsFactory.createConstant(name,negativeTerm);
+	unsigned long index=termsFactory.createConstant(name,negativeTerm);
 	resetTerm();
 
+	if(index!=-1)termsInAtom.push_back(index);
 	term++;
 }
 
@@ -113,9 +135,10 @@ void StatementBuilder::addNumber(int & name) {
 	ostringstream convert;
 	convert << name;
 	string id=convert.str();
-	termsFactory.createConstant(id,negativeTerm);
+	unsigned long index=termsFactory.createConstant(id,negativeTerm);
 	resetTerm();
 
+	if(index!=-1)termsInAtom.push_back(index);
 	term++;
 }
 
@@ -131,8 +154,10 @@ void StatementBuilder::addNameFunction(string & name) {
 }
 
 void StatementBuilder::endTermFunction() {
-	termsFactory.endFunction();
+	unsigned long index=termsFactory.endFunction();
 	resetTerm();
+
+	if(index!=-1)termsInAtom.push_back(index);
 }
 
 void StatementBuilder::setNegativeTerm() {
@@ -140,5 +165,10 @@ void StatementBuilder::setNegativeTerm() {
 }
 
 void StatementBuilder::addArithTerm(string &op) {
-	termsFactory.addArithTerm(op);
+	unsigned long index=termsFactory.addArithTerm(op);
+
+	if(index!=-1)termsInAtom.push_back(index);
+
 }
+
+

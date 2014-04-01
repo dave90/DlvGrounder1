@@ -26,7 +26,7 @@ void TermFactory::setTableType() {
 		termsMap=new HashTermTable;
 }
 
-void TermFactory::createVariable(string variable,bool negative) {
+unsigned long TermFactory::createVariable(string variable,bool negative) {
 	Term *v=new VariableTerm();
 
 	v->setName(variable);
@@ -37,13 +37,12 @@ void TermFactory::createVariable(string variable,bool negative) {
 	lastTerm=index;
 
 
-	addTermsDependency(index);
-
+	return addTermsDependency(index);
 }
 
 
 
-void TermFactory::createConstant(string constant,bool negative) {
+unsigned long TermFactory::createConstant(string constant,bool negative) {
 	Term *c=new ConstantTerm();
 
 	c->setName(constant);
@@ -53,8 +52,7 @@ void TermFactory::createConstant(string constant,bool negative) {
 
 	lastTerm=index;
 
-	addTermsDependency(index);
-
+	return addTermsDependency(index);
 
 }
 
@@ -67,7 +65,7 @@ void TermFactory::createFunction(string name,bool negative) {
 	terms.push_back(ft);
 }
 
-void TermFactory::endFunction() {
+unsigned long TermFactory::endFunction() {
 	Term *ft=terms[terms.size()-1];
 	terms.pop_back();
 
@@ -76,10 +74,11 @@ void TermFactory::endFunction() {
 
 	lastTerm=index;
 
-	addTermsDependency(index);
+	return addTermsDependency(index);
+
 }
 
-void TermFactory::addTermsDependency(unsigned long index) {
+unsigned long TermFactory::addTermsDependency(unsigned long index) {
 	if(terms.size()>0){
 		terms[terms.size()-1]->addTerm(index);
 
@@ -89,11 +88,15 @@ void TermFactory::addTermsDependency(unsigned long index) {
 			terms.pop_back();
 			index=termsMap->addTerm(at);
 			lastTerm=index;
+			if(terms.empty())return index;
 		}
+		return -1;
+	}else{
+		return index;
 	}
 }
 
-void TermFactory::addArithTerm(string op) {
+unsigned long TermFactory::addArithTerm(string op) {
 	Term *t=0;
 
 	if(strcmp(op.c_str(),ArithTerm::getNameOperator(Operator::PLUS).c_str())==0)

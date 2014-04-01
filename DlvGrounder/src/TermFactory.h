@@ -26,18 +26,18 @@ public:
 	TermFactory();
 	void setTableType();
 	// Create a Variable term
-	void createVariable(string variable,bool negative);
+	unsigned long createVariable(string variable,bool negative);
 	//Create Constant term
-	void createConstant(string constant,bool negative);
+	unsigned long createConstant(string constant,bool negative);
 	//Create Function Term and push it in a queue
 	void createFunction(string name,bool negative);
 	// Put the Function term in the tail of a queue in the Table Term
-	void endFunction();
+	unsigned long endFunction();
 	//Add Arithmetic term
-	void addArithTerm(string op);
+	unsigned long addArithTerm(string op);
 
-	//Add term to the terms
-	void addTermsDependency(unsigned long index);
+	//if terms.size>0 Add term in functional term otherwise return index
+	unsigned long addTermsDependency(unsigned long index);
 
 	//TO-DELETE decide where put tha Term Table
 	TermTable* getMap(){

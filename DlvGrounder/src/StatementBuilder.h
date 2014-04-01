@@ -17,6 +17,7 @@
 #include <boost/timer.hpp>
 
 #include "TermFactory.h"
+#include "AtomFactory.h"
 
 using namespace std;
 
@@ -32,7 +33,14 @@ public:
 	void addChoiche();
 	void addDisjunction();
 	void addAggregate();
-	void addLiteral();
+	//Add predicate
+	void addLiteral(string name);
+	//Add atom in atomFactory
+	void addClassicalLiteral();
+	// Set the current Atom a negative atom
+	void setNegativeAtom();
+	// Set the current Atom a strong negative atom
+	void setStrongNegativeAtom();
 	// Reset all variable used for parser a term
 	void resetTerm();
 	// Add variable term
@@ -71,7 +79,15 @@ private:
 	bool negativeTerm;
 	string id;
 
+	/*
+	 *  Variable for parsing atoms
+	 */
+	bool hashMinusAtom;
+	bool negativeAtom;
+	vector<unsigned long> termsInAtom;
+
 	TermFactory termsFactory;
+	AtomFactory atomFactory;
 };
 
 #endif /* STATEMENTBUILDER_H_ */

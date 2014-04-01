@@ -16,6 +16,7 @@ public:
 	AtomFactory();
 	void addPredicate(string name);
 	void addGClassicalLiteral(vector<unsigned long> terms,bool hashMinus,bool negative);
+	void print();
 
 private:
 	PredicateTable predicateTable;

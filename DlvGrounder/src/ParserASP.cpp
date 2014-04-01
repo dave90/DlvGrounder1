@@ -61,7 +61,11 @@ void addAggregate() {
 }
 
 void addLiteral(string & name) {
-	builder->addLiteral();
+	builder->addLiteral(name);
+}
+
+void addClassicalLiteral(){
+	builder->addClassicalLiteral();
 }
 
 void addVariable(string &name) {
@@ -172,7 +176,7 @@ struct asp_grammar: qi::grammar<Iterator, ascii::space_type> {
 				| LESS_OR_EQ | GREATER_OR_EQ;
 
 		classical_literal = -MINUS >> ID[&client::addLiteral]
-				>> -(PAREN_OPEN >> terms >> PAREN_CLOSE);
+				>> -(PAREN_OPEN >> terms >> PAREN_CLOSE) [&client::addClassicalLiteral];
 
 		terms = term % COMMA;
 

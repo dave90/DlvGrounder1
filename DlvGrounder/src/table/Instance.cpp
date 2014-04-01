@@ -9,7 +9,7 @@
 #include "../utility/Config.h"
 #include "IdsManager.h"
 
-Instances::Instances(unsigned long predicate){
+Instances::Instances(unsigned long predicate) {
 	this->predicate=predicate;
 	switch(Config::getInstance()->getIndexType()){
 		default:
@@ -31,4 +31,11 @@ void Instances::computeAtomIndex(Atom*& a){
 
 InstancesTable::~InstancesTable() {
 	for(Instances* i:instanceTable){delete i;}
+}
+
+void Instances::print() {
+	cout<<"Predicate "<<predicate<<endl;
+	for(Atom* a:facts){
+		a->print();
+	}
 }

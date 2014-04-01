@@ -11,6 +11,7 @@
 #include <unordered_set>
 #include <vector>
 #include "../atom/Atom.h"
+#include <iostream>
 
 using namespace std;
 
@@ -77,6 +78,8 @@ public:
 	unsigned long getPredicate() const {return predicate;}
 	void setPredicate(unsigned long predicate) {this->predicate = predicate;};
 
+	void print();
+
 	~Instances();
 
 private:
@@ -102,9 +105,9 @@ struct hashInstance {
 
 class InstancesTable{
 public:
-	void addInstance(unsigned long i) { Instances is(i); instanceTable.insert(&is); };
+	void addInstance(unsigned long i) { Instances* is=new Instances(i); 	instanceTable.insert(is);};
 	// Get term by the index
-	Instances* getInstance(unsigned long i) {Instances is(i); return *instanceTable.find(&is); };
+	Instances* getInstance(unsigned long i) {Instances* is=new Instances(i);return *(instanceTable.find(is));};
 	// Get size of the table
 	long getSize() {return instanceTable.size();};
 	~InstancesTable();
