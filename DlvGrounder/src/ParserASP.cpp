@@ -68,6 +68,14 @@ void addClassicalLiteral(){
 	builder->addClassicalLiteral();
 }
 
+void setNegativeAtom(){
+	builder->setNegativeAtom();
+}
+
+void setStrongNegativeAtom(){
+	builder->setStrongNegativeAtom();
+}
+
 void addVariable(string &name) {
 	builder->addVariable(name);
 }
@@ -168,14 +176,14 @@ struct asp_grammar: qi::grammar<Iterator, ascii::space_type> {
 
 		naf_litterals = naf_litteral % COMMA;
 
-		naf_litteral = (-NAF >> classical_literal >> !binop) | builtin_atom;
+		naf_litteral = (-NAF[&client::setNegativeAtom] >> classical_literal >> !binop) | builtin_atom;
 
 		builtin_atom = term >> binop >> term;
 
 		binop = EQUAL | UNEQEUAL | LESS >> !EQUAL | GREATER >> !EQUAL
 				| LESS_OR_EQ | GREATER_OR_EQ;
 
-		classical_literal = -MINUS >> ID[&client::addLiteral]
+		classical_literal = -MINUS[&client::setStrongNegativeAtom] >> ID[&client::addLiteral]
 				>> -(PAREN_OPEN >> terms >> PAREN_CLOSE) [&client::addClassicalLiteral];
 
 		terms = term % COMMA;

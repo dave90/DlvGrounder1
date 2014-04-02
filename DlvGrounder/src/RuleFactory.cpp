@@ -5,20 +5,19 @@
  *      Author: Davide
  */
 
-#include "AtomFactory.h"
+#include "RuleFactory.h"
 
 #include "atom/ClassicalLiteral.h"
 
-AtomFactory::AtomFactory() {
-	// TODO Auto-generated constructor stub
-
+RuleFactory::RuleFactory() {
+	head=true;
 }
 
-void AtomFactory::addPredicate(string name) {
+void RuleFactory::addPredicate(string name) {
 	lastPredicate=name;
 }
 
-void AtomFactory::addGClassicalLiteral(vector<unsigned long> terms,
+void RuleFactory::addGClassicalLiteral(vector<unsigned long> terms,
 		bool hashMinus, bool negative) {
 	Predicate p(lastPredicate,terms.size());
 	unsigned long index=predicateTable.insertPredicate(p);
@@ -28,8 +27,6 @@ void AtomFactory::addGClassicalLiteral(vector<unsigned long> terms,
 
 }
 
-void AtomFactory::print() {
-	for(unsigned long i=0;i<instancesTable.getSize();i++){
-		cout<<instancesTable.getInstance(i)->getPredicate()<<endl;
-	}
+void RuleFactory::print() {
+	instancesTable.print();
 }

@@ -11,18 +11,34 @@
 #include "table/PredicateTable.h"
 #include "table/Instance.h"
 
-class AtomFactory {
+class RuleFactory {
 public:
-	AtomFactory();
+	RuleFactory();
+	// Method for creation of Atom
 	void addPredicate(string name);
+	// Add atom in rule
+	void addAtom(vector<unsigned long> terms,bool hashMinus,bool negative);
+	// Add Fact in Instances
 	void addGClassicalLiteral(vector<unsigned long> terms,bool hashMinus,bool negative);
+	// Set head false and put the next atoms in the body
+	void setAtomInHead(bool b);
+
 	void print();
 
 private:
 	PredicateTable predicateTable;
 	InstancesTable instancesTable;
 
+	/*
+	 *  Variable for parsing atom
+	 */
+
 	string lastPredicate;
+
+	/*
+	 *  Variable for parsing rule
+	 */
+	bool head;
 };
 
 #endif /* ATOMFACTORY_H_ */

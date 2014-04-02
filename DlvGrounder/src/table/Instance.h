@@ -110,6 +110,7 @@ public:
 	Instances* getInstance(unsigned long i) {Instances* is=new Instances(i);return *(instanceTable.find(is));};
 	// Get size of the table
 	long getSize() {return instanceTable.size();};
+	void print(){for(Instances* i:instanceTable)i->print();};
 	~InstancesTable();
 private:
 	unordered_set<Instances*, hashInstance, hashInstance> instanceTable;

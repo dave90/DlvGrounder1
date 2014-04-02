@@ -17,7 +17,7 @@
 #include <boost/timer.hpp>
 
 #include "TermFactory.h"
-#include "AtomFactory.h"
+#include "RuleFactory.h"
 
 using namespace std;
 
@@ -87,7 +87,7 @@ private:
 	vector<unsigned long> termsInAtom;
 
 	TermFactory termsFactory;
-	AtomFactory atomFactory;
+	RuleFactory atomFactory;
 };
 
 #endif /* STATEMENTBUILDER_H_ */

@@ -47,21 +47,19 @@ void StatementBuilder::printStats() {
 	cout << "Aggregate: " << aggregate << endl;
 	cout << "Literal: " << literal << endl;
 	cout << "Term: " << term << endl;
+	cout<<endl;
 
-	Timer::getInstance()->start("Time read");
-	TermTable *tm=termsFactory.getMap();
-	cout<<"Size TermTable "<<tm->getSize()<<endl;
-	for(long i=0;i<tm->getSize();i++){
-		tm->getTerm(i);
-	}
+	Timer::getInstance()->start("Time read terms");
+	termsFactory.print();
 	Timer::getInstance()->end();
 
-	Timer::getInstance()->print();
-
 	cout<<endl;
-	cout<<"Collision term Id Manager: "<<tm->getCollision()<<endl;
+
 
 	atomFactory.print();
+
+	cout<<endl;
+	Timer::getInstance()->print();
 
 }
 
@@ -124,6 +122,7 @@ void StatementBuilder::addVariable(string & name) {
 }
 
 void StatementBuilder::addId(string & name) {
+
 	unsigned long index=termsFactory.createConstant(name,negativeTerm);
 	resetTerm();
 
@@ -132,6 +131,7 @@ void StatementBuilder::addId(string & name) {
 }
 
 void StatementBuilder::addNumber(int & name) {
+
 	ostringstream convert;
 	convert << name;
 	string id=convert.str();
@@ -143,6 +143,7 @@ void StatementBuilder::addNumber(int & name) {
 }
 
 void StatementBuilder::addTermFunction() {
+
 	termsFactory.createFunction(id,negativeTerm);
 	resetTerm();
 
@@ -154,6 +155,7 @@ void StatementBuilder::addNameFunction(string & name) {
 }
 
 void StatementBuilder::endTermFunction() {
+
 	unsigned long index=termsFactory.endFunction();
 	resetTerm();
 
@@ -165,10 +167,9 @@ void StatementBuilder::setNegativeTerm() {
 }
 
 void StatementBuilder::addArithTerm(string &op) {
+
 	unsigned long index=termsFactory.addArithTerm(op);
-
-	if(index!=-1)termsInAtom.push_back(index);
-
+	if(index!=-1)termsInAtom.pop_back();
 }
 
 

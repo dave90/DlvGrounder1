@@ -51,3 +51,7 @@ HashTermTable::~HashTermTable() {
 int HashTermTable::getCollision() {
 	return IdsManager::getConflict(IdsManager::TERM_ID_MANAGER);
 }
+
+void HashTermTable::print() {
+	for(Term *t:hash)t->print();
+}

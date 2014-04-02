@@ -50,3 +50,8 @@ BoostTermTable::~BoostTermTable() {
 int BoostTermTable::getCollision() {
 	return IdsManager::getConflict(IdsManager::TERM_ID_MANAGER);
 }
+
+void BoostTermTable::print() {
+	for(Term *t:hash)t->print();
+
+}

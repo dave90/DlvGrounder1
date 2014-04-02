@@ -49,6 +49,7 @@ public:
 	virtual long getSize()=0;
 	// Get the collision of the IdManager
 	virtual int getCollision()=0;
+	virtual void print()=0;
 	virtual ~TermTable();
 };
 

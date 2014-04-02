@@ -39,10 +39,8 @@ public:
 	//if terms.size>0 Add term in functional term otherwise return index
 	unsigned long addTermsDependency(unsigned long index);
 
-	//TO-DELETE decide where put tha Term Table
-	TermTable* getMap(){
-		return termsMap;
-	}
+	//Print Term
+	void print(){cout<<"Size Term table: "<<termsMap->getSize()<<endl;cout<<"Collision Term table: "<<termsMap->getCollision()<<endl;termsMap->print();	}
 
 	~TermFactory();
 private:

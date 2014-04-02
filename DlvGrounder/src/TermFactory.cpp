@@ -112,6 +112,9 @@ unsigned long TermFactory::addArithTerm(string op) {
 	t->addTerm(lastTerm);
 	arith=true;
 	terms.push_back(t);
+
+	if(terms.size()>1)return -1;
+	return 0;
 }
 
 TermFactory::~TermFactory() {

@@ -25,8 +25,9 @@ string ClassicalLiteral::getNameToHash(){
 
 void ClassicalLiteral::print(){
 	string print;
+	cout<<"Classical Atom: "<<predicate<<"( ";
 	for (unsigned int i = 0; i < terms.size(); ++i)
-		print+=terms[i]+", ";
-	cout<<"Classical Atom: "<<predicate<<"("<<print<<")\n";
+		cout<<terms[i]<<", ";
+	cout<<")"<<endl;
 }
 
