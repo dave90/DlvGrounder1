@@ -28,6 +28,8 @@ public:
 	void addInHead(Atom* a){head.push_back(a);};
 	void addInBody(Atom* a){body.push_back(a);};
 
+	void print();
+
 private:
 	vector<Atom*> head;
 	vector<Atom*> body;
