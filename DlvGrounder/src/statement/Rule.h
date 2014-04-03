@@ -9,6 +9,7 @@
 #define RULE_H_
 
 #include <vector>
+#include <unordered_set>
 #include "../atom/Atom.h"
 
 using namespace std;
@@ -27,6 +28,9 @@ public:
 
 	void addInHead(Atom* a){head.push_back(a);};
 	void addInBody(Atom* a){body.push_back(a);};
+
+	unordered_set<unsigned long> getPredicateInHead();
+	unordered_set<unsigned long> getPredicateInBody();
 
 	void print();
 

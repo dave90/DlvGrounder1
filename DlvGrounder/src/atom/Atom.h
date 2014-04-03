@@ -40,7 +40,7 @@ public:
 	virtual string getNameToHash() = 0 ;
 
 	//ClassicalLiteral
-	virtual unsigned long getPredicate() const {return 0;};
+	virtual unsigned long getPredicate() const {return -1;};
 	virtual void setPredicate(unsigned long predicate) {};
 	virtual const vector<unsigned long> getTerms() const {return vector<unsigned long>(0);};
 	virtual void setTerms(const vector<unsigned long>& terms){};
