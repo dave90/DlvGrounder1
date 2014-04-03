@@ -40,3 +40,21 @@ unordered_set<unsigned long> Rule::getPredicateInBody() {
 	}
 	return predicates;
 }
+
+unordered_set<unsigned long> Rule::getPositivePredicateInBody() {
+	unordered_set<unsigned long> predicates;
+	for (int i = 0; i < body.size(); ++i) {
+		if(body[i]->getPredicate()!=-1 && !body[i]->isNegative())
+			predicates.insert(body[i]->getPredicate()); //TODO Con gli aggregati/choice??
+	}
+	return predicates;
+}
+
+unordered_set<unsigned long> Rule::getNegativePredicateInBody() {
+	unordered_set<unsigned long> predicates;
+	for (int i = 0; i < body.size(); ++i) {
+		if(body[i]->getPredicate()!=-1 && body[i]->isNegative())
+			predicates.insert(body[i]->getPredicate()); //TODO Con gli aggregati/choice??
+	}
+	return predicates;
+}

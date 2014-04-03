@@ -31,7 +31,8 @@ public:
 
 	unordered_set<unsigned long> getPredicateInHead();
 	unordered_set<unsigned long> getPredicateInBody();
-
+	unordered_set<unsigned long> getPositivePredicateInBody();
+	unordered_set<unsigned long> getNegativePredicateInBody();
 	void print();
 
 private:
