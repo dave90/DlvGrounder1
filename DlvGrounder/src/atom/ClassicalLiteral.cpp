@@ -25,7 +25,11 @@ string ClassicalLiteral::getNameToHash(){
 
 void ClassicalLiteral::print(){
 	string print;
-	cout<<"Classical Atom: "<<predicate<<"( ";
+	if(negative)
+		cout<<"not ";
+	if(hasMinus)
+		cout<<"- ";
+	cout<<predicate<<"(";
 	for (unsigned int i = 0; i < terms.size(); ++i){
 		cout<<terms[i];
 		if(i!=terms.size()-1)
