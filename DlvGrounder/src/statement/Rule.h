@@ -15,7 +15,7 @@ using namespace std;
 
 class Rule {
 public:
-	Rule();
+	Rule(){};
 
 	const vector<Atom*>& getBody() const {return body;}
 	void setBody(const vector<Atom*>& body) {this->body = body;}

@@ -33,10 +33,12 @@ public:
 	void addChoiche();
 	void addDisjunction();
 	void addAggregate();
+	void setRuleBody();
+	void addRule ();
 	//Add predicate
 	void addLiteral(string name);
 	//Add atom in atomFactory
-	void addClassicalLiteral();
+	void addClassicalAtom();
 	// Set the current Atom a negative atom
 	void setNegativeAtom();
 	// Set the current Atom a strong negative atom
@@ -87,7 +89,7 @@ private:
 	vector<unsigned long> termsInAtom;
 
 	TermFactory termsFactory;
-	RuleFactory atomFactory;
+	RuleFactory ruleFactory;
 };
 
 #endif /* STATEMENTBUILDER_H_ */

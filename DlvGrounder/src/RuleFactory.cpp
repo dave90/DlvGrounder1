@@ -11,13 +11,14 @@
 
 RuleFactory::RuleFactory() {
 	head=true;
+	currentRule=new Rule;
 }
 
 void RuleFactory::addPredicate(string name) {
 	lastPredicate=name;
 }
 
-void RuleFactory::addGClassicalLiteral(vector<unsigned long> terms,
+void RuleFactory::addFact(const vector<unsigned long>& terms,
 		bool hashMinus, bool negative) {
 	Predicate p(lastPredicate,terms.size());
 	unsigned long index=predicateTable.insertPredicate(p);
@@ -27,6 +28,36 @@ void RuleFactory::addGClassicalLiteral(vector<unsigned long> terms,
 
 }
 
+void RuleFactory::addClassicalAtom(vector<unsigned long> &terms, bool hashMinus,
+		bool negative) {
+	Predicate p(lastPredicate,terms.size());
+	unsigned long predIndex=predicateTable.insertPredicate(p);
+	Atom *a=new ClassicalLiteral(predIndex,terms,hashMinus,negative);
+	if(head)
+		currentRule->addInHead(a);
+	else
+		currentRule->addInBody(a);
+}
+
+void RuleFactory::addRule() {
+	if(currentRule->isAFact()){
+		Atom *fact=currentRule->getHead()[0];
+		addFact(fact->getTerms(),fact->isHasMinus(),fact->isNegative());
+	}else
+		rules.push_back(currentRule);
+
+	head=true;
+	currentRule=new Rule;
+}
+
 void RuleFactory::print() {
+	cout<<"Instances Table"<<endl;
 	instancesTable.print();
+	cout<<endl;
+	cout<<"Rules:"<<endl;
+	for(Rule *r:rules)
+		r->print();
+}
+
+RuleFactory::~RuleFactory() {
 }

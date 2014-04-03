@@ -56,7 +56,7 @@ void StatementBuilder::printStats() {
 	cout<<endl;
 
 
-	atomFactory.print();
+	ruleFactory.print();
 
 	cout<<endl;
 	Timer::getInstance()->print();
@@ -87,13 +87,13 @@ void StatementBuilder::addAggregate() {
 }
 
 void StatementBuilder::addLiteral(string name) {
-	atomFactory.addPredicate(name);
+	ruleFactory.addPredicate(name);
 
 	literal++;
 }
 
-void StatementBuilder::addClassicalLiteral() {
-	atomFactory.addGClassicalLiteral(termsInAtom,hashMinusAtom,negativeAtom);
+void StatementBuilder::addClassicalAtom() {
+	ruleFactory.addClassicalAtom(termsInAtom,hashMinusAtom,negativeAtom);
 
 	termsInAtom.clear();
 	hashMinusAtom=false;
@@ -172,4 +172,10 @@ void StatementBuilder::addArithTerm(string &op) {
 	if(index!=-1)termsInAtom.pop_back();
 }
 
+void StatementBuilder::setRuleBody() {
+	ruleFactory.setAtomInHead(false);
+}
 
+void StatementBuilder::addRule() {
+	ruleFactory.addRule();
+}

@@ -60,13 +60,22 @@ void addAggregate() {
 	builder->addAggregate();
 }
 
+void setRuleBody(){
+	builder->setRuleBody();
+}
+
+void addRule(){
+	builder->addRule();
+}
+
+void addClassicalAtom(){
+	builder->addClassicalAtom();
+}
+
 void addLiteral(string & name) {
 	builder->addLiteral(name);
 }
 
-void addClassicalLiteral(){
-	builder->addClassicalLiteral();
-}
 
 void setNegativeAtom(){
 	builder->setNegativeAtom();
@@ -134,8 +143,8 @@ struct asp_grammar: qi::grammar<Iterator, ascii::space_type> {
 
 		statements = +statement[&client::addStatement];
 
-		statement = (CONS >> -body >> DOT[&client::addConstraint])
-				| (head >> -(CONS >> -body) >> DOT)
+		statement = (CONS[&client::setRuleBody] >> -body >> DOT[&client::addConstraint])
+				| (head >> -(CONS[&client::setRuleBody] >> -body) >> DOT[&client::addRule])
 				| (WCONS >> -body >> DOT >> SQUARE_OPEN >> weight_at_level
 						>> SQUARE_CLOSE[&client::addWeak]) | (optimize >> DOT);
 
@@ -184,7 +193,7 @@ struct asp_grammar: qi::grammar<Iterator, ascii::space_type> {
 				| LESS_OR_EQ | GREATER_OR_EQ;
 
 		classical_literal = -MINUS[&client::setStrongNegativeAtom] >> ID[&client::addLiteral]
-				>> -(PAREN_OPEN >> terms >> PAREN_CLOSE) [&client::addClassicalLiteral];
+				>> -(PAREN_OPEN >> terms >> PAREN_CLOSE) [&client::addClassicalAtom];
 
 		terms = term % COMMA;
 
