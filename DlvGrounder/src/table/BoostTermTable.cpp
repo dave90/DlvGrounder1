@@ -43,7 +43,7 @@ long BoostTermTable::getSize() {
 }
 
 BoostTermTable::~BoostTermTable() {
-	for(boost::unordered_set<Term*,hashTerm,equalTerm>::iterator it=hash.begin();it!=hash.end();it++)
+	for(auto it=hash.begin();it!=hash.end();it++)
 		delete (*it);
 }
 

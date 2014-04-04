@@ -24,16 +24,10 @@ struct hashTerm {
   size_t operator()(Term* term) const {
 	 return term->getIndex();
   }
-
-};
-
-/*
- * Equal function for the class Term
- */
-struct equalTerm{
 	  bool operator()( Term* t1,  Term* t2)const{
 		  return t1->getIndex()==t2->getIndex();
 	  }
+
 };
 
 class TermTable {

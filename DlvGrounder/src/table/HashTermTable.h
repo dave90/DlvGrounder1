@@ -30,7 +30,7 @@ public:
 	virtual void print();
 	virtual ~HashTermTable();
 private:
-	unordered_set<Term*,hashTerm,equalTerm> hash;
+	unordered_set<Term*,hashTerm,hashTerm> hash;
 };
 
 #endif /* HASHTERMTABLE_H_ */

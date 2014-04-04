@@ -28,7 +28,7 @@ public:
 	virtual void print();
 	virtual ~BoostTermTable();
 private:
-	boost::unordered_set<Term*,hashTerm,equalTerm> hash;
+	boost::unordered_set<Term*,hashTerm,hashTerm> hash;
 };
 
 #endif /* BOOSTTERMTABLE_H_ */

@@ -25,7 +25,7 @@ Instances::~Instances(){
 };
 
 void Instances::computeAtomIndex(Atom*& a){
-	pair<unsigned long, bool> index = IdsManager::getIndex(IdsManager::PREDICATE_ID_MANAGER, a->getNameToHash());
+	pair<unsigned long, bool> index = IdsManager::getIndex(IdsManager::ATOM_ID_MANAGER, a->getNameToHash());
 	a->setIndex(index.first);
 }
 
