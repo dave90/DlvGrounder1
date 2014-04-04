@@ -7,6 +7,8 @@
 
 #include "StatementDependency.h"
 
+#include <boost/graph/graph_utility.hpp>
+
 StatementDependency::StatementDependency() {
 
 }
@@ -14,9 +16,9 @@ StatementDependency::StatementDependency() {
 void StatementDependency::addRule(Rule* r) {
 	unordered_set<unsigned long> head = r->getPredicateInHead();
 	unordered_set<unsigned long> body = r->getPositivePredicateInBody();
-	for(unsigned long i:body)
-		for(unsigned long j:head)
-			boost::add_edge(i,j,depGraph);
+	for (unsigned long i : body)
+		for (unsigned long j : head)
+			boost::add_edge(i, j, depGraph);
 }
 
 StatementDependency::~StatementDependency() {
@@ -48,4 +50,8 @@ const vector<Rule*> StatementAtomMapping::getRuleInBody(unsigned long p) {
 	for (; pair1.first != pair1.second; ++pair1.first)
 		rules.push_back(pair1.first->second);
 	return rules;
+}
+
+void StatementDependency::printDepGraph() {
+    boost::print_graph(depGraph);
 }

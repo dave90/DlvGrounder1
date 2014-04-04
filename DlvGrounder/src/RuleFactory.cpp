@@ -43,8 +43,10 @@ void RuleFactory::addRule() {
 	if(currentRule->isAFact()){
 		Atom *fact=currentRule->getHead()[0];
 		addFact(fact->getTerms(),fact->isHasMinus(),fact->isNegative());
-	}else
+	}else{
 		rules.push_back(currentRule);
+		st.addRule(currentRule);
+	}
 
 	head=true;
 	currentRule=new Rule;
@@ -57,6 +59,9 @@ void RuleFactory::print() {
 	cout<<"Rules:"<<endl;
 	for(Rule *r:rules)
 		r->print();
+	cout<<endl<<endl<<"Dep Graph:"<<endl;
+	st.printDepGraph();
+
 }
 
 RuleFactory::~RuleFactory() {

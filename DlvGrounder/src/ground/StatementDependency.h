@@ -10,7 +10,6 @@
 
 #include <unordered_map>
 
-#include <boost/config.hpp>
 #include <boost/graph/strong_components.hpp>
 #include <boost/graph/adjacency_list.hpp>
 
@@ -31,6 +30,8 @@ public:
 	void addRule(Rule *r);
 	void addRules(vector<Rule*> rules){for(Rule *r:rules)addRule(r);};
 	const vector<Component>& getOrderedComponents();
+	void printDepGraph();
+
 	virtual ~StatementDependency();
 private:
 	Graph depGraph;

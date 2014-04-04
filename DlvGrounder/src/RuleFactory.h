@@ -11,6 +11,7 @@
 #include "table/PredicateTable.h"
 #include "table/Instance.h"
 #include "statement/Rule.h"
+#include "ground/StatementDependency.h"
 
 class RuleFactory {
 public:
@@ -32,6 +33,7 @@ public:
 private:
 	PredicateTable predicateTable;
 	InstancesTable instancesTable;
+	StatementDependency st;
 	vector<Rule*> rules;
 
 	/*
