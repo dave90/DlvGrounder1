@@ -45,7 +45,7 @@ void RuleFactory::addRule() {
 		addFact(fact->getTerms(),fact->isHasMinus(),fact->isNegative());
 	}else{
 		rules.push_back(currentRule);
-		st.addRule(currentRule);
+		st.addRuleMapping(currentRule);
 	}
 
 	head=true;
@@ -53,9 +53,12 @@ void RuleFactory::addRule() {
 }
 
 void RuleFactory::print() {
+	//FIXME
+	st.addRules(rules);
+
 	cout<<"Instances Table"<<endl;
 	instancesTable.print();
-	cout<<endl;
+	cout<<endl<<endl;
 	cout<<"Rules:"<<endl;
 	for(Rule *r:rules)
 		r->print();

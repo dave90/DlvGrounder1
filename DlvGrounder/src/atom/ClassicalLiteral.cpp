@@ -35,6 +35,6 @@ void ClassicalLiteral::print(){
 		if(i!=terms.size()-1)
 			cout<<", ";
 	}
-	cout<<")"<<endl;
+	cout<<")";
 }
 
