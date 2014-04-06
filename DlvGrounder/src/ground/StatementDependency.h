@@ -41,36 +41,41 @@ private:
 
 };
 
-struct Component {
-	Component(int i):id(i){};
-	vector<Rule*> rules;
-	int id;
+
+// The vertex of the Dependency graph
+struct predicate_vertex {
+	// Id of the predicate
+    unsigned long pred_id;
 };
 
-struct hashComponent {
-	size_t operator()(Component *c) const {
-		return c->id;
-	}
-	bool operator()(Component *c1, Component *c2) const {
-		return c1->id==c2->id;
-	}
-};
-
-typedef boost::adjacency_list< boost::vecS, boost::vecS, boost::directedS,boost::property< boost::edge_name_t,int> > Graph;
+typedef boost::adjacency_list< boost::vecS, boost::vecS, boost::directedS,predicate_vertex ,boost::property<boost::edge_weight_t, int>> Graph;
 
 class StatementDependency {
 public:
 	StatementDependency();
-	void addRule(Rule *r);
 	void addRuleMapping(Rule *r);
-	void addRules(vector<Rule*> rules){for(Rule *r:rules)addRule(r);};
-	const vector<Component>& getOrderedComponents();
+	void createDependency(vector<Rule*>& rules);
+	void createComponent(vector<Rule*>& rules);
 	void printDepGraph();
+	void printCompGraph();
 
 	virtual ~StatementDependency();
 private:
-	Graph depGraph;
-	unordered_set<Component*,hashComponent,hashComponent> components;
+	/*
+	 *  Dependency Graph and Component Graph
+	 */
+	Graph depGraph,compGraph;
+	/*
+	 *  Map that contans key = Id of the predicate , value = id of the vertex in depGraph
+	 */
+	unordered_map<unsigned long, unsigned int> predicateIndexGMap;
+	/*
+	 * For each predicate (in indices) relative component
+	 */
+	vector<unsigned int> component;
+	/*
+	 *  Mapping among atom and statement
+	 */
 	StatementAtomMapping statementAtomMapping;
 };
 

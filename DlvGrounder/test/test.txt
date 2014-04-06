@@ -1,4 +1,4 @@
-a(a) :- b(a).
-b(a) :- not a(a).
-a(s).
-c(43)  | r(a) :- r(v), a(34,45).
+
+
+a(g(1)). t(X, f(Y )) :- p(X, Y ), a(Y ). p(g(X), Y ) |  s(Y ) :- r(X), r(Y ).
+p(X, Y ) :- r(X), t(X, Y ). r(X) :- a(g(X)), not t(X, f(X)).

@@ -143,7 +143,7 @@ struct asp_grammar: qi::grammar<Iterator, ascii::space_type> {
 
 		statements = +statement[&client::addStatement];
 
-		statement = (CONS[&client::setRuleBody] >> -body >> DOT[&client::addConstraint])
+		statement = (CONS[&client::setRuleBody] >> -body >> DOT[&client::addRule])
 				| (head >> -(CONS[&client::setRuleBody] >> -body) >> DOT[&client::addRule])
 				| (WCONS >> -body >> DOT >> SQUARE_OPEN >> weight_at_level
 						>> SQUARE_CLOSE[&client::addWeak]) | (optimize >> DOT);

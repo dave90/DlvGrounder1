@@ -10,62 +10,142 @@
 #include <algorithm>
 
 #include <boost/graph/graph_utility.hpp>
+#include <boost/graph/strong_components.hpp>
 
 StatementDependency::StatementDependency() {
 
 }
 
-void StatementDependency::addRule(Rule* r) {
-	unordered_set<unsigned long> head = r->getPredicateInHead();
-	unordered_set<unsigned long> body = r->getPositivePredicateInBody();
-	for (unsigned long i : body)
-		for (unsigned long j : head)
-			if(statementAtomMapping.isInHead(i) && statementAtomMapping.isInHead(j)){
-				boost::add_edge(i, j, depGraph);
+void StatementDependency::createDependency(vector<Rule*>& rules) {
+
+	vector<unsigned long> bodyInHead;
+	for (Rule *r : rules) {
+		unordered_set<unsigned long> head = r->getPredicateInHead();
+		unordered_set<unsigned long> body = r->getPositivePredicateInBody();
+
+		// Calculate predicate in body that compare in head
+		for (unsigned long pred_body : body)
+			if (statementAtomMapping.isInHead(pred_body))
+				bodyInHead.push_back(pred_body);
+
+		for (unsigned long pred_head : head)
+			for (unsigned long pred_body : bodyInHead) {
+				// Index in the graph
+				unsigned int index_i, index_j;
+				auto it1 = predicateIndexGMap.find(pred_body);
+				auto it2 = predicateIndexGMap.find(pred_head);
+				if (it1 != predicateIndexGMap.end())
+					index_i = it1->second;
+				else {
+					index_i = predicateIndexGMap.size();
+					predicateIndexGMap.insert( { pred_body, index_i });
+				}
+				if (it2 != predicateIndexGMap.end())
+					index_j = it2->second;
+				else {
+					index_j = predicateIndexGMap.size();
+					predicateIndexGMap.insert( { pred_head, index_j });
+				}
+				boost::add_edge(index_i, index_j, depGraph);
+				// Set the predicate in the edge
+				depGraph[index_i].pred_id = pred_body;
+				depGraph[index_j].pred_id = pred_head;
 			}
+		bodyInHead.clear();
+	}
+	createComponent(rules);
+
+}
+
+void StatementDependency::createComponent(vector<Rule*>& rules) {
+
+	typedef boost::graph_traits<Graph>::vertex_descriptor Vertex;
+
+	std::vector<int> discover_time(
+			boost::num_vertices(depGraph));
+	component.resize(boost::num_vertices(depGraph));
+	std::vector<boost::default_color_type> color(boost::num_vertices(depGraph));
+	std::vector<Vertex> root(boost::num_vertices(depGraph));
+	boost::strong_components(depGraph, &component[0],
+			boost::root_map(&root[0]).color_map(&color[0]).discover_time_map(
+					&discover_time[0]));
+
+	vector<unsigned long> bodyInHead;
+	for (Rule *r : rules) {
+		unordered_set<unsigned long> head = r->getPredicateInHead();
+		unordered_set<unsigned long> body = r->getPredicateInBody();
+		unordered_set<unsigned long> positive_body = r->getPositivePredicateInBody();
+
+		// Calculate predicate in body that compare in head
+		for (unsigned long pred_body : body)
+			if (statementAtomMapping.isInHead(pred_body))
+				bodyInHead.push_back(pred_body);
+
+		for (unsigned long pred_head : head)
+			for (unsigned long pred_body : bodyInHead) {
+				unsigned int pred_index_graph_head =
+						predicateIndexGMap.find(pred_head)->second;
+				unsigned int pred_index_graph_body =
+						predicateIndexGMap.find(pred_body)->second;
+				if (component[pred_index_graph_head] != component[pred_index_graph_body]){
+					if(positive_body.find(pred_body)!=positive_body.end())
+					boost::add_edge(component[pred_index_graph_body],
+							component[pred_index_graph_head], 1,compGraph);
+					else{
+						cout<<"R";r->print();
+						boost::add_edge(component[pred_index_graph_body],
+												component[pred_index_graph_head], -1,compGraph);
+					}
+				}
+			}
+		bodyInHead.clear();
+	}
+
 }
 
 void StatementDependency::addRuleMapping(Rule* r) {
 	statementAtomMapping.addRule(r);
 }
 
-const vector<Component>& StatementDependency::getOrderedComponents() {
-	  using namespace boost;
-	  typedef graph_traits<Graph>::vertex_descriptor Vertex;
+void StatementDependency::printDepGraph() {
+//	boost::print_graph(depGraph);
+	using namespace boost;
+	typedef property_map<Graph, vertex_index_t>::type IndexMap;
+	IndexMap index = get(vertex_index, depGraph);
+	graph_traits<Graph>::edge_iterator ei, ei_end;
+	cout << "Dependency Graph:";
+	for (tie(ei, ei_end) = edges(depGraph); ei != ei_end; ++ei)
+		std::cout << "(" << depGraph[index[source(*ei, depGraph)]].pred_id
+				<< "," << depGraph[index[target(*ei, depGraph)]].pred_id
+				<< ") ";
+	std::cout << std::endl;
 
-	  std::vector<int> component(num_vertices(depGraph)), discover_time(num_vertices(depGraph));
-	  std::vector<default_color_type> color(num_vertices(depGraph));
-	  std::vector<Vertex> root(num_vertices(depGraph));
-	  int num = strong_components(depGraph, &component[0],
-	                              root_map(&root[0]).
-	                              color_map(&color[0]).
-	                              discover_time_map(&discover_time[0]));
+}
 
-	  for (unsigned long i = 0; i != component.size(); ++i){
-		  if(statementAtomMapping.isInHead(i)){
-			 Component *c=new Component(components[i]);
-			 auto it=components.find(c);
-			 if(it!=components.end()){
-				 delete c;
-
-				 auto it1_b=(*it)->rules.begin();
-				 auto it1_e=(*it)->rules.end();
-				 int current_size=(*it)->rules.size();
-				 auto vec_rules=statementAtomMapping.getRuleInBody(i); // FIXME body & end
-				 auto it2_b=vec_rules.begin();
-				 auto it2_e=vec_rules.end();
-				 (*it)->rules.resize(current_size+vec_rules.size());
-				 set_union(it1_b,it1_e,it2_b,it2_e,it1_b+current_size);
-			 }else{
-				 // push rule in component
-			 }
-		  }
-	  }
+void StatementDependency::printCompGraph() {
+	cout<<"Component (predicate,component) : ";
+	for(unsigned int i=0;i<component.size();i++){
+		cout<<"( "<<depGraph[i].pred_id<<" "<<component[i]<<") ";
+	}
+	cout<<endl;
+	using namespace boost;
+	property_map<Graph, edge_weight_t>::type weightmap = get(edge_weight, compGraph);
+	typedef graph_traits<Graph>::edge_iterator edge_iter;
+	std::pair<edge_iter, edge_iter> ep;
+	edge_iter ei, ei_end;
+	typedef property_map<Graph, vertex_index_t>::type IndexMap;
+	IndexMap index = get(vertex_index, compGraph);
+	cout << "Component Graph:";
+	for (tie(ei, ei_end) = edges(compGraph); ei != ei_end; ++ei)
+		std::cout << "(" << index[source(*ei, compGraph)]
+				<< "," << index[target(*ei, compGraph)]
+				<< ", " <<  weightmap[*ei]
+				<< ") " ;
+	cout<< endl ;
 
 }
 
 StatementDependency::~StatementDependency() {
-	// TODO Auto-generated destructor stub
 }
 
 void StatementAtomMapping::addRule(Rule* r) {
@@ -95,14 +175,12 @@ const vector<Rule*> StatementAtomMapping::getRuleInBody(unsigned long p) {
 	return rules;
 }
 
-void StatementDependency::printDepGraph() {
-    boost::print_graph(depGraph);
-}
-
 bool StatementAtomMapping::isInHead(unsigned long p) {
-	if(headMap.find(p)!=headMap.end())return true;
+	if (headMap.find(p) != headMap.end())
+		return true;
 	return false;
 }
 
 StatementAtomMapping::~StatementAtomMapping() {
 }
+

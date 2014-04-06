@@ -54,7 +54,7 @@ void RuleFactory::addRule() {
 
 void RuleFactory::print() {
 	//FIXME
-	st.addRules(rules);
+	st.createDependency(rules);
 
 	cout<<"Instances Table"<<endl;
 	instancesTable.print();
@@ -62,9 +62,9 @@ void RuleFactory::print() {
 	cout<<"Rules:"<<endl;
 	for(Rule *r:rules)
 		r->print();
-	cout<<endl<<endl<<"Dep Graph:"<<endl;
+	cout<<endl<<endl;
 	st.printDepGraph();
-
+	st.printCompGraph();
 }
 
 RuleFactory::~RuleFactory() {
