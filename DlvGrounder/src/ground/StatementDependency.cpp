@@ -34,6 +34,8 @@ void StatementDependency::createDependency(vector<Rule*>& rules) {
 				unsigned int index_i, index_j;
 				auto it1 = predicateIndexGMap.find(pred_body);
 				auto it2 = predicateIndexGMap.find(pred_head);
+				// Calculate if the predicate is present in the graph
+				// otherwise assign at the predicate new id (map size)
 				if (it1 != predicateIndexGMap.end())
 					index_i = it1->second;
 				else {
@@ -47,7 +49,7 @@ void StatementDependency::createDependency(vector<Rule*>& rules) {
 					predicateIndexGMap.insert( { pred_head, index_j });
 				}
 				boost::add_edge(index_i, index_j, depGraph);
-				// Set the predicate in the edge
+				// Set the predicate in the vertex
 				depGraph[index_i].pred_id = pred_body;
 				depGraph[index_j].pred_id = pred_head;
 			}
@@ -59,8 +61,8 @@ void StatementDependency::createDependency(vector<Rule*>& rules) {
 
 void StatementDependency::createComponent(vector<Rule*>& rules) {
 
+	// Calculate the strong components with boost function
 	typedef boost::graph_traits<Graph>::vertex_descriptor Vertex;
-
 	std::vector<int> discover_time(
 			boost::num_vertices(depGraph));
 	component.resize(boost::num_vertices(depGraph));
@@ -70,10 +72,12 @@ void StatementDependency::createComponent(vector<Rule*>& rules) {
 			boost::root_map(&root[0]).color_map(&color[0]).discover_time_map(
 					&discover_time[0]));
 
+	// Create component graph
 	vector<unsigned long> bodyInHead;
 	for (Rule *r : rules) {
 		unordered_set<unsigned long> head = r->getPredicateInHead();
 		unordered_set<unsigned long> body = r->getPredicateInBody();
+		//TODO optimize this
 		unordered_set<unsigned long> positive_body = r->getPositivePredicateInBody();
 
 		// Calculate predicate in body that compare in head
@@ -83,19 +87,19 @@ void StatementDependency::createComponent(vector<Rule*>& rules) {
 
 		for (unsigned long pred_head : head)
 			for (unsigned long pred_body : bodyInHead) {
+				// Take the index of the predicate in the depGraph
 				unsigned int pred_index_graph_head =
 						predicateIndexGMap.find(pred_head)->second;
 				unsigned int pred_index_graph_body =
 						predicateIndexGMap.find(pred_body)->second;
+				// TODO if there is positive and negative arc????
 				if (component[pred_index_graph_head] != component[pred_index_graph_body]){
 					if(positive_body.find(pred_body)!=positive_body.end())
 					boost::add_edge(component[pred_index_graph_body],
 							component[pred_index_graph_head], 1,compGraph);
-					else{
-						cout<<"R";r->print();
+					else
 						boost::add_edge(component[pred_index_graph_body],
 												component[pred_index_graph_head], -1,compGraph);
-					}
 				}
 			}
 		bodyInHead.clear();

@@ -18,14 +18,6 @@
 
 using namespace std;
 
-struct hashAtomRule {
-	size_t operator()(unsigned long p) const {
-		return p;
-	}
-	bool operator()(unsigned long p1, unsigned long p2) const {
-		return p1==p2;
-	}
-};
 
 class StatementAtomMapping {
 public:
@@ -36,8 +28,8 @@ public:
 	bool isInHead(unsigned long p);
 	virtual ~StatementAtomMapping();
 private:
-	unordered_multimap<unsigned long, Rule*, hashAtomRule,hashAtomRule> headMap;
-	unordered_multimap<unsigned long, Rule*, hashAtomRule,hashAtomRule> bodyMap;
+	unordered_multimap<unsigned long, Rule*> headMap;
+	unordered_multimap<unsigned long, Rule*> bodyMap;
 
 };
 
@@ -53,8 +45,11 @@ typedef boost::adjacency_list< boost::vecS, boost::vecS, boost::directedS,predic
 class StatementDependency {
 public:
 	StatementDependency();
+	// Add the mapping head and body with the rule
 	void addRuleMapping(Rule *r);
+	// Create Dependency Graph
 	void createDependency(vector<Rule*>& rules);
+	//Create Component Graph
 	void createComponent(vector<Rule*>& rules);
 	void printDepGraph();
 	void printCompGraph();
@@ -66,7 +61,7 @@ private:
 	 */
 	Graph depGraph,compGraph;
 	/*
-	 *  Map that contans key = Id of the predicate , value = id of the vertex in depGraph
+	 *  Map that contains key = Id of the predicate , value = id of the vertex in depGraph
 	 */
 	unordered_map<unsigned long, unsigned int> predicateIndexGMap;
 	/*
