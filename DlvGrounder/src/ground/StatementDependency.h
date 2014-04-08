@@ -56,6 +56,13 @@ public:
 
 	virtual ~StatementDependency();
 private:
+
+	void addEdgeInDependencyGraph(unsigned long pred_body,unsigned long pred_head);
+	void addEdgeInComponentGraph(unsigned long pred_body,unsigned long pred_head,int weight);
+
+	// Calculate the strong components with boost function
+	void calculateStrongComponent();
+
 	/*
 	 *  Dependency Graph and Component Graph
 	 */

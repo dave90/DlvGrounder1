@@ -33,6 +33,13 @@ public:
 	unordered_set<unsigned long> getPredicateInBody();
 	unordered_set<unsigned long> getPositivePredicateInBody();
 	unordered_set<unsigned long> getNegativePredicateInBody();
+
+	vector<Atom*>::const_iterator getBeginBody(){return body.begin();};
+	vector<Atom*>::const_iterator getEndBody(){return body.end();};
+	vector<Atom*>::const_iterator getBeginHead(){return head.begin();};
+	vector<Atom*>::const_iterator getEndHead(){return head.end();};
+
+
 	void print();
 
 private:

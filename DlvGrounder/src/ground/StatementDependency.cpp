@@ -18,91 +18,106 @@ StatementDependency::StatementDependency() {
 
 void StatementDependency::createDependency(vector<Rule*>& rules) {
 
-	vector<unsigned long> bodyInHead;
+	// Temp hash_set of predicate
+	unordered_set<unsigned long> head_predicateVisited;
+	unordered_set<unsigned long> body_predicateVisited;
+
 	for (Rule *r : rules) {
-		unordered_set<unsigned long> head = r->getPredicateInHead();
-		unordered_set<unsigned long> body = r->getPositivePredicateInBody();
 
-		// Calculate predicate in body that compare in head
-		for (unsigned long pred_body : body)
-			if (statementAtomMapping.isInHead(pred_body))
-				bodyInHead.push_back(pred_body);
+		for (auto head_it = r->getBeginHead(); head_it != r->getEndHead();
+				head_it++) {
 
-		for (unsigned long pred_head : head)
-			for (unsigned long pred_body : bodyInHead) {
-				// Index in the graph
-				unsigned int index_i, index_j;
-				auto it1 = predicateIndexGMap.find(pred_body);
-				auto it2 = predicateIndexGMap.find(pred_head);
-				// Calculate if the predicate is present in the graph
-				// otherwise assign at the predicate new id (map size)
-				if (it1 != predicateIndexGMap.end())
-					index_i = it1->second;
-				else {
-					index_i = predicateIndexGMap.size();
-					predicateIndexGMap.insert( { pred_body, index_i });
+			unsigned long pred_head = (*head_it)->getPredicate();
+
+			// Verify if the predicate in the head was been visited
+			if (!head_predicateVisited.count(pred_head)) {
+
+				// Set this predicate visited
+				head_predicateVisited.insert(pred_head);
+
+				for (auto body_it = r->getBeginBody();
+						body_it != r->getEndBody(); body_it++) {
+
+					// Verify if the predicate is positive
+					if (!(*body_it)->isNegative()) {
+						unsigned long pred_body = (*body_it)->getPredicate();
+
+						// Verify if the predicate in the head was been visited and compare in head of same rule
+						if (!body_predicateVisited.count(pred_body)	&& statementAtomMapping.isInHead(pred_body)) {
+
+							// Set this predicate visited
+							body_predicateVisited.insert(pred_body);
+							addEdgeInDependencyGraph(pred_body,pred_head);
+
+						}
+					}
+
 				}
-				if (it2 != predicateIndexGMap.end())
-					index_j = it2->second;
-				else {
-					index_j = predicateIndexGMap.size();
-					predicateIndexGMap.insert( { pred_head, index_j });
-				}
-				boost::add_edge(index_i, index_j, depGraph);
-				// Set the predicate in the vertex
-				depGraph[index_i].pred_id = pred_body;
-				depGraph[index_j].pred_id = pred_head;
 			}
-		bodyInHead.clear();
+			//set unvisited all predicate in the body of the rule
+			body_predicateVisited.clear();
+		}
+		//set unvisited all predicate in the atom of the rule
+		head_predicateVisited.clear();
 	}
+
 	createComponent(rules);
 
 }
 
-void StatementDependency::createComponent(vector<Rule*>& rules) {
-
-	// Calculate the strong components with boost function
+void StatementDependency::calculateStrongComponent() {
 	typedef boost::graph_traits<Graph>::vertex_descriptor Vertex;
-	std::vector<int> discover_time(
-			boost::num_vertices(depGraph));
+	std::vector<int> discover_time(boost::num_vertices(depGraph));
 	component.resize(boost::num_vertices(depGraph));
 	std::vector<boost::default_color_type> color(boost::num_vertices(depGraph));
 	std::vector<Vertex> root(boost::num_vertices(depGraph));
 	boost::strong_components(depGraph, &component[0],
 			boost::root_map(&root[0]).color_map(&color[0]).discover_time_map(
 					&discover_time[0]));
+}
 
-	// Create component graph
-	vector<unsigned long> bodyInHead;
+void StatementDependency::createComponent(vector<Rule*>& rules) {
+
+	calculateStrongComponent();
+
+	// Temp hash_set of predicate
+	unordered_set<unsigned long> head_predicateVisited;
+
 	for (Rule *r : rules) {
-		unordered_set<unsigned long> head = r->getPredicateInHead();
-		unordered_set<unsigned long> body = r->getPredicateInBody();
-		//TODO optimize this
-		unordered_set<unsigned long> positive_body = r->getPositivePredicateInBody();
 
-		// Calculate predicate in body that compare in head
-		for (unsigned long pred_body : body)
-			if (statementAtomMapping.isInHead(pred_body))
-				bodyInHead.push_back(pred_body);
+		for (auto head_it = r->getBeginHead(); head_it != r->getEndHead();
+				head_it++) {
 
-		for (unsigned long pred_head : head)
-			for (unsigned long pred_body : bodyInHead) {
-				// Take the index of the predicate in the depGraph
-				unsigned int pred_index_graph_head =
-						predicateIndexGMap.find(pred_head)->second;
-				unsigned int pred_index_graph_body =
-						predicateIndexGMap.find(pred_body)->second;
-				// TODO if there is positive and negative arc????
-				if (component[pred_index_graph_head] != component[pred_index_graph_body]){
-					if(positive_body.find(pred_body)!=positive_body.end())
-					boost::add_edge(component[pred_index_graph_body],
-							component[pred_index_graph_head], 1,compGraph);
-					else
-						boost::add_edge(component[pred_index_graph_body],
-												component[pred_index_graph_head], -1,compGraph);
+			unsigned long pred_head = (*head_it)->getPredicate();
+
+			// Verify if the predicate in the head was been visited
+			if (!head_predicateVisited.count(pred_head)) {
+
+				// Set this predicate visited
+				head_predicateVisited.insert(pred_head);
+
+				for (auto body_it = r->getBeginBody();
+						body_it != r->getEndBody(); body_it++) {
+
+					bool isPositive=!(*body_it)->isNegative();
+
+
+						unsigned long pred_body = (*body_it)->getPredicate();
+
+						// Verify if the predicate compare in head of same rule
+						if (statementAtomMapping.isInHead(pred_body)) {
+							int weight=isPositive;
+							if(!isPositive)weight=-1;
+							addEdgeInComponentGraph(pred_body,pred_head,weight);
+
+						}
+
+
 				}
 			}
-		bodyInHead.clear();
+		}
+		//set unvisited all predicate in the atom of the rule
+		head_predicateVisited.clear();
 	}
 
 }
@@ -127,13 +142,14 @@ void StatementDependency::printDepGraph() {
 }
 
 void StatementDependency::printCompGraph() {
-	cout<<"Component (predicate,component) : ";
-	for(unsigned int i=0;i<component.size();i++){
-		cout<<"( "<<depGraph[i].pred_id<<" "<<component[i]<<") ";
+	cout << "Component (predicate,component) : ";
+	for (unsigned int i = 0; i < component.size(); i++) {
+		cout << "( " << depGraph[i].pred_id << " " << component[i] << ") ";
 	}
-	cout<<endl;
+	cout << endl;
 	using namespace boost;
-	property_map<Graph, edge_weight_t>::type weightmap = get(edge_weight, compGraph);
+	property_map<Graph, edge_weight_t>::type weightmap = get(edge_weight,
+			compGraph);
 	typedef graph_traits<Graph>::edge_iterator edge_iter;
 	std::pair<edge_iter, edge_iter> ep;
 	edge_iter ei, ei_end;
@@ -141,12 +157,49 @@ void StatementDependency::printCompGraph() {
 	IndexMap index = get(vertex_index, compGraph);
 	cout << "Component Graph:";
 	for (tie(ei, ei_end) = edges(compGraph); ei != ei_end; ++ei)
-		std::cout << "(" << index[source(*ei, compGraph)]
-				<< "," << index[target(*ei, compGraph)]
-				<< ", " <<  weightmap[*ei]
-				<< ") " ;
-	cout<< endl ;
+		std::cout << "(" << index[source(*ei, compGraph)] << ","
+				<< index[target(*ei, compGraph)] << ", " << weightmap[*ei]
+				<< ") ";
+	cout << endl;
 
+}
+
+void StatementDependency::addEdgeInDependencyGraph(unsigned long pred_body,
+		unsigned long pred_head) {
+	unsigned int index_i, index_j;
+	auto it1 = predicateIndexGMap.find(pred_body);
+	auto it2 = predicateIndexGMap.find(pred_head);
+	// Calculate if the predicate is present in the graph
+	// otherwise assign at the predicate new id (map size)
+	if (it1 != predicateIndexGMap.end())
+		index_i = it1->second;
+	else {
+		index_i = predicateIndexGMap.size();
+		predicateIndexGMap.insert(
+				{ pred_body, index_i });
+	}
+	if (it2 != predicateIndexGMap.end())
+		index_j = it2->second;
+	else {
+		index_j = predicateIndexGMap.size();
+		predicateIndexGMap.insert(
+				{ pred_head, index_j });
+	}
+	boost::add_edge(index_i, index_j, depGraph);
+	// Set the predicate in the vertex
+	depGraph[index_i].pred_id = pred_body;
+	depGraph[index_j].pred_id = pred_head;
+}
+
+void StatementDependency::addEdgeInComponentGraph(unsigned long pred_body,
+		unsigned long pred_head,int weight) {
+	unsigned int pred_index_graph_head = predicateIndexGMap.find(
+							pred_head)->second;
+	unsigned int pred_index_graph_body =
+			predicateIndexGMap.find(pred_body)->second;
+		if(component[pred_index_graph_body]!=component[pred_index_graph_head])
+			boost::add_edge(component[pred_index_graph_body],
+					component[pred_index_graph_head], weight, compGraph);
 }
 
 StatementDependency::~StatementDependency() {
@@ -187,4 +240,5 @@ bool StatementAtomMapping::isInHead(unsigned long p) {
 
 StatementAtomMapping::~StatementAtomMapping() {
 }
+
 

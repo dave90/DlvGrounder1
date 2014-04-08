@@ -58,3 +58,4 @@ unordered_set<unsigned long> Rule::getNegativePredicateInBody() {
 	}
 	return predicates;
 }
+
