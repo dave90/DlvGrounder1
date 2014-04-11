@@ -14,12 +14,16 @@
 
 #include <vector>
 #include <cstring>
-#include <unordered_map>
+//#include <unordered_map>
+#include <boost/bimap.hpp>
+#include <boost/bimap/unordered_set_of.hpp>
+#include <boost/bimap/set_of.hpp>
 
 #include "HashString.h"
 
 
 using namespace std;
+using namespace boost;
 
 typedef pair<string, unsigned long> pair_string_id;
 typedef pair<unsigned long, bool> pair_long_bool;
@@ -28,6 +32,16 @@ typedef pair<unsigned long, bool> pair_long_bool;
 /*
  *  The hash for the string
  */
+//template <class T>
+//class hash_string_table {
+//private:
+//	static HashString* hash;
+//public:
+//	size_t operator()(string p) const {
+//		return hash->computeHash(p);
+//	}
+//};
+
 struct hash_string_table {
 	static HashString* hash;
 	size_t operator()(string p) const {
@@ -36,12 +50,14 @@ struct hash_string_table {
 };
 
 
+
 struct equalString {
 	bool operator()(const pair_string_id &p1, const pair_string_id &p2) const {
 		return strcmp(p1.first.c_str(), p2.first.c_str()) == 0;
 	}
 };
 
+typedef bimap< bimaps::unordered_set_of<string,hash_string_table>, bimaps::set_of<unsigned long> > hashMap;
 
 class IdManager {
 public:
@@ -50,10 +66,13 @@ public:
 	pair_long_bool insert(string s);
 	//insert with pre hash
 	pair_long_bool insert(size_t hash,string s);
-	//return the number of collision
+	//Find the String with the given index
+	string find(unsigned long index);
+	//return the number of collisions
 	unsigned long getCollision();
 private:
-	unordered_map<string, unsigned long,hash_string_table> hashId;
+	hashMap hashId;
+//	unordered_map<string, unsigned long,hash_string_table> hashId;
 	unsigned long counter;
 
 	void setHashType();
@@ -62,7 +81,9 @@ private:
 class IdsManager {
 public:
 	virtual ~IdsManager();
-	static pair_long_bool getIndex(unsigned int i, string s);
+	static pair_long_bool getIndex(unsigned int idManager, string s);
+	// Given an index and the IdManager type, returns the corresponding string
+	static string getString(unsigned int idManager, unsigned long index);
 	static int getConflict(unsigned int i);
 	static const int TERM_ID_MANAGER=0;
 	static const int PREDICATE_ID_MANAGER=1;

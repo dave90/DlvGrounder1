@@ -51,12 +51,12 @@ IdManager::IdManager() {
 pair_long_bool IdManager::insert(string s) {
 
 	pair_string_id pString_Id(s, 0);
-	auto its = hashId.find(s);
-	if (its == hashId.end()) {
+	auto its = hashId.left.find(s);
+	if (its == hashId.left.end()) {
 		pair_long_bool pairLong_bool(counter, false);
-		pString_Id.second = counter;
+//		pString_Id.second = counter;
+		hashId.left.insert({s,counter});
 		counter++;
-		hashId.insert(pString_Id);
 		return pairLong_bool;
 	} else {
 		return make_pair(its->second,true);
@@ -98,4 +98,14 @@ pair_long_bool IdsManager::getIndex(unsigned int i, string s){
 
 int IdsManager::getConflict(unsigned int i) {
 	return idsManager[i].getCollision();
+}
+
+string IdsManager::getString(unsigned int idManager, unsigned long index) {
+	if(idManager>=idsManager.size())
+			return 0;
+	return idsManager[idManager].find(index);
+}
+
+string IdManager::find(unsigned long index) {
+	return hashId.right.find(index)->second;
 }
