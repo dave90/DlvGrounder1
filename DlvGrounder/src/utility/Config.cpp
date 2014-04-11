@@ -38,6 +38,7 @@ void Config::setTermTableType(TermTableType termTableType) {
 	this->termTableType = termTableType;
 }
 
+
 IndexType Config::getIndexType() const {
 	return indexType;
 }

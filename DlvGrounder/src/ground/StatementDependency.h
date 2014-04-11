@@ -40,45 +40,78 @@ struct predicate_vertex {
     unsigned long pred_id;
 };
 
-typedef boost::adjacency_list< boost::vecS, boost::vecS, boost::directedS,predicate_vertex ,boost::property<boost::edge_weight_t, int>> Graph;
 
-class StatementDependency {
+typedef boost::adjacency_list< boost::setS, boost::vecS , boost::directedS,predicate_vertex> Graph;
+typedef boost::adjacency_list< boost::setS, boost::vecS , boost::directedS ,predicate_vertex,boost::property<boost::edge_weight_t, int>> WeightGraph;
+
+class DependencyGraph{
 public:
-	StatementDependency();
-	// Add the mapping head and body with the rule
-	void addRuleMapping(Rule *r);
+	DependencyGraph(){};
 	// Create Dependency Graph
-	void createDependency(vector<Rule*>& rules);
-	//Create Component Graph
-	void createComponent(vector<Rule*>& rules);
-	void printDepGraph();
-	void printCompGraph();
+	void createDependency(vector<Rule*>& rules,StatementAtomMapping &statementAtomMapping);
+	// Calculate strong component and put predicate_id and component
+	void calculateStrongComponent(unordered_map<unsigned long,unsigned int> &component);
 
-	virtual ~StatementDependency();
+	void addEdge(unsigned long pred_body,unsigned long pred_head);
+	void deleteVertex(unsigned long pred);
+
+	// Print predicate index
+	void print();
+
 private:
-
-	void addEdgeInDependencyGraph(unsigned long pred_body,unsigned long pred_head);
-	void addEdgeInComponentGraph(unsigned long pred_body,unsigned long pred_head,int weight);
-
-	// Calculate the strong components with boost function
-	void calculateStrongComponent();
-
 	/*
 	 *  Dependency Graph and Component Graph
 	 */
-	Graph depGraph,compGraph;
+	Graph depGraph;
 	/*
 	 *  Map that contains key = Id of the predicate , value = id of the vertex in depGraph
 	 */
 	unordered_map<unsigned long, unsigned int> predicateIndexGMap;
+};
+
+class ComponentGraph{
+public:
+	ComponentGraph(){};
+	// Create Dependency Graph
+	void createComponent(vector<Rule*>& rules,DependencyGraph &depGraph,StatementAtomMapping &statementAtomMapping);
+
+
+	void addEdge(unsigned long pred_body,unsigned long pred_head,int weight);
+	void print();
+
+private:
+	// Calculate the strong components with boost function
+
+	/*
+	 *  Dependency Graph and Component Graph
+	 */
+	WeightGraph compGraph;
 	/*
 	 * For each predicate (in indices) relative component
 	 */
-	vector<unsigned int> component;
-	/*
-	 *  Mapping among atom and statement
-	 */
+	unordered_map<unsigned long,unsigned int> component;
+};
+
+
+
+
+class StatementDependency {
+public:
+	StatementDependency(){};
+	// Add the mapping head and body with the rule
+	void addRuleMapping(Rule *r);
+	void createDependencyGraph();
+	void createComponentGraph();
+	void createDependencyComponentGraph();
+
+	void print();
+
+	virtual ~StatementDependency();
+private:
+	DependencyGraph depGraph;
+	ComponentGraph compGraph;
 	StatementAtomMapping statementAtomMapping;
+	vector<Rule*> rules;
 };
 
 

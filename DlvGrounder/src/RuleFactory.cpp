@@ -12,6 +12,10 @@
 RuleFactory::RuleFactory() {
 	head=true;
 	currentRule=new Rule;
+
+	predicateTable=new PredicateTable;
+	instancesTable=new InstancesTable;
+	st=new StatementDependency;
 }
 
 void RuleFactory::addPredicate(string name) {
@@ -20,18 +24,18 @@ void RuleFactory::addPredicate(string name) {
 
 void RuleFactory::addFact(const vector<unsigned long>& terms,
 		bool hashMinus, bool negative) {
-	Predicate p(lastPredicate,terms.size());
-	unsigned long index=predicateTable.insertPredicate(p);
-	instancesTable.addInstance(index);
+	Predicate *p=new Predicate(lastPredicate,terms.size());
+	unsigned long index=predicateTable->insertPredicate(p);
+	instancesTable->addInstance(index);
 	Atom* atom=new ClassicalLiteral(index,terms,hashMinus,negative);
-	instancesTable.getInstance(index)->addFact(atom);
+	instancesTable->getInstance(index)->addFact(atom);
 
 }
 
 void RuleFactory::addClassicalAtom(vector<unsigned long> &terms, bool hashMinus,
 		bool negative) {
-	Predicate p(lastPredicate,terms.size());
-	unsigned long predIndex=predicateTable.insertPredicate(p);
+	Predicate *p=new Predicate(lastPredicate,terms.size());
+	unsigned long predIndex=predicateTable->insertPredicate(p);
 	Atom *a=new ClassicalLiteral(predIndex,terms,hashMinus,negative);
 	if(head)
 		currentRule->addInHead(a);
@@ -44,28 +48,13 @@ void RuleFactory::addRule() {
 		Atom *fact=currentRule->getHead()[0];
 		addFact(fact->getTerms(),fact->isHasMinus(),fact->isNegative());
 	}else{
-		rules.push_back(currentRule);
-		st.addRuleMapping(currentRule);
+		st->addRuleMapping(currentRule);
 	}
 
 	head=true;
 	currentRule=new Rule;
 }
 
-void RuleFactory::print() {
-	//FIXME
-	st.createDependency(rules);
-
-	cout<<"Instances Table"<<endl;
-	instancesTable.print();
-	cout<<endl<<endl;
-	cout<<"Rules:"<<endl;
-	for(Rule *r:rules)
-		r->print();
-	cout<<endl<<endl;
-	st.printDepGraph();
-	st.printCompGraph();
-}
 
 RuleFactory::~RuleFactory() {
 }

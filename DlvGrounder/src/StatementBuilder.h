@@ -62,6 +62,11 @@ public:
 	//Add Arithmetic term and pass the operator
 	void addArithTerm(string &op);
 
+	TermTable* getTermTable(){return termsFactory.getTermTable();};
+	InstancesTable* getInstanceTable(){return ruleFactory.getInstancesTable();};
+	StatementDependency* getStatementDependency(){return ruleFactory.getStatementDependency();};
+	PredicateTable* getPredicateTable(){return ruleFactory.getPredicateTable();};
+
 private:
 	/*
 	 *  Counter for the statistics

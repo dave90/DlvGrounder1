@@ -16,19 +16,13 @@
  * Hash function for the class Predicate
  */
 struct hashPredicate {
-  size_t operator()(Predicate p) const {
-	  return p.getIndex();
-  }
+	size_t operator()(Predicate* p) const {
+		return p->getIndex();
+	}
+	bool operator()(Predicate *p1, Predicate *p2) const {
+		return *p1 == *p2;
+	}
 
-};
-
-/*
- * Equal function for the class Predicate
- */
-struct equalPredicate{
-	  bool operator()( Predicate p1,  Predicate p2)const{
-		  return p1==p2;
-	  }
 };
 
 using namespace std;
@@ -36,11 +30,13 @@ using namespace std;
 class PredicateTable {
 public:
 	PredicateTable();
-	unsigned long insertPredicate(Predicate &p);
-	Predicate getPredicate(unsigned long id);
+	unsigned long insertPredicate(Predicate *p);
+	Predicate* getPredicate(unsigned long id);
+	void setEdb(unsigned long index);
+	void setIdb(unsigned long index);
 
 private:
-	unordered_set<Predicate,hashPredicate,equalPredicate> hash;
+	unordered_set<Predicate*, hashPredicate, hashPredicate> hash;
 };
 
 #endif /* PREDICATETABLE_H_ */

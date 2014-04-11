@@ -27,14 +27,19 @@ public:
 	// Add rule in
 	void addRule();
 
-	void print();
+	 InstancesTable* getInstancesTable() {return instancesTable;}
+
+	 PredicateTable* getPredicateTable() {return predicateTable;}
+
+	 StatementDependency* getStatementDependency() {return st;}
+
 	~RuleFactory();
 
+
 private:
-	PredicateTable predicateTable;
-	InstancesTable instancesTable;
-	StatementDependency st;
-	vector<Rule*> rules;
+	PredicateTable* predicateTable;
+	InstancesTable* instancesTable;
+	StatementDependency* st;
 
 	/*
 	 *  Variable for parsing atom

@@ -10,15 +10,20 @@
 #include <string>
 #include <fstream>
 
+#include <tclap/CmdLine.h>
+#include <tclap/SwitchArg.h>
+
 #include <boost/spirit/include/qi.hpp>
 #include <boost/config/warning_disable.hpp>
 #include <boost/lambda/lambda.hpp>
 #include <boost/bind.hpp>
 
 #include "StatementBuilder.h"
+#include "ground/ProgramGrounder.h"
 #include "utility/Timer.h"
 #include "utility/Config.h"
 
+using namespace TCLAP;
 using namespace std;
 
 namespace qi = boost::spirit::qi;
@@ -292,6 +297,44 @@ typedef string::const_iterator string_const_it;
 typedef boost::spirit::istream_iterator iter_file;
 typedef asp_grammar<string_const_it> asp_parser;
 
+void parseArgs(int argc, char* argv[]){
+		try {
+
+		// Define the command line object.
+		CmdLine cmd("Command description message", ' ', "0.9");
+
+		ValueArg<string> termTableArg("tm","termTable","Term Table Type",false,"0","int");
+		cmd.add( &termTableArg );
+
+		ValueArg<string> hashArg("hash","hash","Hash type",false,"0","int");
+		cmd.add( &hashArg );
+
+		SwitchArg parseArgs("pr","print","Print parser result", false);
+		cmd.add(&parseArgs);
+
+		SwitchArg dependencyArgs("dg","dependency","Print dependency graph", false);
+		cmd.add(&dependencyArgs);
+
+		SwitchArg componentArgs("cg","component","Print component graph", false);
+		cmd.add(&dependencyArgs);
+
+		// Parse the args.
+		cmd.parse( argc, argv );
+
+		// Get the value parsed by each arg.
+		int termTable = termTableArg.getValue();
+		string hash =hashArg.getValue();
+		bool parser=dependencyArgs.getValue();
+		bool dependency;
+		bool component;
+
+
+
+
+		} catch (ArgException &e)  // catch any exceptions
+		{ cerr << "error: " << e.error() << " for arg " << e.argId() << endl; }
+}
+
 int main(int argc, char* argv[]) {
 
 	//Set name of the file
@@ -345,6 +388,12 @@ int main(int argc, char* argv[]) {
 	Timer::getInstance()->end();
 
 	client::builder->printStats();
+
+	ProgramGrounder grounder(client::builder->getPredicateTable(),client::builder->getInstanceTable(),client::builder->getStatementDependency(),client::builder->getTermTable());
+
+	grounder.ground();
+
+	grounder.print();
 
 	delete client::builder;
 

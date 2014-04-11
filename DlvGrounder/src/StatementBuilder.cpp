@@ -49,15 +49,6 @@ void StatementBuilder::printStats() {
 	cout << "Term: " << term << endl;
 	cout<<endl;
 
-	Timer::getInstance()->start("Time read terms");
-	termsFactory.print();
-	Timer::getInstance()->end();
-
-	cout<<endl;
-
-
-	ruleFactory.print();
-
 	cout<<endl;
 	Timer::getInstance()->print();
 
