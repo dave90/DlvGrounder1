@@ -13,6 +13,8 @@
 #include <boost/graph/strong_components.hpp>
 #include <boost/graph/graphviz.hpp>
 
+#include "../utility/Config.h"
+
 void StatementAtomMapping::addRule(Rule* r) {
 	unordered_set<unsigned long> head = r->getPredicateInHead();
 	unordered_set<unsigned long> body = r->getPredicateInBody();
@@ -242,8 +244,10 @@ void StatementDependency::createDependencyComponentGraph() {
 }
 
 void StatementDependency::print() {
-	depGraph.print();
-	compGraph.print();
+	if (Config::getInstance()->isDependency())
+		depGraph.print();
+	if (Config::getInstance()->isComponent())
+		compGraph.print();
 }
 
 StatementDependency::~StatementDependency() {

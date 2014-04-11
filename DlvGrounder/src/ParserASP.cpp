@@ -297,69 +297,66 @@ typedef string::const_iterator string_const_it;
 typedef boost::spirit::istream_iterator iter_file;
 typedef asp_grammar<string_const_it> asp_parser;
 
-void parseArgs(int argc, char* argv[]){
+bool parseArgs(int argc, char* argv[],string& filename){
 		try {
 
 		// Define the command line object.
 		CmdLine cmd("Command description message", ' ', "0.9");
 
-		ValueArg<int> termTableArg("tm","termTable","Term Table Type",false,0,"int");
+		ValueArg<string> termTableArg("t","termTable","Term Table Type",false,"STL","string");
 		cmd.add( &termTableArg );
 
-		ValueArg<int> hashArg("hash","hash","Hash type",false,0,"int");
+		ValueArg<string> hashArg("a","hash","Hash type",false,"STL_HASH","string");
 		cmd.add( &hashArg );
 
-		SwitchArg parseArgs("pr","print","Print parser result", false);
+		SwitchArg parseArgs("p","print","Print parser result", false);
 		cmd.add(&parseArgs);
 
-		SwitchArg dependencyArgs("dg","dependency","Print dependency graph", false);
+		SwitchArg dependencyArgs("d","dependency","Print dependency graph", false);
 		cmd.add(&dependencyArgs);
 
-		SwitchArg componentArgs("cg","component","Print component graph", false);
-		cmd.add(&dependencyArgs);
+		SwitchArg componentArgs("c","component","Print component graph", false);
+		cmd.add(&componentArgs);
+
+		SwitchArg statisticArgs("s","statistic","Print statistic", false);
+		cmd.add(&statisticArgs);
+
+		//must be last
+		UnlabeledValueArg<string>  fileArg( "fileName", "program file",true, "", "file"  );
+		cmd.add( fileArg );
 
 		// Parse the args.
 		cmd.parse( argc, argv );
 
 		// Get the value parsed by each arg.
-		int termTable = termTableArg.getValue();
-		int hash =hashArg.getValue();
+		string termTable = termTableArg.getValue();
+		string hash =hashArg.getValue();
 		bool parser=parseArgs.getValue();
 		bool dependency=dependencyArgs.getValue();
 		bool component=componentArgs.getValue();
+		bool statistic=statisticArgs.getValue();
+		filename=fileArg.getValue();
 
-
+		Config::getInstance()->setTermTableType(termTable);
+		Config::getInstance()->setHashType(hash);
+		Config::getInstance()->setParser(parser);
+		Config::getInstance()->setDependency(dependency);
+		Config::getInstance()->setComponent(component);
+		Config::getInstance()->setStatistic(statistic);
 
 
 		} catch (ArgException &e)  // catch any exceptions
-		{ cerr << "error: " << e.error() << " for arg " << e.argId() << endl; }
+		{ cerr << "error: " << e.error() << " for arg " << e.argId() << endl; return false;}
+		return true;
 }
 
+
 int main(int argc, char* argv[]) {
+	string nameFile;
 
-	//Set name of the file
-	string nameFile = argv[argc - 1];
+	if(!parseArgs(argc,argv,nameFile))
+		return 0;
 
-	for (int i = 0; i < argc; i++) {
-		//Set the type of the table
-		if (strcmp(argv[i], "-termTable=STL") == 0)
-			Config::getInstance()->setTermTableType(TermTableType::STL);
-		else if (strcmp(argv[i], "-termTable=BOOST") == 0)
-			Config::getInstance()->setTermTableType(TermTableType::BOOST);
-		else if (strcmp(argv[i], "-hash=BOOST") == 0)
-			Config::getInstance()->setHashType(HashType::BOOST_HASH);
-		else if (strcmp(argv[i], "-hash=JAVA") == 0)
-			Config::getInstance()->setHashType(HashType::JAVA_HASH);
-		else if (strcmp(argv[i], "-hash=STL") == 0)
-			Config::getInstance()->setHashType(HashType::STL_HASH);
-		else if (strcmp(argv[i], "-hash=MUR") == 0)
-			Config::getInstance()->setHashType(HashType::MUR_HASH);
-		else if (strcmp(argv[i], "-hash=PERL_DJ") == 0)
-			Config::getInstance()->setHashType(HashType::PERL_DJ);
-		else if (strcmp(argv[i], "-hash=PERL_B") == 0)
-			Config::getInstance()->setHashType(HashType::PERL_B);
-
-	}
 	client::builder = new StatementBuilder;
 
 	ifstream ifs(nameFile);
@@ -374,14 +371,26 @@ int main(int argc, char* argv[]) {
 	asp_parser parser;
 	bool r = phrase_parse(iter, end, parser, ascii::space);
 	if (r && iter == end) {
-		cout << "-------------------------\n";
-		cout << "Parsing succeeded\n";
-		cout << "-------------------------\n";
+
+		if(Config::getInstance()->isParser()){
+
+			cout << "-------------------------\n";
+			cout << "Parsing succeeded\n";
+			cout << "-------------------------\n";
+
+		}
+
+
+		ProgramGrounder grounder(client::builder->getPredicateTable(),client::builder->getInstanceTable(),client::builder->getStatementDependency(),client::builder->getTermTable());
+
+		grounder.ground();
+
+		grounder.print();
 	} else {
 		string rest(iter, end);
 		cout << "-------------------------\n";
 		cout << "Parsing failed\n";
-		cout << "stopped at: \": " << rest << "\"\n";
+//		cout << "stopped at: \": " << rest << "\"\n";
 		cout << "-------------------------\n";
 	}
 
@@ -389,11 +398,6 @@ int main(int argc, char* argv[]) {
 
 	client::builder->printStats();
 
-	ProgramGrounder grounder(client::builder->getPredicateTable(),client::builder->getInstanceTable(),client::builder->getStatementDependency(),client::builder->getTermTable());
-
-	grounder.ground();
-
-	grounder.print();
 
 	delete client::builder;
 

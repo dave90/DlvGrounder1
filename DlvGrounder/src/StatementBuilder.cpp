@@ -5,52 +5,52 @@
  *      Author: Davide
  */
 
-
-
 #include "StatementBuilder.h"
 #include "utility/Timer.h"
 #include "utility/Config.h"
-
 
 #include <cstring>
 #include <iostream>
 #include <sstream>
 
 StatementBuilder::StatementBuilder() {
-	 statement = 0;
-	 weak = 0;
-	 constraint = 0;
-	 disjunction = 0;
-	 choice = 0;
-	 aggregate = 0;
-	 literal = 0;
-	 term = 0;
+	statement = 0;
+	weak = 0;
+	constraint = 0;
+	disjunction = 0;
+	choice = 0;
+	aggregate = 0;
+	literal = 0;
+	term = 0;
 
-	 negativeTerm=false;
-	 id="";
+	negativeTerm = false;
+	id = "";
 
-	 negativeAtom=false;
-	 hashMinusAtom=false;
+	negativeAtom = false;
+	hashMinusAtom = false;
 
 }
 
-
 void StatementBuilder::printStats() {
-	cout<<"Term table: "<<Config::getInstance()->getTermTableType()<<endl;
-	cout<<"Hash: "<<Config::getInstance()->getHashType()<<endl;
-	cout<<endl;
-	cout << "Statement: " << statement << endl;
-	cout << "Constraint: " << constraint << endl;
-	cout << "Weak: " << weak << endl;
-	cout << "Disjunction: " << disjunction << endl;
-	cout << "Choice: " << choice << endl;
-	cout << "Aggregate: " << aggregate << endl;
-	cout << "Literal: " << literal << endl;
-	cout << "Term: " << term << endl;
-	cout<<endl;
+	if (Config::getInstance()->isStatistic()) {
+		cout<<endl;
+		cout<<"Statistic"<<endl;
+		cout << "Term table: " << Config::getInstance()->getTermTableType() << endl;
+		cout << "Hash: " << Config::getInstance()->getHashType() << endl;
+		cout << endl;
+		cout << "Statement: " << statement << endl;
+		cout << "Constraint: " << constraint << endl;
+		cout << "Weak: " << weak << endl;
+		cout << "Disjunction: " << disjunction << endl;
+		cout << "Choice: " << choice << endl;
+		cout << "Aggregate: " << aggregate << endl;
+		cout << "Literal: " << literal << endl;
+		cout << "Term: " << term << endl;
+		cout << endl;
 
-	cout<<endl;
-	Timer::getInstance()->print();
+		cout << endl;
+		Timer::getInstance()->print();
+	}
 
 }
 
@@ -84,40 +84,42 @@ void StatementBuilder::addLiteral(string name) {
 }
 
 void StatementBuilder::addClassicalAtom() {
-	ruleFactory.addClassicalAtom(termsInAtom,hashMinusAtom,negativeAtom);
+	ruleFactory.addClassicalAtom(termsInAtom, hashMinusAtom, negativeAtom);
 
 	termsInAtom.clear();
-	hashMinusAtom=false;
-	negativeAtom=false;
+	hashMinusAtom = false;
+	negativeAtom = false;
 }
 
 void StatementBuilder::setNegativeAtom() {
-	negativeAtom=true;
+	negativeAtom = true;
 }
 
 void StatementBuilder::setStrongNegativeAtom() {
-	hashMinusAtom=true;
+	hashMinusAtom = true;
 }
 
-void StatementBuilder::resetTerm(){
-	 id="";
-	 negativeTerm=false;
+void StatementBuilder::resetTerm() {
+	id = "";
+	negativeTerm = false;
 }
 
 void StatementBuilder::addVariable(string & name) {
-	unsigned long index=termsFactory.createVariable(name,negativeTerm);
+	unsigned long index = termsFactory.createVariable(name, negativeTerm);
 	resetTerm();
 
-	if(index!=-1)termsInAtom.push_back(index);
+	if (index != -1)
+		termsInAtom.push_back(index);
 	term++;
 }
 
 void StatementBuilder::addId(string & name) {
 
-	unsigned long index=termsFactory.createConstant(name,negativeTerm);
+	unsigned long index = termsFactory.createConstant(name, negativeTerm);
 	resetTerm();
 
-	if(index!=-1)termsInAtom.push_back(index);
+	if (index != -1)
+		termsInAtom.push_back(index);
 	term++;
 }
 
@@ -125,42 +127,45 @@ void StatementBuilder::addNumber(int & name) {
 
 	ostringstream convert;
 	convert << name;
-	string id=convert.str();
-	unsigned long index=termsFactory.createConstant(id,negativeTerm);
+	string id = convert.str();
+	unsigned long index = termsFactory.createConstant(id, negativeTerm);
 	resetTerm();
 
-	if(index!=-1)termsInAtom.push_back(index);
+	if (index != -1)
+		termsInAtom.push_back(index);
 	term++;
 }
 
 void StatementBuilder::addTermFunction() {
 
-	termsFactory.createFunction(id,negativeTerm);
+	termsFactory.createFunction(id, negativeTerm);
 	resetTerm();
 
 	term++;
 }
 
 void StatementBuilder::addNameFunction(string & name) {
-	id=name;
+	id = name;
 }
 
 void StatementBuilder::endTermFunction() {
 
-	unsigned long index=termsFactory.endFunction();
+	unsigned long index = termsFactory.endFunction();
 	resetTerm();
 
-	if(index!=-1)termsInAtom.push_back(index);
+	if (index != -1)
+		termsInAtom.push_back(index);
 }
 
 void StatementBuilder::setNegativeTerm() {
-	negativeTerm=true;
+	negativeTerm = true;
 }
 
 void StatementBuilder::addArithTerm(string &op) {
 
-	unsigned long index=termsFactory.addArithTerm(op);
-	if(index!=-1)termsInAtom.pop_back();
+	unsigned long index = termsFactory.addArithTerm(op);
+	if (index != -1)
+		termsInAtom.pop_back();
 }
 
 void StatementBuilder::setRuleBody() {
