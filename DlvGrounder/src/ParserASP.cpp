@@ -303,10 +303,10 @@ void parseArgs(int argc, char* argv[]){
 		// Define the command line object.
 		CmdLine cmd("Command description message", ' ', "0.9");
 
-		ValueArg<string> termTableArg("tm","termTable","Term Table Type",false,"0","int");
+		ValueArg<int> termTableArg("tm","termTable","Term Table Type",false,0,"int");
 		cmd.add( &termTableArg );
 
-		ValueArg<string> hashArg("hash","hash","Hash type",false,"0","int");
+		ValueArg<int> hashArg("hash","hash","Hash type",false,0,"int");
 		cmd.add( &hashArg );
 
 		SwitchArg parseArgs("pr","print","Print parser result", false);
@@ -323,10 +323,10 @@ void parseArgs(int argc, char* argv[]){
 
 		// Get the value parsed by each arg.
 		int termTable = termTableArg.getValue();
-		string hash =hashArg.getValue();
-		bool parser=dependencyArgs.getValue();
-		bool dependency;
-		bool component;
+		int hash =hashArg.getValue();
+		bool parser=parseArgs.getValue();
+		bool dependency=dependencyArgs.getValue();
+		bool component=componentArgs.getValue();
 
 
 

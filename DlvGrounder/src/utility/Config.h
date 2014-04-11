@@ -30,16 +30,24 @@ public:
 	HashType getHashType() const;
 
 	void setHashType(HashType hashType);
-	void setHashType(string hashType);
 
 	TermTableType getTermTableType() const;
 	void setTermTableType(TermTableType termTableType);
-	void setTermTableType(string termTableType);
 
 	IndexType getIndexType() const;
 	void setIndexType(IndexType indexType);
-	void setIndexType(string indexType);
 
+	bool isComponent() const {return component;}
+
+	void setComponent(bool component) {	this->component = component;}
+
+	bool isDependency() const {	return dependency;}
+
+	void setDependency(bool dependency) {this->dependency = dependency;}
+
+	bool isParser() const {	return parser;}
+
+	void setParser(bool parser) {this->parser = parser;}
 
 private:
 	Config();
@@ -47,6 +55,11 @@ private:
 	TermTableType termTableType;
 	HashType hashType;
 	IndexType indexType;
+
+
+	bool parser;
+	bool dependency;
+	bool component;
 
 };
 
