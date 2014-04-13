@@ -8,14 +8,14 @@
 #ifndef FUNCTIONTERM_H_
 #define FUNCTIONTERM_H_
 
-/*
- *  Extends the Term class and represent a function term.
- */
 
 #include "Term.h"
 
 using namespace std;
 
+/*
+ *  Represent a functional term.
+ */
 class FunctionTerm: public Term {
 public:
 	FunctionTerm();

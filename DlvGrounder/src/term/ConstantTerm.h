@@ -8,15 +8,15 @@
 #ifndef CONSTANTTERM_H_
 #define CONSTANTTERM_H_
 
-/*
- *  Extends the Term class and represent a costant term
- */
 #include <stdlib.h>
 
 #include "Term.h"
 
 
 
+/*
+ *  Represent a constant term (string,number...)
+ */
 class ConstantTerm: public Term {
 public:
 	ConstantTerm(){};

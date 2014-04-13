@@ -117,8 +117,5 @@ unsigned long TermFactory::addArithTerm(string op) {
 	return 0;
 }
 
-TermFactory::~TermFactory() {
-	delete termsMap;
-}
 
 

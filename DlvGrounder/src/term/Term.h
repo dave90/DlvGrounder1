@@ -8,12 +8,6 @@
 #ifndef TERM_H_
 #define TERM_H_
 
-/*
- *  Term is an abstract class that represent one general Term.
- *  All the term have one index that represent our id.
- *
- *  The structure of a Term is based on the Composite pattern
- */
 
 #include <string>
 #include <vector>
@@ -21,33 +15,43 @@
 
 using namespace std;
 
+/**
+ *  Term is an abstract class that represent one general Term.
+ *  All the term have one index that represent our id.
+ *
+ *  The structure of a Term is based on the Composite pattern
+ */
 class Term {
 public:
 	Term();
+	/**
+	 *  @param i the id
+	 *  @param b if is negative
+	 */
 	Term(unsigned long i,bool b):index(i),negative(b){};
-	//Get the index of the term
+	///Get the index of the term
 	unsigned long getIndex(){return index;};
-	//Set the index of the term
+	/// Set the index of the term
 	void setIndex(unsigned long index){	this->index=index;};
-	// Return the negation of the term
+	///Return the negation of the term
 	bool isNegative(){return negative;};
-	//Set the negation of the term
+	///Set the negation of the term
 	void setNegative(bool n){negative=n;};
-	// Equal with term, based on the index of the terms
+	///Equal with term, based on the index of the terms
 	bool operator==(const Term& t){	return t.index==index;};
-	// Return the name of the term
+	///Return the name of the term
 	virtual string getName(){};
-	//Set the name of the term
+	///Set the name of the term
 	virtual void setName(string name){};
-	// Add the index of a term inside the function term, used only with the FunctionTerm
+	///Add the index of a term inside the function term, used only with the FunctionTerm
 	virtual void addTerm(unsigned long termIndex){};
-	// Return the terms in the function term, used only with the FunctionTerm
+	///Return the terms in the function term, used only with the FunctionTerm
 	virtual vector<unsigned long> getTerms(){};
-	// Return the calculate for the arithmetic term
+	/// Return the calculate for the arithmetic term
 	virtual double calculate(){};
-	// Return the string used to hash the term
+	/// Return the string used to hash the term
 	virtual string getNameToHash(){};
-	//print with the cout the term
+	/// Print with the cout the term
 	virtual void print(){};
 	virtual ~Term(){};
 private:

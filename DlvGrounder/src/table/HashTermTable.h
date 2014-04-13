@@ -8,9 +8,7 @@
 #ifndef HASHTERMTABLE_H_
 #define HASHTERMTABLE_H_
 
-#include <map>
 #include <unordered_set>
-#include <unordered_map>
 #include <cstring>
 
 #include "TermTable.h"

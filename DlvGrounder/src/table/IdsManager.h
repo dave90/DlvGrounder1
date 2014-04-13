@@ -21,9 +21,7 @@
 
 #include "HashString.h"
 
-
 using namespace std;
-using namespace boost;
 
 typedef pair<string, unsigned long> pair_string_id;
 typedef pair<unsigned long, bool> pair_long_bool;
@@ -57,7 +55,7 @@ struct equalString {
 	}
 };
 
-typedef bimap< bimaps::unordered_set_of<string,hash_string_table>, bimaps::set_of<unsigned long> > hashMap;
+typedef boost::bimap< boost::bimaps::unordered_set_of<string,hash_string_table>, boost::bimaps::set_of<unsigned long> > hashMap;
 
 class IdManager {
 public:

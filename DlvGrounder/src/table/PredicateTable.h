@@ -34,7 +34,7 @@ public:
 	Predicate* getPredicate(unsigned long id);
 	void setEdb(unsigned long index);
 	void setIdb(unsigned long index);
-
+	~PredicateTable(){for(Predicate*p:hash)delete p;}
 private:
 	unordered_set<Predicate*, hashPredicate, hashPredicate> hash;
 };

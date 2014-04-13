@@ -42,16 +42,16 @@ long HashTermTable::getSize() {
 	return hash.size();
 }
 
-HashTermTable::~HashTermTable() {
-	for(auto it=hash.begin();it!=hash.end();it++)
-		delete (*it);
-
-}
-
 int HashTermTable::getCollision() {
 	return IdsManager::getConflict(IdsManager::TERM_ID_MANAGER);
 }
 
 void HashTermTable::print() {
 	for(Term *t:hash)t->print();
+}
+
+HashTermTable::~HashTermTable() {
+	for(Term*t:hash)
+		delete t;
+
 }

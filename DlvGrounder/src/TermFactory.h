@@ -42,7 +42,7 @@ public:
 
 	TermTable*  getTermTable(){return termsMap;};
 
-	~TermFactory();
+	~TermFactory(){};
 private:
 	/*
 	 *  Store the order of the term function encountered for nested function

@@ -43,8 +43,8 @@ long BoostTermTable::getSize() {
 }
 
 BoostTermTable::~BoostTermTable() {
-	for(auto it=hash.begin();it!=hash.end();it++)
-		delete (*it);
+	for(Term*t:hash)
+		delete t;
 }
 
 int BoostTermTable::getCollision() {

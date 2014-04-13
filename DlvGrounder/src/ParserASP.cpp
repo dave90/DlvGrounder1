@@ -321,7 +321,10 @@ bool parseArgs(int argc, char* argv[],string& filename){
 		SwitchArg statisticArgs("s","statistic","Print statistic", false);
 		cmd.add(&statisticArgs);
 
-		//must be last
+		ValueArg<string> fileGraphArg("f","fileGraph","File to print graphs",false,"","string");
+		cmd.add( &fileGraphArg );
+
+		//MUST be last
 		UnlabeledValueArg<string>  fileArg( "fileName", "program file",true, "", "file"  );
 		cmd.add( fileArg );
 
@@ -335,6 +338,7 @@ bool parseArgs(int argc, char* argv[],string& filename){
 		bool dependency=dependencyArgs.getValue();
 		bool component=componentArgs.getValue();
 		bool statistic=statisticArgs.getValue();
+		string fileGraph=fileGraphArg.getValue();
 		filename=fileArg.getValue();
 
 		Config::getInstance()->setTermTableType(termTable);
@@ -343,6 +347,7 @@ bool parseArgs(int argc, char* argv[],string& filename){
 		Config::getInstance()->setDependency(dependency);
 		Config::getInstance()->setComponent(component);
 		Config::getInstance()->setStatistic(statistic);
+		Config::getInstance()->setFileGraph(fileGraph);
 
 
 		} catch (ArgException &e)  // catch any exceptions

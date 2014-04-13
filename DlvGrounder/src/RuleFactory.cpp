@@ -55,6 +55,3 @@ void RuleFactory::addRule() {
 	currentRule=new Rule;
 }
 
-
-RuleFactory::~RuleFactory() {
-}

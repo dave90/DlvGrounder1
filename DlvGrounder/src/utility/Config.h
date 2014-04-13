@@ -66,6 +66,10 @@ public:
 
 	void setStatistic(bool statistic) {this->statistic = statistic;}
 
+	string getFileGraph() const {	return fileGraph;}
+
+	void setFileGraph(string f) {this->fileGraph = f;}
+
 private:
 	Config();
 	static Config* config;
@@ -78,6 +82,9 @@ private:
 	bool dependency;
 	bool component;
 	bool statistic;
+
+	string fileGraph;
+
 
 };
 

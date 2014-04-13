@@ -33,7 +33,7 @@ public:
 
 	 StatementDependency* getStatementDependency() {return st;}
 
-	~RuleFactory();
+	~RuleFactory(){};
 
 
 private:

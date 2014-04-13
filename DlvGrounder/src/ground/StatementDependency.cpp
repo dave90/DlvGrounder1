@@ -12,8 +12,12 @@
 #include <boost/graph/graph_utility.hpp>
 #include <boost/graph/strong_components.hpp>
 #include <boost/graph/graphviz.hpp>
+#include <boost/lexical_cast.hpp>
 
 #include "../utility/Config.h"
+#include "../table/IdsManager.h"
+
+
 
 void StatementAtomMapping::addRule(Rule* r) {
 	unordered_set<unsigned long> head = r->getPredicateInHead();
@@ -50,6 +54,12 @@ bool StatementAtomMapping::isInHead(unsigned long p) {
 
 StatementAtomMapping::~StatementAtomMapping() {
 }
+
+
+
+
+
+
 
 void DependencyGraph::createDependency(vector<Rule*>& rules,
 		StatementAtomMapping &statementAtomMapping) {
@@ -104,18 +114,39 @@ void DependencyGraph::deleteVertex(unsigned long pred) {
 
 void DependencyGraph::print() {
 	using namespace boost;
+
 	typedef property_map<Graph, vertex_index_t>::type IndexMap;
 	IndexMap index = get(vertex_index, depGraph);
 	graph_traits<Graph>::edge_iterator ei, ei_end;
-	cout << "digraph Dependency_Graph{" << endl;
-	for (tie(ei, ei_end) = edges(depGraph); ei != ei_end; ++ei)
-		std::cout << depGraph[index[source(*ei, depGraph)]].pred_id << "->"
-				<< depGraph[index[target(*ei, depGraph)]].pred_id << ";" << endl;
-	std::cout << "}" << std::endl;
+	string graphDOT="digraph Dependency_Graph{\n";
 
-//	// write the dot file
-//	std::ofstream dotfile ("test.png");
-//	boost::write_graphviz (dotfile, depGraph);
+		// Print the edge
+	for (tie(ei, ei_end) = edges(depGraph); ei != ei_end; ++ei){
+		unsigned long p1=index[source(*ei, depGraph)];
+		unsigned long p2=index[target(*ei, depGraph)];
+		graphDOT+= lexical_cast<string>(p1) + "->" + lexical_cast<string>(p2) + ";\n";
+	}
+
+	//Print label  (the name of the predicate)
+	for(unsigned int i=0;i<num_vertices(depGraph);i++){
+		graphDOT+=lexical_cast<string>(i) + " [label= \"";
+		string predicate =IdsManager::getString(IdsManager::PREDICATE_ID_MANAGER,depGraph[i].pred_id);
+		graphDOT+=predicate.substr(0,predicate.find("*"))+"  "+"\"];\n";
+	}
+	graphDOT+= "}\n";
+
+	string fileGraph=Config::getInstance()->getFileGraph()+"DG";
+	if(strcmp(fileGraph.c_str(),"DG")==0){
+		cout << graphDOT<<endl;
+	}else{
+	  ofstream myfile;
+	  myfile.open (fileGraph);
+	  myfile << graphDOT;
+	  myfile.close();
+	  string COMMAND="dot -Tpng "+ fileGraph+" -O";
+	  system(COMMAND.c_str());
+	  remove(fileGraph.c_str());
+	}
 
 }
 
@@ -208,7 +239,8 @@ void ComponentGraph::createComponent(vector<Rule*>& rules, DependencyGraph &depG
 }
 
 void ComponentGraph::print() {
-	cout << "digraph Component_Graph {" << endl;
+
+	string graphDOT="digraph Component_Graph {\n";
 
 	using namespace boost;
 	property_map<WeightGraph, edge_weight_t>::type weightmap = get(edge_weight, compGraph);
@@ -217,12 +249,43 @@ void ComponentGraph::print() {
 	edge_iter ei, ei_end;
 	typedef property_map<WeightGraph, vertex_index_t>::type IndexMap;
 	IndexMap index = get(vertex_index, compGraph);
-	for (tie(ei, ei_end) = edges(compGraph); ei != ei_end; ++ei)
-		std::cout << index[source(*ei, compGraph)] << "->" << index[target(*ei, compGraph)]
-				<< "[label= " << weightmap[*ei] << "];\n";
 
-	cout << "}" << endl;
+		// Print the edge
+	for (tie(ei, ei_end) = edges(compGraph); ei != ei_end; ++ei){
+		graphDOT+= lexical_cast<string>(index[source(*ei, compGraph)]) + "->" + lexical_cast<string>(index[target(*ei, compGraph)])
+				+ "[color= " ;
+		// negative RED , BLUE positive
+		if(weightmap[*ei]>0)graphDOT+="blue";else graphDOT+="red";
+		graphDOT+= "];\n";
+	}
 
+	//Print the label (the predicates in the component)
+	for(unsigned int i=0;i<num_vertices(compGraph);i++){
+		graphDOT+=lexical_cast<string>(i);
+		graphDOT+=" [label= \"";
+		for(auto it:component)
+			if(it.second==i){
+				string predicate=IdsManager::getString(IdsManager::PREDICATE_ID_MANAGER,it.first);
+				graphDOT+=predicate.substr(0,predicate.find("*"))+"  ";
+			}
+		graphDOT+="\"];\n";
+	}
+
+	graphDOT+="}\n";
+
+
+	string fileGraph=Config::getInstance()->getFileGraph()+"CG";
+	if(strcmp(fileGraph.c_str(),"CG")==0){
+		cout << graphDOT<<endl;
+	}else{
+	  ofstream myfile;
+	  myfile.open (fileGraph);
+	  myfile << graphDOT;
+	  myfile.close();
+	  string COMMAND="dot -Tpng "+ fileGraph+" -O";
+	  system(COMMAND.c_str());
+	  remove(fileGraph.c_str());
+	}
 }
 
 void StatementDependency::addRuleMapping(Rule* r) {
@@ -250,6 +313,4 @@ void StatementDependency::print() {
 		compGraph.print();
 }
 
-StatementDependency::~StatementDependency() {
-}
 
