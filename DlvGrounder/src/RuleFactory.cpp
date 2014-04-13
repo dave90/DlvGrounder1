@@ -37,9 +37,9 @@ void RuleFactory::addClassicalAtom(vector<unsigned long> &terms, bool hashMinus,
 	Predicate *p=new Predicate(lastPredicate,terms.size());
 	unsigned long predIndex=predicateTable->insertPredicate(p);
 	Atom *a=new ClassicalLiteral(predIndex,terms,hashMinus,negative);
-	if(head)
+	if(head){
 		currentRule->addInHead(a);
-	else
+	}else
 		currentRule->addInBody(a);
 }
 
@@ -48,6 +48,10 @@ void RuleFactory::addRule() {
 		Atom *fact=currentRule->getHead()[0];
 		addFact(fact->getTerms(),fact->isHasMinus(),fact->isNegative());
 	}else{
+		// Set predicate in head IDB
+		unordered_set<unsigned long> pred_head=currentRule->getPredicateInHead();
+		for(unsigned long p:pred_head)predicateTable->setIdb(p);
+
 		st->addRuleMapping(currentRule);
 	}
 

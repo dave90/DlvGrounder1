@@ -17,8 +17,6 @@
 #include "../utility/Config.h"
 #include "../table/IdsManager.h"
 
-
-
 void StatementAtomMapping::addRule(Rule* r) {
 	unordered_set<unsigned long> head = r->getPredicateInHead();
 	unordered_set<unsigned long> body = r->getPredicateInBody();
@@ -54,12 +52,6 @@ bool StatementAtomMapping::isInHead(unsigned long p) {
 
 StatementAtomMapping::~StatementAtomMapping() {
 }
-
-
-
-
-
-
 
 void DependencyGraph::createDependency(vector<Rule*>& rules,
 		StatementAtomMapping &statementAtomMapping) {
@@ -108,8 +100,55 @@ void DependencyGraph::createDependency(vector<Rule*>& rules,
 
 }
 
-void DependencyGraph::deleteVertex(unsigned long pred) {
-	//TODO
+void DependencyGraph::addInDependency(Rule* r) {
+
+	// Temp hash_set of predicate
+	unordered_set<unsigned long> head_predicateVisited;
+	unordered_set<unsigned long> body_predicateVisited;
+
+	for (auto head_it = r->getBeginHead(); head_it != r->getEndHead(); head_it++) {
+
+		unsigned long pred_head = (*head_it)->getPredicate();
+
+		// Verify if the predicate in the head was been visited
+		if (!head_predicateVisited.count(pred_head)) {
+
+			// Set this predicate visited
+			head_predicateVisited.insert(pred_head);
+
+			for (auto body_it = r->getBeginBody(); body_it != r->getEndBody(); body_it++) {
+
+				// Verify if the predicate is positive
+				if (!(*body_it)->isNegative()) {
+					unsigned long pred_body = (*body_it)->getPredicate();
+
+					// Verify if the predicate in the head was been visited
+					if (!body_predicateVisited.count(pred_body)) {
+
+						// Set this predicate visited
+						body_predicateVisited.insert(pred_body);
+						addEdge(pred_body, pred_head);
+
+					}
+				}
+
+			}
+		}
+		//set unvisited all predicate in the body of the rule
+		body_predicateVisited.clear();
+	}
+
+}
+
+void DependencyGraph::deleteVertex(unordered_set<unsigned long>& delete_pred) {
+	boost::graph_traits<Graph>::vertex_iterator vi, vi_end, next;
+	tie(vi, vi_end) = boost::vertices(depGraph);
+	for (next = vi; vi != vi_end; vi = next) {
+	  ++next;
+	   if (delete_pred.count(depGraph[*vi].pred_id)){
+		   remove_vertex(*vi, depGraph);
+	   }
+	}
 }
 
 void DependencyGraph::print() {
@@ -118,34 +157,35 @@ void DependencyGraph::print() {
 	typedef property_map<Graph, vertex_index_t>::type IndexMap;
 	IndexMap index = get(vertex_index, depGraph);
 	graph_traits<Graph>::edge_iterator ei, ei_end;
-	string graphDOT="digraph Dependency_Graph{\n";
+	string graphDOT = "digraph Dependency_Graph{\n";
 
-		// Print the edge
-	for (tie(ei, ei_end) = edges(depGraph); ei != ei_end; ++ei){
-		unsigned long p1=index[source(*ei, depGraph)];
-		unsigned long p2=index[target(*ei, depGraph)];
-		graphDOT+= lexical_cast<string>(p1) + "->" + lexical_cast<string>(p2) + ";\n";
+	// Print the edge
+	for (tie(ei, ei_end) = edges(depGraph); ei != ei_end; ++ei) {
+		unsigned long p1 = index[source(*ei, depGraph)];
+		unsigned long p2 = index[target(*ei, depGraph)];
+		graphDOT += lexical_cast<string>(p1) + "->" + lexical_cast<string>(p2) + ";\n";
 	}
 
 	//Print label  (the name of the predicate)
-	for(unsigned int i=0;i<num_vertices(depGraph);i++){
-		graphDOT+=lexical_cast<string>(i) + " [label= \"";
-		string predicate =IdsManager::getString(IdsManager::PREDICATE_ID_MANAGER,depGraph[i].pred_id);
-		graphDOT+=predicate.substr(0,predicate.find("*"))+"  "+"\"];\n";
+	for (unsigned int i = 0; i < num_vertices(depGraph); i++) {
+		graphDOT += lexical_cast<string>(i) + " [label= \"";
+		string predicate = IdsManager::getString(IdsManager::PREDICATE_ID_MANAGER,
+				depGraph[i].pred_id);
+		graphDOT += predicate.substr(0, predicate.find("*")) + "  " + "\"];\n";
 	}
-	graphDOT+= "}\n";
+	graphDOT += "}\n";
 
-	string fileGraph=Config::getInstance()->getFileGraph()+"DG";
-	if(strcmp(fileGraph.c_str(),"DG")==0){
-		cout << graphDOT<<endl;
-	}else{
-	  ofstream myfile;
-	  myfile.open (fileGraph);
-	  myfile << graphDOT;
-	  myfile.close();
-	  string COMMAND="dot -Tpng "+ fileGraph+" -O";
-	  system(COMMAND.c_str());
-	  remove(fileGraph.c_str());
+	string fileGraph = Config::getInstance()->getFileGraph() + "DG";
+	if (strcmp(fileGraph.c_str(), "DG") == 0) {
+		cout << graphDOT << endl;
+	} else {
+		ofstream myfile;
+		myfile.open(fileGraph);
+		myfile << graphDOT;
+		myfile.close();
+		string COMMAND = "dot -Tpng " + fileGraph + " -O";
+		system(COMMAND.c_str());
+		remove(fileGraph.c_str());
 	}
 
 }
@@ -240,7 +280,7 @@ void ComponentGraph::createComponent(vector<Rule*>& rules, DependencyGraph &depG
 
 void ComponentGraph::print() {
 
-	string graphDOT="digraph Component_Graph {\n";
+	string graphDOT = "digraph Component_Graph {\n";
 
 	using namespace boost;
 	property_map<WeightGraph, edge_weight_t>::type weightmap = get(edge_weight, compGraph);
@@ -250,61 +290,65 @@ void ComponentGraph::print() {
 	typedef property_map<WeightGraph, vertex_index_t>::type IndexMap;
 	IndexMap index = get(vertex_index, compGraph);
 
-		// Print the edge
-	for (tie(ei, ei_end) = edges(compGraph); ei != ei_end; ++ei){
-		graphDOT+= lexical_cast<string>(index[source(*ei, compGraph)]) + "->" + lexical_cast<string>(index[target(*ei, compGraph)])
-				+ "[color= " ;
+	// Print the edge
+	for (tie(ei, ei_end) = edges(compGraph); ei != ei_end; ++ei) {
+		graphDOT += lexical_cast<string>(index[source(*ei, compGraph)]) + "->"
+				+ lexical_cast<string>(index[target(*ei, compGraph)]) + "[color= ";
 		// negative RED , BLUE positive
-		if(weightmap[*ei]>0)graphDOT+="blue";else graphDOT+="red";
-		graphDOT+= "];\n";
+		if (weightmap[*ei] > 0)
+			graphDOT += "blue";
+		else
+			graphDOT += "red";
+		graphDOT += "];\n";
 	}
 
 	//Print the label (the predicates in the component)
-	for(unsigned int i=0;i<num_vertices(compGraph);i++){
-		graphDOT+=lexical_cast<string>(i);
-		graphDOT+=" [label= \"";
-		for(auto it:component)
-			if(it.second==i){
-				string predicate=IdsManager::getString(IdsManager::PREDICATE_ID_MANAGER,it.first);
-				graphDOT+=predicate.substr(0,predicate.find("*"))+"  ";
+	for (unsigned int i = 0; i < num_vertices(compGraph); i++) {
+		graphDOT += lexical_cast<string>(i);
+		graphDOT += " [label= \"";
+		for (auto it : component)
+			if (it.second == i) {
+				string predicate = IdsManager::getString(IdsManager::PREDICATE_ID_MANAGER,
+						it.first);
+				graphDOT += predicate.substr(0, predicate.find("*")) + "  ";
 			}
-		graphDOT+="\"];\n";
+		graphDOT += "\"];\n";
 	}
 
-	graphDOT+="}\n";
+	graphDOT += "}\n";
 
-
-	string fileGraph=Config::getInstance()->getFileGraph()+"CG";
-	if(strcmp(fileGraph.c_str(),"CG")==0){
-		cout << graphDOT<<endl;
-	}else{
-	  ofstream myfile;
-	  myfile.open (fileGraph);
-	  myfile << graphDOT;
-	  myfile.close();
-	  string COMMAND="dot -Tpng "+ fileGraph+" -O";
-	  system(COMMAND.c_str());
-	  remove(fileGraph.c_str());
+	string fileGraph = Config::getInstance()->getFileGraph() + "CG";
+	if (strcmp(fileGraph.c_str(), "CG") == 0) {
+		cout << graphDOT << endl;
+	} else {
+		ofstream myfile;
+		myfile.open(fileGraph);
+		myfile << graphDOT;
+		myfile.close();
+		string COMMAND = "dot -Tpng " + fileGraph + " -O";
+		system(COMMAND.c_str());
+		remove(fileGraph.c_str());
 	}
 }
 
 void StatementDependency::addRuleMapping(Rule* r) {
 	statementAtomMapping.addRule(r);
 	rules.push_back(r);
+
+	depGraph.addInDependency(r);
 }
 
-void StatementDependency::createDependencyGraph() {
-	depGraph.createDependency(rules, statementAtomMapping);
+void StatementDependency::createDependencyGraph(PredicateTable* pt) {
+//	depGraph.createDependency(rules, statementAtomMapping);
+	unordered_set<unsigned long> delete_pred;
+	pt->getEdbPredicate(delete_pred);
+	depGraph.deleteVertex(delete_pred);
 }
 
 void StatementDependency::createComponentGraph() {
 	compGraph.createComponent(rules, depGraph, statementAtomMapping);
 }
 
-void StatementDependency::createDependencyComponentGraph() {
-	depGraph.createDependency(rules, statementAtomMapping);
-	compGraph.createComponent(rules, depGraph, statementAtomMapping);
-}
 
 void StatementDependency::print() {
 	if (Config::getInstance()->isDependency())
@@ -312,5 +356,4 @@ void StatementDependency::print() {
 	if (Config::getInstance()->isComponent())
 		compGraph.print();
 }
-
 

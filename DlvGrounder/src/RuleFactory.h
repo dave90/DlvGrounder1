@@ -16,15 +16,15 @@
 class RuleFactory {
 public:
 	RuleFactory();
-	// Method for creation of Atom
+	/// Method for creation of Atom
 	void addPredicate(string name);
-	// Add atom in rule
+	/// Add atom in rule
 	void addClassicalAtom(vector<unsigned long> &terms,bool hashMinus,bool negative);
-	// Add Fact in Instances
+	/// Add Fact in Instances
 	void addFact(const vector<unsigned long> &terms,bool hashMinus,bool negative);
-	// Set head false and put the next atoms in the body
+	/// Set head false and put the next atoms in the body
 	void setAtomInHead(bool b){head=b;};
-	// Add rule in
+	/// Add rule and if have head set the predicates IDB
 	void addRule();
 
 	 InstancesTable* getInstancesTable() {return instancesTable;}

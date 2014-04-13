@@ -9,6 +9,7 @@
 #define PREDICATETABLE_H_
 
 #include <unordered_set>
+#include <iostream>
 
 #include "../atom/Predicate.h"
 
@@ -20,7 +21,7 @@ struct hashPredicate {
 		return p->getIndex();
 	}
 	bool operator()(Predicate *p1, Predicate *p2) const {
-		return *p1 == *p2;
+		return p1->getIndex() == p2->getIndex();
 	}
 
 };
@@ -34,6 +35,7 @@ public:
 	Predicate* getPredicate(unsigned long id);
 	void setEdb(unsigned long index);
 	void setIdb(unsigned long index);
+	void getEdbPredicate(unordered_set<unsigned long>& edb_pred);
 	~PredicateTable(){for(Predicate*p:hash)delete p;}
 private:
 	unordered_set<Predicate*, hashPredicate, hashPredicate> hash;

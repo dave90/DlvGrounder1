@@ -15,6 +15,7 @@
 #include <boost/graph/adjacency_list.hpp>
 
 #include "../statement/Rule.h"
+#include "../table/PredicateTable.h"
 
 
 using namespace std;
@@ -65,13 +66,18 @@ public:
 	///@param rules is the rules of the program
 	///@param statementAtomMapping the relation atom statement
 	void createDependency(vector<Rule*>& rules,StatementAtomMapping &statementAtomMapping);
+	/// Add the atoms in rule in Dependency Graph
+	///@param rule of the program
+	///@param statementAtomMapping the relation atom statement
+	void addInDependency(Rule* rule);
 	/// Calculate strong component and put predicate_id and component
 	/// The method put for each predicate the relative component in the map component
 	void calculateStrongComponent(unordered_map<unsigned long,unsigned int> &component);
 
 	/// Add edge in the graph
 	void addEdge(unsigned long pred_body,unsigned long pred_head);
-	void deleteVertex(unsigned long pred);
+	/// Delete the vertex with predicate in hash set
+	void deleteVertex(unordered_set<unsigned long>& delete_pred);
 
 	/// Print predicate index
 	void print();
@@ -124,9 +130,8 @@ public:
 	StatementDependency(){};
 	/// Add the mapping head and body with the rule and the graphs are created according to these
 	void addRuleMapping(Rule *r);
-	void createDependencyGraph();
+	void createDependencyGraph(PredicateTable* pt);
 	void createComponentGraph();
-	void createDependencyComponentGraph();
 
 	void print();
 
