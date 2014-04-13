@@ -28,12 +28,10 @@ void StatementAtomMapping::addRule(Rule* r) {
 	}
 }
 
-const vector<Rule*> StatementAtomMapping::getRuleInHead(unsigned long p) {
-	vector<Rule*> rules;
+void StatementAtomMapping::getRuleInHead(unsigned long p, vector<Rule*>& rules) {
 	auto pair1 = headMap.equal_range(p);
 	for (; pair1.first != pair1.second; ++pair1.first)
 		rules.push_back(pair1.first->second);
-	return rules;
 }
 
 const vector<Rule*> StatementAtomMapping::getRuleInBody(unsigned long p) {
@@ -53,52 +51,18 @@ bool StatementAtomMapping::isInHead(unsigned long p) {
 StatementAtomMapping::~StatementAtomMapping() {
 }
 
-void DependencyGraph::createDependency(vector<Rule*>& rules,
-		StatementAtomMapping &statementAtomMapping) {
-
-	// Temp hash_set of predicate
-	unordered_set<unsigned long> head_predicateVisited;
-	unordered_set<unsigned long> body_predicateVisited;
-
-	for (Rule *r : rules) {
-
-		for (auto head_it = r->getBeginHead(); head_it != r->getEndHead(); head_it++) {
-
-			unsigned long pred_head = (*head_it)->getPredicate();
-
-			// Verify if the predicate in the head was been visited
-			if (!head_predicateVisited.count(pred_head)) {
-
-				// Set this predicate visited
-				head_predicateVisited.insert(pred_head);
-
-				for (auto body_it = r->getBeginBody(); body_it != r->getEndBody(); body_it++) {
-
-					// Verify if the predicate is positive
-					if (!(*body_it)->isNegative()) {
-						unsigned long pred_body = (*body_it)->getPredicate();
-
-						// Verify if the predicate in the head was been visited and compare in head of same rule
-						if (!body_predicateVisited.count(pred_body)
-								&& statementAtomMapping.isInHead(pred_body)) {
-
-							// Set this predicate visited
-							body_predicateVisited.insert(pred_body);
-							addEdge(pred_body, pred_head);
-
-						}
-					}
-
-				}
-			}
-			//set unvisited all predicate in the body of the rule
-			body_predicateVisited.clear();
-		}
-		//set unvisited all predicate in the atom of the rule
-		head_predicateVisited.clear();
-	}
-
-}
+/*
+ *
+ *
+ *
+ *
+ * 	END StatementAtomMapping
+ *
+ *
+ *
+ *
+ *
+ */
 
 void DependencyGraph::addInDependency(Rule* r) {
 
@@ -144,10 +108,10 @@ void DependencyGraph::deleteVertex(unordered_set<unsigned long>& delete_pred) {
 	boost::graph_traits<Graph>::vertex_iterator vi, vi_end, next;
 	tie(vi, vi_end) = boost::vertices(depGraph);
 	for (next = vi; vi != vi_end; vi = next) {
-	  ++next;
-	   if (delete_pred.count(depGraph[*vi].pred_id)){
-		   remove_vertex(*vi, depGraph);
-	   }
+		++next;
+		if (delete_pred.count(depGraph[*vi].pred_id)) {
+			remove_vertex(*vi, depGraph);
+		}
 	}
 }
 
@@ -229,51 +193,58 @@ void DependencyGraph::calculateStrongComponent(
 	}
 }
 
+/*
+ *
+ *
+ *
+ *
+ * 	END DependencyGraph
+ *
+ *
+ *
+ *
+ *
+ */
+
 void ComponentGraph::addEdge(unsigned long pred_body, unsigned long pred_head, int weight) {
 
 	if (component[pred_body] != component[pred_head])
 		boost::add_edge(component[pred_body], component[pred_head], weight, compGraph);
 }
 
-void ComponentGraph::createComponent(vector<Rule*>& rules, DependencyGraph &depGraph,
+void ComponentGraph::createComponent(DependencyGraph &depGraph,
 		StatementAtomMapping &statementAtomMapping) {
 	depGraph.calculateStrongComponent(component);
 
-	// Temp hash_set of predicate
-	unordered_set<unsigned long> head_predicateVisited;
+	vector<Rule*> rules;
 
-	for (Rule *r : rules) {
+	for (auto it : component) {
 
-		for (auto head_it = r->getBeginHead(); head_it != r->getEndHead(); head_it++) {
+		unsigned long pred_head = it.first;
 
-			unsigned long pred_head = (*head_it)->getPredicate();
+		statementAtomMapping.getRuleInHead(pred_head, rules);
 
-			// Verify if the predicate in the head was been visited
-			if (!head_predicateVisited.count(pred_head)) {
+		for (Rule *r : rules) {
 
-				// Set this predicate visited
-				head_predicateVisited.insert(pred_head);
+			for (auto body_it = r->getBeginBody(); body_it != r->getEndBody(); body_it++) {
 
-				for (auto body_it = r->getBeginBody(); body_it != r->getEndBody(); body_it++) {
+				bool isPositive = !(*body_it)->isNegative();
 
-					bool isPositive = !(*body_it)->isNegative();
+				unsigned long pred_body = (*body_it)->getPredicate();
 
-					unsigned long pred_body = (*body_it)->getPredicate();
-
-					// Verify if the predicate compare in head of same rule
-					if (statementAtomMapping.isInHead(pred_body)) {
-						int weight = isPositive;
-						if (!isPositive)
-							weight = -1;
-						addEdge(pred_body, pred_head, weight);
-
-					}
+				// Verify if the predicate compare in head of same rule
+				if (statementAtomMapping.isInHead(pred_body)) {
+					int weight = isPositive;
+					if (!isPositive)
+						weight = -1;
+					addEdge(pred_body, pred_head, weight);
 
 				}
+
 			}
+
 		}
-		//set unvisited all predicate in the atom of the rule
-		head_predicateVisited.clear();
+		rules.clear();
 	}
 
 }
@@ -331,6 +302,18 @@ void ComponentGraph::print() {
 	}
 }
 
+/*
+ *
+ *
+ *
+ * END ComponentGraph
+ *
+ *
+ *
+ *
+ *
+ */
+
 void StatementDependency::addRuleMapping(Rule* r) {
 	statementAtomMapping.addRule(r);
 	rules.push_back(r);
@@ -339,16 +322,14 @@ void StatementDependency::addRuleMapping(Rule* r) {
 }
 
 void StatementDependency::createDependencyGraph(PredicateTable* pt) {
-//	depGraph.createDependency(rules, statementAtomMapping);
 	unordered_set<unsigned long> delete_pred;
 	pt->getEdbPredicate(delete_pred);
 	depGraph.deleteVertex(delete_pred);
 }
 
 void StatementDependency::createComponentGraph() {
-	compGraph.createComponent(rules, depGraph, statementAtomMapping);
+	compGraph.createComponent(depGraph, statementAtomMapping);
 }
-
 
 void StatementDependency::print() {
 	if (Config::getInstance()->isDependency())

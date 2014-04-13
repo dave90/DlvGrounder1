@@ -31,7 +31,8 @@ public:
 	void addRule(Rule *r);
 	/// Get rule where the predicate compare in head
 	/// @param p is the index of predicate
-	const vector<Rule*> getRuleInHead(unsigned long p);
+	/// @param rules the rules that p compare in head
+	void getRuleInHead(unsigned long p,vector<Rule*> & rules);
 	/// Get rule where the predicate compare in body
 	/// @param p is the index of predicate
 	const vector<Rule*> getRuleInBody(unsigned long p);
@@ -62,10 +63,6 @@ typedef boost::adjacency_list< boost::setS, boost::vecS , boost::directedS ,pred
 class DependencyGraph{
 public:
 	DependencyGraph(){};
-	/// Create Dependency Graph
-	///@param rules is the rules of the program
-	///@param statementAtomMapping the relation atom statement
-	void createDependency(vector<Rule*>& rules,StatementAtomMapping &statementAtomMapping);
 	/// Add the atoms in rule in Dependency Graph
 	///@param rule of the program
 	///@param statementAtomMapping the relation atom statement
@@ -77,6 +74,7 @@ public:
 	/// Add edge in the graph
 	void addEdge(unsigned long pred_body,unsigned long pred_head);
 	/// Delete the vertex with predicate in hash set
+	/// predicateIndexGMap CHANGED can't use anymore
 	void deleteVertex(unordered_set<unsigned long>& delete_pred);
 
 	/// Print predicate index
@@ -102,7 +100,7 @@ public:
 	/// Create component graph
 	///@param rules is the rules of the program
 	///@param statementAtomMapping the relation atom statement
-	void createComponent(vector<Rule*>& rules,DependencyGraph &depGraph,StatementAtomMapping &statementAtomMapping);
+	void createComponent(DependencyGraph &depGraph,StatementAtomMapping &statementAtomMapping);
 
 	/// Add edge in the graph
 	void addEdge(unsigned long pred_body,unsigned long pred_head,int weight);
