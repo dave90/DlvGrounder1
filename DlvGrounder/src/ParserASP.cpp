@@ -65,15 +65,15 @@ void addAggregate() {
 	builder->addAggregate();
 }
 
-void setRuleBody(){
+void setRuleBody() {
 	builder->setRuleBody();
 }
 
-void addRule(){
+void addRule() {
 	builder->addRule();
 }
 
-void addClassicalAtom(){
+void addClassicalAtom() {
 	builder->addClassicalAtom();
 }
 
@@ -81,12 +81,11 @@ void addLiteral(string & name) {
 	builder->addLiteral(name);
 }
 
-
-void setNegativeAtom(){
+void setNegativeAtom() {
 	builder->setNegativeAtom();
 }
 
-void setStrongNegativeAtom(){
+void setStrongNegativeAtom() {
 	builder->setStrongNegativeAtom();
 }
 
@@ -153,11 +152,10 @@ struct asp_grammar: qi::grammar<Iterator, ascii::space_type> {
 				| (WCONS >> -body >> DOT >> SQUARE_OPEN >> weight_at_level
 						>> SQUARE_CLOSE[&client::addWeak]) | (optimize >> DOT);
 
-		head = disjunction[&client::addDisjunction]
-				| choice[&client::addChoiche];
+		head = disjunction[&client::addDisjunction] | choice[&client::addChoiche];
 
-		choice = -(term >> binop) >> CURLY_OPEN >> choiche_elements
-				>> CURLY_CLOSE >> -(binop >> term);
+		choice = -(term >> binop) >> CURLY_OPEN >> choiche_elements >> CURLY_CLOSE
+				>> -(binop >> term);
 
 		choiche_elements = choiche_element % SEMICOLON;
 
@@ -167,11 +165,10 @@ struct asp_grammar: qi::grammar<Iterator, ascii::space_type> {
 
 		body = (naf_litteral | aggregate[&client::addAggregate]) % COMMA;
 
-		aggregate = -(term >> binop) >> aggregate_function >> CURLY_OPEN
-				>> aggregate_elements >> CURLY_CLOSE >> -(binop >> term);
+		aggregate = -(term >> binop) >> aggregate_function >> CURLY_OPEN >> aggregate_elements
+				>> CURLY_CLOSE >> -(binop >> term);
 
-		aggregate_function = AGGREGATE_COUNT | AGGREGATE_MAX | AGGREGATE_MIN
-				| AGGREGATE_SUM;
+		aggregate_function = AGGREGATE_COUNT | AGGREGATE_MAX | AGGREGATE_MIN | AGGREGATE_SUM;
 
 		aggregate_elements = aggregate_element % SEMICOLON;
 
@@ -179,8 +176,7 @@ struct asp_grammar: qi::grammar<Iterator, ascii::space_type> {
 
 		weight_at_level = term >> -(AT >> term) >> -(COMMA >> terms);
 
-		optimize = optimize_function >> CURLY_OPEN >> -optimize_elements
-				>> CURLY_CLOSE;
+		optimize = optimize_function >> CURLY_OPEN >> -optimize_elements >> CURLY_CLOSE;
 
 		optimize_elements = optimize_element % SEMICOLON;
 
@@ -190,26 +186,24 @@ struct asp_grammar: qi::grammar<Iterator, ascii::space_type> {
 
 		naf_litterals = naf_litteral % COMMA;
 
-		naf_litteral = (-NAF[&client::setNegativeAtom] >> classical_literal >> !binop) | builtin_atom;
+		naf_litteral = (-NAF[&client::setNegativeAtom] >> classical_literal >> !binop)
+				| builtin_atom;
 
 		builtin_atom = term >> binop >> term;
 
-		binop = EQUAL | UNEQEUAL | LESS >> !EQUAL | GREATER >> !EQUAL
-				| LESS_OR_EQ | GREATER_OR_EQ;
+		binop = EQUAL | UNEQEUAL | LESS >> !EQUAL | GREATER >> !EQUAL | LESS_OR_EQ | GREATER_OR_EQ;
 
 		classical_literal = -MINUS[&client::setStrongNegativeAtom] >> ID[&client::addLiteral]
-				>> -(PAREN_OPEN >> terms >> PAREN_CLOSE) [&client::addClassicalAtom];
+				>> (-(PAREN_OPEN >> terms >> PAREN_CLOSE))[&client::addClassicalAtom];
 
 		terms = term % COMMA;
 
 		term = -MINUS[&client::addNegativeTerm]
-				>> ((ID[&client::addNameFunction]
-						>> PAREN_OPEN[&client::addFunctionTerm] >> terms
-						>> PAREN_CLOSE[&client::endFunctionTerm])
-						| ID[&client::addId] | NUMBER[&client::addNumber]
-						| VARIABLE[&client::addVariable]
-						| ANONYMOUS_VARIABLE[&client::addAnonymusVariable]
-						| STRING[&client::addId]) >> -arithop_term;
+				>> ((ID[&client::addNameFunction] >> PAREN_OPEN[&client::addFunctionTerm] >> terms
+						>> PAREN_CLOSE[&client::endFunctionTerm]) | ID[&client::addId]
+						| NUMBER[&client::addNumber] | VARIABLE[&client::addVariable]
+						| ANONYMOUS_VARIABLE[&client::addAnonymusVariable] | STRING[&client::addId])
+				>> -arithop_term;
 
 		arithop_term = arithop >> term;
 
@@ -283,13 +277,11 @@ struct asp_grammar: qi::grammar<Iterator, ascii::space_type> {
 	qi::rule<Iterator, ascii::space_type> arithop;
 	qi::rule<Iterator, ascii::space_type> arithop_term;
 	qi::rule<Iterator, ascii::space_type> term;
-	qi::rule<Iterator, string(), ascii::space_type> COMMA, PAREN_OPEN,
-			PAREN_CLOSE, MINUS, ID, OR, DOT, NAF, SEMICOLON, EQUAL, UNEQEUAL,
-			LESS, GREATER, LESS_OR_EQ, GREATER_OR_EQ, CONS, COLON, AT, VARIABLE,
-			ANONYMOUS_VARIABLE, PLUS, TIMES, DIV, STRING, CURLY_OPEN,
-			CURLY_CLOSE, AGGREGATE_COUNT, AGGREGATE_MAX, AGGREGATE_MIN,
-			AGGREGATE_SUM, SQUARE_OPEN, SQUARE_CLOSE, WCONS, MAXIMIZE, MINIMIZE,
-			PERCENTAGE;
+	qi::rule<Iterator, string(), ascii::space_type> COMMA, PAREN_OPEN, PAREN_CLOSE, MINUS, ID, OR,
+			DOT, NAF, SEMICOLON, EQUAL, UNEQEUAL, LESS, GREATER, LESS_OR_EQ, GREATER_OR_EQ, CONS,
+			COLON, AT, VARIABLE, ANONYMOUS_VARIABLE, PLUS, TIMES, DIV, STRING, CURLY_OPEN,
+			CURLY_CLOSE, AGGREGATE_COUNT, AGGREGATE_MAX, AGGREGATE_MIN, AGGREGATE_SUM, SQUARE_OPEN,
+			SQUARE_CLOSE, WCONS, MAXIMIZE, MINIMIZE, PERCENTAGE;
 	qi::rule<Iterator, int(), ascii::space_type> NUMBER;
 };
 
@@ -297,49 +289,56 @@ typedef string::const_iterator string_const_it;
 typedef boost::spirit::istream_iterator iter_file;
 typedef asp_grammar<string_const_it> asp_parser;
 
-bool parseArgs(int argc, char* argv[],string& filename){
-		try {
+bool parseArgs(int argc, char* argv[], string& filename) {
+	try {
 
 		// Define the command line object.
 		CmdLine cmd("Command description message", ' ', "0.9");
 
-		ValueArg<string> termTableArg("t","termTable","Term Table Type",false,"STL","string");
-		cmd.add( &termTableArg );
+		ValueArg<string> termTableArg("t", "termTable", "Term Table Type", false, "STL", "string");
+		cmd.add(&termTableArg);
 
-		ValueArg<string> hashArg("a","hash","Hash type",false,"STL_HASH","string");
-		cmd.add( &hashArg );
+		ValueArg<string> hashArg("a", "hash", "Hash type", false, "STL_HASH", "string");
+		cmd.add(&hashArg);
 
-		SwitchArg parseArgs("p","print","Print parser result", false);
+		SwitchArg parseArgs("p", "print", "Print parser result", false);
 		cmd.add(&parseArgs);
 
-		SwitchArg dependencyArgs("d","dependency","Print dependency graph", false);
+		SwitchArg dependencyArgs("d", "dependency", "Print dependency graph", false);
 		cmd.add(&dependencyArgs);
 
-		SwitchArg componentArgs("c","component","Print component graph", false);
+		SwitchArg componentArgs("c", "component", "Print component graph", false);
 		cmd.add(&componentArgs);
 
-		SwitchArg statisticArgs("s","statistic","Print statistic", false);
+		SwitchArg statisticArgs("s", "statistic", "Print statistic", false);
 		cmd.add(&statisticArgs);
 
-		ValueArg<string> fileGraphArg("f","fileGraph","File to print graphs",false,"","string");
-		cmd.add( &fileGraphArg );
+		ValueArg<string> fileGraphArg("f", "fileGraph", "File to print graphs", false, "",
+				"string");
+		cmd.add(&fileGraphArg);
+
+		SwitchArg stdInArgs("1", "stdin", "Read input from stdin (if file not specified true)",
+				false);
+		cmd.add(&stdInArgs);
 
 		//MUST be last
-		UnlabeledValueArg<string>  fileArg( "fileName", "program file",true, "", "file"  );
-		cmd.add( fileArg );
+		UnlabeledValueArg<string> fileArg("fileName", "program file", false, "", "file");
+		cmd.add(fileArg);
 
 		// Parse the args.
-		cmd.parse( argc, argv );
+		cmd.parse(argc, argv);
 
 		// Get the value parsed by each arg.
 		string termTable = termTableArg.getValue();
-		string hash =hashArg.getValue();
-		bool parser=parseArgs.getValue();
-		bool dependency=dependencyArgs.getValue();
-		bool component=componentArgs.getValue();
-		bool statistic=statisticArgs.getValue();
-		string fileGraph=fileGraphArg.getValue();
-		filename=fileArg.getValue();
+		string hash = hashArg.getValue();
+		bool parser = parseArgs.getValue();
+		bool dependency = dependencyArgs.getValue();
+		bool component = componentArgs.getValue();
+		bool statistic = statisticArgs.getValue();
+		string fileGraph = fileGraphArg.getValue();
+		filename = fileArg.getValue();
+		if (stdInArgs.getValue())
+			filename = "";
 
 		Config::getInstance()->setTermTableType(termTable);
 		Config::getInstance()->setHashType(hash);
@@ -349,60 +348,74 @@ bool parseArgs(int argc, char* argv[],string& filename){
 		Config::getInstance()->setStatistic(statistic);
 		Config::getInstance()->setFileGraph(fileGraph);
 
-
-		} catch (ArgException &e)  // catch any exceptions
-		{ cerr << "error: " << e.error() << " for arg " << e.argId() << endl; return false;}
-		return true;
+	} catch (ArgException &e)  // catch any exceptions
+	{
+		cerr << "error: " << e.error() << " for arg " << e.argId() << endl;
+		return false;
+	}
+	return true;
 }
-
 
 int main(int argc, char* argv[]) {
 	string nameFile;
 
-	if(!parseArgs(argc,argv,nameFile))
+	if (!parseArgs(argc, argv, nameFile))
 		return 0;
 
 	client::builder = new StatementBuilder;
 
-	ifstream ifs(nameFile);
-	string str((std::istreambuf_iterator<char>(ifs)),
-			(std::istreambuf_iterator<char>()));
+	string_const_it iter;
+	string_const_it end;
+	string* str;
+	if (strcmp(nameFile.c_str(),"")==0) {
+		str=new string;
+		std::string buffer;
+		while (std::cin >> buffer)*str+=buffer;
+		iter = str->begin();
+		end = str->end();
 
+	} else {
+		ifstream ifs(nameFile);
+		str=new string((std::istreambuf_iterator<char>(ifs)), (std::istreambuf_iterator<char>()));
+		iter = str->begin();
+		end = str->end();
+	}
 	Timer::getInstance()->start("Parse time");
-
-	string_const_it iter = str.begin();
-	string_const_it end = str.end();
 
 	asp_parser parser;
 	bool r = phrase_parse(iter, end, parser, ascii::space);
 	if (r && iter == end) {
 
-		if(Config::getInstance()->isParser()){
+		if (Config::getInstance()->isParser()) {
 
 			cout << "-------------------------\n";
 			cout << "Parsing succeeded\n";
 			cout << "-------------------------\n";
 
 		}
+		delete str;
 
-
-		ProgramGrounder grounder(client::builder->getPredicateTable(),client::builder->getInstanceTable(),client::builder->getStatementDependency(),client::builder->getTermTable());
+		ProgramGrounder grounder(client::builder->getPredicateTable(),
+				client::builder->getInstanceTable(), client::builder->getStatementDependency(),
+				client::builder->getTermTable());
 
 		grounder.ground();
 
 		grounder.print();
+
 	} else {
 		string rest(iter, end);
 		cout << "-------------------------\n";
 		cout << "Parsing failed\n";
 //		cout << "stopped at: \": " << rest << "\"\n";
 		cout << "-------------------------\n";
+
+		delete str;
 	}
 
 	Timer::getInstance()->end();
 
 	client::builder->printStats();
-
 
 	delete client::builder;
 
