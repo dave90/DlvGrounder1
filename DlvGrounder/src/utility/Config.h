@@ -70,6 +70,10 @@ public:
 
 	void setFileGraph(string f) {this->fileGraph = f;}
 
+	bool isPrintRules() const {	return printRules;}
+
+	void setPrintRules(bool pr) {this->printRules = pr;}
+
 private:
 	Config();
 	static Config* config;
@@ -82,6 +86,7 @@ private:
 	bool dependency;
 	bool component;
 	bool statistic;
+	bool printRules;
 
 	string fileGraph;
 

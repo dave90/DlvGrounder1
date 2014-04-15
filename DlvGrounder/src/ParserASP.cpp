@@ -321,6 +321,10 @@ bool parseArgs(int argc, char* argv[], string& filename) {
 				false);
 		cmd.add(&stdInArgs);
 
+		SwitchArg printRulesArgs("r", "printRules", "Print the rules of the program",
+				false);
+		cmd.add(&printRulesArgs);
+
 		//MUST be last
 		UnlabeledValueArg<string> fileArg("fileName", "program file", false, "", "file");
 		cmd.add(fileArg);
@@ -336,6 +340,7 @@ bool parseArgs(int argc, char* argv[], string& filename) {
 		bool component = componentArgs.getValue();
 		bool statistic = statisticArgs.getValue();
 		string fileGraph = fileGraphArg.getValue();
+		bool printRule=printRulesArgs.getValue();
 		filename = fileArg.getValue();
 		if (stdInArgs.getValue())
 			filename = "";
@@ -347,6 +352,7 @@ bool parseArgs(int argc, char* argv[], string& filename) {
 		Config::getInstance()->setComponent(component);
 		Config::getInstance()->setStatistic(statistic);
 		Config::getInstance()->setFileGraph(fileGraph);
+		Config::getInstance()->setPrintRules(printRule);
 
 	} catch (ArgException &e)  // catch any exceptions
 	{

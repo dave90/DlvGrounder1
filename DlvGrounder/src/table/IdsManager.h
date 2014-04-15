@@ -82,6 +82,7 @@ public:
 	static pair_long_bool getIndex(unsigned int idManager, string s);
 	// Given an index and the IdManager type, returns the corresponding string
 	static string getString(unsigned int idManager, unsigned long index);
+	static string getStringStrip(unsigned int idManager, unsigned long index){string s=getString(idManager,index);return s.substr(0, s.find("*"));};
 	static int getConflict(unsigned int i);
 	static const int TERM_ID_MANAGER=0;
 	static const int PREDICATE_ID_MANAGER=1;

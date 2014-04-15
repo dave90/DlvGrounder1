@@ -133,9 +133,9 @@ void DependencyGraph::print() {
 	//Print label  (the name of the predicate)
 	for (unsigned int i = 0; i < num_vertices(depGraph); i++) {
 		graphDOT += lexical_cast<string>(i) + " [label= \"";
-		string predicate = IdsManager::getString(IdsManager::PREDICATE_ID_MANAGER,
+		string predicate = IdsManager::getStringStrip(IdsManager::PREDICATE_ID_MANAGER,
 				depGraph[i].pred_id);
-		graphDOT += predicate.substr(0, predicate.find("*")) + "  " + "\"];\n";
+		graphDOT += predicate + "  " + "\"];\n";
 	}
 	graphDOT += "}\n";
 
@@ -279,9 +279,9 @@ void ComponentGraph::print() {
 		graphDOT += " [label= \"";
 		for (auto it : component)
 			if (it.second == i) {
-				string predicate = IdsManager::getString(IdsManager::PREDICATE_ID_MANAGER,
+				string predicate = IdsManager::getStringStrip(IdsManager::PREDICATE_ID_MANAGER,
 						it.first);
-				graphDOT += predicate.substr(0, predicate.find("*")) + "  ";
+				graphDOT += predicate + "  ";
 			}
 		graphDOT += "\"];\n";
 	}
@@ -336,5 +336,7 @@ void StatementDependency::print() {
 		depGraph.print();
 	if (Config::getInstance()->isComponent())
 		compGraph.print();
+	if (Config::getInstance()->isPrintRules())
+		for(Rule*r:rules)r->print();
 }
 

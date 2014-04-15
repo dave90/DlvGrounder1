@@ -12,7 +12,7 @@ void  Rule::print(){
 	for (unsigned int i = 0; i < head.size(); ++i) {
 		head[i]->print();
 		if(i!=head.size()-1)
-			cout<<",";
+			cout<<" | ";
 	}
 	cout<<" :- ";
 	for (unsigned int i = 0; i < body.size(); ++i) {
@@ -20,7 +20,7 @@ void  Rule::print(){
 		if(i!=body.size()-1)
 			cout<<",";
 	}
-	cout<<endl;
+	cout<<"."<<endl;
 }
 
 unordered_set<unsigned long> Rule::getPredicateInHead() {

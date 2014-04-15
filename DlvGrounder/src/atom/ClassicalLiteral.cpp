@@ -9,6 +9,9 @@
 #include <sstream>
 #include <iostream>
 #include <string>
+
+#include "../table/IdsManager.h"
+
 using namespace std;
 
 string ClassicalLiteral::getNameToHash(){
@@ -24,17 +27,19 @@ string ClassicalLiteral::getNameToHash(){
 
 
 void ClassicalLiteral::print(){
-	string print;
 	if(negative)
 		cout<<"not ";
 	if(hasMinus)
 		cout<<"- ";
-	cout<<predicate<<"(";
+	cout<<IdsManager::getStringStrip(IdsManager::PREDICATE_ID_MANAGER,predicate);
 	for (unsigned int i = 0; i < terms.size(); ++i){
-		cout<<terms[i];
+		if(i==0)
+			cout<<"(";
+		cout<<IdsManager::getStringStrip(IdsManager::TERM_ID_MANAGER,terms[i]);
 		if(i!=terms.size()-1)
 			cout<<", ";
+		else
+			cout<<")";
 	}
-	cout<<")";
 }
 
