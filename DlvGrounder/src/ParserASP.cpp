@@ -150,7 +150,7 @@ struct asp_grammar: qi::grammar<Iterator, ascii::space_type> {
 		statement = (CONS[&client::setRuleBody] >> -body >> DOT[&client::addRule])
 				| (head >> -(CONS[&client::setRuleBody] >> -body) >> DOT[&client::addRule])
 				| (WCONS >> -body >> DOT >> SQUARE_OPEN >> weight_at_level
-						>> SQUARE_CLOSE[&client::addWeak]) | (optimize >> DOT);
+						>> SQUARE_CLOSE[&client::addWeak]) | (optimize >> DOT) | ( PERCENTAGE >> COMMENT);
 
 		head = disjunction[&client::addDisjunction] | choice[&client::addChoiche];
 
@@ -247,6 +247,7 @@ struct asp_grammar: qi::grammar<Iterator, ascii::space_type> {
 		MAXIMIZE = lit("#maximize");
 		MINIMIZE = lit("#minimize");
 		PERCENTAGE = lit("%");
+		COMMENT = lexeme[+(char_ - qi::eol) > qi::eol];
 	}
 
 	qi::rule<Iterator, ascii::space_type> program;
@@ -281,7 +282,7 @@ struct asp_grammar: qi::grammar<Iterator, ascii::space_type> {
 			DOT, NAF, SEMICOLON, EQUAL, UNEQEUAL, LESS, GREATER, LESS_OR_EQ, GREATER_OR_EQ, CONS,
 			COLON, AT, VARIABLE, ANONYMOUS_VARIABLE, PLUS, TIMES, DIV, STRING, CURLY_OPEN,
 			CURLY_CLOSE, AGGREGATE_COUNT, AGGREGATE_MAX, AGGREGATE_MIN, AGGREGATE_SUM, SQUARE_OPEN,
-			SQUARE_CLOSE, WCONS, MAXIMIZE, MINIMIZE, PERCENTAGE;
+			SQUARE_CLOSE, WCONS, MAXIMIZE, MINIMIZE, PERCENTAGE,COMMENT;
 	qi::rule<Iterator, int(), ascii::space_type> NUMBER;
 };
 
