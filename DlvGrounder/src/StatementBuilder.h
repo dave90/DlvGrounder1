@@ -39,6 +39,10 @@ public:
 	void addLiteral(string name);
 	//Add atom in atomFactory
 	void addClassicalAtom();
+	/// Set binop for builtin atom
+	void setBinop(string binop);
+	//Add builtin atom in atomFactory
+	void addBuiltinAtom();
 	// Set the current Atom a negative atom
 	void setNegativeAtom();
 	// Set the current Atom a strong negative atom
@@ -59,8 +63,12 @@ public:
 	void endTermFunction();
 	// Set the current term a negative term
 	void setNegativeTerm();
-	//Add Arithmetic term and pass the operator
-	void addArithTerm(string &op);
+	//Add Arithmetic term
+	void addArithTerm();
+	/// Set operator of ArithTerm
+	void setArithOperator(string op);
+	/// End arith term
+	void endArithTerm();
 
 	TermTable* getTermTable(){return termsFactory.getTermTable();};
 	InstancesTable* getInstanceTable(){return ruleFactory.getInstancesTable();};

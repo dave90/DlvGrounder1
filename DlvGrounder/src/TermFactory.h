@@ -26,18 +26,22 @@ public:
 	TermFactory();
 	void setTableType();
 	// Create a Variable term
-	unsigned long createVariable(string variable,bool negative);
+	long createVariable(string variable,bool negative);
 	//Create Constant term
-	unsigned long createConstant(string constant,bool negative);
+	long createConstant(string constant,bool negative);
 	//Create Function Term and push it in a queue
 	void createFunction(string name,bool negative);
 	// Put the Function term in the tail of a queue in the Table Term
-	unsigned long endFunction();
+	long endFunction();
 	//Add Arithmetic term
-	unsigned long addArithTerm(string op);
+	void addArithTerm();
+	/// Set operator of ArithTerm
+	void setArithOperator(string op);
+	/// End arith term
+	 long endArithTerm();
 
 	//if terms.size>0 Add term in functional term otherwise return index
-	unsigned long addTermsDependency(unsigned long index);
+	long addTermsDependency(unsigned long index);
 
 
 	TermTable*  getTermTable(){return termsMap;};
@@ -55,15 +59,6 @@ private:
 	 */
 	TermTable *termsMap;
 
-	/*
-	 *  Last term putted in the table
-	 */
-	unsigned long lastTerm;
-
-	/*
-	 *  True if meet atirhmetic term
-	 */
-	bool arith;
 };
 
 

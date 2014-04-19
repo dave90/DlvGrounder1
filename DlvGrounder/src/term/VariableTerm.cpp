@@ -8,7 +8,4 @@
 #include "VariableTerm.h"
 
 
-void VariableTerm::print() {
-	cout<<"Variable Term "<<variable<<" index: "<<getIndex()<<" Negation: "<<isNegative()<<endl;
-}
 

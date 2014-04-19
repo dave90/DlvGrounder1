@@ -16,6 +16,9 @@
 #include <vector>
 #include <string>
 #include "AggregateElement.h"
+
+#include "../table/TermTable.h"
+
 using namespace std;
 
 enum AggregateFunction {NONE=0,COUNT,MAX,MIN,SUM};
@@ -76,6 +79,7 @@ public:
 	virtual void setChoiceElements(const vector<vector<unsigned long> > choiceElements) {};
 
 	virtual void print();
+	virtual void print(TermTable*tb){};
 	virtual ~Atom(){};
 private:
 	unsigned long index;

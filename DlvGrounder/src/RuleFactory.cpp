@@ -8,10 +8,12 @@
 #include "RuleFactory.h"
 
 #include "atom/ClassicalLiteral.h"
+#include "atom/BuiltInAtom.h"
 
 RuleFactory::RuleFactory() {
 	head=true;
 	currentRule=new Rule;
+	binop=Binop::NONE_OP;
 
 	predicateTable=new PredicateTable;
 	instancesTable=new InstancesTable;
@@ -37,6 +39,29 @@ void RuleFactory::addClassicalAtom(vector<unsigned long> &terms, bool hashMinus,
 	Predicate *p=new Predicate(lastPredicate,terms.size());
 	unsigned long predIndex=predicateTable->insertPredicate(p);
 	Atom *a=new ClassicalLiteral(predIndex,terms,hashMinus,negative);
+	if(head){
+		currentRule->addInHead(a);
+	}else
+		currentRule->addInBody(a);
+}
+
+void  RuleFactory::setBinop(string binop){
+	if(binop.compare(">")==0)
+		this->binop=Binop::GREATER;
+	else	if(binop.compare("<")==0)
+		this->binop=Binop::LESS;
+	else if(binop.compare("=")==0)
+		this->binop=Binop::EQUAL;
+	else if(binop.compare(">=")==0)
+		this->binop=Binop::GREATER_OR_EQ;
+	else if(binop.compare("<=")==0)
+		this->binop=Binop::LESS_OR_EQ;
+	else if(binop.compare("!=")==0 || binop.compare("<>")==0)
+		this->binop=Binop::UNEQUAL;
+}
+
+void RuleFactory::addBuiltinAtom(vector<unsigned long> &terms,TermTable*tt) {
+	Atom *a=new BuiltInAtom(tt,terms[0],terms[1],binop,false);
 	if(head){
 		currentRule->addInHead(a);
 	}else

@@ -6,7 +6,11 @@
  */
 
 #include "BuiltInAtom.h"
+
 #include <sstream>
+#include <iostream>
+
+#include "../table/IdsManager.h"
 
 bool BuiltInAtom::evaluate(){ //TODO Operatori in Term
 	if(binop==Binop::EQUAL)
@@ -34,3 +38,21 @@ string BuiltInAtom::getNameToHash(){
 	name+="*"+convert.str();
 	return name;
 }
+
+void BuiltInAtom::print(TermTable*tb){
+	tb->getTerm(firstTerm)->print(tb);
+	if(binop==Binop::EQUAL)
+		cout<<"=";
+	if(binop==Binop::UNEQUAL)
+		cout<<"!=";
+	if(binop==Binop::LESS)
+		cout<<"<";
+	if(binop==Binop::LESS_OR_EQ)
+		cout<<"<=";
+	if(binop==Binop::GREATER)
+		cout<<">";
+	if(binop==Binop::GREATER_OR_EQ)
+		cout<<">=";
+	tb->getTerm(secondTerm)->print(tb);
+}
+

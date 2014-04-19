@@ -22,10 +22,7 @@ public:
 	VariableTerm(string v,unsigned long index):variable(v){setIndex(index);};
 	virtual string getName(){return variable;};
 	virtual void setName(string name){	variable=name;};
-	virtual void addTerm(unsigned long termIndex){};
-	virtual vector<unsigned long> getTerms(){};
 	virtual string getNameToHash(){	return variable;};
-	virtual void print();
 private:
 	string variable;
 };

@@ -31,6 +31,7 @@ public:
 
 	bool evaluate();
 
+	void print(TermTable*tb);
 	~BuiltInAtom() {};
 
 private:

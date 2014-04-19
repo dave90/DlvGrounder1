@@ -6,8 +6,8 @@
  */
 
 #include "ArithTerm.h"
-#include <sstream>
 
+#include <sstream>
 
 double ArithTerm::calculate() {
 	double result = termTable->getTerm(terms[0])->calculate();
@@ -38,12 +38,12 @@ string ArithTerm::getNameToHash() {
 	return name;
 }
 
-void ArithTerm::print() {
+void ArithTerm::print(TermTable* tb) {
 
-	cout<<"ArithTerm"<<getNameOperator(getOperator())<<" index "<<getIndex()<<" terms: ";
-	for (unsigned int i = 0; i < terms.size(); i++)
-		cout<<terms[i]<<" ";
-	cout<<endl;
+	for (unsigned int i = 0; i < terms.size(); i++){
+		if(i%2!=0)cout<<getNameOperator(getOperator());
+		tb->getTerm(terms[i])->print(tb);
+	}
 }
 
 string ArithTerm::getNameOperator(Operator op) {
@@ -55,4 +55,5 @@ string ArithTerm::getNameOperator(Operator op) {
 		return "*";
 	if(op==Operator::DIV)
 		return "/";
+	return "";
 }

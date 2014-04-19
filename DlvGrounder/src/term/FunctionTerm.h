@@ -11,6 +11,9 @@
 
 #include "Term.h"
 
+#include "../table/TermTable.h"
+
+
 using namespace std;
 
 /*
@@ -25,7 +28,7 @@ public:
 	virtual void addTerm(unsigned long termIndex){terms.push_back(termIndex);};
 	virtual vector<unsigned long> getTerms(){return terms;};
 	virtual string getNameToHash();
-	virtual void print();
+	virtual void print(TermTable *tb);
 private:
 	string name;
 

@@ -23,11 +23,8 @@ public:
 	ConstantTerm(string v,unsigned long index):constant(v){setIndex(index);};
 	virtual string getName(){return constant;};
 	virtual void setName(string name){constant=name;};
-	virtual void addTerm(unsigned long termIndex){};
-	virtual vector<unsigned long> getTerms(){};
 	virtual string getNameToHash(){return constant;};
 	virtual double calculate(){	return atof(constant.c_str());};
-	virtual void print();
 private:
 	string constant;
 };

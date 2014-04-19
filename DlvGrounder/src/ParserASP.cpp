@@ -77,6 +77,14 @@ void addClassicalAtom() {
 	builder->addClassicalAtom();
 }
 
+void setBinop(string binop){
+	builder->setBinop(binop);
+}
+
+void addBuiltinAtom(){
+	builder->addBuiltinAtom();
+}
+
 void addLiteral(string & name) {
 	builder->addLiteral(name);
 }
@@ -121,9 +129,18 @@ void addNegativeTerm(string minus) {
 	builder->setNegativeTerm();
 }
 
-void addArithTerm(string &op) {
-	builder->addArithTerm(op);
+void addArithTerm() {
+//	builder->addArithTerm();
 }
+
+void setArithOperator(string op) {
+//	builder->setArithOperator(op);
+}
+
+void endArithTerm() {
+//	builder->endArithTerm();
+}
+
 
 }
 
@@ -189,26 +206,26 @@ struct asp_grammar: qi::grammar<Iterator, ascii::space_type> {
 		naf_litteral = (-NAF[&client::setNegativeAtom] >> classical_literal >> !binop)
 				| builtin_atom;
 
-		builtin_atom = term >> binop >> term;
+		builtin_atom = (term >> binop >> term )[&client::addBuiltinAtom];
 
-		binop = EQUAL | UNEQEUAL | LESS >> !EQUAL | GREATER >> !EQUAL | LESS_OR_EQ | GREATER_OR_EQ;
+		binop = EQUAL[&client::setBinop] | UNEQEUAL1[&client::setBinop] | UNEQEUAL2[&client::setBinop]| LESS[&client::setBinop] >> !EQUAL | GREATER[&client::setBinop] >> !EQUAL | LESS_OR_EQ[&client::setBinop] | GREATER_OR_EQ[&client::setBinop];
 
 		classical_literal = -MINUS[&client::setStrongNegativeAtom] >> ID[&client::addLiteral]
 				>> (-(PAREN_OPEN >> terms >> PAREN_CLOSE))[&client::addClassicalAtom];
 
-		terms = term % COMMA;
+		terms =( (term >> -arithTerm[&client::endArithTerm] ) ) % COMMA;
+
+		arithTerm = (  +(arithop >> term ) )  ;
 
 		term = -MINUS[&client::addNegativeTerm]
 				>> ((ID[&client::addNameFunction] >> PAREN_OPEN[&client::addFunctionTerm] >> terms
 						>> PAREN_CLOSE[&client::endFunctionTerm]) | ID[&client::addId]
 						| NUMBER[&client::addNumber] | VARIABLE[&client::addVariable]
-						| ANONYMOUS_VARIABLE[&client::addAnonymusVariable] | STRING[&client::addId])
-				>> -arithop_term;
+						| ANONYMOUS_VARIABLE[&client::addAnonymusVariable] | STRING[&client::addId]);
 
-		arithop_term = arithop >> term;
 
-		arithop = PLUS[&client::addArithTerm] | MINUS[&client::addArithTerm]
-				| TIMES[&client::addArithTerm] | DIV[&client::addArithTerm];
+		arithop = PLUS[&client::setArithOperator] | MINUS[&client::setArithOperator]
+				| TIMES[&client::setArithOperator] | DIV[&client::setArithOperator];
 
 		COMMA = lit(",");
 		PAREN_OPEN = lit("(");
@@ -220,7 +237,8 @@ struct asp_grammar: qi::grammar<Iterator, ascii::space_type> {
 		OR = lit("|");
 		DOT = lit(".");
 		EQUAL = lit("=");
-		UNEQEUAL = lit("!=") | lit("<>");
+		UNEQEUAL1 = lit("!=");
+		UNEQEUAL2 = lit("<>");
 		LESS = lit("<");
 		GREATER = lit(">");
 		LESS_OR_EQ = lit("<=");
@@ -276,10 +294,10 @@ struct asp_grammar: qi::grammar<Iterator, ascii::space_type> {
 	qi::rule<Iterator, ascii::space_type> classical_literal;
 	qi::rule<Iterator, ascii::space_type> terms;
 	qi::rule<Iterator, ascii::space_type> arithop;
-	qi::rule<Iterator, ascii::space_type> arithop_term;
+	qi::rule<Iterator, ascii::space_type> arithTerm;
 	qi::rule<Iterator, ascii::space_type> term;
 	qi::rule<Iterator, string(), ascii::space_type> COMMA, PAREN_OPEN, PAREN_CLOSE, MINUS, ID, OR,
-			DOT, NAF, SEMICOLON, EQUAL, UNEQEUAL, LESS, GREATER, LESS_OR_EQ, GREATER_OR_EQ, CONS,
+			DOT, NAF, SEMICOLON, EQUAL, UNEQEUAL1, UNEQEUAL2, LESS, GREATER, LESS_OR_EQ, GREATER_OR_EQ, CONS,
 			COLON, AT, VARIABLE, ANONYMOUS_VARIABLE, PLUS, TIMES, DIV, STRING, CURLY_OPEN,
 			CURLY_CLOSE, AGGREGATE_COUNT, AGGREGATE_MAX, AGGREGATE_MIN, AGGREGATE_SUM, SQUARE_OPEN,
 			SQUARE_CLOSE, WCONS, MAXIMIZE, MINIMIZE, PERCENTAGE,COMMENT;
@@ -414,7 +432,7 @@ int main(int argc, char* argv[]) {
 		string rest(iter, end);
 		cout << "-------------------------\n";
 		cout << "Parsing failed\n";
-//		cout << "stopped at: \": " << rest << "\"\n";
+		cout << "stopped at: \": " << rest << "\"\n";
 		cout << "-------------------------\n";
 
 		delete str;

@@ -72,10 +72,10 @@ void DependencyGraph::addInDependency(Rule* r) {
 
 	for (auto head_it = r->getBeginHead(); head_it != r->getEndHead(); head_it++) {
 
-		unsigned long pred_head = (*head_it)->getPredicate();
+		long pred_head = (*head_it)->getPredicate();
 
 		// Verify if the predicate in the head was been visited
-		if (!head_predicateVisited.count(pred_head)) {
+		if (pred_head!=-1 && !head_predicateVisited.count(pred_head)) {
 
 			// Set this predicate visited
 			head_predicateVisited.insert(pred_head);
@@ -84,10 +84,10 @@ void DependencyGraph::addInDependency(Rule* r) {
 
 				// Verify if the predicate is positive
 				if (!(*body_it)->isNegative()) {
-					unsigned long pred_body = (*body_it)->getPredicate();
+					long pred_body = (*body_it)->getPredicate();
 
 					// Verify if the predicate in the head was been visited
-					if (!body_predicateVisited.count(pred_body)) {
+					if (pred_body!=-1 && !body_predicateVisited.count(pred_body)) {
 
 						// Set this predicate visited
 						body_predicateVisited.insert(pred_body);
@@ -331,12 +331,12 @@ void StatementDependency::createComponentGraph() {
 	compGraph.createComponent(depGraph, statementAtomMapping);
 }
 
-void StatementDependency::print() {
+void StatementDependency::print(TermTable *tb) {
 	if (Config::getInstance()->isDependency())
 		depGraph.print();
 	if (Config::getInstance()->isComponent())
 		compGraph.print();
 	if (Config::getInstance()->isPrintRules())
-		for(Rule*r:rules)r->print();
+		for(Rule*r:rules)r->print(tb);
 }
 

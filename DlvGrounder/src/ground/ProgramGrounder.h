@@ -24,7 +24,7 @@ public:
 
 	void ground(){statementDependency->createDependencyGraph(predicateTable);statementDependency->createComponentGraph();};
 
-	void print(){statementDependency->print();};
+	void print(){statementDependency->print(termsMap);};
 
 	//Print Term
 	void printTerm(){cout<<"Size Term table: "<<termsMap->getSize()<<endl;cout<<"Collision Term table: "<<termsMap->getCollision()<<endl;termsMap->print();	}

@@ -10,7 +10,3 @@
 
 
 
-void ConstantTerm::print() {
-	cout<<"Constant Term "<<constant<<" index: "<<getIndex()<<" Negation: "<<isNegative()<<endl;
-}
-

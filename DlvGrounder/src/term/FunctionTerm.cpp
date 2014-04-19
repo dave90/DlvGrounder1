@@ -6,7 +6,9 @@
  */
 
 #include "FunctionTerm.h"
+
 #include <sstream>
+
 
 FunctionTerm::FunctionTerm() {
 
@@ -28,10 +30,13 @@ string FunctionTerm::getNameToHash() {
 	return hashString;
 }
 
-void FunctionTerm::print() {
-	cout<<"Function Term "<<name<<" index: "<<getIndex()<<" Negation: "<<isNegative()<<" "<<" Terms:";
-	for(unsigned int i=0;i<terms.size();i++)
-		cout<<terms[i]<<" ";
-	cout<<endl;
+void FunctionTerm::print(TermTable *tb) {
+	cout<<IdsManager::getStringStrip(IdsManager::TERM_ID_MANAGER,getIndex())<<"(";
+	for(unsigned int i=0;i<terms.size();i++){
+		if(i!=0)
+			cout<<",";
+		tb->getTerm(terms[i])->print(tb);
+	}
+	cout<<")";
 }
 

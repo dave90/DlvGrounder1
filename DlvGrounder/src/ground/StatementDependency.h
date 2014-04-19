@@ -131,7 +131,7 @@ public:
 	void createDependencyGraph(PredicateTable* pt);
 	void createComponentGraph();
 
-	void print();
+	void print(TermTable *tb);
 
 	virtual ~StatementDependency(){for(Rule *r:rules)delete r;};
 private:

@@ -25,7 +25,6 @@ public:
 	virtual Term* getTerm(unsigned long index);
 	virtual long getSize();
 	virtual int getCollision();
-	virtual void print();
 	virtual ~BoostTermTable();
 private:
 	boost::unordered_set<Term*,hashTerm,hashTerm> hash;

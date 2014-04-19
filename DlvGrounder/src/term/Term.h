@@ -13,6 +13,8 @@
 #include <vector>
 #include <iostream>
 
+#include "../table/IdsManager.h"
+
 using namespace std;
 
 /**
@@ -21,6 +23,13 @@ using namespace std;
  *
  *  The structure of a Term is based on the Composite pattern
  */
+class TermTable;
+
+/// Operator for arith term
+enum Operator {
+	PLUS=0, MINUS, DIV, TIMES
+};
+
 class Term {
 public:
 	Term();
@@ -40,19 +49,21 @@ public:
 	///Equal with term, based on the index of the terms
 	bool operator==(const Term& t){	return t.index==index;};
 	///Return the name of the term
-	virtual string getName(){};
+	virtual string getName(){return "";};
 	///Set the name of the term
 	virtual void setName(string name){};
 	///Add the index of a term inside the function term, used only with the FunctionTerm
 	virtual void addTerm(unsigned long termIndex){};
 	///Return the terms in the function term, used only with the FunctionTerm
-	virtual vector<unsigned long> getTerms(){};
+	virtual vector<unsigned long> getTerms(){return vector<unsigned long>();};
+	/// Set operator for Arith Term
+	virtual void setOperator(Operator op){};
 	/// Return the calculate for the arithmetic term
-	virtual double calculate(){};
+	virtual double calculate(){return 0;};
 	/// Return the string used to hash the term
-	virtual string getNameToHash(){};
+	virtual string getNameToHash(){return "";};
 	/// Print with the cout the term
-	virtual void print(){};
+	virtual void print(TermTable *tb){cout<<IdsManager::getStringStrip(IdsManager::TERM_ID_MANAGER,getIndex());};
 	virtual ~Term(){};
 private:
 	/*

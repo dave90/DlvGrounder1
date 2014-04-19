@@ -91,6 +91,19 @@ void StatementBuilder::addClassicalAtom() {
 	negativeAtom = false;
 }
 
+void StatementBuilder::setBinop(string binop) {
+	ruleFactory.setBinop(binop);
+}
+
+
+void StatementBuilder::addBuiltinAtom() {
+	ruleFactory.addBuiltinAtom(termsInAtom,getTermTable());
+
+	termsInAtom.clear();
+	hashMinusAtom = false;
+	negativeAtom = false;
+}
+
 void StatementBuilder::setNegativeAtom() {
 	negativeAtom = true;
 }
@@ -105,7 +118,7 @@ void StatementBuilder::resetTerm() {
 }
 
 void StatementBuilder::addVariable(string & name) {
-	unsigned long index = termsFactory.createVariable(name, negativeTerm);
+	 long index = termsFactory.createVariable(name, negativeTerm);
 	resetTerm();
 
 	if (index != -1)
@@ -115,7 +128,7 @@ void StatementBuilder::addVariable(string & name) {
 
 void StatementBuilder::addId(string & name) {
 
-	unsigned long index = termsFactory.createConstant(name, negativeTerm);
+	 long index = termsFactory.createConstant(name, negativeTerm);
 	resetTerm();
 
 	if (index != -1)
@@ -128,7 +141,7 @@ void StatementBuilder::addNumber(int & name) {
 	ostringstream convert;
 	convert << name;
 	string id = convert.str();
-	unsigned long index = termsFactory.createConstant(id, negativeTerm);
+	 long index = termsFactory.createConstant(id, negativeTerm);
 	resetTerm();
 
 	if (index != -1)
@@ -150,7 +163,7 @@ void StatementBuilder::addNameFunction(string & name) {
 
 void StatementBuilder::endTermFunction() {
 
-	unsigned long index = termsFactory.endFunction();
+	 long index = termsFactory.endFunction();
 	resetTerm();
 
 	if (index != -1)
@@ -161,11 +174,21 @@ void StatementBuilder::setNegativeTerm() {
 	negativeTerm = true;
 }
 
-void StatementBuilder::addArithTerm(string &op) {
+void StatementBuilder::addArithTerm() {
 
-	unsigned long index = termsFactory.addArithTerm(op);
+	termsFactory.addArithTerm();
+	resetTerm();
+}
+
+void StatementBuilder::setArithOperator(string op){
+	termsFactory.setArithOperator(op);
+}
+
+void StatementBuilder::endArithTerm(){
+	 long index =termsFactory.endArithTerm();
+
 	if (index != -1)
-		termsInAtom.pop_back();
+		termsInAtom.push_back(index);
 }
 
 void StatementBuilder::setRuleBody() {

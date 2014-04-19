@@ -26,7 +26,7 @@ string ClassicalLiteral::getNameToHash(){
 }
 
 
-void ClassicalLiteral::print(){
+void ClassicalLiteral::print(TermTable *tb){
 	if(negative)
 		cout<<"not ";
 	if(hasMinus)
@@ -35,7 +35,7 @@ void ClassicalLiteral::print(){
 	for (unsigned int i = 0; i < terms.size(); ++i){
 		if(i==0)
 			cout<<"(";
-		cout<<IdsManager::getStringStrip(IdsManager::TERM_ID_MANAGER,terms[i]);
+		tb->getTerm(terms[i])->print(tb);
 		if(i!=terms.size()-1)
 			cout<<", ";
 		else
