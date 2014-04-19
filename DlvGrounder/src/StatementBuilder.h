@@ -61,14 +61,15 @@ public:
 	void addTermFunction();
 	// Add a function in the table of the function
 	void endTermFunction();
+	void addArithTerm();
 	// Set the current term a negative term
 	void setNegativeTerm();
-	//Add Arithmetic term
-	void addArithTerm();
 	/// Set operator of ArithTerm
 	void setArithOperator(string op);
 	/// End arith term
 	void endArithTerm();
+	///Remove last term
+	void removeLastTerm();
 
 	TermTable* getTermTable(){return termsFactory.getTermTable();};
 	InstancesTable* getInstanceTable(){return ruleFactory.getInstancesTable();};
@@ -99,7 +100,6 @@ private:
 	 */
 	bool hashMinusAtom;
 	bool negativeAtom;
-	vector<unsigned long> termsInAtom;
 
 	TermFactory termsFactory;
 	RuleFactory ruleFactory;

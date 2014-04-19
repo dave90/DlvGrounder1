@@ -84,9 +84,10 @@ void StatementBuilder::addLiteral(string name) {
 }
 
 void StatementBuilder::addClassicalAtom() {
-	ruleFactory.addClassicalAtom(termsInAtom, hashMinusAtom, negativeAtom);
+	vector<unsigned long> terms=termsFactory.getTermsInAtom();
+	ruleFactory.addClassicalAtom(terms, hashMinusAtom, negativeAtom);
 
-	termsInAtom.clear();
+	termsFactory.clearTermsInAtom();
 	hashMinusAtom = false;
 	negativeAtom = false;
 }
@@ -97,9 +98,10 @@ void StatementBuilder::setBinop(string binop) {
 
 
 void StatementBuilder::addBuiltinAtom() {
-	ruleFactory.addBuiltinAtom(termsInAtom,getTermTable());
+	vector<unsigned long> terms=termsFactory.getTermsInAtom();
+	ruleFactory.addBuiltinAtom(terms,getTermTable());
 
-	termsInAtom.clear();
+	termsFactory.clearTermsInAtom();
 	hashMinusAtom = false;
 	negativeAtom = false;
 }
@@ -118,21 +120,18 @@ void StatementBuilder::resetTerm() {
 }
 
 void StatementBuilder::addVariable(string & name) {
-	 long index = termsFactory.createVariable(name, negativeTerm);
+	 termsFactory.createVariable(name, negativeTerm);
 	resetTerm();
 
-	if (index != -1)
-		termsInAtom.push_back(index);
 	term++;
 }
 
 void StatementBuilder::addId(string & name) {
 
-	 long index = termsFactory.createConstant(name, negativeTerm);
+	termsFactory.createConstant(name, negativeTerm);
 	resetTerm();
 
-	if (index != -1)
-		termsInAtom.push_back(index);
+
 	term++;
 }
 
@@ -141,11 +140,9 @@ void StatementBuilder::addNumber(int & name) {
 	ostringstream convert;
 	convert << name;
 	string id = convert.str();
-	 long index = termsFactory.createConstant(id, negativeTerm);
+	termsFactory.createConstant(id, negativeTerm);
 	resetTerm();
 
-	if (index != -1)
-		termsInAtom.push_back(index);
 	term++;
 }
 
@@ -163,11 +160,9 @@ void StatementBuilder::addNameFunction(string & name) {
 
 void StatementBuilder::endTermFunction() {
 
-	 long index = termsFactory.endFunction();
+	termsFactory.endFunction();
 	resetTerm();
 
-	if (index != -1)
-		termsInAtom.push_back(index);
 }
 
 void StatementBuilder::setNegativeTerm() {
@@ -185,10 +180,12 @@ void StatementBuilder::setArithOperator(string op){
 }
 
 void StatementBuilder::endArithTerm(){
-	 long index =termsFactory.endArithTerm();
+	termsFactory.endArithTerm();
 
-	if (index != -1)
-		termsInAtom.push_back(index);
+}
+
+void StatementBuilder::removeLastTerm(){
+	termsFactory.removeLastTerm();
 }
 
 void StatementBuilder::setRuleBody() {

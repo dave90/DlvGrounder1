@@ -25,15 +25,14 @@
 class ArithTerm: public Term {
 public:
 	/// Take the TableTerm for the calculation
-	ArithTerm(TermTable *t):termTable(t),op(Operator::PLUS){};
-	/// Get the operator for the calculation
-	virtual Operator getOperator(){return op;};
+	ArithTerm(TermTable *t):termTable(t){};
 	///Set operator
-	virtual void setOperator(Operator op){this->op=op;};
+	virtual void setOperator(Operator op){operators.push_back(op);};
 	/// Calculate the operation based on the operator
 	virtual double calculate();
 	///Add term for the calculation
 	virtual void addTerm(unsigned long termIndex){terms.push_back(termIndex);};
+	virtual void popTerm(){terms.pop_back();};
 	virtual string getNameToHash();
 	virtual void print(TermTable* tb);
 	/// Return the operator in string
@@ -43,8 +42,8 @@ private:
 	vector<unsigned long> terms;
 	TermTable *termTable;
 
-	// The operator
-	Operator op;
+	// The operators
+	vector<Operator> operators;
 };
 
 #endif /* ARITHTERM_H_ */

@@ -24,7 +24,7 @@ void TermFactory::setTableType() {
 		termsMap=new HashTermTable;
 }
 
- long TermFactory::createVariable(string variable,bool negative) {
+ void TermFactory::createVariable(string variable,bool negative) {
 	Term *v=new VariableTerm();
 
 	v->setName(variable);
@@ -32,12 +32,12 @@ void TermFactory::setTableType() {
 
 	int index=termsMap->addTerm(v);
 
-	return addTermsDependency(index);
+	addTermsDependency(index);
 }
 
 
 
- long TermFactory::createConstant(string constant,bool negative) {
+ void TermFactory::createConstant(string constant,bool negative) {
 	Term *c=new ConstantTerm();
 
 	c->setName(constant);
@@ -45,11 +45,11 @@ void TermFactory::setTableType() {
 
 	int index=termsMap->addTerm(c);
 
-	return addTermsDependency(index);
+	addTermsDependency(index);
 
 }
 
-void TermFactory::createFunction(string name,bool negative) {
+ void TermFactory::createFunction(string name,bool negative) {
 	Term *ft=new FunctionTerm();
 
 	ft->setName(name);
@@ -58,36 +58,31 @@ void TermFactory::createFunction(string name,bool negative) {
 	terms.push_back(ft);
 }
 
- long TermFactory::endFunction() {
+ void TermFactory::endFunction() {
 	Term *ft=terms[terms.size()-1];
 	terms.pop_back();
 
 	int index=termsMap->addTerm(ft);
 
 
-	return addTermsDependency(index);
+	addTermsDependency(index);
 
 }
 
- long TermFactory::addTermsDependency(unsigned long index) {
-	if(terms.size()>0){
+ void TermFactory::addTermsDependency(unsigned long index) {
+	if(terms.size()>0)
 		terms[terms.size()-1]->addTerm(index);
-
-
-		return -1;
-	}else{
-		return index;
-	}
+	else
+		termsInAtom.push_back(index);
 }
 
-void TermFactory::addArithTerm() {
+ void TermFactory::addArithTerm() {
 	Term *t=new ArithTerm(termsMap);
 	terms.push_back(t);
 }
 
 void TermFactory::setArithOperator(string op){
-	Term* arith=terms[terms.size()-1];
-
+	Term *arith=terms[terms.size()-1];
 	if(strcmp(op.c_str(),ArithTerm::getNameOperator(Operator::PLUS).c_str())==0)
 		arith->setOperator(Operator::PLUS);
 	else if(strcmp(op.c_str(),ArithTerm::getNameOperator(Operator::MINUS).c_str())==0)
@@ -99,13 +94,20 @@ void TermFactory::setArithOperator(string op){
 
 }
 
- long TermFactory::endArithTerm(){
+void TermFactory::endArithTerm(){
 	Term *at=terms[terms.size()-1];
 	terms.pop_back();
 
 	int index=termsMap->addTerm(at);
 
 
-	return addTermsDependency(index);
+	addTermsDependency(index);
 }
 
+void TermFactory::removeLastTerm(){
+	if(terms.size()>0){
+		terms[terms.size()-1]->popTerm();
+	}else{
+		termsInAtom.pop_back();
+	}
+}

@@ -26,6 +26,7 @@ public:
 	virtual string getName(){return name;};
 	virtual void setName(string name){this->name=name;};
 	virtual void addTerm(unsigned long termIndex){terms.push_back(termIndex);};
+	virtual void popTerm(){terms.pop_back();};
 	virtual vector<unsigned long> getTerms(){return terms;};
 	virtual string getNameToHash();
 	virtual void print(TermTable *tb);

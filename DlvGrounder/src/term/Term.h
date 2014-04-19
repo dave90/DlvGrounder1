@@ -54,6 +54,8 @@ public:
 	virtual void setName(string name){};
 	///Add the index of a term inside the function term, used only with the FunctionTerm
 	virtual void addTerm(unsigned long termIndex){};
+	///Remove last index of a term inside the function term, used only with the FunctionTerm
+	virtual void popTerm(){};
 	///Return the terms in the function term, used only with the FunctionTerm
 	virtual vector<unsigned long> getTerms(){return vector<unsigned long>();};
 	/// Set operator for Arith Term

@@ -130,15 +130,20 @@ void addNegativeTerm(string minus) {
 }
 
 void addArithTerm() {
-//	builder->addArithTerm();
+	builder->addArithTerm();
+}
+
+void addArithTermAndPopTerm(){
+	builder->removeLastTerm();
+	builder->addArithTerm();
 }
 
 void setArithOperator(string op) {
-//	builder->setArithOperator(op);
+	builder->setArithOperator(op);
 }
 
 void endArithTerm() {
-//	builder->endArithTerm();
+	builder->endArithTerm();
 }
 
 
@@ -213,9 +218,9 @@ struct asp_grammar: qi::grammar<Iterator, ascii::space_type> {
 		classical_literal = -MINUS[&client::setStrongNegativeAtom] >> ID[&client::addLiteral]
 				>> (-(PAREN_OPEN >> terms >> PAREN_CLOSE))[&client::addClassicalAtom];
 
-		terms =( (term >> -arithTerm[&client::endArithTerm] ) ) % COMMA;
+		terms =( (term >> !not_arithop[&client::addArithTermAndPopTerm] | arithTerm[&client::endArithTerm] ) ) % COMMA;
 
-		arithTerm = (  +(arithop >> term ) )  ;
+		arithTerm = ( term >> *(arithop >> term )   );
 
 		term = -MINUS[&client::addNegativeTerm]
 				>> ((ID[&client::addNameFunction] >> PAREN_OPEN[&client::addFunctionTerm] >> terms
@@ -226,6 +231,9 @@ struct asp_grammar: qi::grammar<Iterator, ascii::space_type> {
 
 		arithop = PLUS[&client::setArithOperator] | MINUS[&client::setArithOperator]
 				| TIMES[&client::setArithOperator] | DIV[&client::setArithOperator];
+
+		not_arithop = PLUS | MINUS	| TIMES | DIV;
+
 
 		COMMA = lit(",");
 		PAREN_OPEN = lit("(");
@@ -294,6 +302,7 @@ struct asp_grammar: qi::grammar<Iterator, ascii::space_type> {
 	qi::rule<Iterator, ascii::space_type> classical_literal;
 	qi::rule<Iterator, ascii::space_type> terms;
 	qi::rule<Iterator, ascii::space_type> arithop;
+	qi::rule<Iterator, ascii::space_type> not_arithop;
 	qi::rule<Iterator, ascii::space_type> arithTerm;
 	qi::rule<Iterator, ascii::space_type> term;
 	qi::rule<Iterator, string(), ascii::space_type> COMMA, PAREN_OPEN, PAREN_CLOSE, MINUS, ID, OR,

@@ -34,7 +34,7 @@ unordered_set<unsigned long> Rule::getPredicateInHead() {
 
 unordered_set<unsigned long> Rule::getPredicateInBody() {
 	unordered_set<unsigned long> predicates;
-	for (int i = 0; i < body.size(); ++i) {
+	for (unsigned int i = 0; i < body.size(); ++i) {
 		if(body[i]->getPredicate()!=-1)
 			predicates.insert(body[i]->getPredicate()); //TODO Con gli aggregati/choice??
 	}
@@ -43,7 +43,7 @@ unordered_set<unsigned long> Rule::getPredicateInBody() {
 
 unordered_set<unsigned long> Rule::getPositivePredicateInBody() {
 	unordered_set<unsigned long> predicates;
-	for (int i = 0; i < body.size(); ++i) {
+	for (unsigned int i = 0; i < body.size(); ++i) {
 		if(body[i]->getPredicate()!=-1 && !body[i]->isNegative())
 			predicates.insert(body[i]->getPredicate()); //TODO Con gli aggregati/choice??
 	}
@@ -52,7 +52,7 @@ unordered_set<unsigned long> Rule::getPositivePredicateInBody() {
 
 unordered_set<unsigned long> Rule::getNegativePredicateInBody() {
 	unordered_set<unsigned long> predicates;
-	for (int i = 0; i < body.size(); ++i) {
+	for (unsigned int i = 0; i < body.size(); ++i) {
 		if(body[i]->getPredicate()!=-1 && body[i]->isNegative())
 			predicates.insert(body[i]->getPredicate()); //TODO Con gli aggregati/choice??
 	}
