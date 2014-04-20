@@ -22,7 +22,8 @@ public:
 	ProgramGrounder(PredicateTable* pt,InstancesTable* it,StatementDependency* st,TermTable* tm):
 		predicateTable(pt),instancesTable(it),statementDependency(st),termsMap(tm){};
 
-	void ground(){statementDependency->createDependencyGraph(predicateTable);statementDependency->createComponentGraph();};
+	void ground();
+	void groundRule(Rule *r);
 
 	void print(){statementDependency->print(termsMap);};
 

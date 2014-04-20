@@ -130,6 +130,7 @@ public:
 	void addRuleMapping(Rule *r);
 	void createDependencyGraph(PredicateTable* pt);
 	void createComponentGraph();
+	Rule* getRule(int i){return rules[i];};
 
 	void print(TermTable *tb);
 
