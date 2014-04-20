@@ -176,8 +176,8 @@ struct asp_grammar: qi::grammar<Iterator, ascii::space_type> {
 
 		head = disjunction[&client::addDisjunction] | choice[&client::addChoiche];
 
-		choice = -(term >> binop) >> CURLY_OPEN >> choiche_elements >> CURLY_CLOSE
-				>> -(binop >> term);
+		choice = -(term_arithTerm >> binop) >> CURLY_OPEN >> choiche_elements >> CURLY_CLOSE
+				>> -(binop >> term_arithTerm);
 
 		choiche_elements = choiche_element % SEMICOLON;
 
@@ -187,16 +187,16 @@ struct asp_grammar: qi::grammar<Iterator, ascii::space_type> {
 
 		body = (naf_litteral | aggregate[&client::addAggregate]) % COMMA;
 
-		aggregate = -(term >> binop) >> aggregate_function >> CURLY_OPEN >> aggregate_elements
-				>> CURLY_CLOSE >> -(binop >> term);
+		aggregate = -(term_arithTerm >> binop) >> aggregate_function >> CURLY_OPEN >> aggregate_elements
+				>> CURLY_CLOSE >> -(binop >> term_arithTerm);
 
 		aggregate_function = AGGREGATE_COUNT | AGGREGATE_MAX | AGGREGATE_MIN | AGGREGATE_SUM;
 
 		aggregate_elements = aggregate_element % SEMICOLON;
 
-		aggregate_element = terms >> -(COLON >> -naf_litterals);
+		aggregate_element = term_arithTerm >> -(COLON >> -naf_litterals);
 
-		weight_at_level = term >> -(AT >> term) >> -(COMMA >> terms);
+		weight_at_level = term_arithTerm >> -(AT >> term_arithTerm) >> -(COMMA >> term_arithTerm);
 
 		optimize = optimize_function >> CURLY_OPEN >> -optimize_elements >> CURLY_CLOSE;
 
@@ -211,14 +211,16 @@ struct asp_grammar: qi::grammar<Iterator, ascii::space_type> {
 		naf_litteral = (-NAF[&client::setNegativeAtom] >> classical_literal >> !binop)
 				| builtin_atom;
 
-		builtin_atom = (term >> binop >> term )[&client::addBuiltinAtom];
+		builtin_atom = (term_arithTerm >> binop >> term_arithTerm )[&client::addBuiltinAtom];
 
 		binop = EQUAL[&client::setBinop] | UNEQEUAL1[&client::setBinop] | UNEQEUAL2[&client::setBinop]| LESS[&client::setBinop] >> !EQUAL | GREATER[&client::setBinop] >> !EQUAL | LESS_OR_EQ[&client::setBinop] | GREATER_OR_EQ[&client::setBinop];
 
 		classical_literal = -MINUS[&client::setStrongNegativeAtom] >> ID[&client::addLiteral]
 				>> (-(PAREN_OPEN >> terms >> PAREN_CLOSE))[&client::addClassicalAtom];
 
-		terms =( (term >> !not_arithop[&client::addArithTermAndPopTerm] | arithTerm[&client::endArithTerm] ) ) % COMMA;
+		terms = term_arithTerm % COMMA;
+
+		term_arithTerm = (term >> !not_arithop[&client::addArithTermAndPopTerm] | arithTerm[&client::endArithTerm] );
 
 		arithTerm = ( term >> *(arithop >> term )   );
 
@@ -300,6 +302,7 @@ struct asp_grammar: qi::grammar<Iterator, ascii::space_type> {
 	qi::rule<Iterator, ascii::space_type> builtin_atom;
 	qi::rule<Iterator, ascii::space_type> binop;
 	qi::rule<Iterator, ascii::space_type> classical_literal;
+	qi::rule<Iterator, ascii::space_type> term_arithTerm;
 	qi::rule<Iterator, ascii::space_type> terms;
 	qi::rule<Iterator, ascii::space_type> arithop;
 	qi::rule<Iterator, ascii::space_type> not_arithop;
@@ -441,7 +444,7 @@ int main(int argc, char* argv[]) {
 		string rest(iter, end);
 		cout << "-------------------------\n";
 		cout << "Parsing failed\n";
-		cout << "stopped at: \": " << rest << "\"\n";
+//		cout << "stopped at: \": " << rest << "\"\n";
 		cout << "-------------------------\n";
 
 		delete str;
