@@ -9,13 +9,14 @@
 #define INSTANCE_H_
 
 #include <unordered_set>
+#include <unordered_map>
 #include <vector>
 #include "../atom/Atom.h"
 #include <iostream>
 
 using namespace std;
 
-struct PairAtomBool{
+struct PairAtomBool {
 	Atom* atom;
 	mutable bool truth;
 };
@@ -24,59 +25,85 @@ struct PairAtomBool{
  * Hash function for the class Atom
  */
 struct hashAtom {
-	  size_t operator()(Atom* atom) const {
-		 return atom->getIndex();
-	  }
-	  size_t operator()(PairAtomBool pb) const {
-			 return pb.atom->getIndex();
-	  }
-	  bool operator()( Atom* t1,  Atom* t2)const{
-		  return t1->getIndex()==t2->getIndex();
-	  }
-	  bool operator()( PairAtomBool pb1, PairAtomBool pb2)const{
-	 		  return pb1.atom->getIndex()==pb2.atom->getIndex();
-	  }
+	size_t operator()(Atom* atom) const {
+		return atom->getIndex();
+	}
+	size_t operator()(PairAtomBool pb) const {
+		return pb.atom->getIndex();
+	}
+	bool operator()(Atom* t1, Atom* t2) const {
+		return t1->getIndex() == t2->getIndex();
+	}
+	bool operator()(PairAtomBool pb1, PairAtomBool pb2) const {
+		return pb1.atom->getIndex() == pb2.atom->getIndex();
+	}
 
 };
-
 
 typedef unordered_set<Atom*, hashAtom, hashAtom> AtomTable;
 typedef unordered_set<PairAtomBool, hashAtom, hashAtom> PairAtomBoolTable;
 
-class IndexAtom {
-	public:
-		IndexAtom(AtomTable* a){atoms=a;};
-		/* 	These methods given a vector of terms indices, and a vector of values for that terms returns the first atom (as vector of
-			indices of his terms) that satisfy the match.  */
-		virtual vector<unsigned long> firstMatch(vector<unsigned long> termsIndex, vector<long> values)=0;
-		/* 	These methods given a vector of terms indices, and a vector of values for that terms returns the next atom (as vector of
-			indices of his terms) that satisfy the match.
-			It has to be invoked after fistMatch. */
-		virtual vector<unsigned long> nextMatch()=0;
-		/* 	These methods given a vector of terms indices, and a vector of values for that terms returns all the atoms (as vector of
-			indices of terms) that satisfy the match. */
-		virtual vector<unsigned long> match(vector<unsigned long> termsIndex, vector<long> values)=0;
-		virtual ~IndexAtom();
-	private:
-		AtomTable* atoms;
+struct ResultMatch {
+	mutable vector<unsigned long> result;
+	mutable int num_variable;
+};
 
+class IndexAtom {
+public:
+	IndexAtom(){atoms=0;};
+	IndexAtom(AtomTable* a) {atoms = a;}
+	;
+	/*
+	 *  Return id used for the nextMatch
+	 */
+	virtual unsigned long firstMatch(vector<unsigned long> &termsIndex,
+			vector<unsigned long> &values, vector<unsigned long> &expected,
+			vector<unsigned long>& result)=0;
+	virtual void nextMatch(unsigned long id, vector<unsigned long>& result)=0;
+	virtual ~IndexAtom() {
+	}
+	;
+protected:
+	AtomTable* atoms;
+};
+
+class SimpleIndexAtom: public IndexAtom {
+public:
+	SimpleIndexAtom(){};
+	SimpleIndexAtom(AtomTable* a) {	atoms = a;};
+	virtual unsigned long firstMatch(vector<unsigned long> &termsIndex,
+			vector<unsigned long> &values, vector<unsigned long>& expected,
+			vector<unsigned long>& result);
+	virtual void nextMatch(unsigned long id, vector<unsigned long> &result);
+	virtual ~SimpleIndexAtom();
+private:
+	unordered_map<unsigned long, ResultMatch*> matches_id;
 };
 
 class Instances {
 public:
 	Instances(unsigned long predicate);
 
-	void addFact(Atom* atom) { computeAtomIndex(atom); facts.insert(atom); };
+	void addFact(Atom* atom) {computeAtomIndex(atom);facts.insert(atom);}
+	;
 	// A no fact is true if its truth value is true, otherwise it is undefined, false atoms are not saved.
-	void addNoFact(Atom* atom, bool truth) { computeAtomIndex(atom); nofacts.insert({atom,truth}); };
+	void addNoFact(Atom* atom, bool truth) {computeAtomIndex(atom);	nofacts.insert( { atom, truth });}
+	;
 
-	void setValue(Atom* atom, bool truth) { nofacts.find({atom,true})->truth=truth; };
-	void setValue(unsigned long index, bool truth) { Atom* a; a->setIndex(index);  nofacts.find({a,true})->truth=truth; };
-	bool isTrue(Atom* atom) { return nofacts.find({atom,true})->truth;};
-	bool isTrue(unsigned long index) { Atom* a; a->setIndex(index);  bool res=nofacts.find({a, true })->truth; delete(a); return res;}
+	void setValue(Atom* atom, bool truth) {	nofacts.find( { atom, true })->truth = truth;}
+	;
+	void setValue(unsigned long index, bool truth) {Atom* a;a->setIndex(index);nofacts.find( { a, true })->truth = truth;}
+	;
+	bool isTrue(Atom* atom) {return nofacts.find( { atom, true })->truth;}
+	;
+	bool isTrue(unsigned long index) {Atom* a;a->setIndex(index);bool res = nofacts.find( { a, true })->truth;delete (a);return res;}
 
 	unsigned long getPredicate() const {return predicate;}
-	void setPredicate(unsigned long predicate) {this->predicate = predicate;};
+	void setPredicate(unsigned long predicate) {this->predicate = predicate;}
+	;
+
+	IndexAtom* getIndex() {	return indexAtom;}
+	;
 
 	void print();
 
@@ -95,26 +122,25 @@ private:
  * Hash function for the class Atom
  */
 struct hashInstance {
-	  size_t operator()(Instances* i) const {
-		 return i->getPredicate();
-	  }
-	  bool operator()(Instances *i1,  Instances* i2)const{
-		  return i1->getPredicate()==i2->getPredicate();
-	  }
+	size_t operator()(Instances* i) const {
+		return i->getPredicate();
+	}
+	bool operator()(Instances *i1, Instances* i2) const {
+		return i1->getPredicate() == i2->getPredicate();
+	}
 };
 
-class InstancesTable{
+class InstancesTable {
 public:
-	void addInstance(unsigned long i) { Instances* is=new Instances(i); 	instanceTable.insert(is);};
+	void addInstance(unsigned long i) {	Instances* is = new Instances(i);instanceTable.insert(is);};
 	// Get term by the index
-	Instances* getInstance(unsigned long i) {Instances* is=new Instances(i);return *(instanceTable.find(is));};
+	Instances* getInstance(unsigned long i) {Instances* is = new Instances(i);return *(instanceTable.find(is));};
 	// Get size of the table
 	long getSize() {return instanceTable.size();};
-	void print(){for(Instances* i:instanceTable)i->print();};
+	void print() {for (Instances* i : instanceTable)i->print();	};
 	~InstancesTable();
 private:
 	unordered_set<Instances*, hashInstance, hashInstance> instanceTable;
 };
-
 
 #endif /* INSTANCE_H_ */
