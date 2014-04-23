@@ -42,10 +42,11 @@ struct hashAtom {
 
 typedef unordered_set<Atom*, hashAtom, hashAtom> AtomTable;
 typedef unordered_set<PairAtomBool, hashAtom, hashAtom> PairAtomBoolTable;
+typedef vector<pair<unsigned int,unsigned long> > vec_pair_long;
 
 struct ResultMatch {
 	mutable vector<unsigned long> result;
-	mutable int num_variable;
+	mutable vector<unsigned int> bind;
 };
 
 class IndexAtom {
@@ -56,10 +57,8 @@ public:
 	/*
 	 *  Return id used for the nextMatch
 	 */
-	virtual unsigned long firstMatch(vector<unsigned long> &termsIndex,
-			vector<unsigned long> &values, vector<unsigned long> &expected,
-			vector<unsigned long>& result)=0;
-	virtual void nextMatch(unsigned long id, vector<unsigned long>& result)=0;
+	virtual unsigned long firstMatch(vec_pair_long &bound,vec_pair_long &bind)=0;
+	virtual void nextMatch(unsigned long id,vec_pair_long &bind)=0;
 	virtual ~IndexAtom() {
 	}
 	;
@@ -71,10 +70,8 @@ class SimpleIndexAtom: public IndexAtom {
 public:
 	SimpleIndexAtom(){};
 	SimpleIndexAtom(AtomTable* a) {	atoms = a;};
-	virtual unsigned long firstMatch(vector<unsigned long> &termsIndex,
-			vector<unsigned long> &values, vector<unsigned long>& expected,
-			vector<unsigned long>& result);
-	virtual void nextMatch(unsigned long id, vector<unsigned long> &result);
+	virtual unsigned long firstMatch(vec_pair_long &bound, vec_pair_long &bind);
+	virtual void nextMatch(unsigned long id,vec_pair_long &bind);
 	virtual ~SimpleIndexAtom();
 private:
 	unordered_map<unsigned long, ResultMatch*> matches_id;
