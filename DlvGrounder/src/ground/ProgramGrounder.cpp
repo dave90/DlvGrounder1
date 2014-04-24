@@ -35,7 +35,9 @@ void ProgramGrounder::findBoundBindRule(Rule *r,vector<vec_pair_long> &bounds,ve
 			if(f!=var_assign.end()){
 				bounds[index_current_atom].push_back({i,0});
 			}else{
-				binds[index_current_atom].push_back({i,0});
+				// Bind only variable not anonymous
+				if(!termsMap->getTerm(current_atom->getTerm(i))->isAnonymous())
+					binds[index_current_atom].push_back({i,0});
 			}
 
 		}

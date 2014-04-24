@@ -52,6 +52,8 @@ public:
 	virtual string getName(){return "";};
 	///Set the name of the term
 	virtual void setName(string name){};
+	/// Return true if is anonymous variable
+	virtual bool isAnonymous(){return false;};
 	///Add the index of a term inside the function term, used only with the FunctionTerm
 	virtual void addTerm(unsigned long termIndex){};
 	///Remove last index of a term inside the function term, used only with the FunctionTerm

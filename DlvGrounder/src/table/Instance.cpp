@@ -9,9 +9,20 @@
 #include "../utility/Config.h"
 #include "IdsManager.h"
 
+#include <boost/lexical_cast.hpp>
+
+bool isPresent(unordered_set<string> &result_string,string result_terms){
+	if(result_string.count(result_terms))
+		return true;
+	result_string.insert(result_terms);
+	return false;
+}
+
 unsigned long SimpleIndexAtom::firstMatch(vec_pair_long &bound,vec_pair_long &bind,bool& find) {
 	unsigned long id = matches_id.size();
 	ResultMatch *rm = new ResultMatch;
+
+	unordered_set<string> result_string;
 
 
 	//Simple search
@@ -31,10 +42,15 @@ unsigned long SimpleIndexAtom::firstMatch(vec_pair_long &bound,vec_pair_long &bi
 				return id;
 			}
 
+			string result_terms="";
+			vector<unsigned long> result_term_id;
 			for (auto i : bind){
-
-				rm->result.push_back(a->getTerm(i.first));
+				result_term_id.push_back(a->getTerm(i.first));
+				result_terms+=boost::lexical_cast<string>(a->getTerm(i.first))+"*";
 			}
+
+			if(!isPresent(result_string,result_terms))
+				rm->result.insert(rm->result.end(),result_term_id.begin(),result_term_id.end());
 
 		}
 	}
