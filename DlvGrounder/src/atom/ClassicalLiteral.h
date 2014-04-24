@@ -18,6 +18,7 @@ public:
 	ClassicalLiteral(unsigned long p, vector<unsigned long> t, bool hM, bool n): predicate(p), terms(t), hasMinus(hM), negative(n) {};
 
 	const vector<unsigned long> getTerms() const {return terms;};
+	virtual unsigned long getTerm(int i){return terms[i];};
 	void setTerms(const vector<unsigned long>& terms){this->terms=terms;};
 	unsigned long getPredicate() const {return predicate;};
 	void setPredicate(unsigned long predicate) {this->predicate=predicate;};

@@ -9,57 +9,60 @@
 #include "../utility/Config.h"
 #include "IdsManager.h"
 
-unsigned long SimpleIndexAtom::firstMatch(vec_pair_long &bound,vec_pair_long &bind) {
+unsigned long SimpleIndexAtom::firstMatch(vec_pair_long &bound,vec_pair_long &bind,bool& find) {
 	unsigned long id = matches_id.size();
 	ResultMatch *rm = new ResultMatch;
+
 
 	//Simple search
 	for (Atom *a : *atoms) {
 		bool match = true;
 		for (unsigned int i = 0; i < bound.size(); i++)
-			//FIXME get all term of atom
-			if (a->getTerms()[bound[i].first] != bound[i].second) {
+			if (a->getTerm(bound[i].first) != bound[i].second) {
 				match = false;
 				break;
 			}
 		if (match) {
 
-			// If no bind variables but match atom put first value of query
+			// If no bind variables but match atom finish
 			if(bind.size()==0){
-				rm->bind.push_back(bound[0].first );
-				rm->result.push_back(bound[0].second);
-				break;
+				find=true;
+				matches_id.insert({id,rm});
+				return id;
 			}
 
 			for (auto i : bind){
-				if(rm->bind.size()<bind.size())
-					rm->bind.push_back(i.first );
-				rm->result.push_back(a->getTerms()[i.first]);
+
+				rm->result.push_back(a->getTerm(i.first));
 			}
+
 		}
 	}
 	matches_id.insert({id,rm});
 
 
-	nextMatch(id,bind);
+	nextMatch(id,bind,find);
 
 	return id;
 }
 
-void SimpleIndexAtom::nextMatch(unsigned long id,vec_pair_long &bind) {
+void SimpleIndexAtom::nextMatch(unsigned long id,vec_pair_long &bind,bool& find) {
 	ResultMatch *rm=matches_id.find(id)->second;
 	unsigned int size=rm->result.size();
-	unsigned int num_variable=rm->bind.size();
+	unsigned int num_variable=bind.size();
+
 
 	if(size==0){
+		find=false;
 		return ;
 	}
 
-	bind.resize(num_variable);
+
 	for(unsigned int i=0;i<num_variable;i++){
-		bind[num_variable-i-1]={rm->bind[num_variable-i-1],rm->result.back()};
+		bind[num_variable-i-1].second=rm->result.back();
 		rm->result.pop_back();
 	}
+	find=true;
 }
 
 SimpleIndexAtom::~SimpleIndexAtom() {

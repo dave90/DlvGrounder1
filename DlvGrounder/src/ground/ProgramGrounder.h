@@ -17,6 +17,8 @@
 
 using namespace std;
 
+typedef unordered_map<unsigned long, unsigned long> map_long_long;
+
 class ProgramGrounder {
 public:
 	ProgramGrounder(PredicateTable* pt,InstancesTable* it,StatementDependency* st,TermTable* tm):
@@ -37,6 +39,23 @@ private:
 	InstancesTable* instancesTable;
 	StatementDependency* statementDependency;
 	TermTable* termsMap;
-};
 
+
+	/// Find bound and bind variable for each atom in rule
+	/// @param r the rule
+	/// @param bounds the vector to push the bound variable of atom in position i in rule
+	/// @param binds the vector to push the bind variable of atom in position i in rule
+	void findBoundBindRule(Rule *r,vector<vec_pair_long> &bounds,vector<vec_pair_long>& binds);
+
+	/// Method called when find the assignment in ground rule
+	void foundAssignmentRule(Rule *r,map_long_long& var_assign);
+
+	/// Set in bound the value for each variable present in current assignment
+	void setBoundValue(Atom *current_atom,vec_pair_long &bound,map_long_long& var_assign);
+
+	/// Remove the value in assignment for the variable present in bind
+	void removeBindValueInAssignment(Atom *current_atom,vec_pair_long &bind,map_long_long& var_assign);
+	/// Insert the value in assignment for the variable present in bind
+	void insertBindValueInAssignment(Atom *current_atom,vec_pair_long &bind,map_long_long& var_assign);
+};
 #endif /* PROGRAMGROUNDER_H_ */

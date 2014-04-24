@@ -46,7 +46,6 @@ typedef vector<pair<unsigned int,unsigned long> > vec_pair_long;
 
 struct ResultMatch {
 	mutable vector<unsigned long> result;
-	mutable vector<unsigned int> bind;
 };
 
 class IndexAtom {
@@ -57,8 +56,8 @@ public:
 	/*
 	 *  Return id used for the nextMatch
 	 */
-	virtual unsigned long firstMatch(vec_pair_long &bound,vec_pair_long &bind)=0;
-	virtual void nextMatch(unsigned long id,vec_pair_long &bind)=0;
+	virtual unsigned long firstMatch(vec_pair_long &bound,vec_pair_long &bind,bool& find)=0;
+	virtual void nextMatch(unsigned long id,vec_pair_long &bind,bool& find)=0;
 	virtual ~IndexAtom() {
 	}
 	;
@@ -70,8 +69,8 @@ class SimpleIndexAtom: public IndexAtom {
 public:
 	SimpleIndexAtom(){};
 	SimpleIndexAtom(AtomTable* a) {	atoms = a;};
-	virtual unsigned long firstMatch(vec_pair_long &bound, vec_pair_long &bind);
-	virtual void nextMatch(unsigned long id,vec_pair_long &bind);
+	virtual unsigned long firstMatch(vec_pair_long &bound, vec_pair_long &bind,bool& find);
+	virtual void nextMatch(unsigned long id,vec_pair_long &bind,bool& find);
 	virtual ~SimpleIndexAtom();
 private:
 	unordered_map<unsigned long, ResultMatch*> matches_id;
