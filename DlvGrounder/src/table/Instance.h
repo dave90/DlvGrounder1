@@ -48,41 +48,27 @@ struct ResultMatch {
 	mutable vector<Atom*> result;
 };
 
-
-
-struct Tuple_Match{
-	///@param a is ground atom
-	///@param bind contains pair of index of term to bind and the variable
-	Tuple_Match(Atom *a,vec_pair_long bind){
-		for(auto b:bind){
-			unsigned long variable=b.second;
-			unsigned long values=a->getTerm(b.first);
-			variable_values.insert({variable,values});
-		}
-	}
-	unordered_map<unsigned long,unsigned long> variable_values;
-};
-
-struct Hash_TupleSet{
-	Hash_TupleSet(vector<unsigned long> variables):variables(variables){}
-	size_t operator()(Tuple_Match* tuple) const {
+struct Hash_AtomSet{
+	Hash_AtomSet(vector<unsigned long> variables):variables(variables){}
+	size_t operator()(Atom* atom) const {
 		vector<unsigned long> values;
 		for(unsigned long var:variables)
-			values.push_back(tuple->variable_values.find(var)->second);
+			values.push_back(atom->getTerm(var));
 
 		return boost::hash_range(values.begin(),values.end());
 	}
 
-	bool operator()( Tuple_Match* t1,  Tuple_Match* t2)const{
+	bool operator()( Atom* a1,  Atom* a2)const{
 		for(unsigned long var:variables)
-			if(t1->variable_values.find(var)->second!=t2->variable_values.find(var)->second)
+			if(a1->getTerm(var)!=a1->getTerm(var))
 				return false;
 		return true;
 	}
+	// Variable to do hash
 	vector<unsigned long> variables;
 };
 
-typedef unordered_set<Tuple_Match*,Hash_TupleSet,Hash_TupleSet> Tuple_Match_Set;
+typedef unordered_set<Atom*,Hash_AtomSet,Hash_AtomSet> Atom_Match_Set;
 
 class IndexAtom {
 public:
@@ -94,7 +80,7 @@ public:
 	 */
 	virtual unsigned long firstMatch(vec_pair_long &bound,vec_pair_long &bind,bool& find)=0;
 	virtual void nextMatch(unsigned long id,vec_pair_long &bind,bool& find)=0;
-	virtual void match(vec_pair_long &bound,vec_pair_long &bind,Tuple_Match_Set& set)=0;
+	virtual void hashAtoms(Atom_Match_Set& set)=0;
 	virtual ~IndexAtom() {};
 protected:
 	AtomTable* atoms;
@@ -106,7 +92,7 @@ public:
 	SimpleIndexAtom(AtomTable* a) {	atoms = a;};
 	virtual unsigned long firstMatch(vec_pair_long &bound, vec_pair_long &bind,bool& find);
 	virtual void nextMatch(unsigned long id,vec_pair_long &bind,bool& find);
-	virtual void match(vec_pair_long &bound,vec_pair_long &bind,Tuple_Match_Set& set);
+	virtual void hashAtoms(Atom_Match_Set& set);
 	virtual ~SimpleIndexAtom();
 private:
 	unordered_map<unsigned long, ResultMatch*> matches_id;

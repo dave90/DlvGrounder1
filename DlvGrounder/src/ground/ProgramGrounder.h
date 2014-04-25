@@ -63,7 +63,7 @@ private:
 	void insertBindValueInAssignment(Atom *current_atom,vec_pair_long &bind,map_long_long& var_assign);
 
 	/// JOIN METHOD
-	void getBindVariable(Atom *a,vec_pair_long& bind);
+	void getBindVariable(Atom *a,vector<unsigned long>& bind);
 
 };
 #endif /* PROGRAMGROUNDER_H_ */

@@ -407,10 +407,9 @@ int main(int argc, char* argv[]) {
 	if (strcmp(nameFile.c_str(),"")==0) {
 		str=new string;
 		std::string buffer;
-		while (std::cin >> buffer)*str+=buffer;
+		while (std::getline(std::cin , buffer)){if(buffer[0]!='%')*str+=buffer;}
 		iter = str->begin();
 		end = str->end();
-
 	} else {
 		ifstream ifs(nameFile);
 		str=new string((std::istreambuf_iterator<char>(ifs)), (std::istreambuf_iterator<char>()));

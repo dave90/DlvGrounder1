@@ -15,7 +15,7 @@ void ProgramGrounder::ground() {
 	statementDependency->createComponentGraph();
 
 	//Ground first rule
-	groundRule(statementDependency->getRule(0));
+//	groundJoinRule(statementDependency->getRule(0));
 }
 
 void ProgramGrounder::findBoundBindRule(Rule *r,vector<vec_pair_long> &bounds,vector<vec_pair_long>& binds){
@@ -106,25 +106,32 @@ void ProgramGrounder::insertBindValueInAssignment(Atom *current_atom,vec_pair_lo
 }
 
 
-void ProgramGrounder::getBindVariable(Atom *atom,vec_pair_long& bind){
+void ProgramGrounder::getBindVariable(Atom *atom,vector<unsigned long>& bind){
 	for(unsigned int i=0;i<atom->getTerms().size();i++)
 		if(!termsMap->getTerm(atom->getTerm(i))->isAnonymous())
-			bind.push_back({i,atom->getTerm(i)});
+			bind.push_back(i);
 }
 
 void ProgramGrounder::groundJoinRule(Rule* r) {
 
 	Atom *current_atom=*r->getBeginBody();
-	vec_pair_long bind;
+	vector<unsigned long> bind;
 	getBindVariable(current_atom,bind);
+	Hash_AtomSet h1(bind);
+
+	Atom_Match_Set set1(0,h1,h1);
+	IndexAtom *index=instancesTable->getInstance(current_atom->getPredicate())->getIndex();
+	index->hashAtoms(set1);
+
+	for(Atom *a:set1)
+		a->print(termsMap);
 
 
-
-	for(auto current_atom_it= r->getBeginBody()+1 ; current_atom_it!=r->getEndBody(); current_atom_it++){
-		current_atom=*current_atom_it;
-		IndexAtom *index=instancesTable->getInstance(current_atom->getPredicate())->getIndex();
-
-	}
+//	for(auto current_atom_it= r->getBeginBody()+1 ; current_atom_it!=r->getEndBody(); current_atom_it++){
+//		current_atom=*current_atom_it;
+//		IndexAtom *index=instancesTable->getInstance(current_atom->getPredicate())->getIndex();
+//
+//	}
 
 
 }
