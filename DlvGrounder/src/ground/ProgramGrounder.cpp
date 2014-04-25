@@ -15,7 +15,7 @@ void ProgramGrounder::ground() {
 	statementDependency->createComponentGraph();
 
 	//Ground first rule
-	groundRule(statementDependency->getRule(0));
+//	groundJoinRule(statementDependency->getRule(0));
 }
 
 void ProgramGrounder::findBoundBindRule(Rule *r,vector<vec_pair_long> &bounds,vector<vec_pair_long>& binds){
@@ -106,6 +106,29 @@ void ProgramGrounder::insertBindValueInAssignment(Atom *current_atom,vec_pair_lo
 }
 
 
+void ProgramGrounder::getBindVariable(Atom *atom,vec_pair_long& bind){
+	for(unsigned int i=0;i<atom->getTerms().size();i++)
+		if(!termsMap->getTerm(atom->getTerm(i))->isAnonymous())
+			bind.push_back({i,atom->getTerm(i)});
+}
+
+void ProgramGrounder::groundJoinRule(Rule* r) {
+
+	Atom *current_atom=*r->getBeginBody();
+	vec_pair_long bind;
+	getBindVariable(current_atom,bind);
+
+
+
+	for(auto current_atom_it= r->getBeginBody()+1 ; current_atom_it!=r->getEndBody(); current_atom_it++){
+		current_atom=*current_atom_it;
+		IndexAtom *index=instancesTable->getInstance(current_atom->getPredicate())->getIndex();
+
+	}
+
+
+}
+
 void ProgramGrounder::groundRule(Rule* r) {
 
 	//variable,value
@@ -131,12 +154,10 @@ void ProgramGrounder::groundRule(Rule* r) {
 
 		// FIND IF FIRST OR NEXT
 		if(index_current_atom!=id_match.size()-1){
-//			cout<<"FIRST "<<index_current_atom<<endl;
 
 			unsigned long id=index->firstMatch(bounds[index_current_atom],binds[index_current_atom],find);
 			id_match.push_back(id);
 		}else{
-//			cout<<"NEXT "<<index_current_atom<<endl;
 			unsigned long id=id_match.back();
 
 			// Remove bind value in assignment
@@ -151,7 +172,6 @@ void ProgramGrounder::groundRule(Rule* r) {
 
 		//IF MATCH
 		if(find){
-//			cout<<"MATCH "<<index_current_atom<<endl;
 
 
 			// Insert bind variable assignment
@@ -169,7 +189,6 @@ void ProgramGrounder::groundRule(Rule* r) {
 			}
 		}else{
 
-//			cout<<"NO MATCH "<<index_current_atom<<endl;
 
 			//IF FAIL MATCH AND FIRST ATOM EXIT
 			if(current_atom_it==r->getBeginBody())

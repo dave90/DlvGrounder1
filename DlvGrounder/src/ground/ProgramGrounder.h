@@ -19,6 +19,9 @@ using namespace std;
 
 typedef unordered_map<unsigned long, unsigned long> map_long_long;
 
+
+
+
 class ProgramGrounder {
 public:
 	ProgramGrounder(PredicateTable* pt,InstancesTable* it,StatementDependency* st,TermTable* tm):
@@ -26,6 +29,7 @@ public:
 
 	void ground();
 	void groundRule(Rule *r);
+	void groundJoinRule(Rule *r);
 
 	void print(){statementDependency->print(termsMap);};
 
@@ -57,5 +61,9 @@ private:
 	void removeBindValueInAssignment(Atom *current_atom,vec_pair_long &bind,map_long_long& var_assign);
 	/// Insert the value in assignment for the variable present in bind
 	void insertBindValueInAssignment(Atom *current_atom,vec_pair_long &bind,map_long_long& var_assign);
+
+	/// JOIN METHOD
+	void getBindVariable(Atom *a,vec_pair_long& bind);
+
 };
 #endif /* PROGRAMGROUNDER_H_ */

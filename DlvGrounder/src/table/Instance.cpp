@@ -81,6 +81,13 @@ void SimpleIndexAtom::nextMatch(unsigned long id,vec_pair_long &bind,bool& find)
 	find=true;
 }
 
+
+void SimpleIndexAtom::match(vec_pair_long& bound, vec_pair_long& bind, Tuple_Match_Set& set) {
+
+
+}
+
+
 SimpleIndexAtom::~SimpleIndexAtom() {
 }
 
