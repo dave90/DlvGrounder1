@@ -50,7 +50,7 @@ unsigned long SimpleIndexAtom::firstMatch(vec_pair_long &bound,vec_pair_long &bi
 			}
 
 			if(!isPresent(result_string,result_terms))
-				rm->result.insert(rm->result.end(),result_term_id.begin(),result_term_id.end());
+				rm->result.push_back(a);
 
 		}
 	}
@@ -69,14 +69,15 @@ void SimpleIndexAtom::nextMatch(unsigned long id,vec_pair_long &bind,bool& find)
 
 
 	if(size==0){
+		delete rm;
 		find=false;
 		return ;
 	}
 
-
+	Atom *last_atom=rm->result.back();
+	rm->result.pop_back();
 	for(unsigned int i=0;i<num_variable;i++){
-		bind[num_variable-i-1].second=rm->result.back();
-		rm->result.pop_back();
+		bind[i].second=last_atom->getTerm(bind[i].first);
 	}
 	find=true;
 }

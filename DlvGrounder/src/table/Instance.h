@@ -45,7 +45,7 @@ typedef unordered_set<PairAtomBool, hashAtom, hashAtom> PairAtomBoolTable;
 typedef vector<pair<unsigned int,unsigned long> > vec_pair_long;
 
 struct ResultMatch {
-	mutable vector<unsigned long> result;
+	mutable vector<Atom*> result;
 };
 
 

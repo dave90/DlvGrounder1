@@ -15,7 +15,7 @@ void ProgramGrounder::ground() {
 	statementDependency->createComponentGraph();
 
 	//Ground first rule
-//	groundJoinRule(statementDependency->getRule(0));
+	groundRule(statementDependency->getRule(0));
 }
 
 void ProgramGrounder::findBoundBindRule(Rule *r,vector<vec_pair_long> &bounds,vector<vec_pair_long>& binds){
