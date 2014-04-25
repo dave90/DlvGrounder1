@@ -64,6 +64,7 @@ private:
 
 	/// JOIN METHOD
 	void getBindVariable(Atom *a,vector<unsigned long>& bind);
+	void getCommonVariablesIndex(Atom *a1,Atom *a2,vector<unsigned long>& common1,vector<unsigned long>& common2);
 
 };
 #endif /* PROGRAMGROUNDER_H_ */

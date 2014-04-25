@@ -112,26 +112,38 @@ void ProgramGrounder::getBindVariable(Atom *atom,vector<unsigned long>& bind){
 			bind.push_back(i);
 }
 
+void ProgramGrounder::getCommonVariablesIndex(Atom *a1,Atom *a2,vector<unsigned long>& common1,
+		vector<unsigned long>& common2){
+	for(unsigned int i=0;i<a1->getTerms().size();i++)
+		for(unsigned int j=0;j<a2->getTerms().size();j++)
+				if(!termsMap->getTerm(a1->getTerm(i))->isAnonymous() && a1->getTerm(i) == a2->getTerm(j) ){
+					common1.push_back(i);
+					common2.push_back(j);
+				}
+}
+
+
 void ProgramGrounder::groundJoinRule(Rule* r) {
 
-	Atom *current_atom=*r->getBeginBody();
-	vector<unsigned long> bind;
-	getBindVariable(current_atom,bind);
-	Hash_AtomSet h1(bind);
+	Atom *atom1=*r->getBeginBody();
+	Atom *atom2=*(r->getBeginBody()+1);
 
-	Atom_Match_Set set1(0,h1,h1);
-	IndexAtom *index=instancesTable->getInstance(current_atom->getPredicate())->getIndex();
-	index->hashAtoms(set1);
+	vector<unsigned long> bind1,bind2,common1,common2;
+	getBindVariable(atom1,bind1);
+	getBindVariable(atom2,bind2);
+	getCommonVariablesIndex(atom1,atom2,common1,common2);
+	for(unsigned long i:common1)
+		cout<<i<<" ";
+	cout<<endl;
+	for(unsigned long i:common2)
+			cout<<i<<" ";
+		cout<<endl;
+	Hash_AtomSet hasher1(common1),hasher2(common2);
+	Atom_Match_Set atom_set1(0,hasher1,hasher1),atom_set2(0,hasher2,hasher2);
 
-	for(Atom *a:set1)
-		a->print(termsMap);
+	instancesTable->getInstance(atom1->getPredicate())->getIndex()->hashAtoms(atom_set1);
+	instancesTable->getInstance(atom2->getPredicate())->getIndex()->hashAtoms(atom_set2);
 
-
-//	for(auto current_atom_it= r->getBeginBody()+1 ; current_atom_it!=r->getEndBody(); current_atom_it++){
-//		current_atom=*current_atom_it;
-//		IndexAtom *index=instancesTable->getInstance(current_atom->getPredicate())->getIndex();
-//
-//	}
 
 
 }

@@ -408,11 +408,15 @@ int main(int argc, char* argv[]) {
 		str=new string;
 		std::string buffer;
 		while (std::getline(std::cin , buffer)){if(buffer[0]!='%')*str+=buffer;}
+		// Add end line for a comment
+		*str+='\n';
 		iter = str->begin();
 		end = str->end();
 	} else {
 		ifstream ifs(nameFile);
 		str=new string((std::istreambuf_iterator<char>(ifs)), (std::istreambuf_iterator<char>()));
+		// Add end line for a comment
+		*str+='\n';
 		iter = str->begin();
 		end = str->end();
 	}
