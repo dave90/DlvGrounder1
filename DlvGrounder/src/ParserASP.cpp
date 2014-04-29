@@ -167,7 +167,7 @@ struct asp_grammar: qi::grammar<Iterator, ascii::space_type> {
 		using qi::lexeme;
 		using qi::eol;
 
-		statements = +statement[&client::addStatement];
+		statements = *statement[&client::addStatement];
 
 		statement = (CONS[&client::setRuleBody] >> -body >> DOT[&client::addRule])
 				| (head >> -(CONS[&client::setRuleBody] >> -body) >> DOT[&client::addRule])
@@ -194,7 +194,7 @@ struct asp_grammar: qi::grammar<Iterator, ascii::space_type> {
 
 		aggregate_elements = aggregate_element % SEMICOLON;
 
-		aggregate_element = term_arithTerm >> -(COLON >> -naf_litterals);
+		aggregate_element = terms >> -(COLON >> -naf_litterals);
 
 		weight_at_level = term_arithTerm >> -(AT >> term_arithTerm) >> -(COMMA >> term_arithTerm);
 
