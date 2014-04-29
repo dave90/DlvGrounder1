@@ -185,7 +185,7 @@ struct asp_grammar: qi::grammar<Iterator, ascii::space_type> {
 
 		disjunction = classical_literal % OR;
 
-		body = (naf_litteral | aggregate[&client::addAggregate]) % COMMA;
+		body = (naf_litteral | -NAF >> aggregate[&client::addAggregate]) % COMMA;
 
 		aggregate = -(term_arithTerm >> binop) >> aggregate_function >> CURLY_OPEN >> aggregate_elements
 				>> CURLY_CLOSE >> -(binop >> term_arithTerm);
