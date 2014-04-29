@@ -48,27 +48,6 @@ struct ResultMatch {
 	mutable vector<Atom*> result;
 };
 
-struct Hash_AtomSet{
-	Hash_AtomSet(vector<unsigned long> variables):variables(variables){}
-	size_t operator()(Atom* atom) const {
-		vector<unsigned long> values;
-		for(unsigned long var:variables)
-			values.push_back(atom->getTerm(var));
-
-		return boost::hash_range(values.begin(),values.end());
-	}
-
-	bool operator()( Atom* a1,  Atom* a2)const{
-		for(unsigned long var:variables)
-			if(a1->getTerm(var)!=a1->getTerm(var))
-				return false;
-		return true;
-	}
-	// Variable to do hash
-	vector<unsigned long> variables;
-};
-
-typedef unordered_set<Atom*,Hash_AtomSet,Hash_AtomSet> Atom_Match_Set;
 
 class IndexAtom {
 public:
@@ -80,7 +59,6 @@ public:
 	 */
 	virtual unsigned long firstMatch(vec_pair_long &bound,vec_pair_long &bind,bool& find)=0;
 	virtual void nextMatch(unsigned long id,vec_pair_long &bind,bool& find)=0;
-	virtual void hashAtoms(Atom_Match_Set& set)=0;
 	virtual ~IndexAtom() {};
 protected:
 	AtomTable* atoms;
@@ -92,7 +70,6 @@ public:
 	SimpleIndexAtom(AtomTable* a) {	atoms = a;};
 	virtual unsigned long firstMatch(vec_pair_long &bound, vec_pair_long &bind,bool& find);
 	virtual void nextMatch(unsigned long id,vec_pair_long &bind,bool& find);
-	virtual void hashAtoms(Atom_Match_Set& set);
 	virtual ~SimpleIndexAtom();
 private:
 	unordered_map<unsigned long, ResultMatch*> matches_id;

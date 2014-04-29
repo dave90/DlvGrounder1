@@ -83,15 +83,6 @@ void SimpleIndexAtom::nextMatch(unsigned long id,vec_pair_long &bind,bool& find)
 }
 
 
-void SimpleIndexAtom::hashAtoms(Atom_Match_Set& set) {
-
-	//Simple hashing atoms
-	for (Atom *a : *atoms) {
-		set.insert(a);
-	}
-
-}
-
 
 SimpleIndexAtom::~SimpleIndexAtom() {
 }
