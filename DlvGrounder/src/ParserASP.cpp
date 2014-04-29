@@ -253,7 +253,7 @@ struct asp_grammar: qi::grammar<Iterator, ascii::space_type> {
 		GREATER = lit(">");
 		LESS_OR_EQ = lit("<=");
 		GREATER_OR_EQ = lit(">=");
-		NAF = lexeme[lit("not ")];
+		NAF = lexeme[lit("not ")] | lexeme[lit("not") > qi::eol];
 		NUMBER = int_;
 		STRING = char_("\"") > +(char_ - char_("\"")) > char_("\"");
 		VARIABLE = lexeme[char_("A-Z") > *char_("a-zA-Z0-9_")];
