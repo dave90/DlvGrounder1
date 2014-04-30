@@ -21,8 +21,10 @@ void ProgramGrounder::ground() {
 }
 
 void ProgramGrounder::findBoundBindRule(Rule *r,vector<vec_pair_long> &bounds,vector<vec_pair_long>& binds){
-	//variable,value
+	//variable in rule
 	unordered_set<unsigned long> var_assign;
+	//variable in atom
+	unordered_set<unsigned long> var_atom;
 
 	auto current_atom_it=r->getBeginBody();
 	int index_current_atom=0;
@@ -33,6 +35,14 @@ void ProgramGrounder::findBoundBindRule(Rule *r,vector<vec_pair_long> &bounds,ve
 		bounds.push_back(vec_pair_long());
 		binds.push_back(vec_pair_long());
 		for(unsigned int i=0;i<current_atom->getTermsSize();i++){
+			//Check if exist in atom 2 or more times the variable
+			if(var_atom.count(current_atom->getTerm(i))){
+
+			}else
+				var_atom.insert(current_atom->getTerm(i));
+
+
+
 			auto f=var_assign.find(current_atom->getTerm(i));
 			if(f!=var_assign.end()){
 				bounds[index_current_atom].push_back({i,0});
@@ -43,7 +53,7 @@ void ProgramGrounder::findBoundBindRule(Rule *r,vector<vec_pair_long> &bounds,ve
 					var_assign.insert(current_atom->getTerm(i));
 				}
 			}
-
+			var_atom.clear();
 		}
 		index_current_atom++;
 	}

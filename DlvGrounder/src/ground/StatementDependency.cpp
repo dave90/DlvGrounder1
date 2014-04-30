@@ -161,7 +161,7 @@ void DependencyGraph::print() {
 		unsigned long p1 = index[source(*ei, depGraph)];
 		unsigned long p2 = index[target(*ei, depGraph)];
 		cout<<"("<<IdsManager::getStringStrip(IdsManager::PREDICATE_ID_MANAGER,depGraph[p1].pred_id)<<","
-				<<IdsManager::getStringStrip(IdsManager::PREDICATE_ID_MANAGER,depGraph[p2].pred_id)<<")"<<endl;
+				<<IdsManager::getStringStrip(IdsManager::PREDICATE_ID_MANAGER,depGraph[p2].pred_id)<<")"<<" ";
 	}
 
 }
