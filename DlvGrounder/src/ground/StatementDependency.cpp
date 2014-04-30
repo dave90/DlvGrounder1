@@ -115,7 +115,7 @@ void DependencyGraph::deleteVertex(unordered_set<unsigned long>& delete_pred) {
 	}
 }
 
-void DependencyGraph::print() {
+void DependencyGraph::printFile(string fileGraph) {
 	using namespace boost;
 
 	typedef property_map<Graph, vertex_index_t>::type IndexMap;
@@ -139,10 +139,6 @@ void DependencyGraph::print() {
 	}
 	graphDOT += "}\n";
 
-	string fileGraph = Config::getInstance()->getFileGraph() + "DG";
-	if (strcmp(fileGraph.c_str(), "DG") == 0) {
-		cout << graphDOT << endl;
-	} else {
 		ofstream myfile;
 		myfile.open(fileGraph);
 		myfile << graphDOT;
@@ -150,6 +146,22 @@ void DependencyGraph::print() {
 		string COMMAND = "dot -Tpng " + fileGraph + " -O";
 		system(COMMAND.c_str());
 		remove(fileGraph.c_str());
+
+}
+
+void DependencyGraph::print() {
+	using namespace boost;
+
+	typedef property_map<Graph, vertex_index_t>::type IndexMap;
+	IndexMap index = get(vertex_index, depGraph);
+	graph_traits<Graph>::edge_iterator ei, ei_end;
+
+	// Print the edge
+	for (tie(ei, ei_end) = edges(depGraph); ei != ei_end; ++ei) {
+		unsigned long p1 = index[source(*ei, depGraph)];
+		unsigned long p2 = index[target(*ei, depGraph)];
+		cout<<"("<<IdsManager::getStringStrip(IdsManager::PREDICATE_ID_MANAGER,depGraph[p1].pred_id)<<","
+				<<IdsManager::getStringStrip(IdsManager::PREDICATE_ID_MANAGER,depGraph[p2].pred_id)<<")"<<endl;
 	}
 
 }
@@ -157,7 +169,6 @@ void DependencyGraph::print() {
 void DependencyGraph::addEdge(unsigned long pred_body, unsigned long pred_head) {
 	unsigned int index_i, index_j;
 	auto it1 = predicateIndexGMap.find(pred_body);
-	auto it2 = predicateIndexGMap.find(pred_head);
 	// Calculate if the predicate is present in the graph
 	// otherwise assign at the predicate new id (map size)
 	if (it1 != predicateIndexGMap.end())
@@ -166,6 +177,7 @@ void DependencyGraph::addEdge(unsigned long pred_body, unsigned long pred_head) 
 		index_i = predicateIndexGMap.size();
 		predicateIndexGMap.insert( { pred_body, index_i });
 	}
+	auto it2 = predicateIndexGMap.find(pred_head);
 	if (it2 != predicateIndexGMap.end())
 		index_j = it2->second;
 	else {
@@ -237,6 +249,7 @@ void ComponentGraph::createComponent(DependencyGraph &depGraph,
 					int weight = isPositive;
 					if (!isPositive)
 						weight = -1;
+					// FIXME if put negative edge check if exist positive edge
 					addEdge(pred_body, pred_head, weight);
 
 				}
@@ -249,7 +262,7 @@ void ComponentGraph::createComponent(DependencyGraph &depGraph,
 
 }
 
-void ComponentGraph::print() {
+void ComponentGraph::printFile(string fileGraph) {
 
 	string graphDOT = "digraph Component_Graph {\n";
 
@@ -288,18 +301,20 @@ void ComponentGraph::print() {
 
 	graphDOT += "}\n";
 
-	string fileGraph = Config::getInstance()->getFileGraph() + "CG";
-	if (strcmp(fileGraph.c_str(), "CG") == 0) {
-		cout << graphDOT << endl;
-	} else {
-		ofstream myfile;
-		myfile.open(fileGraph);
-		myfile << graphDOT;
-		myfile.close();
-		string COMMAND = "dot -Tpng " + fileGraph + " -O";
-		system(COMMAND.c_str());
-		remove(fileGraph.c_str());
-	}
+	ofstream myfile;
+	myfile.open(fileGraph);
+	myfile << graphDOT;
+	myfile.close();
+	string COMMAND = "dot -Tpng " + fileGraph + " -O";
+	system(COMMAND.c_str());
+	remove(fileGraph.c_str());
+
+}
+
+void ComponentGraph::print() {
+
+	//TODO
+
 }
 
 /*
@@ -332,10 +347,21 @@ void StatementDependency::createComponentGraph() {
 }
 
 void StatementDependency::print(TermTable *tb) {
-	if (Config::getInstance()->isDependency())
-		depGraph.print();
-	if (Config::getInstance()->isComponent())
-		compGraph.print();
+	string fileDGraph = Config::getInstance()->getFileGraph() + "DG";
+	string fileCGraph = Config::getInstance()->getFileGraph() + "CG";
+
+
+	if (Config::getInstance()->isDependency()){
+		if (strcmp(fileDGraph.c_str(), "DG") == 0)
+			depGraph.print();
+		else
+			depGraph.printFile(fileDGraph);
+	}if (Config::getInstance()->isComponent()){
+		if (strcmp(fileCGraph.c_str(), "CG") == 0)
+			compGraph.print();
+		else
+			compGraph.printFile(fileCGraph);
+	}
 	if (Config::getInstance()->isPrintRules())
 		for(Rule*r:rules)r->print(tb);
 }

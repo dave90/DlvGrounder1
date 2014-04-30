@@ -78,6 +78,7 @@ public:
 	void deleteVertex(unordered_set<unsigned long>& delete_pred);
 
 	/// Print predicate index
+	void printFile(string fileGraph);
 	void print();
 
 private:
@@ -104,6 +105,7 @@ public:
 
 	/// Add edge in the graph
 	void addEdge(unsigned long pred_body,unsigned long pred_head,int weight);
+	void printFile(string fileGraph);
 	void print();
 
 private:
