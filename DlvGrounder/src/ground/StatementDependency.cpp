@@ -105,12 +105,13 @@ void DependencyGraph::addInDependency(Rule* r) {
 }
 
 void DependencyGraph::deleteVertex(unordered_set<unsigned long>& delete_pred) {
-	boost::graph_traits<Graph>::vertex_iterator vi, vi_end, next;
-	tie(vi, vi_end) = boost::vertices(depGraph);
+
 	while(delete_pred.size()>0){
 		// For each predicate find the vertex with pred_id because the graph we-index after
 		// remove vertex
 		unsigned long current_pred=*delete_pred.begin();
+		boost::graph_traits<Graph>::vertex_iterator vi, vi_end, next;
+		tie(vi, vi_end) = boost::vertices(depGraph);
 		for (next = vi; vi != vi_end; vi = next) {
 			++next;
 			if (current_pred==depGraph[*vi].pred_id) {
