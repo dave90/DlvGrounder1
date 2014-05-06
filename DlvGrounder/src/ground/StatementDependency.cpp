@@ -107,22 +107,27 @@ void DependencyGraph::addInDependency(Rule* r) {
 void DependencyGraph::deleteVertex(unordered_set<unsigned long>& delete_pred) {
 	boost::graph_traits<Graph>::vertex_iterator vi, vi_end, next;
 	tie(vi, vi_end) = boost::vertices(depGraph);
-	vector<boost::graph_traits<Graph>::vertex_iterator > remove_vertex_set;
-	for (next = vi; vi != vi_end; vi = next) {
-		++next;
-		if (delete_pred.count(depGraph[*vi].pred_id)) {
-			remove_vertex_set.push_back(vi);
+	while(delete_pred.size()>0){
+		// For each predicate find the vertex with pred_id because the graph we-index after
+		// remove vertex
+		unsigned long current_pred=*delete_pred.begin();
+		for (next = vi; vi != vi_end; vi = next) {
+			++next;
+			if (current_pred==depGraph[*vi].pred_id) {
+				remove_vertex(*vi, depGraph);
+				break;
+			}
 		}
+		delete_pred.erase(current_pred);
 	}
-	for(auto vi:remove_vertex_set)
-		remove_vertex(*vi, depGraph);
 }
 
 void DependencyGraph::printFile(string fileGraph) {
 	using namespace boost;
 
 	typedef property_map<Graph, vertex_index_t>::type IndexMap;
-	IndexMap index = get(vertex_index, depGraph);
+//	IndexMap index = get(vertex_index, depGraph);
+	IndexMap index=get(vertex_index,depGraph);
 	graph_traits<Graph>::edge_iterator ei, ei_end;
 	string graphDOT = "digraph Dependency_Graph{\n";
 
