@@ -24,7 +24,7 @@ void ProgramGrounder::findBoundBindRule(Rule *r,vector<vec_pair_long> &bounds,ve
 	//variable in rule
 	unordered_set<unsigned long> var_assign;
 	//variable in atom
-	unordered_set<unsigned long> var_atom;
+	unordered_multimap<unsigned long,unsigned int> var_atom;
 
 	auto current_atom_it=r->getBeginBody();
 	int index_current_atom=0;
@@ -35,26 +35,25 @@ void ProgramGrounder::findBoundBindRule(Rule *r,vector<vec_pair_long> &bounds,ve
 		bounds.push_back(vec_pair_long());
 		binds.push_back(vec_pair_long());
 		for(unsigned int i=0;i<current_atom->getTermsSize();i++){
-			//Check if exist in atom 2 or more times the variable
-			if(var_atom.count(current_atom->getTerm(i))){
-
-			}else
-				var_atom.insert(current_atom->getTerm(i));
-
-
+			//insert the variable and the index of term
+			var_atom.insert({current_atom->getTerm(i),i});
 
 			auto f=var_assign.find(current_atom->getTerm(i));
 			if(f!=var_assign.end()){
 				bounds[index_current_atom].push_back({i,0});
 			}else{
-				// Bind only variable not anonymous
+				// Bind only variable not anonymous and initially contains the variable
 				if(!termsMap->getTerm(current_atom->getTerm(i))->isAnonymous()){
-					binds[index_current_atom].push_back({i,0});
-					var_assign.insert(current_atom->getTerm(i));
+					binds[index_current_atom].push_back({i,current_atom->getTerm(i)});
 				}
 			}
 			var_atom.clear();
 		}
+		// Put in assignment the bind variable (put now because if exist repetition variable conflict bind bound)
+		for(auto b: binds[index_current_atom])
+			var_assign.insert(b.second);
+
+
 		index_current_atom++;
 	}
 

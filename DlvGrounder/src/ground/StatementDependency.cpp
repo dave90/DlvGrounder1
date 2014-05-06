@@ -107,12 +107,15 @@ void DependencyGraph::addInDependency(Rule* r) {
 void DependencyGraph::deleteVertex(unordered_set<unsigned long>& delete_pred) {
 	boost::graph_traits<Graph>::vertex_iterator vi, vi_end, next;
 	tie(vi, vi_end) = boost::vertices(depGraph);
+	vector<boost::graph_traits<Graph>::vertex_iterator > remove_vertex_set;
 	for (next = vi; vi != vi_end; vi = next) {
 		++next;
 		if (delete_pred.count(depGraph[*vi].pred_id)) {
-			remove_vertex(*vi, depGraph);
+			remove_vertex_set.push_back(vi);
 		}
 	}
+	for(auto vi:remove_vertex_set)
+		remove_vertex(*vi, depGraph);
 }
 
 void DependencyGraph::printFile(string fileGraph) {
