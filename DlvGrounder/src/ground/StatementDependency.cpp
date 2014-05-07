@@ -321,9 +321,22 @@ void ComponentGraph::printFile(string fileGraph) {
 }
 
 void ComponentGraph::print() {
+	for (unsigned int i = 0; i < num_vertices(compGraph); i++) {
+		cout<<"{ ";
+		bool first=false;
+		for (auto it : component)
+			if (it.second == i) {
+				string predicate = IdsManager::getStringStrip(IdsManager::PREDICATE_ID_MANAGER,	it.first);
+				if(!first){
+					cout<<predicate + " ";
+					first=true;
+				}
+				else
+					cout<<", "<<predicate<<" ";
 
-	//TODO
-
+			}
+		cout<<"} ";
+	}
 }
 
 /*
