@@ -17,14 +17,15 @@ void ProgramGrounder::ground() {
 	statementDependency->createComponentGraph();
 
 	//Ground first rule
-//	groundRule(statementDependency->getRule(0));
+	groundRule(statementDependency->getRule(0));
 }
 
-void ProgramGrounder::findBoundBindRule(Rule *r,vector<vec_pair_long> &bounds,vector<vec_pair_long>& binds){
+void ProgramGrounder::findBoundBindRule(Rule *r,vector<vec_pair_long> &bounds,vector<vec_pair_long>& binds,vector<map_int_int >& equal_vars){
 	//variable in rule
 	unordered_set<unsigned long> var_assign;
 	//variable in atom
-	unordered_multimap<unsigned long,unsigned int> var_atom;
+	unordered_map<unsigned long,unsigned int> var_atom;
+
 
 	auto current_atom_it=r->getBeginBody();
 	int index_current_atom=0;
@@ -34,9 +35,8 @@ void ProgramGrounder::findBoundBindRule(Rule *r,vector<vec_pair_long> &bounds,ve
 		Atom *current_atom=*current_atom_it;
 		bounds.push_back(vec_pair_long());
 		binds.push_back(vec_pair_long());
+		equal_vars.push_back(unordered_multimap<unsigned int,unsigned int>());
 		for(unsigned int i=0;i<current_atom->getTermsSize();i++){
-			//insert the variable and the index of term
-			var_atom.insert({current_atom->getTerm(i),i});
 
 			auto f=var_assign.find(current_atom->getTerm(i));
 			if(f!=var_assign.end()){
@@ -45,18 +45,30 @@ void ProgramGrounder::findBoundBindRule(Rule *r,vector<vec_pair_long> &bounds,ve
 				// Bind only variable not anonymous and initially contains the variable
 				if(!termsMap->getTerm(current_atom->getTerm(i))->isAnonymous()){
 					binds[index_current_atom].push_back({i,current_atom->getTerm(i)});
+
+					auto it=var_atom.find(current_atom->getTerm(i));
+					if(it!=var_atom.end())
+							equal_vars[index_current_atom].insert({it->second,i});
+						else
+							//insert the variable and the index of term
+							var_atom.insert({current_atom->getTerm(i),i});
 				}
 			}
-			var_atom.clear();
 		}
 		// Put in assignment the bind variable (put now because if exist repetition variable conflict bind bound)
 		for(auto b: binds[index_current_atom])
 			var_assign.insert(b.second);
 
+		var_atom.clear();
 
 		index_current_atom++;
 	}
 
+
+}
+
+void ProgramGrounder::printGroundRule(Rule *r,map_long_long& var_assign){
+	//TODO
 }
 
 void ProgramGrounder::foundAssignmentRule(Rule *r,map_long_long& var_assign){
@@ -77,7 +89,7 @@ void ProgramGrounder::foundAssignmentRule(Rule *r,map_long_long& var_assign){
 	}
 	for(Atom *a:atoms){
 		a->print(termsMap);
-		cout<<"."<<endl;
+		cout<<" ";
 	}
 }
 
@@ -120,14 +132,19 @@ void ProgramGrounder::groundRule(Rule* r) {
 	bool find=false;
 
 	vector<vec_pair_long> bounds,binds;
+	vector<map_int_int > equal_vars;
 
 	//TODO Order rule!
-	findBoundBindRule(r,bounds,binds);
-
+	findBoundBindRule(r,bounds,binds,equal_vars);
 
 	while(!finish){
 		Atom *current_atom=*current_atom_it;
-		IndexAtom *index=instancesTable->getInstance(current_atom->getPredicate())->getIndex();
+		Instances * instance=instancesTable->getInstance(current_atom->getPredicate());
+
+		// if there isn't instance of that atom exit of grounding
+		if(instance==nullptr) return;
+
+		IndexAtom *index=instance->getIndex();
 
 		// Set value of bound based of the current assignment
 		setBoundValue(current_atom,bounds[index_current_atom],var_assign);
@@ -135,7 +152,7 @@ void ProgramGrounder::groundRule(Rule* r) {
 		// FIND IF FIRST OR NEXT
 		if(index_current_atom!=id_match.size()-1){
 
-			unsigned long id=index->firstMatch(bounds[index_current_atom],binds[index_current_atom],find);
+			unsigned long id=index->firstMatch(bounds[index_current_atom],binds[index_current_atom],equal_vars[index_current_atom],find);
 			id_match.push_back(id);
 		}else{
 			unsigned long id=id_match.back();

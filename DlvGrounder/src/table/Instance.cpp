@@ -18,7 +18,7 @@ bool isPresent(unordered_set<string> &result_string,string result_terms){
 	return false;
 }
 
-unsigned long SimpleIndexAtom::firstMatch(vec_pair_long &bound,vec_pair_long &bind,bool& find) {
+unsigned long SimpleIndexAtom::firstMatch(vec_pair_long &bound,vec_pair_long &bind,map_int_int& equal_var,bool& find) {
 	unsigned long id = matches_id.size();
 	ResultMatch *rm = new ResultMatch;
 
@@ -35,6 +35,16 @@ unsigned long SimpleIndexAtom::firstMatch(vec_pair_long &bound,vec_pair_long &bi
 			}
 		if (match) {
 
+			//Test the match of bind equal variable
+			bool skipAtom=false;
+			for(auto it:equal_var){
+				if(a->getTerm(it.first) != a->getTerm(it.second)){
+					skipAtom=true;
+					break;
+				}
+			}
+			// If the term with equal variable not match skip this atom
+			if(skipAtom)continue;
 			// If no bind variables but match atom finish
 			if(bind.size()==0){
 				find=true;
@@ -43,9 +53,7 @@ unsigned long SimpleIndexAtom::firstMatch(vec_pair_long &bound,vec_pair_long &bi
 			}
 
 			string result_terms="";
-			vector<unsigned long> result_term_id;
 			for (auto i : bind){
-				result_term_id.push_back(a->getTerm(i.first));
 				result_terms+=boost::lexical_cast<string>(a->getTerm(i.first))+"*";
 			}
 

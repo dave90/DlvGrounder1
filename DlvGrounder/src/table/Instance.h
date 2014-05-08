@@ -43,6 +43,7 @@ struct hashAtom {
 typedef unordered_set<Atom*, hashAtom, hashAtom> AtomTable;
 typedef unordered_set<PairAtomBool, hashAtom, hashAtom> PairAtomBoolTable;
 typedef vector<pair<unsigned int,unsigned long> > vec_pair_long;
+typedef unordered_multimap<unsigned int,unsigned int> map_int_int;
 
 struct ResultMatch {
 	mutable vector<Atom*> result;
@@ -57,7 +58,7 @@ public:
 	/*
 	 *  Return id used for the nextMatch
 	 */
-	virtual unsigned long firstMatch(vec_pair_long &bound,vec_pair_long &bind,bool& find)=0;
+	virtual unsigned long firstMatch(vec_pair_long &bound,vec_pair_long &bind,map_int_int& equal_var,bool& find)=0;
 	virtual void nextMatch(unsigned long id,vec_pair_long &bind,bool& find)=0;
 	virtual ~IndexAtom() {};
 protected:
@@ -68,7 +69,7 @@ class SimpleIndexAtom: public IndexAtom {
 public:
 	SimpleIndexAtom(){};
 	SimpleIndexAtom(AtomTable* a) {	atoms = a;};
-	virtual unsigned long firstMatch(vec_pair_long &bound, vec_pair_long &bind,bool& find);
+	virtual unsigned long firstMatch(vec_pair_long &bound, vec_pair_long &bind,map_int_int& equal_var,bool& find);
 	virtual void nextMatch(unsigned long id,vec_pair_long &bind,bool& find);
 	virtual ~SimpleIndexAtom();
 private:
@@ -129,7 +130,14 @@ class InstancesTable {
 public:
 	void addInstance(unsigned long i) {	Instances* is = new Instances(i);instanceTable.insert(is);};
 	// Get term by the index
-	Instances* getInstance(unsigned long i) {Instances* is = new Instances(i);return *(instanceTable.find(is));};
+	inline Instances* getInstance(unsigned long i) {
+		Instances* is = new Instances(i);
+		auto instance = instanceTable.find(is);
+		if(instance!=instanceTable.end())
+			return *(instanceTable.find(is));
+		else
+			return nullptr;
+	};
 	// Get size of the table
 	long getSize() {return instanceTable.size();};
 	void print() {for (Instances* i : instanceTable)i->print();	};

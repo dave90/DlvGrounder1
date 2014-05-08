@@ -47,10 +47,14 @@ private:
 	/// @param r the rule
 	/// @param bounds the vector to push the bound variable of atom in position i in rule
 	/// @param binds the vector to push the bind variable of atom in position i in rule
-	void findBoundBindRule(Rule *r,vector<vec_pair_long> &bounds,vector<vec_pair_long>& binds);
+	/// @param equal_vars is the map that indicate the term with the same variable
+	void findBoundBindRule(Rule *r,vector<vec_pair_long> &bounds,vector<vec_pair_long>& binds,vector<map_int_int >& equal_vars);
 
 	/// Method called when find the assignment in ground rule
 	void foundAssignmentRule(Rule *r,map_long_long& var_assign);
+
+	/// Print the gound rule
+	void printGroundRule(Rule *r,map_long_long& var_assign);
 
 	/// Set in bound the value for each variable present in current assignment
 	void setBoundValue(Atom *current_atom,vec_pair_long &bound,map_long_long& var_assign);
