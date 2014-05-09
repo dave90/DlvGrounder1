@@ -39,7 +39,7 @@ public:
 	vector<Atom*>::const_iterator getBeginHead(){return head.begin();};
 	vector<Atom*>::const_iterator getEndHead(){return head.end();};
 
-
+	void clear(){head.clear();body.clear();};
 	void print(TermTable*tb);
 
 private:

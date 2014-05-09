@@ -80,7 +80,10 @@ class Instances {
 public:
 	Instances(unsigned long predicate);
 
-	void addFact(Atom* atom) {computeAtomIndex(atom);facts.insert(atom);}
+	inline void addFact(Atom* atom) {
+		computeAtomIndex(atom);
+		if(!facts.count(atom))facts.insert(atom);else delete atom;
+	}
 	;
 	// A no fact is true if its truth value is true, otherwise it is undefined, false atoms are not saved.
 	void addNoFact(Atom* atom, bool truth) {computeAtomIndex(atom);	nofacts.insert( { atom, truth });}
@@ -128,13 +131,20 @@ struct hashInstance {
 
 class InstancesTable {
 public:
-	void addInstance(unsigned long i) {	Instances* is = new Instances(i);instanceTable.insert(is);};
+	inline void addInstance(unsigned long i) {
+		Instances* is = new Instances(i);
+		if(instanceTable.count(is))
+			delete is;
+		else
+			instanceTable.insert(is);
+	};
 	// Get term by the index
 	inline Instances* getInstance(unsigned long i) {
 		Instances* is = new Instances(i);
 		auto instance = instanceTable.find(is);
+		delete is;
 		if(instance!=instanceTable.end())
-			return *(instanceTable.find(is));
+			return *(instance);
 		else
 			return nullptr;
 	};

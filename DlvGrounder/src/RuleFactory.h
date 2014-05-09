@@ -26,7 +26,7 @@ public:
 	/// Add builtin atom in rule
 	void addBuiltinAtom(vector<unsigned long> &terms,TermTable*tt);
 	/// Add Fact in Instances
-	void addFact(const vector<unsigned long> &terms,bool hashMinus,bool negative);
+	void addFact(Atom *fact);
 	/// Set head false and put the next atoms in the body
 	void setAtomInHead(bool b){head=b;};
 	/// Add rule and if have head set the predicates IDB

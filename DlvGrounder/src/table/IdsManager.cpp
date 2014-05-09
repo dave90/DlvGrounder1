@@ -54,7 +54,6 @@ pair_long_bool IdManager::insert(string s) {
 	auto its = hashId.left.find(s);
 	if (its == hashId.left.end()) {
 		pair_long_bool pairLong_bool(counter, false);
-//		pString_Id.second = counter;
 		hashId.left.insert({s,counter});
 		counter++;
 		return pairLong_bool;

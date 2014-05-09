@@ -17,7 +17,9 @@ void ProgramGrounder::ground() {
 	statementDependency->createComponentGraph();
 
 	//Ground first rule
+	Timer::getInstance()->start("Gound Rule");
 	groundRule(statementDependency->getRule(0));
+	Timer::getInstance()->end();
 }
 
 void ProgramGrounder::findBoundBindRule(Rule *r,vector<vec_pair_long> &bounds,vector<vec_pair_long>& binds,vector<map_int_int >& equal_vars){
@@ -121,7 +123,6 @@ void ProgramGrounder::insertBindValueInAssignment(Atom *current_atom,vec_pair_lo
 
 
 void ProgramGrounder::groundRule(Rule* r) {
-
 	//variable,value
 	map_long_long var_assign;
 	list<unsigned long> id_match(0);

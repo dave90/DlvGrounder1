@@ -24,14 +24,10 @@ void RuleFactory::addPredicate(string name) {
 	lastPredicate=name;
 }
 
-void RuleFactory::addFact(const vector<unsigned long>& terms,
-		bool hashMinus, bool negative) {
-	Predicate *p=new Predicate(lastPredicate,terms.size());
-	unsigned long index=predicateTable->insertPredicate(p);
-	instancesTable->addInstance(index);
-	Atom* atom=new ClassicalLiteral(index,terms,hashMinus,negative);
-	instancesTable->getInstance(index)->addFact(atom);
+void RuleFactory::addFact(Atom *fact) {
 
+	instancesTable->addInstance(fact->getPredicate());
+	instancesTable->getInstance(fact->getPredicate())->addFact(fact);
 }
 
 void RuleFactory::addClassicalAtom(vector<unsigned long> &terms, bool hashMinus,
@@ -71,16 +67,21 @@ void RuleFactory::addBuiltinAtom(vector<unsigned long> &terms,TermTable*tt) {
 void RuleFactory::addRule() {
 	if(currentRule->isAFact()){
 		Atom *fact=currentRule->getHead()[0];
-		addFact(fact->getTerms(),fact->isHasMinus(),fact->isNegative());
+
+		addFact(fact);
+
+		currentRule->clear();
+
 	}else{
 		// Set predicate in head IDB
 		unordered_set<unsigned long> pred_head=currentRule->getPredicateInHead();
 		for(unsigned long p:pred_head)predicateTable->setIdb(p);
 
 		st->addRuleMapping(currentRule);
+
+		currentRule = new Rule;
 	}
 
 	head=true;
-	currentRule=new Rule;
 }
 

@@ -62,8 +62,6 @@ public:
 	IdManager();
 	//return an index and if the string exist
 	pair_long_bool insert(string s);
-	//insert with pre hash
-	pair_long_bool insert(size_t hash,string s);
 	//Find the String with the given index
 	string find(unsigned long index);
 	//return the number of collisions

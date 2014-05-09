@@ -421,9 +421,10 @@ int main(int argc, char* argv[]) {
 		end = str->end();
 	}
 	Timer::getInstance()->start("Parse time");
-
 	asp_parser parser;
 	bool r = phrase_parse(iter, end, parser, ascii::space);
+	Timer::getInstance()->end();
+
 	if (r && iter == end) {
 
 		if (Config::getInstance()->isParser()) {
@@ -433,8 +434,8 @@ int main(int argc, char* argv[]) {
 			cout << "-------------------------\n";
 
 		}
-		delete str;
 
+		delete str;
 		ProgramGrounder grounder(client::builder->getPredicateTable(),
 				client::builder->getInstanceTable(), client::builder->getStatementDependency(),
 				client::builder->getTermTable());
@@ -453,7 +454,6 @@ int main(int argc, char* argv[]) {
 		delete str;
 	}
 
-	Timer::getInstance()->end();
 
 	client::builder->printStats();
 
