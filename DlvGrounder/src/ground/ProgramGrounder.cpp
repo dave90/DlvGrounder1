@@ -91,7 +91,7 @@ void ProgramGrounder::foundAssignmentRule(Rule *r,map_long_long& var_assign){
 	}
 	for(Atom *a:atoms){
 		a->print(termsMap);
-		cout<<" ";
+		cout<<".";
 	}
 }
 
