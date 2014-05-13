@@ -22,7 +22,7 @@ public:
 	ConstantTerm(){};
 	ConstantTerm(string v,unsigned long index):constant(v){setIndex(index);};
 	virtual string getName(){return constant;};
-	virtual void setName(string name){constant=name;};
+	virtual void setName(string& name){constant=name;};
 	virtual string getNameToHash(){return constant;};
 	virtual double calculate(){	return atof(constant.c_str());};
 private:

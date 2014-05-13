@@ -26,11 +26,11 @@ public:
 	TermFactory();
 	void setTableType();
 	// Create a Variable term
-	void createVariable(string variable,bool negative);
+	void createVariable(string& variable,bool negative);
 	//Create Constant term
-	void createConstant(string constant,bool negative);
+	void createConstant(string& constant,bool negative);
 	//Create Function Term and push it in a queue
-	void createFunction(string name,bool negative);
+	void createFunction(string& name,bool negative);
 	// Put the Function term in the tail of a queue in the Table Term
 	void endFunction();
 	//Add Arithmetic term
@@ -38,7 +38,7 @@ public:
 	///Remove last term
 	void removeLastTerm();
 	/// Set operator of ArithTerm
-	void setArithOperator(string op);
+	void setArithOperator(string& op);
 	/// End arith term
 	void endArithTerm();
 

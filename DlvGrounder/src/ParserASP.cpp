@@ -77,7 +77,7 @@ void addClassicalAtom() {
 	builder->addClassicalAtom();
 }
 
-void setBinop(string binop){
+void setBinop(string& binop){
 	builder->setBinop(binop);
 }
 
@@ -125,7 +125,7 @@ void endFunctionTerm() {
 	builder->endTermFunction();
 }
 
-void addNegativeTerm(string minus) {
+void addNegativeTerm(string& minus) {
 	builder->setNegativeTerm();
 }
 
@@ -138,7 +138,7 @@ void addArithTermAndPopTerm(){
 	builder->addArithTerm();
 }
 
-void setArithOperator(string op) {
+void setArithOperator(string& op) {
 	builder->setArithOperator(op);
 }
 

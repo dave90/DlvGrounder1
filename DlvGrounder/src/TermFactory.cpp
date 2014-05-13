@@ -24,7 +24,7 @@ void TermFactory::setTableType() {
 		termsMap=new HashTermTable;
 }
 
- void TermFactory::createVariable(string variable,bool negative) {
+ void TermFactory::createVariable(string& variable,bool negative) {
 	Term *v=new VariableTerm();
 
 	v->setName(variable);
@@ -37,7 +37,7 @@ void TermFactory::setTableType() {
 
 
 
- void TermFactory::createConstant(string constant,bool negative) {
+ void TermFactory::createConstant(string& constant,bool negative) {
 	Term *c=new ConstantTerm();
 
 	c->setName(constant);
@@ -49,7 +49,7 @@ void TermFactory::setTableType() {
 
 }
 
- void TermFactory::createFunction(string name,bool negative) {
+ void TermFactory::createFunction(string& name,bool negative) {
 	Term *ft=new FunctionTerm();
 
 	ft->setName(name);
@@ -81,7 +81,7 @@ void TermFactory::setTableType() {
 	terms.push_back(t);
 }
 
-void TermFactory::setArithOperator(string op){
+void TermFactory::setArithOperator(string& op){
 	Term *arith=terms[terms.size()-1];
 	if(strcmp(op.c_str(),ArithTerm::getNameOperator(Operator::PLUS).c_str())==0)
 		arith->setOperator(Operator::PLUS);

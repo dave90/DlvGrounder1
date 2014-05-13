@@ -126,10 +126,4 @@ InstancesTable::~InstancesTable() {
 	}
 }
 
-void Instances::print() {
-	cout << "Predicate " << predicate << endl;
-	for (Atom* a : facts) {
-		a->print();
-	}
-}
 

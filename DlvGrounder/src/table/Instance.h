@@ -83,11 +83,17 @@ public:
 	inline void addFact(Atom* atom) {
 		computeAtomIndex(atom);
 		if(!facts.count(atom))facts.insert(atom);else delete atom;
-	}
-	;
+	};
+
 	// A no fact is true if its truth value is true, otherwise it is undefined, false atoms are not saved.
-	void addNoFact(Atom* atom, bool truth) {computeAtomIndex(atom);	nofacts.insert( { atom, truth });}
-	;
+	inline bool addNoFact(Atom* atom, bool truth) {
+		computeAtomIndex(atom);
+		PairAtomBool p;
+		p.atom=atom;
+		p.truth=truth;
+		if(!nofacts.count(p))nofacts.insert(p);else {delete atom;return false;}
+		return true;
+	};
 
 	void setValue(Atom* atom, bool truth) {	nofacts.find( { atom, true })->truth = truth;}
 	;
@@ -104,7 +110,7 @@ public:
 	IndexAtom* getIndex() {	return indexAtom;}
 	;
 
-	void print();
+	void print(){};
 
 	~Instances();
 

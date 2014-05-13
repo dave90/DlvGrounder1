@@ -20,7 +20,7 @@ RuleFactory::RuleFactory() {
 	st=new StatementDependency;
 }
 
-void RuleFactory::addPredicate(string name) {
+void RuleFactory::addPredicate(string& name) {
 	lastPredicate=name;
 }
 
@@ -41,7 +41,7 @@ void RuleFactory::addClassicalAtom(vector<unsigned long> &terms, bool hashMinus,
 		currentRule->addInBody(a);
 }
 
-void  RuleFactory::setBinop(string binop){
+void  RuleFactory::setBinop(string& binop){
 	if(binop.compare(">")==0)
 		this->binop=Binop::GREATER;
 	else	if(binop.compare("<")==0)

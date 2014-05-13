@@ -12,6 +12,8 @@
 
 #include "../utility/Timer.h"
 
+void printHeadPredicate(Rule *r,InstancesTable* it,TermTable* tb);
+
 void ProgramGrounder::ground() {
 	statementDependency->createDependencyGraph(predicateTable);
 	statementDependency->createComponentGraph();
@@ -21,6 +23,7 @@ void ProgramGrounder::ground() {
 	groundRule(statementDependency->getRule(0));
 	Timer::getInstance()->end();
 }
+
 
 void ProgramGrounder::findBoundBindRule(Rule *r,vector<vec_pair_long> &bounds,vector<vec_pair_long>& binds,vector<map_int_int >& equal_vars){
 	//variable in rule
@@ -89,9 +92,18 @@ void ProgramGrounder::foundAssignmentRule(Rule *r,map_long_long& var_assign){
 		atoms.push_back(new ClassicalLiteral(predicate,terms,false,false));
 
 	}
+//	for(Atom *a:atoms){
+//		a->print(termsMap);
+//		cout<<".";
+//	}
+	bool truth=true;
+	if(atoms.size()>1)truth=false;
 	for(Atom *a:atoms){
-		a->print(termsMap);
-		cout<<".";
+		instancesTable->addInstance(a->getPredicate());
+		if(instancesTable->getInstance(a->getPredicate())->addNoFact(a,truth)){
+			a->print(termsMap);
+			cout<<".";
+		}
 	}
 }
 
