@@ -23,8 +23,8 @@ unsigned long TermIndexAtom::firstMatch(vec_pair_long& bound, vec_pair_long& bin
 		//Check if only first term is bound
 		bool onlyFirstTermBound=true;
 		if(bound.size()>termToBeIndexed && bound[termToBeIndexed].second!=0){
-			for (unsigned int i = 1; i < bound.size(); i++)
-				if(bound[i].second!=0){
+			for (unsigned int i = 0; i < bound.size(); i++)
+				if(bound[i].second!=0 && i!=termToBeIndexed){
 					onlyFirstTermBound=!onlyFirstTermBound;
 					break;
 				}
@@ -40,9 +40,6 @@ unsigned long TermIndexAtom::firstMatch(vec_pair_long& bound, vec_pair_long& bin
 		else{
 			if(computeFirstMatch(possibleMatchingAtoms,bound,bind,equal_var,find,id,rm,result_string))
 					return id;
-			matches_id.insert({id,rm});
-			nextMatch(id,bind,find);
-			return id;
 		}
 
 	}
@@ -50,9 +47,6 @@ unsigned long TermIndexAtom::firstMatch(vec_pair_long& bound, vec_pair_long& bin
 		for(auto it=indexMap.begin();it!=indexMap.end();it++){
 			if(computeFirstMatch(it->second,bound,bind,equal_var,find,id,rm,result_string))
 					return id;
-			matches_id.insert({id,rm});
-			nextMatch(id,bind,find);
-			return id;
 		}
 	}
 
@@ -82,9 +76,9 @@ void TermIndexAtom::inizializeIndexMap(){
 
 //		for(auto it : indexMap){
 //			for(Atom* a : it.second){
-//				cout<<IdsManager::getString(IdsManager::ATOM_ID_MANAGER,a->getIndex())<<endl;
+//				cout<<IdsManager::getString(IdsManager::PREDICATE_ID_MANAGER,a->getPredicate())<<endl;
 //				for(unsigned int t : a->getTerms())
-//					cout<<IdsManager::getString(IdsManager::PREDICATE_ID_MANAGER,t);
+//					cout<<IdsManager::getString(IdsManager::TERM_ID_MANAGER,t);
 //			}
 //			cout<<endl;
 //		}
