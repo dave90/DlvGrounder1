@@ -72,8 +72,10 @@ public:
 	virtual unsigned long firstMatch(vec_pair_long &bound, vec_pair_long &bind,map_int_int& equal_var,bool& find);
 	virtual void nextMatch(unsigned long id,vec_pair_long &bind,bool& find);
 	virtual ~SimpleIndexAtom();
-private:
+protected:
 	unordered_map<unsigned long, ResultMatch*> matches_id;
+	bool isPresent(unordered_set<string> &result_string,string result_terms);
+	bool computeFirstMatch(AtomTable& collection,vec_pair_long &bound,vec_pair_long &bind,map_int_int& equal_var,bool& find,unsigned long& id,ResultMatch* rm,unordered_set<string> result_string);
 };
 
 class Instances {
@@ -95,20 +97,15 @@ public:
 		return true;
 	};
 
-	void setValue(Atom* atom, bool truth) {	nofacts.find( { atom, true })->truth = truth;}
-	;
-	void setValue(unsigned long index, bool truth) {Atom* a;a->setIndex(index);nofacts.find( { a, true })->truth = truth;}
-	;
-	bool isTrue(Atom* atom) {return nofacts.find( { atom, true })->truth;}
-	;
+	void setValue(Atom* atom, bool truth) {	nofacts.find( { atom, true })->truth = truth;};
+	void setValue(unsigned long index, bool truth) {Atom* a;a->setIndex(index);nofacts.find( { a, true })->truth = truth;};
+	bool isTrue(Atom* atom) {return nofacts.find( { atom, true })->truth;};
 	bool isTrue(unsigned long index) {Atom* a;a->setIndex(index);bool res = nofacts.find( { a, true })->truth;delete (a);return res;}
 
 	unsigned long getPredicate() const {return predicate;}
-	void setPredicate(unsigned long predicate) {this->predicate = predicate;}
-	;
+	void setPredicate(unsigned long predicate) {this->predicate = predicate;};
 
-	IndexAtom* getIndex() {	return indexAtom;}
-	;
+	IndexAtom* getIndex() {	return indexAtom;};
 
 	void print(){};
 

@@ -13,6 +13,7 @@
 #include <boost/graph/strong_components.hpp>
 #include <boost/graph/graphviz.hpp>
 #include <boost/lexical_cast.hpp>
+#include <boost/graph/topological_sort.hpp>
 
 #include "../utility/Config.h"
 #include "../table/IdsManager.h"
@@ -339,6 +340,31 @@ void ComponentGraph::print() {
 	}
 }
 
+void ComponentGraph::computeAnOrdering(vector<unsigned int>& componentsOrdering){
+	boost::property_map<WeightGraph, boost::vertex_index_t>::type vertex_indices = get(boost::vertex_index, compGraph);
+	topological_sort(compGraph,back_inserter(componentsOrdering));
+
+	//FIXME for now the ordering is just printed
+	for(int i=componentsOrdering.size()-1;i>=0;i--){
+		bool first=false;
+		for (auto it : component)
+			if (it.second == vertex_indices(componentsOrdering[i])) {
+				string predicate = IdsManager::getStringStrip(IdsManager::PREDICATE_ID_MANAGER,	it.first);
+				if(!first){
+					cout<<predicate + " ";
+					first=true;
+				}
+				else
+					cout<<", "<<predicate<<" ";
+			}
+		cout<<"} ";
+	}
+}
+
+void ComponentGraph::computeAllPossibleOrdering(vector<vector<unsigned int>>& componentsOrderings){
+	//TODO
+}
+
 /*
  *
  *
@@ -366,6 +392,8 @@ void StatementDependency::createDependencyGraph(PredicateTable* pt) {
 
 void StatementDependency::createComponentGraph() {
 	compGraph.createComponent(depGraph, statementAtomMapping);
+	vector<boost::graph_traits<WeightGraph>::vertex_descriptor> ordering;
+	compGraph.computeAnOrdering(ordering);
 }
 
 void StatementDependency::print(TermTable *tb) {

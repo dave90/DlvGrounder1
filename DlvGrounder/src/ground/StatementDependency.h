@@ -105,6 +105,8 @@ public:
 
 	/// Add edge in the graph
 	void addEdge(unsigned long pred_body,unsigned long pred_head,int weight);
+	void computeAnOrdering(vector<unsigned int>& componentsOrdering);
+	void computeAllPossibleOrdering(vector<vector<unsigned int>>& componentsOrderings);
 	void printFile(string fileGraph);
 	void print();
 

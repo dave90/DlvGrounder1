@@ -8,10 +8,11 @@
 #include "Instance.h"
 #include "../utility/Config.h"
 #include "IdsManager.h"
+#include "TermIndexAtom.h"
 
 #include <boost/lexical_cast.hpp>
 
-bool isPresent(unordered_set<string> &result_string,string result_terms){
+bool SimpleIndexAtom::isPresent(unordered_set<string> &result_string,string result_terms){
 	if(result_string.count(result_terms))
 		return true;
 	result_string.insert(result_terms);
@@ -21,12 +22,20 @@ bool isPresent(unordered_set<string> &result_string,string result_terms){
 unsigned long SimpleIndexAtom::firstMatch(vec_pair_long &bound,vec_pair_long &bind,map_int_int& equal_var,bool& find) {
 	unsigned long id = matches_id.size();
 	ResultMatch *rm = new ResultMatch;
-
 	unordered_set<string> result_string;
 
-
 	//Simple search
-	for (Atom *a : *atoms) {
+	if(computeFirstMatch(*atoms,bound,bind,equal_var,find,id,rm,result_string))
+		return id;
+
+	matches_id.insert({id,rm});
+	nextMatch(id,bind,find);
+	return id;
+}
+
+bool SimpleIndexAtom::computeFirstMatch(AtomTable& collection, vec_pair_long &bound,vec_pair_long &bind,map_int_int& equal_var,
+		bool& find,unsigned long& id,ResultMatch* rm,unordered_set<string> result_string){
+	for (Atom *a : collection) {
 		bool match = true;
 		for (unsigned int i = 0; i < bound.size(); i++)
 			if (a->getTerm(bound[i].first) != bound[i].second) {
@@ -38,7 +47,7 @@ unsigned long SimpleIndexAtom::firstMatch(vec_pair_long &bound,vec_pair_long &bi
 			//Test the match of bind equal variable
 			bool skipAtom=false;
 			for(auto it:equal_var){
-				if(a->getTerm(it.first) != a->getTerm(it.second)){
+				if(a->getTerm(it.first) != a->getTerm(it.second)) {
 					skipAtom=true;
 					break;
 				}
@@ -49,7 +58,7 @@ unsigned long SimpleIndexAtom::firstMatch(vec_pair_long &bound,vec_pair_long &bi
 			if(bind.size()==0){
 				find=true;
 				matches_id.insert({id,rm});
-				return id;
+				return true;
 			}
 
 			string result_terms="";
@@ -59,15 +68,9 @@ unsigned long SimpleIndexAtom::firstMatch(vec_pair_long &bound,vec_pair_long &bi
 
 			if(!isPresent(result_string,result_terms))
 				rm->result.push_back(a);
-
 		}
 	}
-	matches_id.insert({id,rm});
-
-
-	nextMatch(id,bind,find);
-
-	return id;
+	return false;
 }
 
 void SimpleIndexAtom::nextMatch(unsigned long id,vec_pair_long &bind,bool& find) {
@@ -90,17 +93,15 @@ void SimpleIndexAtom::nextMatch(unsigned long id,vec_pair_long &bind,bool& find)
 	find=true;
 }
 
-
-
-SimpleIndexAtom::~SimpleIndexAtom() {
-}
+SimpleIndexAtom::~SimpleIndexAtom() {}
 
 Instances::Instances(unsigned long predicate) {
 	this->predicate = predicate;
 	switch (Config::getInstance()->getIndexType()) {
 	default:
 		//FIXME NOT only fact
-		indexAtom = new SimpleIndexAtom(&facts);
+//		indexAtom = new SimpleIndexAtom(&facts);
+		indexAtom = new TermIndexAtom(&facts);
 		break;
 	}
 }
@@ -112,7 +113,6 @@ Instances::~Instances() {
 		delete (it->atom);
 	delete (indexAtom);
 }
-;
 
 void Instances::computeAtomIndex(Atom*& a) {
 	pair<unsigned long, bool> index = IdsManager::getIndex(IdsManager::ATOM_ID_MANAGER,
