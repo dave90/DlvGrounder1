@@ -24,16 +24,16 @@ unsigned long TermIndexAtom::firstMatch(vec_pair_long& bound, vec_pair_long& bin
 		bool onlyFirstTermBound=true;
 		if(bound.size()>termToBeIndexed && bound[termToBeIndexed].second!=0){
 			for (unsigned int i = 0; i < bound.size(); i++)
-				if(bound[i].second!=0 && i!=termToBeIndexed){
-					onlyFirstTermBound=!onlyFirstTermBound;
+				if(i!=termToBeIndexed && bound[i].second!=0){
+					onlyFirstTermBound=false;
 					break;
 				}
 		}
 
-		AtomTable possibleMatchingAtoms=indexMap.find(bound[termToBeIndexed].second)->second;
+		AtomTable* possibleMatchingAtoms=indexMap[bound[termToBeIndexed].second];
 
 		if(onlyFirstTermBound){
-			for(auto it=possibleMatchingAtoms.begin();it!=possibleMatchingAtoms.end();it++)
+			for(auto it=possibleMatchingAtoms->begin();it!=possibleMatchingAtoms->end();it++)
 				rm->result.push_back(*it);
 		}
 
@@ -56,6 +56,11 @@ unsigned long TermIndexAtom::firstMatch(vec_pair_long& bound, vec_pair_long& bin
 
 }
 
+TermIndexAtom::~TermIndexAtom(){
+	for(auto it=indexMap.begin();it!=indexMap.end();it++)
+		delete(it->second);
+};
+
 
 void TermIndexAtom::inizializeIndexMap(){
 	unordered_set<unsigned long> termToBeIndexedIndices;
@@ -63,17 +68,16 @@ void TermIndexAtom::inizializeIndexMap(){
 		unsigned long termIndex=a->getTerm(termToBeIndexed);
 		if(!termToBeIndexedIndices.count(termIndex)){
 			termToBeIndexedIndices.insert(termIndex);
-			AtomTable values;
-			values.insert(a);
+			AtomTable* values=new AtomTable;
+			values->insert(a);
 			indexMap.insert({termIndex,values});
 		}
 		else{
-			auto it=indexMap.find(termIndex);
-			(it)->second.insert(a);
+			indexMap[termIndex]->insert(a);
 		}
 	}
 	instantiateIndexMap=true;
-
+//	cout<<"iniz"<<endl;
 //		for(auto it : indexMap){
 //			for(Atom* a : it.second){
 //				cout<<IdsManager::getString(IdsManager::PREDICATE_ID_MANAGER,a->getPredicate())<<endl;

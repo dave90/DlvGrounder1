@@ -25,7 +25,7 @@ unsigned long SimpleIndexAtom::firstMatch(vec_pair_long &bound,vec_pair_long &bi
 	unordered_set<string> result_string;
 
 	//Simple search
-	if(computeFirstMatch(*atoms,bound,bind,equal_var,find,id,rm,result_string))
+	if(computeFirstMatch(atoms,bound,bind,equal_var,find,id,rm,result_string))
 		return id;
 
 	matches_id.insert({id,rm});
@@ -33,9 +33,9 @@ unsigned long SimpleIndexAtom::firstMatch(vec_pair_long &bound,vec_pair_long &bi
 	return id;
 }
 
-bool SimpleIndexAtom::computeFirstMatch(AtomTable& collection, vec_pair_long &bound,vec_pair_long &bind,map_int_int& equal_var,
+bool SimpleIndexAtom::computeFirstMatch(AtomTable* collection, vec_pair_long &bound,vec_pair_long &bind,map_int_int& equal_var,
 		bool& find,unsigned long& id,ResultMatch* rm,unordered_set<string> result_string){
-	for (Atom *a : collection) {
+	for (Atom *a : *collection) {
 		bool match = true;
 		for (unsigned int i = 0; i < bound.size(); i++)
 			if (a->getTerm(bound[i].first) != bound[i].second) {
