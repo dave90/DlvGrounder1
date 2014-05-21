@@ -6,6 +6,9 @@
  */
 
 #include "Config.h"
+#include <boost/algorithm/string.hpp>
+#include <boost/lexical_cast.hpp>
+#include "../table/IdsManager.h"
 
 Config* Config::config;
 
@@ -78,3 +81,31 @@ void Config::setIndexType(string indexType) {
 		if(strcmp(IndexTypeString[i].c_str(),indexType.c_str())==0)
 			this->indexType=static_cast<IndexType>(i);
 	}}
+
+unsigned int Config::getIndexingTerm(unsigned long predicate){
+	if(this->indexingMap.count(predicate))
+		return indexingMap[predicate];
+	return 0;
+}
+
+void Config::configureIndexingMap(){
+
+	if(indexingPreferences!=""){
+
+		stringstream stream(indexingPreferences);
+		string segment;
+
+		while(getline(stream, segment, ','))
+		{
+
+			vector<string> pair_pred_term;
+			boost::split(pair_pred_term, segment, boost::is_any_of("="));
+			long predIndex=IdsManager::getLongIndex(IdsManager::PREDICATE_ID_MANAGER,pair_pred_term[0]);
+			if(predIndex>-1){ //FIXME Also need to check that the index is < of the arity, however it is checked later
+				indexingMap.insert({predIndex,boost::lexical_cast<unsigned int>(pair_pred_term[1])});
+			}
+
+		}
+
+	}
+}

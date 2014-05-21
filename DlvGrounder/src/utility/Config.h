@@ -10,6 +10,7 @@
 
 #include <string>
 #include <cstring>
+#include <unordered_map>
 
 using namespace std;
 
@@ -40,6 +41,9 @@ public:
 	IndexType getIndexType() const;
 	void setIndexType(IndexType indexType);
 	void setIndexType(string indexType);
+
+	void configureIndexingMap();
+	unsigned int getIndexingTerm(unsigned long predicate);
 
 	bool isComponent() const {
 		return component;
@@ -89,6 +93,14 @@ public:
 		this->printRules = pr;
 	}
 
+	const string& getIndexingPreferences() const {
+		return indexingPreferences;
+	}
+
+	void setIndexingPreferences(const string& indexingPreferences) {
+		this->indexingPreferences = indexingPreferences;
+	}
+
 private:
 	Config();
 	static Config* config;
@@ -101,6 +113,9 @@ private:
 	bool component;
 	bool statistic;
 	bool printRules;
+
+	string indexingPreferences;
+	unordered_map<unsigned long, unsigned long> indexingMap;
 
 	string fileGraph;
 

@@ -63,7 +63,9 @@ public:
 	//return an index and if the string exist
 	pair_long_bool insert(string s);
 	//Find the String with the given index
-	string find(unsigned long index);
+	string findName(unsigned long index);
+	//Find the Index with the given name
+	unsigned long findIndex(string name);
 	//return the number of collisions
 	unsigned long getCollision();
 private:
@@ -80,6 +82,7 @@ public:
 	static pair_long_bool getIndex(unsigned int idManager, string s);
 	// Given an index and the IdManager type, returns the corresponding string
 	static string getString(unsigned int idManager, unsigned long index);
+	static long getLongIndex(unsigned int idManager, string name);
 	static string getStringStrip(unsigned int idManager, unsigned long index){string s=getString(idManager,index);return s.substr(0, s.find("*"));};
 	static int getConflict(unsigned int i);
 	static const int TERM_ID_MANAGER=0;

@@ -46,7 +46,7 @@ typedef vector<pair<unsigned int,unsigned long> > vec_pair_long;
 typedef unordered_multimap<unsigned int,unsigned int> map_int_int;
 
 struct ResultMatch {
-	mutable vector<Atom*> result;
+	mutable AtomTable result;
 };
 
 
@@ -74,8 +74,8 @@ public:
 	virtual ~SimpleIndexAtom();
 protected:
 	unordered_map<unsigned long, ResultMatch*> matches_id;
-	bool isPresent(unordered_set<string> &result_string,string result_terms);
-	bool computeFirstMatch(AtomTable* collection,vec_pair_long &bound,vec_pair_long &bind,map_int_int& equal_var,bool& find,unsigned long& id,ResultMatch* rm,unordered_set<string> result_string);
+//	bool isPresent(unordered_set<string> &result_string,string result_terms);
+	bool computeFirstMatch(const AtomTable& collection,vec_pair_long &bound,vec_pair_long &bind,map_int_int& equal_var,bool& find,unsigned long& id,ResultMatch* rm);
 };
 
 class Instances {

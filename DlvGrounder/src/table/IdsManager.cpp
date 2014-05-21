@@ -101,9 +101,21 @@ int IdsManager::getConflict(unsigned int i) {
 string IdsManager::getString(unsigned int idManager, unsigned long index) {
 	if(idManager>=idsManager.size())
 			return 0;
-	return idsManager[idManager].find(index);
+	return idsManager[idManager].findName(index);
 }
 
-string IdManager::find(unsigned long index) {
+long IdsManager::getLongIndex(unsigned int idManager, string name){
+	if(idManager>=idsManager.size())
+		return -1;
+	return idsManager[idManager].findIndex(name);
+}
+
+string IdManager::findName(unsigned long index) {
 	return hashId.right.find(index)->second;
 }
+
+unsigned long IdManager::findIndex(string name) {
+	return hashId.left.find(name)->second;
+}
+
+

@@ -18,10 +18,10 @@ public:
 	virtual unsigned long firstMatch(vec_pair_long &bound, vec_pair_long &bind,map_int_int& equal_var,bool& find);
 	virtual ~TermIndexAtom();
 private:
-	unordered_map<unsigned long,AtomTable*> indexMap;
+	unordered_map<unsigned long,AtomTable> indexMap;
 	bool instantiateIndexMap;
 	unsigned int termToBeIndexed;
-	void inizializeIndexMap();
+	void initializeIndexMap();
 };
 
 #endif /* FIRSTTERMINDEXATOM_H_ */

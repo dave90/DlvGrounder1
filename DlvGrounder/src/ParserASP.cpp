@@ -356,6 +356,9 @@ bool parseArgs(int argc, char* argv[], string& filename) {
 				false);
 		cmd.add(&printRulesArgs);
 
+		ValueArg<string> indexingPreferencesArg("i", "index", "Set on which term predicates have to be indexed", false, "", "string");
+		cmd.add(&indexingPreferencesArg);
+
 		//MUST be last
 		UnlabeledValueArg<string> fileArg("fileName", "program file", false, "", "file");
 		cmd.add(fileArg);
@@ -372,6 +375,7 @@ bool parseArgs(int argc, char* argv[], string& filename) {
 		bool statistic = statisticArgs.getValue();
 		string fileGraph = fileGraphArg.getValue();
 		bool printRule=printRulesArgs.getValue();
+		string indexing=indexingPreferencesArg.getValue();
 		filename = fileArg.getValue();
 		if (stdInArgs.getValue())
 			filename = "";
@@ -384,6 +388,7 @@ bool parseArgs(int argc, char* argv[], string& filename) {
 		Config::getInstance()->setStatistic(statistic);
 		Config::getInstance()->setFileGraph(fileGraph);
 		Config::getInstance()->setPrintRules(printRule);
+		Config::getInstance()->setIndexingPreferences(indexing);
 
 	} catch (ArgException &e)  // catch any exceptions
 	{
@@ -434,6 +439,8 @@ int main(int argc, char* argv[]) {
 			cout << "-------------------------\n";
 
 		}
+
+		Config::getInstance()->configureIndexingMap();
 
 		delete str;
 		ProgramGrounder grounder(client::builder->getPredicateTable(),
