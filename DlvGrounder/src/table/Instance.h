@@ -74,8 +74,8 @@ public:
 	virtual ~SimpleIndexAtom();
 protected:
 	unordered_map<unsigned long, ResultMatch*> matches_id;
-//	bool isPresent(unordered_set<string> &result_string,string result_terms);
-	bool computeFirstMatch(const AtomTable& collection,vec_pair_long &bound,vec_pair_long &bind,map_int_int& equal_var,bool& find,unsigned long& id,ResultMatch* rm);
+	bool isPresent(unordered_set<string> &result_string,string result_terms);
+	bool computeFirstMatch(const AtomTable& collection,vec_pair_long &bound,vec_pair_long &bind,map_int_int& equal_var,ResultMatch* rm,unordered_set<string> result_string);
 };
 
 class Instances {

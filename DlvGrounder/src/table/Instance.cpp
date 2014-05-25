@@ -12,29 +12,32 @@
 
 #include <boost/lexical_cast.hpp>
 
-//bool SimpleIndexAtom::isPresent(unordered_set<string> &result_string,string result_terms){
-//	if(result_string.count(result_terms))
-//		return true;
-//	result_string.insert(result_terms);
-//	return false;
-//}
+bool SimpleIndexAtom::isPresent(unordered_set<string> &result_string,string result_terms){
+	if(result_string.count(result_terms))
+		return true;
+	result_string.insert(result_terms);
+	return false;
+}
 
 unsigned long SimpleIndexAtom::firstMatch(vec_pair_long &bound,vec_pair_long &bind,map_int_int& equal_var,bool& find) {
 	unsigned long id = matches_id.size();
 	ResultMatch *rm = new ResultMatch;
-//	unordered_set<string> result_string;
+	unordered_set<string> result_string;
 
 	//Simple search
-	if(computeFirstMatch(*atoms,bound,bind,equal_var,find,id,rm))
+	if(computeFirstMatch(*atoms,bound,bind,equal_var,rm,result_string)){
+		find=true;
+		matches_id.insert({id,rm});
 		return id;
+	}
 
 	matches_id.insert({id,rm});
 	nextMatch(id,bind,find);
 	return id;
 }
 
-bool SimpleIndexAtom::computeFirstMatch(const AtomTable& collection, vec_pair_long &bound,vec_pair_long &bind,map_int_int& equal_var,
-		bool& find,unsigned long& id,ResultMatch* rm){
+bool SimpleIndexAtom::computeFirstMatch(const AtomTable& collection, vec_pair_long &bound,vec_pair_long &bind,map_int_int& equal_var,ResultMatch* rm,
+		unordered_set<string> result_string){
 	for (Atom *a : collection) {
 		bool match = true;
 		for (unsigned int i = 0; i < bound.size(); i++)
@@ -56,17 +59,15 @@ bool SimpleIndexAtom::computeFirstMatch(const AtomTable& collection, vec_pair_lo
 			if(skipAtom)continue;
 			// If no bind variables but match atom finish
 			if(bind.size()==0){
-				find=true;
-				matches_id.insert({id,rm});
 				return true;
 			}
 
-//			string result_terms="";
-//			for (auto i : bind){
-//				result_terms+=boost::lexical_cast<string>(a->getTerm(i.first))+"*";
-//			}
-//
-//			if(!isPresent(result_string,result_terms))
+			string result_terms="";
+			for (auto i : bind){
+				result_terms+=boost::lexical_cast<string>(a->getTerm(i.first))+"*";
+			}
+
+			if(!isPresent(result_string,result_terms))
 				rm->result.insert(a);
 		}
 	}
@@ -100,7 +101,8 @@ Instances::Instances(unsigned long predicate) {
 	switch (Config::getInstance()->getIndexType()) {
 	default:
 		//FIXME NOT only fact
-		indexAtom = new TermIndexAtom(&facts,Config::getInstance()->getIndexingTerm(predicate));
+//		indexAtom = new TermIndexAtom(&facts,Config::getInstance()->getIndexingTerm(predicate));
+		indexAtom = new TermIndexAtomMultiMap(&facts,Config::getInstance()->getIndexingTerm(predicate));
 //		indexAtom = new SimpleIndexAtom(&facts);
 		break;
 	}
