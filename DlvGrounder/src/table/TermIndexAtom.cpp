@@ -14,31 +14,24 @@ unsigned long TermIndexAtom::firstMatch(vec_pair_long& bound, vec_pair_long& bin
 	ResultMatch *rm = new ResultMatch;
 	unordered_set<string> result_string;
 
-	unsigned long termBoundIndex=0;
+	pair<int,long> termBoundIndex ( -1, -1);
 	for (unsigned int i = 0; i < bound.size(); ++i)
 		if(bound[i].first==termToBeIndexed){
-			termBoundIndex=bound[i].second;
+			termBoundIndex=bound[i];
 			break;
 		}
 
 	//Check if the given term is bound
-	if(bound.size()>termToBeIndexed && termBoundIndex!=0){
+	if(termBoundIndex.second!=-1){
 
-		//Check if only the given term is bound
-		bool onlyFirstTermBound=true;
-		for (unsigned int i = 0; i < bound.size(); i++)
-			if(i!=termToBeIndexed && bound[i].second!=0){
-				onlyFirstTermBound=false;
-				break;
-			}
-
-		//Initialize the IndexMap only if it is needed
+		//Initialize the IndexMap only if it is needed, just at beginning
 		if(!instantiateIndexMap)
 			initializeIndexMap();
 
+		//Check if only the given term is bound
 		//If only the given term is bound, return the hash set indexed by that term
-		if(onlyFirstTermBound){ // && indexMap.count(bound[termToBeIndexed].second
-			for(Atom* a:indexMap[bound[termToBeIndexed].second]){
+		if(bound.size()!=1){ // && indexMap.count(bound[termToBeIndexed].second
+			for(Atom* a:indexMap[termBoundIndex.second]){
 				if(bind.size()==0){
 					find=true;
 					matches_id.insert({id,rm});
@@ -49,7 +42,7 @@ unsigned long TermIndexAtom::firstMatch(vec_pair_long& bound, vec_pair_long& bin
 		}
 		//Else check the match among the hash set indexed by that term
 		else
-			if(computeFirstMatch(indexMap[bound[termToBeIndexed].second],bound,bind,equal_var,rm,result_string)){
+			if(computeFirstMatch(indexMap[termBoundIndex.second],bound,bind,equal_var,rm,result_string)){
 				find=true;
 				matches_id.insert({id,rm});
 				return id;
@@ -78,31 +71,25 @@ unsigned long TermIndexAtomMultiMap::firstMatch(vec_pair_long& bound, vec_pair_l
 	ResultMatch *rm = new ResultMatch;
 	unordered_set<string> result_string;
 
-	unsigned long termBoundIndex=0;
+	pair<int,long> termBoundIndex ( -1, -1);
 	for (unsigned int i = 0; i < bound.size(); ++i)
 		if(bound[i].first==termToBeIndexed){
-			termBoundIndex=bound[i].second;
+			termBoundIndex.first=bound[i].first;
+			termBoundIndex.second=bound[i].second;
 			break;
 		}
 
 	//Check if the given term is bound
-	if(bound.size()>termToBeIndexed && termBoundIndex!=0){
-
-		//Check if only the given term is bound
-		bool onlyFirstTermBound=true;
-		for (unsigned int i = 0; i < bound.size(); i++)
-			if(i!=termToBeIndexed && bound[i].second!=0){
-				onlyFirstTermBound=false;
-				break;
-			}
+	if(termBoundIndex.second!=-1){
 
 		//Initialize the IndexMap only if it is needed
 		if(!instantiateIndexMap)
 			initializeIndexMap();
 
+		//Check if only the given term is bound
 		//If only the given term is bound, return the hash set indexed by that term
-		if(onlyFirstTermBound){ // && indexMap.count(bound[termToBeIndexed].second
-			auto pair=indexMap.equal_range(bound[termToBeIndexed].second);
+		if(bound.size()!=1){ // && indexMap.count(bound[termToBeIndexed].second
+			auto pair=indexMap.equal_range(termBoundIndex.second);
 			for(auto it=pair.first;it!=pair.second;it++){
 				if(bind.size()==0){
 					find=true;
@@ -114,11 +101,11 @@ unsigned long TermIndexAtomMultiMap::firstMatch(vec_pair_long& bound, vec_pair_l
 		}
 		//Else check the match among the hash set indexed by that term
 		else{
-			AtomTable* atomMatching=new AtomTable;
-			auto pair=indexMap.equal_range(bound[termToBeIndexed].second);
+			AtomTable atomMatching;
+			auto pair=indexMap.equal_range(termBoundIndex.second);
 			for(auto it=pair.first;it!=pair.second;it++)
-				atomMatching->insert(it->second);
-			if(computeFirstMatch(*atomMatching,bound,bind,equal_var,rm,result_string)){
+				atomMatching.insert(it->second);
+			if(computeFirstMatch(atomMatching,bound,bind,equal_var,rm,result_string)){
 				find=true;
 				matches_id.insert({id,rm});
 				return id;
