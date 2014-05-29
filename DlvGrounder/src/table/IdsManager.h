@@ -45,15 +45,11 @@ struct hash_string_table {
 	size_t operator()(string p) const {
 		return hash->computeHash(p);
 	}
-};
-
-
-
-struct equalString {
 	bool operator()(const pair_string_id &p1, const pair_string_id &p2) const {
 		return strcmp(p1.first.c_str(), p2.first.c_str()) == 0;
 	}
 };
+
 
 typedef boost::bimap< boost::bimaps::unordered_set_of<string,hash_string_table>, boost::bimaps::set_of<unsigned long> > hashMap;
 

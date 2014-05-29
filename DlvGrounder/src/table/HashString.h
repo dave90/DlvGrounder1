@@ -20,6 +20,9 @@ public:
 	HashString(){};
 	virtual size_t computeHash(string s) = 0;
 	virtual ~HashString(){};
+
+	/// Return an hashString according the configuration
+	static HashString* getHashStringFromConfig();
 };
 
 class STLHashString: public HashString{

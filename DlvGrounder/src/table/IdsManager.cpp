@@ -15,30 +15,7 @@
 HashString* hash_string_table::hash;
 
 void IdManager::setHashType() {
-	switch (Config::getInstance()->getHashType()) {
-	case HashType::STL_HASH:
-		hash_string_table::hash = new STLHashString;
-		break;
-	case HashType::BOOST_HASH:
-		hash_string_table::hash = new BOOSTHashString;
-		break;
-	case HashType::JAVA_HASH:
-		hash_string_table::hash=new JavaHashString;
-		break;
-	case HashType::MUR_HASH:
-		hash_string_table::hash=new MurMurHashString;
-		break;
-	case HashType::PERL_DJ:
-		hash_string_table::hash=new PerlJenkinsHashString;
-		break;
-	case HashType::PERL_B:
-		hash_string_table::hash=new PerlBernsteinHashString;
-		break;
-
-	default:
-		hash_string_table::hash = new STLHashString;
-		break;
-	}
+	hash_string_table::hash = HashString::getHashStringFromConfig();
 }
 
 IdManager::IdManager() {
