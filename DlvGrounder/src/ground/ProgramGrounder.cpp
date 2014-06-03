@@ -73,7 +73,45 @@ void ProgramGrounder::findBoundBindRule(Rule *r,vector<vec_pair_long> &bounds,ve
 }
 
 void ProgramGrounder::printGroundRule(Rule *r,map_long_long& var_assign){
-	//TODO
+
+	Rule groundRule=new Rule;
+
+	//Groung atom in head
+	for (auto head_it = r->getBeginHead(); head_it != r->getEndHead(); head_it++) {
+		Atom *head=(*head_it);
+
+		unsigned long predicate=head->getPredicate();
+		vector<unsigned long> terms;
+
+		for(unsigned int i=0;i<head->getTermsSize();i++){
+			terms.push_back(var_assign.find(head->getTerm(i))->second);
+		}
+
+		groundRule.addInHead(new ClassicalLiteral(predicate,terms,false,false));
+
+	}
+
+	//Ground body, consider only Classical Literal
+	for (auto body_it = r->getBeginBody(); body_it != r->getEndBody(); body_it++) {
+		Atom *body=(*body_it);
+
+		unsigned long predicate=body->getPredicate();
+		vector<unsigned long> terms;
+
+		//FIXME consider the anonymus variable
+		for(unsigned int i=0;i<body->getTermsSize();i++){
+			unsigned long term=body->getTerm(i);
+
+			if(termsMap->getTerm(term)->isVariable())
+				terms.push_back(var_assign.find(term)->second);
+			else
+				terms.push_back(term);
+		}
+
+		groundRule.addInBody(new ClassicalLiteral(predicate,terms,false,false));
+
+	}
+	groundRule.print(termsMap);
 }
 
 void ProgramGrounder::foundAssignmentRule(Rule *r,map_long_long& var_assign){

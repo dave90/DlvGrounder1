@@ -22,6 +22,7 @@ public:
 	VariableTerm(string v,unsigned long index):variable(v){setIndex(index);};
 	virtual string getName(){return variable;};
 	virtual bool isAnonymous(){return variable.compare("_")==0;};
+	virtual bool isVariable(){return true;};
 	virtual void setName(string& name){	variable=name;};
 	virtual string getNameToHash(){	return variable;};
 private:

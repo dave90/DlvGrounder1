@@ -54,6 +54,8 @@ public:
 	virtual void setName(string& name){};
 	/// Return true if is anonymous variable
 	virtual bool isAnonymous(){return false;};
+	/// Return true if is variable
+	virtual bool isVariable(){return false;};
 	///Add the index of a term inside the function term, used only with the FunctionTerm
 	virtual void addTerm(unsigned long termIndex){};
 	///Remove last index of a term inside the function term, used only with the FunctionTerm
