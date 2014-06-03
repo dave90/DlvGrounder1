@@ -40,7 +40,7 @@ void ClassicalLiteral::print(TermTable *tb){
 	}
 }
 
-string ClassicalLiteral::getNameToHash(unsigned long & predicate, vector<unsigned long>& terms) {
+string ClassicalLiteral::getNameToHash(unsigned long predicate, vector<unsigned long>& terms) {
 
 	string name = boost::lexical_cast<string>(predicate)+"*";
 	for (unsigned int i = 0; i < terms.size(); i++){
