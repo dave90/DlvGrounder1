@@ -91,8 +91,10 @@ string IdManager::findName(unsigned long index) {
 	return hashId.right.find(index)->second;
 }
 
-unsigned long IdManager::findIndex(string name) {
-	return hashId.left.find(name)->second;
+long IdManager::findIndex(string name) {
+	if(hashId.left.find(name)!=hashId.left.end())
+		return hashId.left.find(name)->second;
+	return -1;
 }
 
 

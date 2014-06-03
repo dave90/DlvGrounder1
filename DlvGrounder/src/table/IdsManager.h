@@ -61,7 +61,7 @@ public:
 	//Find the String with the given index
 	string findName(unsigned long index);
 	//Find the Index with the given name
-	unsigned long findIndex(string name);
+	long findIndex(string name);
 	//return the number of collisions
 	unsigned long getCollision();
 private:

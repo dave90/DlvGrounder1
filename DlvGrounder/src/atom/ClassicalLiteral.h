@@ -32,7 +32,7 @@ public:
 	string getNameToHash();
 
 	/// Return the Hash string for the classical literal
-	static string getNameToHash(unsigned long &predicate,vector<unsigned long> &terms);
+	static string getNameToHash(unsigned long predicate,vector<unsigned long> &terms);
 
 
 	//TODO metodi accesso lista termini

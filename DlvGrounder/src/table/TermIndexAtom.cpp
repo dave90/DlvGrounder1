@@ -11,47 +11,72 @@
 unsigned long TermIndexAtom::firstMatch(vec_pair_long& bound, vec_pair_long& bind, map_int_int& equal_var, bool& find) {
 
 	unsigned long id = matches_id.size();
-	ResultMatch *rm = new ResultMatch;
+	ResultMatch* rm=new ResultMatch(bind);
 	unordered_set<string> result_string;
 
-	pair<int,long> termBoundIndex ( -1, -1);
+	//Check if the term of indexing is bound
+	long termBoundIndex=-1;
 	for (unsigned int i = 0; i < bound.size(); ++i)
 		if(bound[i].first==termToBeIndexed){
-			termBoundIndex=bound[i];
+			termBoundIndex=bound[i].second;
 			break;
 		}
 
-	//Check if the given term is bound
-	if(termBoundIndex.second!=-1){
+	//If the term of indexing is bound
+	if(termBoundIndex!=-1){ //&& indexMap.count(termBoundIndex) --> Può non essere inizializzata
 
-		//Initialize the IndexMap only if it is needed, just at beginning
+		//Initialize the IndexMap if it is not yet initialized
 		if(!instantiateIndexMap)
 			initializeIndexMap();
 
-		//Check if only the given term is bound
-		//If only the given term is bound, return the hash set indexed by that term
-		if(bound.size()!=1){ // && indexMap.count(bound[termToBeIndexed].second
-			for(Atom* a:indexMap[termBoundIndex.second]){
+		//If the term of indexing is bound and the bound size is 1, then only this term is bound
+		if(bound.size()==1){
+			for(GenericAtom* a:indexMap[termBoundIndex]){
 				if(bind.size()==0){
 					find=true;
 					matches_id.insert({id,rm});
 					return id;
 				}
-				rm->result.insert(a);
+				rm->result.insert(a->atom);
 			}
 		}
 		//Else check the match among the hash set indexed by that term
-		else
-			if(computeFirstMatch(indexMap[termBoundIndex.second],bound,bind,equal_var,rm,result_string)){
+		else{
+			//If all the variables are bound, just check if there exists a fact of this kind
+			if(bind.size()==0){
+				vector<unsigned long> terms(bound.size()+equal_var.size());
+				for(unsigned int i=0;i<bound.size();i++){
+					terms[bound[i].first]=bound[i].second;
+				}
+				for(auto it: equal_var){
+					terms[it.second]=terms[it.first];
+				}
+
+				string name=ClassicalLiteral::getNameToHash((*atoms->begin())->atom->getPredicate(),terms);
+				long index=IdsManager::getLongIndex(IdsManager::ATOM_ID_MANAGER,name);
+
+				if(index!=-1){
+					find=true;
+					matches_id.insert({id,rm});
+					return id;
+				}
+				else{
+					find=false;
+					matches_id.insert({id,rm});
+					return id;
+				}
+			}
+			//Else compute the matching facts among those of the hash set indexed by that term
+			else if(computeFirstMatch(indexMap[termBoundIndex],bound,bind,equal_var,rm)){
 				find=true;
 				matches_id.insert({id,rm});
 				return id;
 			}
-
+		}
 	}
 	else{
 		//If the given term is not bound, just iterate among all facts, like in SimpleIndexAtom
-		if(computeFirstMatch(*atoms,bound,bind,equal_var,rm,result_string)){
+		if(computeFirstMatch(*atoms,bound,bind,equal_var,rm)){
 			find=true;
 			matches_id.insert({id,rm});
 			return id;
@@ -68,44 +93,44 @@ unsigned long TermIndexAtom::firstMatch(vec_pair_long& bound, vec_pair_long& bin
 unsigned long TermIndexAtomMultiMap::firstMatch(vec_pair_long& bound, vec_pair_long& bind, map_int_int& equal_var, bool& find) {
 
 	unsigned long id = matches_id.size();
-	ResultMatch *rm = new ResultMatch;
+	ResultMatch *rm = new ResultMatch(bind);
 	unordered_set<string> result_string;
 
-	pair<int,long> termBoundIndex ( -1, -1);
+	//Check if the term of indexing is bound
+	long termBoundIndex=-1;
 	for (unsigned int i = 0; i < bound.size(); ++i)
 		if(bound[i].first==termToBeIndexed){
-			termBoundIndex.first=bound[i].first;
-			termBoundIndex.second=bound[i].second;
+			termBoundIndex=bound[i].second;
 			break;
 		}
 
-	//Check if the given term is bound
-	if(termBoundIndex.second!=-1){
+	//If the term of indexing is bound
+	if(termBoundIndex!=-1){ //&& indexMap.count(termBoundIndex) --> Può non essere inizializzata
 
-		//Initialize the IndexMap only if it is needed
+		//Initialize the IndexMap if it is not yet initialized
 		if(!instantiateIndexMap)
 			initializeIndexMap();
 
-		//Check if only the given term is bound
-		//If only the given term is bound, return the hash set indexed by that term
-		if(bound.size()!=1){ // && indexMap.count(bound[termToBeIndexed].second
-			auto pair=indexMap.equal_range(termBoundIndex.second);
+		//If the term of indexing is bound and the bound size is 1, then only this term is bound
+		if(bound.size()==1){
+			auto pair=indexMap.equal_range(termBoundIndex);
 			for(auto it=pair.first;it!=pair.second;it++){
 				if(bind.size()==0){
 					find=true;
 					matches_id.insert({id,rm});
 					return id;
 				}
-				rm->result.insert(it->second);
+				rm->result.insert(it->second->atom);
 			}
 		}
 		//Else check the match among the hash set indexed by that term
 		else{
+			//Else compute the matching facts among those of the hash set indexed by that term
 			AtomTable atomMatching;
-			auto pair=indexMap.equal_range(termBoundIndex.second);
+			auto pair=indexMap.equal_range(termBoundIndex);
 			for(auto it=pair.first;it!=pair.second;it++)
 				atomMatching.insert(it->second);
-			if(computeFirstMatch(atomMatching,bound,bind,equal_var,rm,result_string)){
+			if(computeFirstMatch(atomMatching,bound,bind,equal_var,rm)){
 				find=true;
 				matches_id.insert({id,rm});
 				return id;
@@ -114,7 +139,7 @@ unsigned long TermIndexAtomMultiMap::firstMatch(vec_pair_long& bound, vec_pair_l
 	}
 	else{
 		//If the given term is not bound, just iterate among all facts, like in SimpleIndexAtom
-		if(computeFirstMatch(*atoms,bound,bind,equal_var,rm,result_string)){
+		if(computeFirstMatch(*atoms,bound,bind,equal_var,rm)){
 			find=true;
 			matches_id.insert({id,rm});
 			return id;
@@ -124,19 +149,13 @@ unsigned long TermIndexAtomMultiMap::firstMatch(vec_pair_long& bound, vec_pair_l
 	matches_id.insert({id,rm});
 	nextMatch(id,bind,find);
 	return id;
-
 }
-
-TermIndexAtom::~TermIndexAtom(){
-//	for(auto it=indexMap.begin();it!=indexMap.end();it++)
-//		delete(it->second);
-};
 
 
 void TermIndexAtom::initializeIndexMap(){
 	unordered_set<unsigned long> termToBeIndexedIndices;
-	for (Atom *a : *atoms) {
-		unsigned long termIndex=a->getTerm(termToBeIndexed);
+	for (GenericAtom*a : *atoms) {
+		unsigned long termIndex=a->atom->getTerm(termToBeIndexed);
 		if(!termToBeIndexedIndices.count(termIndex)){
 			termToBeIndexedIndices.insert(termIndex);
 			AtomTable values;
@@ -148,20 +167,11 @@ void TermIndexAtom::initializeIndexMap(){
 		}
 	}
 	instantiateIndexMap=true;
-//	cout<<"iniz"<<endl;
-//		for(auto it : indexMap){
-//			for(Atom* a : it.second){
-//				cout<<IdsManager::getStringStrip(IdsManager::PREDICATE_ID_MANAGER,a->getPredicate())<<endl;
-//				for(unsigned int t : a->getTerms())
-//					cout<<IdsManager::getString(IdsManager::TERM_ID_MANAGER,t);
-//			}
-//			cout<<endl;
-//		}
 }
 
 void TermIndexAtomMultiMap::initializeIndexMap(){
-	for (Atom *a : *atoms) {
-		unsigned long termIndex=a->getTerm(termToBeIndexed);
+	for (GenericAtom*a : *atoms) {
+		unsigned long termIndex=a->atom->getTerm(termToBeIndexed);
 		indexMap.insert({termIndex,a});
 	}
 	instantiateIndexMap=true;
