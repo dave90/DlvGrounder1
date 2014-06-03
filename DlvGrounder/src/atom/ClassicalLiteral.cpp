@@ -6,23 +6,20 @@
  */
 
 #include "ClassicalLiteral.h"
-#include <sstream>
+
 #include <iostream>
 #include <string>
+
+#include <boost/lexical_cast.hpp>
 
 #include "../table/IdsManager.h"
 
 using namespace std;
 
 string ClassicalLiteral::getNameToHash(){
-	ostringstream convert;
-	convert << predicate;
-	string name = convert.str()+"*";
-	for (unsigned int i = 0; i < terms.size(); i++){
-		convert << terms[i];
-		name+=convert.str()+"*";
-	}
-	return name;
+
+	return getNameToHash(predicate,terms);
+
 }
 
 
@@ -43,3 +40,12 @@ void ClassicalLiteral::print(TermTable *tb){
 	}
 }
 
+string ClassicalLiteral::getNameToHash(unsigned long & predicate, vector<unsigned long>& terms) {
+
+	string name = boost::lexical_cast<string>(predicate)+"*";
+	for (unsigned int i = 0; i < terms.size(); i++){
+		name+=boost::lexical_cast<string>(terms[i])+"*";
+	}
+	return name;
+
+}
