@@ -91,8 +91,8 @@ Instances::Instances(unsigned long predicate) {
 	switch (Config::getInstance()->getIndexType()) {
 	default:
 		//FIXME NOT only fact
-//		indexAtom = new TermIndexAtom(&facts,Config::getInstance()->getIndexingTerm(predicate));
-		indexAtom = new TermIndexAtomMultiMap(&facts,Config::getInstance()->getIndexingTerm(predicate));
+		indexAtom = new TermIndexAtom(&facts,Config::getInstance()->getIndexingTerm(predicate));
+//		indexAtom = new TermIndexAtomMultiMap(&facts,Config::getInstance()->getIndexingTerm(predicate));
 //		indexAtom = new SimpleIndexAtom(&facts);
 		break;
 	}

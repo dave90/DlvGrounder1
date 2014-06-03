@@ -74,7 +74,7 @@ void ProgramGrounder::findBoundBindRule(Rule *r,vector<vec_pair_long> &bounds,ve
 
 void ProgramGrounder::printGroundRule(Rule *r,map_long_long& var_assign){
 
-	Rule groundRule=new Rule;
+	Rule *groundRule=new Rule;
 
 	//Groung atom in head
 	for (auto head_it = r->getBeginHead(); head_it != r->getEndHead(); head_it++) {
@@ -87,7 +87,7 @@ void ProgramGrounder::printGroundRule(Rule *r,map_long_long& var_assign){
 			terms.push_back(var_assign.find(head->getTerm(i))->second);
 		}
 
-		groundRule.addInHead(new ClassicalLiteral(predicate,terms,false,false));
+		groundRule->addInHead(new ClassicalLiteral(predicate,terms,false,false));
 
 	}
 
@@ -108,10 +108,10 @@ void ProgramGrounder::printGroundRule(Rule *r,map_long_long& var_assign){
 				terms.push_back(term);
 		}
 
-		groundRule.addInBody(new ClassicalLiteral(predicate,terms,false,false));
+		groundRule->addInBody(new ClassicalLiteral(predicate,terms,false,false));
 
 	}
-	groundRule.print(termsMap);
+	groundRule->print(termsMap);
 }
 
 void ProgramGrounder::foundAssignmentRule(Rule *r,map_long_long& var_assign){

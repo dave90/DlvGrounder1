@@ -35,7 +35,6 @@ struct GenericAtom{
 };
 
 struct AtomUndef : GenericAtom{
-	Atom *atom;
 	bool fact;
 
 	AtomUndef(Atom * atom,bool fact){
