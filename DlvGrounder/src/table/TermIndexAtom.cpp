@@ -155,6 +155,7 @@ unsigned long TermIndexAtomMultiMap::firstMatch(vec_pair_long& bound, vec_pair_l
 void TermIndexAtom::initializeIndexMap(){
 	Timer::getInstance()->start("Creation Index Structure");
 	unordered_set<unsigned long> termToBeIndexedIndices;
+
 	for (GenericAtom*a : *atoms) {
 		unsigned long termIndex=a->atom->getTerm(termToBeIndexed);
 		if(!termToBeIndexedIndices.count(termIndex)){
