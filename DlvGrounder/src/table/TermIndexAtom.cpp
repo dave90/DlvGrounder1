@@ -7,6 +7,7 @@
 
 #include "TermIndexAtom.h"
 #include <boost/lexical_cast.hpp>
+#include "../utility/Timer.h"
 
 unsigned long TermIndexAtom::firstMatch(vec_pair_long& bound, vec_pair_long& bind, map_int_int& equal_var, bool& find) {
 
@@ -23,7 +24,7 @@ unsigned long TermIndexAtom::firstMatch(vec_pair_long& bound, vec_pair_long& bin
 		}
 
 	//If the term of indexing is bound
-	if(termBoundIndex!=-1){ //&& indexMap.count(termBoundIndex) --> Può non essere inizializzata
+	if(termBoundIndex!=-1){ //&& indexMap.count(termBoundIndex) --> Puo' non essere inizializzata
 
 		//Initialize the IndexMap if it is not yet initialized
 		if(!instantiateIndexMap)
@@ -44,27 +45,15 @@ unsigned long TermIndexAtom::firstMatch(vec_pair_long& bound, vec_pair_long& bin
 		else{
 			//If all the variables are bound, just check if there exists a fact of this kind
 			if(bind.size()==0){
-				vector<unsigned long> terms(bound.size()+equal_var.size());
-				for(unsigned int i=0;i<bound.size();i++){
-					terms[bound[i].first]=bound[i].second;
-				}
-				for(auto it: equal_var){
-					terms[it.second]=terms[it.first];
-				}
-
-				string name=ClassicalLiteral::getNameToHash((*atoms->begin())->atom->getPredicate(),terms);
-				long index=IdsManager::getLongIndex(IdsManager::ATOM_ID_MANAGER,name);
-
+				long index = findIfAFactExists(bound, equal_var);
 				if(index!=-1){
 					find=true;
-					matches_id.insert({id,rm});
-					return id;
 				}
 				else{
 					find=false;
-					matches_id.insert({id,rm});
-					return id;
 				}
+				matches_id.insert({id,rm});
+				return id;
 			}
 			//Else compute the matching facts among those of the hash set indexed by that term
 			else if(computeFirstMatch(indexMap[termBoundIndex],bound,bind,equal_var,rm)){
@@ -105,7 +94,7 @@ unsigned long TermIndexAtomMultiMap::firstMatch(vec_pair_long& bound, vec_pair_l
 		}
 
 	//If the term of indexing is bound
-	if(termBoundIndex!=-1){ //&& indexMap.count(termBoundIndex) --> Può non essere inizializzata
+	if(termBoundIndex!=-1){ //&& indexMap.count(termBoundIndex) --> Puo' non essere inizializzata
 
 		//Initialize the IndexMap if it is not yet initialized
 		if(!instantiateIndexMap)
@@ -125,6 +114,17 @@ unsigned long TermIndexAtomMultiMap::firstMatch(vec_pair_long& bound, vec_pair_l
 		}
 		//Else check the match among the hash set indexed by that term
 		else{
+			if(bind.size()==0){
+				long index = findIfAFactExists(bound, equal_var);
+				if(index!=-1){
+					find=true;
+				}
+				else{
+					find=false;
+				}
+				matches_id.insert({id,rm});
+				return id;
+			}
 			//Else compute the matching facts among those of the hash set indexed by that term
 			AtomTable atomMatching;
 			auto pair=indexMap.equal_range(termBoundIndex);
@@ -153,6 +153,7 @@ unsigned long TermIndexAtomMultiMap::firstMatch(vec_pair_long& bound, vec_pair_l
 
 
 void TermIndexAtom::initializeIndexMap(){
+	Timer::getInstance()->start("Creation Index Structure");
 	unordered_set<unsigned long> termToBeIndexedIndices;
 	for (GenericAtom*a : *atoms) {
 		unsigned long termIndex=a->atom->getTerm(termToBeIndexed);
@@ -166,14 +167,17 @@ void TermIndexAtom::initializeIndexMap(){
 			indexMap[termIndex].insert(a);
 		}
 	}
+	Timer::getInstance()->end();
 	instantiateIndexMap=true;
 }
 
 void TermIndexAtomMultiMap::initializeIndexMap(){
+	Timer::getInstance()->start("Creation Index Structure");
 	for (GenericAtom*a : *atoms) {
 		unsigned long termIndex=a->atom->getTerm(termToBeIndexed);
 		indexMap.insert({termIndex,a});
 	}
+	Timer::getInstance()->end();
 	instantiateIndexMap=true;
 }
 

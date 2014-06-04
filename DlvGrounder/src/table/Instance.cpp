@@ -11,6 +11,20 @@
 #include "TermIndexAtom.h"
 
 
+long SimpleIndexAtom::findIfAFactExists(vec_pair_long& bound, map_int_int& equal_var) {
+	vector<unsigned long> terms(bound.size() + equal_var.size());
+	for (unsigned int i = 0; i < bound.size(); i++) {
+		terms[bound[i].first] = bound[i].second;
+	}
+	for (auto it : equal_var) {
+		terms[it.second] = terms[it.first];
+	}
+	string name = ClassicalLiteral::getNameToHash(
+			(*atoms->begin())->atom->getPredicate(), terms);
+	long index = IdsManager::getLongIndex(IdsManager::ATOM_ID_MANAGER, name);
+	return index;
+}
+
 
 unsigned long SimpleIndexAtom::firstMatch(vec_pair_long &bound,vec_pair_long &bind,map_int_int& equal_var,bool& find) {
 	unsigned long id = matches_id.size();
@@ -47,6 +61,14 @@ bool SimpleIndexAtom::computeFirstMatch(const AtomTable& collection, vec_pair_lo
 			if(bind.size()==0){
 				return true;
 			}
+
+//			if(bind.size()==0){
+//				long index = findIfAFactExists(bound, equal_var);
+//				if(index!=-1){
+//					return true;
+//				}
+//				return false;
+//			}
 
 			rm->result.insert(a);
 
@@ -91,9 +113,9 @@ Instances::Instances(unsigned long predicate) {
 	switch (Config::getInstance()->getIndexType()) {
 	default:
 		//FIXME NOT only fact
-		indexAtom = new TermIndexAtom(&facts,Config::getInstance()->getIndexingTerm(predicate));
+//		indexAtom = new TermIndexAtom(&facts,Config::getInstance()->getIndexingTerm(predicate));
 //		indexAtom = new TermIndexAtomMultiMap(&facts,Config::getInstance()->getIndexingTerm(predicate));
-//		indexAtom = new SimpleIndexAtom(&facts);
+		indexAtom = new SimpleIndexAtom(&facts);
 		break;
 	}
 }
