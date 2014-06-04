@@ -137,6 +137,7 @@ unsigned long TermIndexAtomMultiMap::firstMatch(vec_pair_long& bound, vec_pair_l
 			}
 		}
 	}
+
 	else{
 		//If the given term is not bound, just iterate among all facts, like in SimpleIndexAtom
 		if(computeFirstMatch(*atoms,bound,bind,equal_var,rm)){
