@@ -21,6 +21,7 @@
 
 
 class TermFactory {
+
 public:
 	// Set table to hash stl table of terms
 	TermFactory();
