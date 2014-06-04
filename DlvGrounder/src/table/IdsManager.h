@@ -24,6 +24,8 @@
 using namespace std;
 
 typedef pair<string, unsigned long> pair_string_id;
+typedef pair<unsigned int, unsigned long> pair_const_id;
+
 typedef pair<unsigned long, bool> pair_long_bool;
 
 
@@ -48,24 +50,40 @@ struct hash_string_table {
 	bool operator()(const pair_string_id &p1, const pair_string_id &p2) const {
 		return strcmp(p1.first.c_str(), p2.first.c_str()) == 0;
 	}
+	size_t operator()(unsigned int p) const {
+		return p;
+	}
+	bool operator()(const pair_const_id &p1, const pair_const_id &p2) const {
+		return p1.first == p2.first;
+	}
 };
 
 
-typedef boost::bimap< boost::bimaps::unordered_set_of<string,hash_string_table>, boost::bimaps::set_of<unsigned long> > hashMap;
+typedef boost::bimap< boost::bimaps::unordered_set_of<string,hash_string_table>, boost::bimaps::set_of<unsigned long> > hashStringMap;
+typedef boost::bimap< boost::bimaps::unordered_set_of<unsigned int,hash_string_table>, boost::bimaps::set_of<unsigned long> > hashIntegerMap;
+
 
 class IdManager {
 public:
 	IdManager();
 	//return an index and if the string exist
-	pair_long_bool insert(string s);
+	pair_long_bool insert(string &s);
+	//return an index and if the integer exist
+	pair_long_bool insert(unsigned int& s);
 	//Find the String with the given index
-	string findName(unsigned long index);
+	string findStringName(unsigned long &index);
+	//Find the Integer with the given index
+	unsigned int findIntName(unsigned long &index);
+	//Find the String or Integer with the given index and return the string of integer
+	string findName(unsigned long& index);
 	//Find the Index with the given name
-	long findIndex(string name);
+	long findIndex(string& name);
 	//return the number of collisions
 	unsigned long getCollision();
 private:
-	hashMap hashId;
+	hashStringMap hashStringId;
+	hashIntegerMap hashIntId;
+
 //	unordered_map<string, unsigned long,hash_string_table> hashId;
 	unsigned long counter;
 
@@ -75,7 +93,9 @@ private:
 class IdsManager {
 public:
 	virtual ~IdsManager();
-	static pair_long_bool getIndex(unsigned int idManager, string s);
+	static pair_long_bool getIndex(unsigned int idManager, string& s);
+	static pair_long_bool getIndex(unsigned int idManager, unsigned int& s);
+
 	// Given an index and the IdManager type, returns the corresponding string
 	static string getString(unsigned int idManager, unsigned long index);
 	static long getLongIndex(unsigned int idManager, string name);

@@ -12,7 +12,8 @@ HashTermTable::HashTermTable() {
 }
 
 unsigned long HashTermTable::addTerm(Term* t) {
-	pair_long_bool p=IdsManager::getIndex(IdsManager::TERM_ID_MANAGER, t->getNameToHash());
+	string hashString=t->getNameToHash();
+	pair_long_bool p=IdsManager::getIndex(IdsManager::TERM_ID_MANAGER, hashString);
 	unsigned long id=p.first;
 	if(!p.second){
 		t->setIndex(id);
@@ -23,6 +24,34 @@ unsigned long HashTermTable::addTerm(Term* t) {
 	return id;
 
 }
+
+
+unsigned long HashTermTable::addTerm(Term* t,string &s) {
+	pair_long_bool p=IdsManager::getIndex(IdsManager::TERM_ID_MANAGER, s);
+
+	unsigned long id=p.first;
+	if(!p.second){
+		t->setIndex(id);
+		hash.insert(t);
+	}else{
+		delete t;
+	}
+	return id;
+}
+
+unsigned long HashTermTable::addTerm(Term* t,unsigned int &s) {
+	pair_long_bool p=IdsManager::getIndex(IdsManager::TERM_ID_MANAGER, s);
+
+	unsigned long id=p.first;
+	if(!p.second){
+		t->setIndex(id);
+		hash.insert(t);
+	}else{
+		delete t;
+	}
+	return id;
+}
+
 
 void HashTermTable::removeTerm(unsigned long index) {
 }

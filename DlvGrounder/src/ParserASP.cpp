@@ -110,7 +110,8 @@ void addId(string &name) {
 }
 
 void addNumber(int &name) {
-	builder->addNumber(name);
+	unsigned int unsigned_name=name;
+	builder->addNumber(unsigned_name);
 }
 
 void addNameFunction(string &name) {

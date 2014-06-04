@@ -14,8 +14,8 @@ PredicateTable::PredicateTable() {
 }
 
 unsigned long PredicateTable::insertPredicate(Predicate* p) {
-	pair<unsigned long, bool> resultIdManager = IdsManager::getIndex(
-			IdsManager::PREDICATE_ID_MANAGER, p->getNameToHash());
+	string nameHash=p->getNameToHash();
+	pair<unsigned long, bool> resultIdManager = IdsManager::getIndex(IdsManager::PREDICATE_ID_MANAGER, nameHash);
 	unsigned long index = resultIdManager.first;
 	if (!resultIdManager.second) {
 		p->setIndex(index);

@@ -54,7 +54,7 @@ public:
 	// Add constant term
 	void addId(string & name);
 	// Add numeric costant term
-	void addNumber(int & name);
+	void addNumber(unsigned int & name);
 	// Set the namo of the function
 	void addNameFunction(string & name);
 	// Add a function term in the queue of the parser function

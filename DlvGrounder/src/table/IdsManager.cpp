@@ -11,6 +11,8 @@
 
 #include "../utility/Config.h"
 
+#include <boost/lexical_cast.hpp>
+
 
 HashString* hash_string_table::hash;
 
@@ -25,13 +27,27 @@ IdManager::IdManager() {
 }
 
 
-pair_long_bool IdManager::insert(string s) {
+pair_long_bool IdManager::insert(string &s) {
 
-	pair_string_id pString_Id(s, 0);
-	auto its = hashId.left.find(s);
-	if (its == hashId.left.end()) {
+	auto its = hashStringId.left.find(s);
+	if (its == hashStringId.left.end()) {
 		pair_long_bool pairLong_bool(counter, false);
-		hashId.left.insert({s,counter});
+		hashStringId.left.insert({s,counter});
+		counter++;
+		return pairLong_bool;
+	} else {
+		return make_pair(its->second,true);
+	}
+
+}
+
+
+pair_long_bool IdManager::insert(unsigned int &i) {
+
+	auto its = hashIntId.left.find(i);
+	if (its == hashIntId.left.end()) {
+		pair_long_bool pairLong_bool(counter, false);
+		hashIntId.left.insert({i,counter});
 		counter++;
 		return pairLong_bool;
 	} else {
@@ -43,8 +59,12 @@ pair_long_bool IdManager::insert(string s) {
 unsigned long IdManager::getCollision() {
 
 	unsigned long collision = 0;
-	for (unsigned i = 0; i < hashId.bucket_count(); ++i) {
-		if(hashId.bucket_size(i)>1)
+	for (unsigned i = 0; i < hashStringId.bucket_count(); ++i) {
+		if(hashStringId.bucket_size(i)>1)
+				collision++;
+	}
+	for (unsigned i = 0; i < hashIntId.bucket_count(); ++i) {
+		if(hashIntId.bucket_size(i)>1)
 				collision++;
 	}
 
@@ -62,7 +82,16 @@ IdsManager::~IdsManager() {
 
 
 
-pair_long_bool IdsManager::getIndex(unsigned int i, string s){
+pair_long_bool IdsManager::getIndex(unsigned int i, string& s){
+	// If the index i is greater that the size of idsManager, then just a new IdManager is added in IdsManager.
+	while(i>=idsManager.size()){
+		idsManager.push_back(IdManager());
+	}
+	return idsManager[i].insert(s);
+
+}
+
+pair_long_bool IdsManager::getIndex(unsigned int i, unsigned int &s){
 	// If the index i is greater that the size of idsManager, then just a new IdManager is added in IdsManager.
 	while(i>=idsManager.size()){
 		idsManager.push_back(IdManager());
@@ -87,13 +116,24 @@ long IdsManager::getLongIndex(unsigned int idManager, string name){
 	return idsManager[idManager].findIndex(name);
 }
 
-string IdManager::findName(unsigned long index) {
-	return hashId.right.find(index)->second;
+string IdManager::findStringName(unsigned long &index) {
+	return hashStringId.right.find(index)->second;
 }
 
-long IdManager::findIndex(string name) {
-	if(hashId.left.find(name)!=hashId.left.end())
-		return hashId.left.find(name)->second;
+unsigned int IdManager::findIntName(unsigned long &index) {
+	return hashIntId.right.find(index)->second;
+}
+
+string IdManager::findName(unsigned long &index) {
+	auto it = hashStringId.right.find(index);
+	if(it!=hashStringId.right.end())
+		return it->second;
+	return boost::lexical_cast<string>(findIntName(index));
+}
+
+long IdManager::findIndex(string& name) {
+	if(hashStringId.left.find(name)!=hashStringId.left.end())
+		return hashStringId.left.find(name)->second;
 	return -1;
 }
 

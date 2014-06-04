@@ -12,7 +12,6 @@
 
 #include "../utility/Timer.h"
 
-void printHeadPredicate(Rule *r,InstancesTable* it,TermTable* tb);
 
 void ProgramGrounder::ground() {
 	statementDependency->createDependencyGraph(predicateTable);
@@ -181,6 +180,7 @@ void ProgramGrounder::groundRule(Rule* r) {
 	auto current_atom_it=r->getBeginBody();
 	unsigned int index_current_atom=0;
 	bool find=false;
+	bool negation=false;
 
 	vector<vec_pair_long> bounds,binds;
 	vector<map_int_int > equal_vars;
@@ -190,6 +190,8 @@ void ProgramGrounder::groundRule(Rule* r) {
 
 	while(!finish){
 		Atom *current_atom=*current_atom_it;
+		negation=current_atom->isNegative();
+
 		Instances * instance=instancesTable->getInstance(current_atom->getPredicate());
 
 		// if there isn't instance of that atom exit of grounding
@@ -201,25 +203,28 @@ void ProgramGrounder::groundRule(Rule* r) {
 		setBoundValue(current_atom,bounds[index_current_atom],var_assign);
 
 		// FIND IF FIRST OR NEXT
-		if(index_current_atom!=id_match.size()-1){
+		bool firstMatch=index_current_atom!=id_match.size()-1;
+		if(firstMatch){
 
 			unsigned long id=index->firstMatch(bounds[index_current_atom],binds[index_current_atom],equal_vars[index_current_atom],find);
 			id_match.push_back(id);
+
 		}else{
-			unsigned long id=id_match.back();
+			if(!negation){
+				unsigned long id=id_match.back();
 
-			// Remove bind value in assignment
-			removeBindValueInAssignment(current_atom,binds[index_current_atom],var_assign);
+				// Remove bind value in assignment
+				removeBindValueInAssignment(current_atom,binds[index_current_atom],var_assign);
 
-			index->nextMatch(id,binds[index_current_atom],find);
-
+				index->nextMatch(id,binds[index_current_atom],find);
+			}
 
 		}
 
 
 
 		//IF MATCH
-		if(find){
+		if( (find && !negation) | (!find && negation && firstMatch)){
 
 
 			// Insert bind variable assignment

@@ -21,6 +21,8 @@ class HashTermTable: public TermTable {
 public:
 	HashTermTable();
 	virtual unsigned long addTerm(Term *t);
+	virtual unsigned long addTerm(Term *t,string &s);
+	virtual unsigned long addTerm(Term *t,unsigned int &s);
 	virtual void removeTerm(unsigned long index);
 	virtual Term* getTerm(unsigned long index);
 	virtual long getSize();

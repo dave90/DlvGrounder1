@@ -27,8 +27,10 @@ public:
 	void setTableType();
 	// Create a Variable term
 	void createVariable(string& variable,bool negative);
-	//Create Constant term
+	//Create String Constant term
 	void createConstant(string& constant,bool negative);
+	//Create Integer Constant term
+	void createConstant(unsigned int& constant,bool negative);
 	//Create Function Term and push it in a queue
 	void createFunction(string& name,bool negative);
 	// Put the Function term in the tail of a queue in the Table Term

@@ -19,14 +19,11 @@ using namespace std;
 class VariableTerm: public Term {
 public:
 	VariableTerm(){};
-	VariableTerm(string v,unsigned long index):variable(v){setIndex(index);};
-	virtual string getName(){return variable;};
-	virtual bool isAnonymous(){return variable.compare("_")==0;};
+	VariableTerm(unsigned long index){setIndex(index);};
+	virtual string getName(){return IdsManager::getString(IdsManager::TERM_ID_MANAGER,getIndex());};
+	virtual bool isAnonymous(){return getName().compare("_")==0;};
 	virtual bool isVariable(){return true;};
-	virtual void setName(string& name){	variable=name;};
-	virtual string getNameToHash(){	return variable;};
-private:
-	string variable;
+	virtual string getNameToHash(){	return getName();};
 };
 
 #endif /* VARIABLETERM_H_ */

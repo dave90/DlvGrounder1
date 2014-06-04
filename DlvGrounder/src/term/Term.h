@@ -75,8 +75,8 @@ private:
 	/*
 	 * Index of a term
 	 */
-	unsigned long index;
-	/*
+		unsigned long index;
+		/*
 	 *  True if the term is negated, else false
 	 */
 	bool negative;

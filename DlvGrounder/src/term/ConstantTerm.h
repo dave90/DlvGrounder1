@@ -20,13 +20,11 @@
 class ConstantTerm: public Term {
 public:
 	ConstantTerm(){};
-	ConstantTerm(string v,unsigned long index):constant(v){setIndex(index);};
-	virtual string getName(){return constant;};
-	virtual void setName(string& name){constant=name;};
-	virtual string getNameToHash(){return constant;};
-	virtual double calculate(){	return atof(constant.c_str());};
-private:
-	string constant;
+	ConstantTerm(unsigned long index){setIndex(index);};
+	virtual string getName(){return IdsManager::getString(IdsManager::TERM_ID_MANAGER,getIndex());};
+	virtual string getNameToHash(){return getName();};
+	//FIXME take the integer not the general find of IdManager
+	virtual double calculate(){	return atof(getName().c_str());};
 };
 
 #endif /* CONSTANTTERM_H_ */

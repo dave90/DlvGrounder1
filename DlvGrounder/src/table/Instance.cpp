@@ -111,8 +111,8 @@ Instances::~Instances() {
 }
 
 void Instances::computeAtomIndex(Atom*& a) {
-	pair<unsigned long, bool> index = IdsManager::getIndex(IdsManager::ATOM_ID_MANAGER,
-			a->getNameToHash());
+	string nameHash=a->getNameToHash();
+	pair<unsigned long, bool> index = IdsManager::getIndex(IdsManager::ATOM_ID_MANAGER,nameHash);
 	a->setIndex(index.first);
 }
 

@@ -135,12 +135,9 @@ void StatementBuilder::addId(string & name) {
 	term++;
 }
 
-void StatementBuilder::addNumber(int & name) {
+void StatementBuilder::addNumber(unsigned int & name) {
 
-	ostringstream convert;
-	convert << name;
-	string id = convert.str();
-	termsFactory.createConstant(id, negativeTerm);
+	termsFactory.createConstant(name, negativeTerm);
 	resetTerm();
 
 	term++;

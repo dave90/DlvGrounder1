@@ -27,10 +27,9 @@ void TermFactory::setTableType() {
  void TermFactory::createVariable(string& variable,bool negative) {
 	Term *v=new VariableTerm();
 
-	v->setName(variable);
 	v->setNegative(negative);
 
-	int index=termsMap->addTerm(v);
+	int index=termsMap->addTerm(v,variable);
 
 	addTermsDependency(index);
 }
@@ -40,10 +39,20 @@ void TermFactory::setTableType() {
  void TermFactory::createConstant(string& constant,bool negative) {
 	Term *c=new ConstantTerm();
 
-	c->setName(constant);
 	c->setNegative(negative);
 
-	int index=termsMap->addTerm(c);
+	int index=termsMap->addTerm(c,constant);
+
+	addTermsDependency(index);
+
+}
+
+ void TermFactory::createConstant(unsigned& constant,bool negative) {
+	Term *c=new ConstantTerm();
+
+	c->setNegative(negative);
+
+	int index=termsMap->addTerm(c,constant);
 
 	addTermsDependency(index);
 

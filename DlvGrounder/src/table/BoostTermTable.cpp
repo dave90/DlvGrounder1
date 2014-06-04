@@ -12,7 +12,34 @@ BoostTermTable::BoostTermTable() {
 }
 
 unsigned long BoostTermTable::addTerm(Term* t) {
-	pair_long_bool p=IdsManager::getIndex(IdsManager::TERM_ID_MANAGER, t->getNameToHash());
+	string hashString=t->getNameToHash();
+	pair_long_bool p=IdsManager::getIndex(IdsManager::TERM_ID_MANAGER, hashString);
+
+	unsigned long id=p.first;
+	if(!p.second){
+		t->setIndex(id);
+		hash.insert(t);
+	}else{
+		delete t;
+	}
+	return id;
+}
+
+unsigned long BoostTermTable::addTerm(Term* t,string &s) {
+	pair_long_bool p=IdsManager::getIndex(IdsManager::TERM_ID_MANAGER, s);
+
+	unsigned long id=p.first;
+	if(!p.second){
+		t->setIndex(id);
+		hash.insert(t);
+	}else{
+		delete t;
+	}
+	return id;
+}
+
+unsigned long BoostTermTable::addTerm(Term* t,unsigned int &s) {
+	pair_long_bool p=IdsManager::getIndex(IdsManager::TERM_ID_MANAGER, s);
 
 	unsigned long id=p.first;
 	if(!p.second){
