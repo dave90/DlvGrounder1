@@ -165,7 +165,9 @@ public:
 	bool isTrue(Atom* atom) {
 		GenericAtom *atomUndef=new AtomUndef(atom,0);
 		auto it=nofacts.find( atomUndef);
-		return (*it)->isFact();
+		bool result = (*it)->isFact();
+		delete atomUndef;
+		return result;
 	};
 
 	bool isTrue(unsigned long index) {
