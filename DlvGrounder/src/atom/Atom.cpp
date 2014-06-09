@@ -9,7 +9,7 @@
 #include <iostream>
 using namespace std;
 
-Atom::Atom(unsigned long predicate){
+Atom::Atom(index_object predicate){
 	setPredicate(predicate);
 }
 

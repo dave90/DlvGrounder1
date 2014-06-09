@@ -8,6 +8,8 @@
 #include "StatementBuilder.h"
 #include "utility/Timer.h"
 #include "utility/Config.h"
+#include "utility/IndexDefinition.h"
+
 
 #include <cstring>
 #include <iostream>
@@ -84,7 +86,7 @@ void StatementBuilder::addLiteral(string name) {
 }
 
 void StatementBuilder::addClassicalAtom() {
-	vector<unsigned long> terms=termsFactory.getTermsInAtom();
+	vector<index_object> terms=termsFactory.getTermsInAtom();
 	ruleFactory.addClassicalAtom(terms, hashMinusAtom, negativeAtom);
 
 	termsFactory.clearTermsInAtom();
@@ -98,7 +100,7 @@ void StatementBuilder::setBinop(string binop) {
 
 
 void StatementBuilder::addBuiltinAtom() {
-	vector<unsigned long> terms=termsFactory.getTermsInAtom();
+	vector<index_object> terms=termsFactory.getTermsInAtom();
 	ruleFactory.addBuiltinAtom(terms,getTermTable());
 
 	termsFactory.clearTermsInAtom();

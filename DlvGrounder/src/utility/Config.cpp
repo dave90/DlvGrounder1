@@ -82,7 +82,7 @@ void Config::setIndexType(string indexType) {
 			this->indexType=static_cast<IndexType>(i);
 	}}
 
-unsigned int Config::getIndexingTerm(unsigned long predicate){
+unsigned int Config::getIndexingTerm(index_object predicate){
 	if(this->indexingMap.count(predicate))
 		return indexingMap[predicate];
 	return 0;

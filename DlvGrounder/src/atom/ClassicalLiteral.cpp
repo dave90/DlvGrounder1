@@ -52,7 +52,7 @@ bool ClassicalLiteral::operator ==(const Atom& a) {
 
 }
 
-string ClassicalLiteral::getNameToHash(unsigned long predicate, vector<unsigned long>& terms) {
+string ClassicalLiteral::getNameToHash(index_object predicate, vector<index_object>& terms) {
 
 	string name = boost::lexical_cast<string>(predicate)+"*";
 	for (unsigned int i = 0; i < terms.size(); i++){

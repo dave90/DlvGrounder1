@@ -21,12 +21,15 @@
 
 #include "HashString.h"
 
+#include "../utility/IndexDefinition.h"
+
+
 using namespace std;
 
-typedef pair<string, unsigned long> pair_string_id;
-typedef pair<unsigned int, unsigned long> pair_const_id;
+typedef pair<string, index_object> pair_string_id;
+typedef pair<unsigned int, index_object> pair_const_id;
 
-typedef pair<unsigned long, bool> pair_long_bool;
+typedef pair<index_object, bool> pair_long_bool;
 
 
 /*
@@ -59,8 +62,8 @@ struct hash_string_table {
 };
 
 
-typedef boost::bimap< boost::bimaps::unordered_set_of<string,hash_string_table>, boost::bimaps::set_of<unsigned long> > hashStringMap;
-typedef boost::bimap< boost::bimaps::unordered_set_of<unsigned int,hash_string_table>, boost::bimaps::set_of<unsigned long> > hashIntegerMap;
+typedef boost::bimap< boost::bimaps::unordered_set_of<string,hash_string_table>, boost::bimaps::set_of<index_object> > hashStringMap;
+typedef boost::bimap< boost::bimaps::unordered_set_of<unsigned int,hash_string_table>, boost::bimaps::set_of<index_object> > hashIntegerMap;
 
 
 class IdManager {
@@ -71,21 +74,21 @@ public:
 	//return an index and if the integer exist
 	pair_long_bool insert(unsigned int& s);
 	//Find the String with the given index
-	string findStringName(unsigned long &index);
+	string findStringName(index_object &index);
 	//Find the Integer with the given index
-	unsigned int findIntName(unsigned long &index);
+	unsigned int findIntName(index_object &index);
 	//Find the String or Integer with the given index and return the string of integer
-	string findName(unsigned long& index);
+	string findName(index_object& index);
 	//Find the Index with the given name
 	long findIndex(string& name);
 	//return the number of collisions
-	unsigned long getCollision();
+	index_object getCollision();
 private:
 	hashStringMap hashStringId;
 	hashIntegerMap hashIntId;
 
-//	unordered_map<string, unsigned long,hash_string_table> hashId;
-	unsigned long counter;
+//	unordered_map<string, index_object,hash_string_table> hashId;
+	index_object counter;
 
 	void setHashType();
 };
@@ -97,9 +100,9 @@ public:
 	static pair_long_bool getIndex(unsigned int idManager, unsigned int& s);
 
 	// Given an index and the IdManager type, returns the corresponding string
-	static string getString(unsigned int idManager, unsigned long index);
+	static string getString(unsigned int idManager, index_object index);
 	static long getLongIndex(unsigned int idManager, string name);
-	static string getStringStrip(unsigned int idManager, unsigned long index){string s=getString(idManager,index);return s.substr(0, s.find("*"));};
+	static string getStringStrip(unsigned int idManager, index_object index){string s=getString(idManager,index);return s.substr(0, s.find("*"));};
 	static int getConflict(unsigned int i);
 	static const int TERM_ID_MANAGER=0;
 	static const int PREDICATE_ID_MANAGER=1;

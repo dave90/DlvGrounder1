@@ -13,14 +13,14 @@
 
 
 bool SimpleIndexAtom::findIfAFactExists(vec_pair_long& bound, map_int_int& equal_var) {
-	vector<unsigned long> terms(bound.size() + equal_var.size());
+	vector<index_object> terms(bound.size() + equal_var.size());
 	for (unsigned int i = 0; i < bound.size(); i++) {
 		terms[bound[i].first] = bound[i].second;
 	}
 	for (auto it : equal_var) {
 		terms[it.second] = terms[it.first];
 	}
-	unsigned long predicate=(*atoms->begin())->atom->getPredicate();
+	index_object predicate=(*atoms->begin())->atom->getPredicate();
 	Atom *atom=new ClassicalLiteral(predicate,terms,false,false);
 	GenericAtom *genAtom=new GenericAtom;
 	genAtom->atom=atom;
@@ -34,8 +34,8 @@ bool SimpleIndexAtom::findIfAFactExists(vec_pair_long& bound, map_int_int& equal
 }
 
 
-unsigned long SimpleIndexAtom::firstMatch(vec_pair_long &bound,vec_pair_long &bind,map_int_int& equal_var,bool& find) {
-	unsigned long id = matches_id.size();
+index_object SimpleIndexAtom::firstMatch(vec_pair_long &bound,vec_pair_long &bind,map_int_int& equal_var,bool& find) {
+	index_object id = matches_id.size();
 	ResultMatch *rm = new ResultMatch(bind);
 
 	//Simple search
@@ -94,7 +94,7 @@ bool SimpleIndexAtom::checkEqualVariable(map_int_int& equal_var,Atom *atom){
 	return true;
 }
 
-void SimpleIndexAtom::nextMatch(unsigned long id,vec_pair_long &bind,bool& find) {
+void SimpleIndexAtom::nextMatch(index_object id,vec_pair_long &bind,bool& find) {
 	ResultMatch *rm=matches_id.find(id)->second;
 	unsigned int size=rm->result.size();
 	unsigned int num_variable=bind.size();
@@ -116,7 +116,7 @@ void SimpleIndexAtom::nextMatch(unsigned long id,vec_pair_long &bind,bool& find)
 
 SimpleIndexAtom::~SimpleIndexAtom() {}
 
-Instances::Instances(unsigned long predicate) {
+Instances::Instances(index_object predicate) {
 	this->predicate = predicate;
 	switch (Config::getInstance()->getIndexType()) {
 	default:

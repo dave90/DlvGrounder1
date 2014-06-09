@@ -30,10 +30,10 @@ void RuleFactory::addFact(Atom *fact) {
 	instancesTable->getInstance(fact->getPredicate())->addFact(fact);
 }
 
-void RuleFactory::addClassicalAtom(vector<unsigned long> &terms, bool hashMinus,
+void RuleFactory::addClassicalAtom(vector<index_object> &terms, bool hashMinus,
 		bool negative) {
 	Predicate *p=new Predicate(lastPredicate,terms.size());
-	unsigned long predIndex=predicateTable->insertPredicate(p);
+	index_object predIndex=predicateTable->insertPredicate(p);
 	Atom *a=new ClassicalLiteral(predIndex,terms,hashMinus,negative);
 	if(head){
 		currentRule->addInHead(a);
@@ -56,7 +56,7 @@ void  RuleFactory::setBinop(string& binop){
 		this->binop=Binop::UNEQUAL;
 }
 
-void RuleFactory::addBuiltinAtom(vector<unsigned long> &terms,TermTable*tt) {
+void RuleFactory::addBuiltinAtom(vector<index_object> &terms,TermTable*tt) {
 	Atom *a=new BuiltInAtom(tt,terms[0],terms[1],binop,false);
 	if(head){
 		currentRule->addInHead(a);
@@ -74,8 +74,8 @@ void RuleFactory::addRule() {
 
 	}else{
 		// Set predicate in head IDB
-		unordered_set<unsigned long> pred_head=currentRule->getPredicateInHead();
-		for(unsigned long p:pred_head)predicateTable->setIdb(p);
+		unordered_set<index_object> pred_head=currentRule->getPredicateInHead();
+		for(index_object p:pred_head)predicateTable->setIdb(p);
 
 		st->addRuleMapping(currentRule);
 

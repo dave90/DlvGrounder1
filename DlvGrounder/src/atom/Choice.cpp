@@ -16,7 +16,7 @@ string Choice::getNameToHash(){
 	convert << firstBinop;
 	name+="*"+convert.str();
 	for (unsigned int i = 0; i < choiceElements.size(); i++) {
-		vector<unsigned long> v=choiceElements[i];
+		vector<index_object> v=choiceElements[i];
 		for (unsigned int j = 0; j < v.size(); j++) {
 			convert << v[i];
 			name+=convert.str()+"*";

@@ -19,6 +19,8 @@
 
 #include "../table/TermTable.h"
 
+#include "../utility/IndexDefinition.h"
+
 using namespace std;
 
 enum AggregateFunction {NONE=0,COUNT,MAX,MIN,SUM};
@@ -29,7 +31,7 @@ class Atom {
 public:
 	Atom() {};
 	Atom( bool negative){};
-	Atom(unsigned long predicate);
+	Atom(index_object predicate);
 
 
 	// Two atoms are equal if they have the same index
@@ -39,12 +41,12 @@ public:
 	virtual string getNameToHash() = 0 ;
 
 	//ClassicalLiteral
-	virtual unsigned long getPredicate() const {return -1;};
-	virtual void setPredicate(unsigned long predicate) {};
-	virtual const vector<unsigned long> getTerms() const {return vector<unsigned long>(0);};
+	virtual index_object getPredicate() const {return -1;};
+	virtual void setPredicate(index_object predicate) {};
+	virtual const vector<index_object> getTerms() const {return vector<index_object>(0);};
 	virtual const unsigned int getTermsSize() const {return 0;};
-	virtual unsigned long getTerm(int i) const{return 0;};
-	virtual void setTerms(const vector<unsigned long>& terms){};
+	virtual index_object getTerm(int i) const{return 0;};
+	virtual void setTerms(const vector<index_object>& terms){};
 	virtual bool isHasMinus() const {return 0;};
 	virtual void setHasMinus(bool hasMinus) {};
 	virtual bool isNegative() const {return 0;};
@@ -53,10 +55,10 @@ public:
 	//BuiltInAtom
 	virtual Binop getBinop() const {return Binop::NONE_OP;};
 	virtual void setBinop(Binop binop) {};
-	virtual unsigned long getFirstTerm() const {return 0;};
-	virtual void setFirstTerm(unsigned long firstTerm) {};
-	virtual unsigned long getSecondTerm() const {return 0;};
-	virtual void setSecondTerm(unsigned long secondTerm) {};
+	virtual index_object getFirstTerm() const {return 0;};
+	virtual void setFirstTerm(index_object firstTerm) {};
+	virtual index_object getSecondTerm() const {return 0;};
+	virtual void setSecondTerm(index_object secondTerm) {};
 
 	//AggregateAtom
 	virtual const vector<AggregateElement> getAggregateElements() const {return vector<AggregateElement>(0);};
@@ -65,16 +67,16 @@ public:
 	virtual void setAggregateFunction(AggregateFunction aggregateFunction) {};
 	virtual Binop getFirstBinop() const {return Binop::NONE_OP;};
 	virtual void setFirstBinop(Binop firstBinop) {};
-	virtual unsigned long getFirstCompareTerm() const {return 0;};
-	virtual void setFirstCompareTerm(unsigned long firstCompareTerm) {};
+	virtual index_object getFirstCompareTerm() const {return 0;};
+	virtual void setFirstCompareTerm(index_object firstCompareTerm) {};
 	virtual Binop getSecondBinop() const {return Binop::NONE_OP;};
 	virtual void setSecondBinop(Binop secondBinop) {};
-	virtual unsigned long getSecondCompareTerm() const {return 0;};
-	virtual void setSecondCompareTerm(unsigned long secondCompareTerm) {};
+	virtual index_object getSecondCompareTerm() const {return 0;};
+	virtual void setSecondCompareTerm(index_object secondCompareTerm) {};
 
 	//Choice
-	virtual const vector<vector<unsigned long>> getChoiceElements() const {return vector<vector<unsigned long>>(0);};
-	virtual void setChoiceElements(const vector<vector<unsigned long> > choiceElements) {};
+	virtual const vector<vector<index_object>> getChoiceElements() const {return vector<vector<index_object>>(0);};
+	virtual void setChoiceElements(const vector<vector<index_object> > choiceElements) {};
 
 
 	virtual void print();

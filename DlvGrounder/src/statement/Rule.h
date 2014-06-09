@@ -29,10 +29,10 @@ public:
 	void addInHead(Atom* a){head.push_back(a);};
 	void addInBody(Atom* a){body.push_back(a);};
 
-	unordered_set<unsigned long> getPredicateInHead();
-	unordered_set<unsigned long> getPredicateInBody();
-	unordered_set<unsigned long> getPositivePredicateInBody();
-	unordered_set<unsigned long> getNegativePredicateInBody();
+	unordered_set<index_object> getPredicateInHead();
+	unordered_set<index_object> getPredicateInBody();
+	unordered_set<index_object> getPositivePredicateInBody();
+	unordered_set<index_object> getNegativePredicateInBody();
 
 	vector<Atom*>::const_iterator getBeginBody(){return body.begin();};
 	vector<Atom*>::const_iterator getEndBody(){return body.end();};

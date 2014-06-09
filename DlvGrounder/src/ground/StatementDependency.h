@@ -32,17 +32,17 @@ public:
 	/// Get rule where the predicate compare in head
 	/// @param p is the index of predicate
 	/// @param rules the rules that p compare in head
-	void getRuleInHead(unsigned long p,vector<Rule*> & rules);
+	void getRuleInHead(index_object p,vector<Rule*> & rules);
 	/// Get rule where the predicate compare in body
 	/// @param p is the index of predicate
-	const vector<Rule*> getRuleInBody(unsigned long p);
+	const vector<Rule*> getRuleInBody(index_object p);
 	/// Return true if compare in the head of one rule
 	/// @param p is the index of predicate
-	bool isInHead(unsigned long p);
+	bool isInHead(index_object p);
 	virtual ~StatementAtomMapping();
 private:
-	unordered_multimap<unsigned long, Rule*> headMap;
-	unordered_multimap<unsigned long, Rule*> bodyMap;
+	unordered_multimap<index_object, Rule*> headMap;
+	unordered_multimap<index_object, Rule*> bodyMap;
 
 };
 
@@ -50,7 +50,7 @@ private:
 // The vertex of the Dependency graph
 struct predicate_vertex {
 	// Id of the predicate
-    unsigned long pred_id;
+    index_object pred_id;
 };
 
 
@@ -69,13 +69,13 @@ public:
 	void addInDependency(Rule* rule);
 	/// Calculate strong component and put predicate_id and component
 	/// The method put for each predicate the relative component in the map component
-	void calculateStrongComponent(unordered_map<unsigned long,unsigned int> &component);
+	void calculateStrongComponent(unordered_map<index_object,unsigned int> &component);
 
 	/// Add edge in the graph
-	void addEdge(unsigned long pred_body,unsigned long pred_head);
+	void addEdge(index_object pred_body,index_object pred_head);
 	/// Delete the vertex with predicate in hash set
 	/// predicateIndexGMap CHANGED can't use anymore
-	void deleteVertex(unordered_set<unsigned long>& delete_pred);
+	void deleteVertex(unordered_set<index_object>& delete_pred);
 
 	/// Print predicate index
 	void printFile(string fileGraph);
@@ -89,7 +89,7 @@ private:
 	/*
 	 *  Map that contains key = Id of the predicate , value = id of the vertex in depGraph
 	 */
-	unordered_map<unsigned long, unsigned int> predicateIndexGMap;
+	unordered_map<index_object, unsigned int> predicateIndexGMap;
 };
 
 /*
@@ -104,7 +104,7 @@ public:
 	void createComponent(DependencyGraph &depGraph,StatementAtomMapping &statementAtomMapping);
 
 	/// Add edge in the graph
-	void addEdge(unsigned long pred_body,unsigned long pred_head,int weight);
+	void addEdge(index_object pred_body,index_object pred_head,int weight);
 	void computeAnOrdering(vector<unsigned int>& componentsOrdering);
 	void computeAllPossibleOrdering(vector<vector<unsigned int>>& componentsOrderings);
 	void printFile(string fileGraph);
@@ -120,7 +120,7 @@ private:
 	/*
 	 * For each predicate (in indices) relative component
 	 */
-	unordered_map<unsigned long,unsigned int> component;
+	unordered_map<index_object,unsigned int> component;
 };
 
 /**

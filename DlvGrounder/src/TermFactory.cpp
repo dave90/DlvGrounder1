@@ -78,7 +78,7 @@ void TermFactory::setTableType() {
 
 }
 
- void TermFactory::addTermsDependency(unsigned long index) {
+ void TermFactory::addTermsDependency(index_object index) {
 	if(terms.size()>0)
 		terms[terms.size()-1]->addTerm(index);
 	else

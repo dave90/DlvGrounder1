@@ -56,9 +56,9 @@ pair_long_bool IdManager::insert(unsigned int &i) {
 
 }
 
-unsigned long IdManager::getCollision() {
+index_object IdManager::getCollision() {
 
-	unsigned long collision = 0;
+	index_object collision = 0;
 	for (unsigned i = 0; i < hashStringId.bucket_count(); ++i) {
 		if(hashStringId.bucket_size(i)>1)
 				collision++;
@@ -104,7 +104,7 @@ int IdsManager::getConflict(unsigned int i) {
 	return idsManager[i].getCollision();
 }
 
-string IdsManager::getString(unsigned int idManager, unsigned long index) {
+string IdsManager::getString(unsigned int idManager, index_object index) {
 	if(idManager>=idsManager.size())
 			return 0;
 	return idsManager[idManager].findName(index);
@@ -116,15 +116,15 @@ long IdsManager::getLongIndex(unsigned int idManager, string name){
 	return idsManager[idManager].findIndex(name);
 }
 
-string IdManager::findStringName(unsigned long &index) {
+string IdManager::findStringName(index_object &index) {
 	return hashStringId.right.find(index)->second;
 }
 
-unsigned int IdManager::findIntName(unsigned long &index) {
+unsigned int IdManager::findIntName(index_object &index) {
 	return hashIntId.right.find(index)->second;
 }
 
-string IdManager::findName(unsigned long &index) {
+string IdManager::findName(index_object &index) {
 	auto it = hashStringId.right.find(index);
 	if(it!=hashStringId.right.end())
 		return it->second;

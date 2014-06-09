@@ -26,9 +26,9 @@ void ProgramGrounder::ground() {
 
 void ProgramGrounder::findBoundBindRule(Rule *r,vector<vec_pair_long> &bounds,vector<vec_pair_long>& binds,vector<map_int_int >& equal_vars){
 	//variable in rule
-	unordered_set<unsigned long> var_assign;
+	unordered_set<index_object> var_assign;
 	//variable in atom
-	unordered_map<unsigned long,unsigned int> var_atom;
+	unordered_map<index_object,unsigned int> var_atom;
 
 
 	auto current_atom_it=r->getBeginBody();
@@ -79,8 +79,8 @@ void ProgramGrounder::printGroundRule(Rule *r,map_long_long& var_assign){
 	for (auto head_it = r->getBeginHead(); head_it != r->getEndHead(); head_it++) {
 		Atom *head=(*head_it);
 
-		unsigned long predicate=head->getPredicate();
-		vector<unsigned long> terms;
+		index_object predicate=head->getPredicate();
+		vector<index_object> terms;
 
 		for(unsigned int i=0;i<head->getTermsSize();i++){
 			terms.push_back(var_assign.find(head->getTerm(i))->second);
@@ -94,12 +94,12 @@ void ProgramGrounder::printGroundRule(Rule *r,map_long_long& var_assign){
 	for (auto body_it = r->getBeginBody(); body_it != r->getEndBody(); body_it++) {
 		Atom *body=(*body_it);
 
-		unsigned long predicate=body->getPredicate();
-		vector<unsigned long> terms;
+		index_object predicate=body->getPredicate();
+		vector<index_object> terms;
 
 		//FIXME consider the anonymus variable
 		for(unsigned int i=0;i<body->getTermsSize();i++){
-			unsigned long term=body->getTerm(i);
+			index_object term=body->getTerm(i);
 
 			if(termsMap->getTerm(term)->isVariable())
 				terms.push_back(var_assign.find(term)->second);
@@ -119,8 +119,8 @@ void ProgramGrounder::foundAssignmentRule(Rule *r,map_long_long& var_assign){
 	for (auto head_it = r->getBeginHead(); head_it != r->getEndHead(); head_it++) {
 		Atom *head=(*head_it);
 
-		unsigned long predicate=head->getPredicate();
-		vector<unsigned long> terms;
+		index_object predicate=head->getPredicate();
+		vector<index_object> terms;
 
 		for(unsigned int i=0;i<head->getTermsSize();i++){
 			terms.push_back(var_assign.find(head->getTerm(i))->second);
@@ -146,8 +146,8 @@ void ProgramGrounder::foundAssignmentRule(Rule *r,map_long_long& var_assign){
 
 void ProgramGrounder::setBoundValue(Atom *current_atom,vec_pair_long &bound,map_long_long& var_assign){
 	for(unsigned int i=0;i<bound.size();i++){
-		unsigned long bound_variable=current_atom->getTerm(bound[i].first);
-		unsigned long bound_value=var_assign.find(bound_variable)->second;
+		index_object bound_variable=current_atom->getTerm(bound[i].first);
+		index_object bound_value=var_assign.find(bound_variable)->second;
 
 		bound[i].second=bound_value;
 	}
@@ -155,15 +155,15 @@ void ProgramGrounder::setBoundValue(Atom *current_atom,vec_pair_long &bound,map_
 
 void ProgramGrounder::removeBindValueInAssignment(Atom *current_atom,vec_pair_long &bind,map_long_long& var_assign){
 	for(auto v:bind){
-		unsigned long bind_variable=current_atom->getTerm(v.first);
+		index_object bind_variable=current_atom->getTerm(v.first);
 		var_assign.erase(bind_variable);
 	}
 }
 
 void ProgramGrounder::insertBindValueInAssignment(Atom *current_atom,vec_pair_long &bind,map_long_long& var_assign){
 	for(auto v:bind){
-		unsigned long bind_variable=current_atom->getTerm(v.first);
-		unsigned long bind_value=v.second;
+		index_object bind_variable=current_atom->getTerm(v.first);
+		index_object bind_value=v.second;
 		var_assign.insert({bind_variable,bind_value});
 	}
 }
@@ -174,7 +174,7 @@ void ProgramGrounder::insertBindValueInAssignment(Atom *current_atom,vec_pair_lo
 void ProgramGrounder::groundRule(Rule* r) {
 	//variable,value
 	map_long_long var_assign;
-	list<unsigned long> id_match(0);
+	list<index_object> id_match(0);
 
 	bool finish=false;
 	auto current_atom_it=r->getBeginBody();
@@ -206,12 +206,12 @@ void ProgramGrounder::groundRule(Rule* r) {
 		bool firstMatch=index_current_atom!=id_match.size()-1;
 		if(firstMatch){
 
-			unsigned long id=index->firstMatch(bounds[index_current_atom],binds[index_current_atom],equal_vars[index_current_atom],find);
+			index_object id=index->firstMatch(bounds[index_current_atom],binds[index_current_atom],equal_vars[index_current_atom],find);
 			id_match.push_back(id);
 
 		}else{
 			if(!negation){
-				unsigned long id=id_match.back();
+				index_object id=id_match.back();
 
 				// Remove bind value in assignment
 				removeBindValueInAssignment(current_atom,binds[index_current_atom],var_assign);

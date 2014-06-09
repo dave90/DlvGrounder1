@@ -20,11 +20,11 @@ public:
 	/// Method for creation of Atom
 	void addPredicate(string& name);
 	/// Add classical atom in rule
-	void addClassicalAtom(vector<unsigned long> &terms,bool hashMinus,bool negative);
+	void addClassicalAtom(vector<index_object> &terms,bool hashMinus,bool negative);
 	/// Set binop in builtin
 	void setBinop(string& binop);
 	/// Add builtin atom in rule
-	void addBuiltinAtom(vector<unsigned long> &terms,TermTable*tt);
+	void addBuiltinAtom(vector<index_object> &terms,TermTable*tt);
 	/// Add Fact in Instances
 	void addFact(Atom *fact);
 	/// Set head false and put the next atoms in the body

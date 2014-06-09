@@ -10,6 +10,10 @@
 
 #include <string>
 #include <cstring>
+
+#include "../utility/IndexDefinition.h"
+
+
 using namespace std;
 
 class Predicate {
@@ -22,8 +26,8 @@ public:
 	void setArity(int arity);
 	string getName();
 	void setName(string name);
-	unsigned long getIndex() const;
-	void setIndex(unsigned long index);
+	index_object getIndex() const;
+	void setIndex(index_object index);
 
 	bool isEdb(){return edb;};
 	void setIdb(){edb=false;};
@@ -36,7 +40,7 @@ public:
 	string getNameToHash();
 
 private:
-	unsigned long index;
+	index_object index;
 	int arity;
 	string name;
 

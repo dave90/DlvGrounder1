@@ -20,12 +20,12 @@ using namespace std;
 class BoostTermTable: public TermTable {
 public:
 	BoostTermTable();
-	virtual unsigned long addTerm(Term *t);
-	virtual unsigned long addTerm(Term *t,string& s);
-	virtual unsigned long addTerm(Term *t,unsigned int &s);
-	virtual void removeTerm(unsigned long index);
-	virtual Term* getTerm(unsigned long index);
-	virtual long getSize();
+	virtual index_object addTerm(Term *t);
+	virtual index_object addTerm(Term *t,string& s);
+	virtual index_object addTerm(Term *t,unsigned int &s);
+	virtual void removeTerm(index_object index);
+	virtual Term* getTerm(index_object index);
+	virtual unsigned int getSize();
 	virtual int getCollision();
 	virtual ~BoostTermTable();
 private:

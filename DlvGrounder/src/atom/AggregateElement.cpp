@@ -15,19 +15,19 @@ AggregateElement::~AggregateElement(){
 
 }
 
-const vector<unsigned long>& AggregateElement::getNafLiterals() const {
+const vector<index_object>& AggregateElement::getNafLiterals() const {
 	return nafLiterals;
 }
 
 void AggregateElement::setNafLiterals(
-		const vector<unsigned long>& nafLiterals) {
+		const vector<index_object>& nafLiterals) {
 	this->nafLiterals = nafLiterals;
 }
 
-const vector<unsigned long>& AggregateElement::getTerms() const {
+const vector<index_object>& AggregateElement::getTerms() const {
 	return terms;
 }
 
-void AggregateElement::setTerms(const vector<unsigned long>& terms) {
+void AggregateElement::setTerms(const vector<index_object>& terms) {
 	this->terms = terms;
 }

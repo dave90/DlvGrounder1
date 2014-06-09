@@ -18,6 +18,8 @@
 #include "term/ArithTerm.h"
 #include "table/HashTermTable.h"
 #include "table/BoostTermTable.h"
+#include "utility/IndexDefinition.h"
+
 
 
 class TermFactory {
@@ -46,10 +48,10 @@ public:
 	void endArithTerm();
 
 	//if terms.size>0 Add term in functional term otherwise return index
-	void addTermsDependency(unsigned long index);
+	void addTermsDependency(index_object index);
 
 	/// Return the terms in atom
-	vector<unsigned long> getTermsInAtom(){return termsInAtom;};
+	vector<index_object> getTermsInAtom(){return termsInAtom;};
 	/// Remove Terms in atom
 	void clearTermsInAtom(){termsInAtom.clear();};
 
@@ -66,7 +68,7 @@ private:
 	/*
 	 * Terms in atom
 	 */
-	vector<unsigned long> termsInAtom;
+	vector<index_object> termsInAtom;
 
 
 	/*

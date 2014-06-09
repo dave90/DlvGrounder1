@@ -20,7 +20,7 @@
 class ConstantTerm: public Term {
 public:
 	ConstantTerm(){};
-	ConstantTerm(unsigned long index){setIndex(index);};
+	ConstantTerm(index_object index){setIndex(index);};
 	virtual string getName(){return IdsManager::getString(IdsManager::TERM_ID_MANAGER,getIndex());};
 	virtual string getNameToHash(){return getName();};
 	//FIXME take the integer not the general find of IdManager

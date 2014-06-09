@@ -15,14 +15,14 @@ using namespace std;
 class ClassicalLiteral : public Atom {
 public:
 	ClassicalLiteral(): predicate(0), hasMinus(false), negative(false){};
-	ClassicalLiteral(unsigned long p, vector<unsigned long> t, bool hM, bool n): predicate(p), terms(t), hasMinus(hM), negative(n) {};
+	ClassicalLiteral(index_object p, vector<index_object> t, bool hM, bool n): predicate(p), terms(t), hasMinus(hM), negative(n) {};
 
-	const vector<unsigned long> getTerms() const {return terms;};
+	const vector<index_object> getTerms() const {return terms;};
 	virtual const unsigned int getTermsSize() const {return terms.size();};
-	virtual unsigned long getTerm(int i) const{return terms[i];};
-	void setTerms(const vector<unsigned long>& terms){this->terms=terms;};
-	unsigned long getPredicate() const {return predicate;};
-	void setPredicate(unsigned long predicate) {this->predicate=predicate;};
+	virtual index_object getTerm(int i) const{return terms[i];};
+	void setTerms(const vector<index_object>& terms){this->terms=terms;};
+	index_object getPredicate() const {return predicate;};
+	void setPredicate(index_object predicate) {this->predicate=predicate;};
 	bool isHasMinus() const {return hasMinus;};
 	void setHasMinus(bool hasMinus) {this->hasMinus=hasMinus;};
 	bool isNegative() const {return negative;};
@@ -36,15 +36,15 @@ public:
 
 
 	/// Return the Hash string for the classical literal
-	static string getNameToHash(unsigned long predicate,vector<unsigned long> &terms);
+	static string getNameToHash(index_object predicate,vector<index_object> &terms);
 
 
 	//TODO metodi accesso lista termini
 	~ClassicalLiteral() {};
 
 private:
-	unsigned long predicate;
-	vector<unsigned long> terms;
+	index_object predicate;
+	vector<index_object> terms;
 	bool hasMinus;
 	bool negative;
 };

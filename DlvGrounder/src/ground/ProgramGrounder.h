@@ -17,7 +17,7 @@
 
 using namespace std;
 
-typedef unordered_map<unsigned long, unsigned long> map_long_long;
+typedef unordered_map<index_object, index_object> map_long_long;
 
 
 

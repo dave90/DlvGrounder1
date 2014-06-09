@@ -31,11 +31,11 @@ using namespace std;
 class PredicateTable {
 public:
 	PredicateTable();
-	unsigned long insertPredicate(Predicate *p);
-	Predicate* getPredicate(unsigned long id);
-	void setEdb(unsigned long index);
-	void setIdb(unsigned long index);
-	void getEdbPredicate(unordered_set<unsigned long>& edb_pred);
+	index_object insertPredicate(Predicate *p);
+	Predicate* getPredicate(index_object id);
+	void setEdb(index_object index);
+	void setIdb(index_object index);
+	void getEdbPredicate(unordered_set<index_object>& edb_pred);
 	~PredicateTable(){for(Predicate*p:hash)delete p;}
 private:
 	unordered_set<Predicate*, hashPredicate, hashPredicate> hash;

@@ -18,14 +18,14 @@ string AggregateAtom::getNameToHash(){
 	convert << aggregateFunction;
 	name+="*"+convert.str()+"*";
 	for (unsigned int i = 0; i < aggregateElements.size(); i++) {
-		vector<unsigned long> v=aggregateElements[i].getNafLiterals();
+		vector<index_object> v=aggregateElements[i].getNafLiterals();
 		for (unsigned int j = 0; j < v.size(); j++) {
 			convert << v[i];
 			name+=convert.str()+"*";
 		}
 	}
 	for (unsigned int i = 0; i < aggregateElements.size(); i++) {
-		vector<unsigned long> v=aggregateElements[i].getTerms();
+		vector<index_object> v=aggregateElements[i].getTerms();
 		for (unsigned int j = 0; j < v.size(); j++) {
 			convert << v[i];
 			name+=convert.str()+"*";

@@ -46,7 +46,7 @@ struct AtomUndef : GenericAtom{
 	void setFact(bool fact){this->fact=fact;};
 };
 
-typedef vector<pair<unsigned int,unsigned long> > vec_pair_long;
+typedef vector<pair<unsigned int,index_object> > vec_pair_long;
 typedef unordered_multimap<unsigned int,unsigned int> map_int_int;
 
 /*
@@ -105,8 +105,8 @@ public:
 	/*
 	 *  Return id used for the nextMatch
 	 */
-	virtual unsigned long firstMatch(vec_pair_long &bound,vec_pair_long &bind,map_int_int& equal_var,bool& find)=0;
-	virtual void nextMatch(unsigned long id,vec_pair_long &bind,bool& find)=0;
+	virtual index_object firstMatch(vec_pair_long &bound,vec_pair_long &bind,map_int_int& equal_var,bool& find)=0;
+	virtual void nextMatch(index_object id,vec_pair_long &bind,bool& find)=0;
 	virtual ~IndexAtom() {};
 protected:
 	AtomTable* atoms;
@@ -116,11 +116,11 @@ class SimpleIndexAtom: public IndexAtom {
 public:
 	SimpleIndexAtom(){};
 	SimpleIndexAtom(AtomTable* a) {	atoms = a;};
-	virtual unsigned long firstMatch(vec_pair_long &bound, vec_pair_long &bind,map_int_int& equal_var,bool& find);
-	virtual void nextMatch(unsigned long id,vec_pair_long &bind,bool& find);
+	virtual index_object firstMatch(vec_pair_long &bound, vec_pair_long &bind,map_int_int& equal_var,bool& find);
+	virtual void nextMatch(index_object id,vec_pair_long &bind,bool& find);
 	virtual ~SimpleIndexAtom();
 protected:
-	unordered_map<unsigned long, ResultMatch*> matches_id;
+	unordered_map<index_object, ResultMatch*> matches_id;
 	bool computeFirstMatch(const AtomTable& collection,vec_pair_long &bound,vec_pair_long &bind,map_int_int& equal_var,ResultMatch* rm);
 	/// Test the match of bind equal variable
 	bool checkEqualVariable(map_int_int& equal_var,Atom *atom);
@@ -129,7 +129,7 @@ protected:
 
 class Instances {
 public:
-	Instances(unsigned long predicate);
+	Instances(index_object predicate);
 
 	void addFact(Atom* atom) {
 		GenericAtom* atomFact=new GenericAtom(atom);
@@ -160,8 +160,8 @@ public:
 	};
 
 
-	unsigned long getPredicate() const {return predicate;}
-	void setPredicate(unsigned long predicate) {this->predicate = predicate;};
+	index_object getPredicate() const {return predicate;}
+	void setPredicate(index_object predicate) {this->predicate = predicate;};
 
 	IndexAtom* getIndex() {	return indexAtom;};
 
@@ -170,7 +170,7 @@ public:
 	~Instances();
 
 private:
-	unsigned long predicate;
+	index_object predicate;
 	IndexAtom* indexAtom;
 	AtomTable facts;
 	AtomTable nofacts;
@@ -190,7 +190,7 @@ struct hashInstance {
 
 class InstancesTable {
 public:
-	void addInstance(unsigned long i) {
+	void addInstance(index_object i) {
 		Instances* is = new Instances(i);
 		if(instanceTable.count(is))
 			delete is;
@@ -198,7 +198,7 @@ public:
 			instanceTable.insert(is);
 	};
 	// Get term by the index
-	Instances* getInstance(unsigned long i) {
+	Instances* getInstance(index_object i) {
 		Instances* is = new Instances(i);
 		auto instance = instanceTable.find(is);
 		delete is;

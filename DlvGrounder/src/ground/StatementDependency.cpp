@@ -19,23 +19,23 @@
 #include "../table/IdsManager.h"
 
 void StatementAtomMapping::addRule(Rule* r) {
-	unordered_set<unsigned long> head = r->getPredicateInHead();
-	unordered_set<unsigned long> body = r->getPredicateInBody();
-	for (unsigned long i : head) {
+	unordered_set<index_object> head = r->getPredicateInHead();
+	unordered_set<index_object> body = r->getPredicateInBody();
+	for (index_object i : head) {
 		headMap.insert( { i, r });
 	}
-	for (unsigned long i : body) {
+	for (index_object i : body) {
 		bodyMap.insert( { i, r });
 	}
 }
 
-void StatementAtomMapping::getRuleInHead(unsigned long p, vector<Rule*>& rules) {
+void StatementAtomMapping::getRuleInHead(index_object p, vector<Rule*>& rules) {
 	auto pair1 = headMap.equal_range(p);
 	for (; pair1.first != pair1.second; ++pair1.first)
 		rules.push_back(pair1.first->second);
 }
 
-const vector<Rule*> StatementAtomMapping::getRuleInBody(unsigned long p) {
+const vector<Rule*> StatementAtomMapping::getRuleInBody(index_object p) {
 	vector<Rule*> rules;
 	auto pair1 = bodyMap.equal_range(p);
 	for (; pair1.first != pair1.second; ++pair1.first)
@@ -43,7 +43,7 @@ const vector<Rule*> StatementAtomMapping::getRuleInBody(unsigned long p) {
 	return rules;
 }
 
-bool StatementAtomMapping::isInHead(unsigned long p) {
+bool StatementAtomMapping::isInHead(index_object p) {
 	if (headMap.find(p) != headMap.end())
 		return true;
 	return false;
@@ -68,8 +68,8 @@ StatementAtomMapping::~StatementAtomMapping() {
 void DependencyGraph::addInDependency(Rule* r) {
 
 	// Temp hash_set of predicate
-	unordered_set<unsigned long> head_predicateVisited;
-	unordered_set<unsigned long> body_predicateVisited;
+	unordered_set<index_object> head_predicateVisited;
+	unordered_set<index_object> body_predicateVisited;
 
 	for (auto head_it = r->getBeginHead(); head_it != r->getEndHead(); head_it++) {
 
@@ -105,12 +105,12 @@ void DependencyGraph::addInDependency(Rule* r) {
 
 }
 
-void DependencyGraph::deleteVertex(unordered_set<unsigned long>& delete_pred) {
+void DependencyGraph::deleteVertex(unordered_set<index_object>& delete_pred) {
 
 	while(delete_pred.size()>0){
 		// For each predicate find the vertex with pred_id because the graph we-index after
 		// remove vertex
-		unsigned long current_pred=*delete_pred.begin();
+		index_object current_pred=*delete_pred.begin();
 		boost::graph_traits<Graph>::vertex_iterator vi, vi_end, next;
 		tie(vi, vi_end) = boost::vertices(depGraph);
 		for (next = vi; vi != vi_end; vi = next) {
@@ -135,8 +135,8 @@ void DependencyGraph::printFile(string fileGraph) {
 
 	// Print the edge
 	for (tie(ei, ei_end) = edges(depGraph); ei != ei_end; ++ei) {
-		unsigned long p1 = index[source(*ei, depGraph)];
-		unsigned long p2 = index[target(*ei, depGraph)];
+		index_object p1 = index[source(*ei, depGraph)];
+		index_object p2 = index[target(*ei, depGraph)];
 		graphDOT += lexical_cast<string>(p1) + "->" + lexical_cast<string>(p2) + ";\n";
 	}
 
@@ -168,15 +168,15 @@ void DependencyGraph::print() {
 
 	// Print the edge
 	for (tie(ei, ei_end) = edges(depGraph); ei != ei_end; ++ei) {
-		unsigned long p1 = index[source(*ei, depGraph)];
-		unsigned long p2 = index[target(*ei, depGraph)];
+		index_object p1 = index[source(*ei, depGraph)];
+		index_object p2 = index[target(*ei, depGraph)];
 		cout<<"("<<IdsManager::getStringStrip(IdsManager::PREDICATE_ID_MANAGER,depGraph[p1].pred_id)<<","
 				<<IdsManager::getStringStrip(IdsManager::PREDICATE_ID_MANAGER,depGraph[p2].pred_id)<<")"<<" ";
 	}
 
 }
 
-void DependencyGraph::addEdge(unsigned long pred_body, unsigned long pred_head) {
+void DependencyGraph::addEdge(index_object pred_body, index_object pred_head) {
 	unsigned int index_i, index_j;
 	auto it1 = predicateIndexGMap.find(pred_body);
 	// Calculate if the predicate is present in the graph
@@ -201,7 +201,7 @@ void DependencyGraph::addEdge(unsigned long pred_body, unsigned long pred_head) 
 }
 
 void DependencyGraph::calculateStrongComponent(
-		unordered_map<unsigned long, unsigned int> &component) {
+		unordered_map<index_object, unsigned int> &component) {
 	typedef boost::graph_traits<Graph>::vertex_descriptor Vertex;
 	std::vector<int> discover_time(boost::num_vertices(depGraph));
 	vector<unsigned int> component_indexed;
@@ -228,7 +228,7 @@ void DependencyGraph::calculateStrongComponent(
  *
  */
 
-void ComponentGraph::addEdge(unsigned long pred_body, unsigned long pred_head, int weight) {
+void ComponentGraph::addEdge(index_object pred_body, index_object pred_head, int weight) {
 
 	if (component[pred_body] != component[pred_head])
 		boost::add_edge(component[pred_body], component[pred_head], weight, compGraph);
@@ -242,7 +242,7 @@ void ComponentGraph::createComponent(DependencyGraph &depGraph,
 
 	for (auto it : component) {
 
-		unsigned long pred_head = it.first;
+		index_object pred_head = it.first;
 
 		statementAtomMapping.getRuleInHead(pred_head, rules);
 
@@ -252,7 +252,7 @@ void ComponentGraph::createComponent(DependencyGraph &depGraph,
 
 				bool isPositive = !(*body_it)->isNegative();
 
-				unsigned long pred_body = (*body_it)->getPredicate();
+				index_object pred_body = (*body_it)->getPredicate();
 
 				// Verify if the predicate compare in head of same rule
 				if (statementAtomMapping.isInHead(pred_body)) {
@@ -385,7 +385,7 @@ void StatementDependency::addRuleMapping(Rule* r) {
 }
 
 void StatementDependency::createDependencyGraph(PredicateTable* pt) {
-	unordered_set<unsigned long> delete_pred;
+	unordered_set<index_object> delete_pred;
 	pt->getEdbPredicate(delete_pred);
 	depGraph.deleteVertex(delete_pred);
 }

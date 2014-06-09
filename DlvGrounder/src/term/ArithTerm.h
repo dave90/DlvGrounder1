@@ -31,7 +31,7 @@ public:
 	/// Calculate the operation based on the operator
 	virtual double calculate();
 	///Add term for the calculation
-	virtual void addTerm(unsigned long termIndex){terms.push_back(termIndex);};
+	virtual void addTerm(index_object termIndex){terms.push_back(termIndex);};
 	virtual void popTerm(){terms.pop_back();};
 	virtual string getNameToHash();
 	virtual void print(TermTable* tb);
@@ -39,7 +39,7 @@ public:
 	static string getNameOperator(Operator op);
 private:
 	// All the index of the terms to calculate the operation
-	vector<unsigned long> terms;
+	vector<index_object> terms;
 	TermTable *termTable;
 
 	// The operators

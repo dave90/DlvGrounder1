@@ -13,10 +13,10 @@ PredicateTable::PredicateTable() {
 
 }
 
-unsigned long PredicateTable::insertPredicate(Predicate* p) {
+index_object PredicateTable::insertPredicate(Predicate* p) {
 	string nameHash=p->getNameToHash();
-	pair<unsigned long, bool> resultIdManager = IdsManager::getIndex(IdsManager::PREDICATE_ID_MANAGER, nameHash);
-	unsigned long index = resultIdManager.first;
+	pair<index_object, bool> resultIdManager = IdsManager::getIndex(IdsManager::PREDICATE_ID_MANAGER, nameHash);
+	index_object index = resultIdManager.first;
 	if (!resultIdManager.second) {
 		p->setIndex(index);
 		hash.insert(p);
@@ -27,7 +27,7 @@ unsigned long PredicateTable::insertPredicate(Predicate* p) {
 
 }
 
-Predicate* PredicateTable::getPredicate(unsigned long id) {
+Predicate* PredicateTable::getPredicate(index_object id) {
 
 	Predicate p;
 	p.setIndex(id);
@@ -36,14 +36,14 @@ Predicate* PredicateTable::getPredicate(unsigned long id) {
 	return p_finded;
 }
 
-void PredicateTable::setEdb(unsigned long index) {
+void PredicateTable::setEdb(index_object index) {
 	Predicate p;
 	p.setIndex(index);
 	Predicate *tmp = *hash.find(&p);
 	tmp->setEdb();
 }
 
-void PredicateTable::setIdb(unsigned long index) {
+void PredicateTable::setIdb(index_object index) {
 	Predicate *p = new Predicate;
 	p->setIndex(index);
 //	Predicate *tmp=*hash.find(&p);
@@ -51,7 +51,7 @@ void PredicateTable::setIdb(unsigned long index) {
 	delete p;
 }
 
-void PredicateTable::getEdbPredicate(unordered_set<unsigned long>& edb_pred) {
+void PredicateTable::getEdbPredicate(unordered_set<index_object>& edb_pred) {
 	for (Predicate*p : hash)
 		if (p->isEdb())
 			edb_pred.insert(p->getIndex());

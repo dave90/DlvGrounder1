@@ -25,11 +25,11 @@ string Predicate::getName(){
 	return this->name;
 }
 
-unsigned long Predicate::getIndex() const {
+index_object Predicate::getIndex() const {
 	return index;
 }
 
-void Predicate::setIndex(unsigned long index) {
+void Predicate::setIndex(index_object index) {
 	this->index = index;
 }
 

@@ -34,17 +34,17 @@ class TermTable {
 public:
 	TermTable();
 	//Add term in the table
-	virtual unsigned long addTerm(Term *t)=0;
+	virtual index_object addTerm(Term *t)=0;
 	//Add term in the table with the hash s
-	virtual unsigned long addTerm(Term *t,string &s)=0;
+	virtual index_object addTerm(Term *t,string &s)=0;
 	//Add term in the table with the hash s
-	virtual unsigned long addTerm(Term *t,unsigned int &s)=0;
+	virtual index_object addTerm(Term *t,unsigned int &s)=0;
 	// Remove term in the table
-	virtual void removeTerm(unsigned long index)=0;
+	virtual void removeTerm(index_object index)=0;
 	// Get term by the index
-	virtual Term* getTerm(unsigned long index)=0;
+	virtual Term* getTerm(index_object index)=0;
 	// Get size of the table
-	virtual long getSize()=0;
+	virtual unsigned int getSize()=0;
 	// Get the collision of the IdManager
 	virtual int getCollision()=0;
 	virtual void print(){};

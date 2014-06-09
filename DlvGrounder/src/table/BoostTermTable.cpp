@@ -11,11 +11,11 @@
 BoostTermTable::BoostTermTable() {
 }
 
-unsigned long BoostTermTable::addTerm(Term* t) {
+index_object BoostTermTable::addTerm(Term* t) {
 	string hashString=t->getNameToHash();
 	pair_long_bool p=IdsManager::getIndex(IdsManager::TERM_ID_MANAGER, hashString);
 
-	unsigned long id=p.first;
+	index_object id=p.first;
 	if(!p.second){
 		t->setIndex(id);
 		hash.insert(t);
@@ -25,10 +25,10 @@ unsigned long BoostTermTable::addTerm(Term* t) {
 	return id;
 }
 
-unsigned long BoostTermTable::addTerm(Term* t,string &s) {
+index_object BoostTermTable::addTerm(Term* t,string &s) {
 	pair_long_bool p=IdsManager::getIndex(IdsManager::TERM_ID_MANAGER, s);
 
-	unsigned long id=p.first;
+	index_object id=p.first;
 	if(!p.second){
 		t->setIndex(id);
 		hash.insert(t);
@@ -38,10 +38,10 @@ unsigned long BoostTermTable::addTerm(Term* t,string &s) {
 	return id;
 }
 
-unsigned long BoostTermTable::addTerm(Term* t,unsigned int &s) {
+index_object BoostTermTable::addTerm(Term* t,unsigned int &s) {
 	pair_long_bool p=IdsManager::getIndex(IdsManager::TERM_ID_MANAGER, s);
 
-	unsigned long id=p.first;
+	index_object id=p.first;
 	if(!p.second){
 		t->setIndex(id);
 		hash.insert(t);
@@ -51,10 +51,10 @@ unsigned long BoostTermTable::addTerm(Term* t,unsigned int &s) {
 	return id;
 }
 
-void BoostTermTable::removeTerm(unsigned long index) {
+void BoostTermTable::removeTerm(index_object index) {
 }
 
-Term* BoostTermTable::getTerm(unsigned long index) {
+Term* BoostTermTable::getTerm(index_object index) {
 	Term t;
 	t.setIndex(index);
 	Term *termFinded=0;
@@ -65,7 +65,7 @@ Term* BoostTermTable::getTerm(unsigned long index) {
 	return termFinded;
 }
 
-long BoostTermTable::getSize() {
+unsigned int BoostTermTable::getSize() {
 	return hash.size();
 }
 

@@ -11,10 +11,10 @@
 HashTermTable::HashTermTable() {
 }
 
-unsigned long HashTermTable::addTerm(Term* t) {
+index_object HashTermTable::addTerm(Term* t) {
 	string hashString=t->getNameToHash();
 	pair_long_bool p=IdsManager::getIndex(IdsManager::TERM_ID_MANAGER, hashString);
-	unsigned long id=p.first;
+	index_object id=p.first;
 	if(!p.second){
 		t->setIndex(id);
 		hash.insert(t);
@@ -26,10 +26,10 @@ unsigned long HashTermTable::addTerm(Term* t) {
 }
 
 
-unsigned long HashTermTable::addTerm(Term* t,string &s) {
+index_object HashTermTable::addTerm(Term* t,string &s) {
 	pair_long_bool p=IdsManager::getIndex(IdsManager::TERM_ID_MANAGER, s);
 
-	unsigned long id=p.first;
+	index_object id=p.first;
 	if(!p.second){
 		t->setIndex(id);
 		hash.insert(t);
@@ -39,10 +39,10 @@ unsigned long HashTermTable::addTerm(Term* t,string &s) {
 	return id;
 }
 
-unsigned long HashTermTable::addTerm(Term* t,unsigned int &s) {
+index_object HashTermTable::addTerm(Term* t,unsigned int &s) {
 	pair_long_bool p=IdsManager::getIndex(IdsManager::TERM_ID_MANAGER, s);
 
-	unsigned long id=p.first;
+	index_object id=p.first;
 	if(!p.second){
 		t->setIndex(id);
 		hash.insert(t);
@@ -53,10 +53,10 @@ unsigned long HashTermTable::addTerm(Term* t,unsigned int &s) {
 }
 
 
-void HashTermTable::removeTerm(unsigned long index) {
+void HashTermTable::removeTerm(index_object index) {
 }
 
-Term* HashTermTable::getTerm(unsigned long index) {
+Term* HashTermTable::getTerm(index_object index) {
 	Term t;
 	t.setIndex(index);
 	Term *termFinded=0;
@@ -67,7 +67,7 @@ Term* HashTermTable::getTerm(unsigned long index) {
 	return termFinded;
 }
 
-long HashTermTable::getSize() {
+unsigned int HashTermTable::getSize() {
 	return hash.size();
 }
 

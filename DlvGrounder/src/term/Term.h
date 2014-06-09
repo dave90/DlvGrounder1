@@ -37,11 +37,11 @@ public:
 	 *  @param i the id
 	 *  @param b if is negative
 	 */
-	Term(unsigned long i,bool b):index(i),negative(b){};
+	Term(index_object i,bool b):index(i),negative(b){};
 	///Get the index of the term
-	unsigned long getIndex(){return index;};
+	index_object getIndex(){return index;};
 	/// Set the index of the term
-	void setIndex(unsigned long index){	this->index=index;};
+	void setIndex(index_object index){	this->index=index;};
 	///Return the negation of the term
 	bool isNegative(){return negative;};
 	///Set the negation of the term
@@ -57,11 +57,11 @@ public:
 	/// Return true if is variable
 	virtual bool isVariable(){return false;};
 	///Add the index of a term inside the function term, used only with the FunctionTerm
-	virtual void addTerm(unsigned long termIndex){};
+	virtual void addTerm(index_object termIndex){};
 	///Remove last index of a term inside the function term, used only with the FunctionTerm
 	virtual void popTerm(){};
 	///Return the terms in the function term, used only with the FunctionTerm
-	virtual vector<unsigned long> getTerms(){return vector<unsigned long>();};
+	virtual vector<index_object> getTerms(){return vector<index_object>();};
 	/// Set operator for Arith Term
 	virtual void setOperator(Operator op){};
 	/// Return the calculate for the arithmetic term
@@ -75,7 +75,7 @@ private:
 	/*
 	 * Index of a term
 	 */
-		unsigned long index;
+		index_object index;
 		/*
 	 *  True if the term is negated, else false
 	 */

@@ -12,6 +12,9 @@
 #include <cstring>
 #include <unordered_map>
 
+#include "IndexDefinition.h"
+
+
 using namespace std;
 
 enum TermTableType {
@@ -43,7 +46,7 @@ public:
 	void setIndexType(string indexType);
 
 	void configureIndexingMap();
-	unsigned int getIndexingTerm(unsigned long predicate);
+	unsigned int getIndexingTerm(index_object predicate);
 
 	bool isComponent() const {
 		return component;
@@ -115,7 +118,7 @@ private:
 	bool printRules;
 
 	string indexingPreferences;
-	unordered_map<unsigned long, unsigned long> indexingMap;
+	unordered_map<index_object, index_object> indexingMap;
 
 	string fileGraph;
 

@@ -9,9 +9,9 @@
 #include <boost/lexical_cast.hpp>
 #include "../utility/Timer.h"
 
-unsigned long TermIndexAtom::firstMatch(vec_pair_long& bound, vec_pair_long& bind, map_int_int& equal_var, bool& find) {
+index_object TermIndexAtom::firstMatch(vec_pair_long& bound, vec_pair_long& bind, map_int_int& equal_var, bool& find) {
 
-	unsigned long id = matches_id.size();
+	index_object id = matches_id.size();
 	ResultMatch* rm=new ResultMatch(bind);
 	unordered_set<string> result_string;
 
@@ -74,9 +74,9 @@ unsigned long TermIndexAtom::firstMatch(vec_pair_long& bound, vec_pair_long& bin
 }
 
 
-unsigned long TermIndexAtomMultiMap::firstMatch(vec_pair_long& bound, vec_pair_long& bind, map_int_int& equal_var, bool& find) {
+index_object TermIndexAtomMultiMap::firstMatch(vec_pair_long& bound, vec_pair_long& bind, map_int_int& equal_var, bool& find) {
 
-	unsigned long id = matches_id.size();
+	index_object id = matches_id.size();
 	ResultMatch *rm = new ResultMatch(bind);
 	unordered_set<string> result_string;
 
@@ -145,10 +145,10 @@ unsigned long TermIndexAtomMultiMap::firstMatch(vec_pair_long& bound, vec_pair_l
 
 void TermIndexAtom::initializeIndexMap(){
 	Timer::getInstance()->start("Creation Index Structure");
-	unordered_set<unsigned long> termToBeIndexedIndices;
+	unordered_set<index_object> termToBeIndexedIndices;
 
 	for (GenericAtom*a : *atoms) {
-		unsigned long termIndex=a->atom->getTerm(termToBeIndexed);
+		index_object termIndex=a->atom->getTerm(termToBeIndexed);
 		if(!termToBeIndexedIndices.count(termIndex)){
 			termToBeIndexedIndices.insert(termIndex);
 			AtomTable values;
@@ -166,7 +166,7 @@ void TermIndexAtom::initializeIndexMap(){
 void TermIndexAtomMultiMap::initializeIndexMap(){
 	Timer::getInstance()->start("Creation Index Structure");
 	for (GenericAtom*a : *atoms) {
-		unsigned long termIndex=a->atom->getTerm(termToBeIndexed);
+		index_object termIndex=a->atom->getTerm(termToBeIndexed);
 		indexMap.insert({termIndex,a});
 	}
 	Timer::getInstance()->end();
