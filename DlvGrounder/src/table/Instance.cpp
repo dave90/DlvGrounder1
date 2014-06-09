@@ -132,11 +132,6 @@ Instances::~Instances() {
 	delete (indexAtom);
 }
 
-void Instances::computeAtomIndex(Atom*& a) {
-	string nameHash=a->getNameToHash();
-	pair<unsigned long, bool> index = IdsManager::getIndex(IdsManager::ATOM_ID_MANAGER,nameHash);
-	a->setIndex(index.first);
-}
 
 InstancesTable::~InstancesTable() {
 	for (Instances* i : instanceTable) {

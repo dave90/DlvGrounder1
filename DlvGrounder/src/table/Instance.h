@@ -54,10 +54,10 @@ typedef unordered_multimap<unsigned int,unsigned int> map_int_int;
  */
 struct hashAtom {
 	size_t operator()(GenericAtom* atomFact) const {
-		return atomFact->atom->getIndex();
+		return HashString::getHashStringFromConfig()->computeHash(atomFact->atom->getNameToHash());
 	}
 	bool operator()(GenericAtom* t1, GenericAtom* t2) const {
-		return t1->atom->getIndex() == t2->atom->getIndex();
+		return *(t1->atom) == *(t2->atom);
 	}
 
 };
@@ -132,14 +132,12 @@ public:
 	Instances(unsigned long predicate);
 
 	void addFact(Atom* atom) {
-		computeAtomIndex(atom);
 		GenericAtom* atomFact=new GenericAtom(atom);
 		if(!facts.count(atomFact))facts.insert(atomFact);else{ delete atom;delete atomFact;}
 	};
 
 	// A no fact is true if its truth value is true, otherwise it is undefined, false atoms are not saved.
 	bool addNoFact(Atom* atom, bool truth) {
-		computeAtomIndex(atom);
 		GenericAtom* atomUndef=new AtomUndef(atom,truth);
 		if(!nofacts.count(atomUndef))nofacts.insert(atomUndef);else {delete atom;delete atomUndef;return false;}
 		return true;
@@ -152,15 +150,6 @@ public:
 		delete atomUndef;
 	};
 
-	void setValue(unsigned long index, bool truth) {
-		Atom* a=new ClassicalLiteral();
-		a->setIndex(index);
-		GenericAtom *atomUndef=new AtomUndef(a,truth);
-		auto it=nofacts.find( atomUndef);
-		(*it)->setFact(truth);
-		delete a;
-		delete atomUndef;
-	};
 
 	bool isTrue(Atom* atom) {
 		GenericAtom *atomUndef=new AtomUndef(atom,0);
@@ -170,15 +159,6 @@ public:
 		return result;
 	};
 
-	bool isTrue(unsigned long index) {
-		Atom* a=new ClassicalLiteral();
-		a->setIndex(index);
-		GenericAtom *atomUndef=new AtomUndef(a,0);
-		auto it=nofacts.find( atomUndef);
-		delete a;
-		delete atomUndef;
-		return (*it)->isFact();
-	}
 
 	unsigned long getPredicate() const {return predicate;}
 	void setPredicate(unsigned long predicate) {this->predicate = predicate;};
@@ -194,8 +174,6 @@ private:
 	IndexAtom* indexAtom;
 	AtomTable facts;
 	AtomTable nofacts;
-
-	void computeAtomIndex(Atom*& a);
 };
 
 /*

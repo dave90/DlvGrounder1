@@ -39,6 +39,17 @@ string BuiltInAtom::getNameToHash(){
 	return name;
 }
 
+bool BuiltInAtom::operator ==(const Atom& a) {
+	if(firstTerm != a.getFirstTerm()) return false;
+	if(secondTerm != a.getSecondTerm()) return false;
+	if(binop != a.getBinop()) return false;
+
+	if(negative != a.isNegative()) return false;
+
+	return true;
+
+}
+
 void BuiltInAtom::print(TermTable*tb){
 	tb->getTerm(firstTerm)->print(tb);
 	if(binop==Binop::EQUAL)

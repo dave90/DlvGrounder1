@@ -29,6 +29,9 @@ public:
 
 	string getNameToHash();
 
+	virtual bool operator==(const Atom& a);
+
+
 	bool evaluate();
 
 	void print(TermTable*tb);

@@ -27,17 +27,13 @@ enum Binop {NONE_OP=0,EQUAL,UNEQUAL,LESS,GREATER,LESS_OR_EQ,GREATER_OR_EQ};
 
 class Atom {
 public:
-	Atom() : index(0) {};
-	Atom(bool negative): index(0) {};
-	Atom(unsigned long index, bool negative): index(index) {};
+	Atom() {};
+	Atom( bool negative){};
 	Atom(unsigned long predicate);
 
-	//Getters and Setters
-	unsigned long getIndex() const {return index;};
-	void setIndex(unsigned long index) {this->index=index;};
 
 	// Two atoms are equal if they have the same index
-	bool operator==(const Atom& a);
+	virtual bool operator==(const Atom& a)=0;
 
 	//Compute a string to be used for hashing
 	virtual string getNameToHash() = 0 ;
@@ -47,7 +43,7 @@ public:
 	virtual void setPredicate(unsigned long predicate) {};
 	virtual const vector<unsigned long> getTerms() const {return vector<unsigned long>(0);};
 	virtual const unsigned int getTermsSize() const {return 0;};
-	virtual unsigned long getTerm(int i){return 0;};
+	virtual unsigned long getTerm(int i) const{return 0;};
 	virtual void setTerms(const vector<unsigned long>& terms){};
 	virtual bool isHasMinus() const {return 0;};
 	virtual void setHasMinus(bool hasMinus) {};
@@ -80,11 +76,10 @@ public:
 	virtual const vector<vector<unsigned long>> getChoiceElements() const {return vector<vector<unsigned long>>(0);};
 	virtual void setChoiceElements(const vector<vector<unsigned long> > choiceElements) {};
 
+
 	virtual void print();
 	virtual void print(TermTable*tb){};
 	virtual ~Atom(){};
-private:
-	unsigned long index;
 };
 
 #endif /* ATOM_H_ */

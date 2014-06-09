@@ -10,15 +10,11 @@
 using namespace std;
 
 Atom::Atom(unsigned long predicate){
-	index=0;
 	setPredicate(predicate);
 }
 
-bool Atom::operator==(const Atom& a){
-	return this->index==a.index;
-}
+
 
 void Atom::print(){
-	cout<<"Atom: "<<index<<endl;
 }
 

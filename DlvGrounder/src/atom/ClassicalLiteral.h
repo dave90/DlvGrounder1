@@ -19,7 +19,7 @@ public:
 
 	const vector<unsigned long> getTerms() const {return terms;};
 	virtual const unsigned int getTermsSize() const {return terms.size();};
-	virtual unsigned long getTerm(int i){return terms[i];};
+	virtual unsigned long getTerm(int i) const{return terms[i];};
 	void setTerms(const vector<unsigned long>& terms){this->terms=terms;};
 	unsigned long getPredicate() const {return predicate;};
 	void setPredicate(unsigned long predicate) {this->predicate=predicate;};
@@ -30,6 +30,10 @@ public:
 	void print(TermTable *tb);
 
 	string getNameToHash();
+
+	/// Compare predicate and terms of atoms, because used for fact
+	bool operator==(const Atom& a);
+
 
 	/// Return the Hash string for the classical literal
 	static string getNameToHash(unsigned long predicate,vector<unsigned long> &terms);

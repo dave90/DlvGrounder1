@@ -40,6 +40,18 @@ void ClassicalLiteral::print(TermTable *tb){
 	}
 }
 
+bool ClassicalLiteral::operator ==(const Atom& a) {
+
+	if(predicate!=a.getPredicate())return false;
+	for(unsigned int i=0;i<terms.size();i++)
+		if(terms[i]!=a.getTerm(i))
+			return false;
+
+
+	return true;
+
+}
+
 string ClassicalLiteral::getNameToHash(unsigned long predicate, vector<unsigned long>& terms) {
 
 	string name = boost::lexical_cast<string>(predicate)+"*";
