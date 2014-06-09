@@ -124,7 +124,7 @@ protected:
 	bool computeFirstMatch(const AtomTable& collection,vec_pair_long &bound,vec_pair_long &bind,map_int_int& equal_var,ResultMatch* rm);
 	/// Test the match of bind equal variable
 	bool checkEqualVariable(map_int_int& equal_var,Atom *atom);
-	long findIfAFactExists(vec_pair_long& bound, map_int_int& equal_var);
+	bool findIfAFactExists(vec_pair_long& bound, map_int_int& equal_var);
 };
 
 class Instances {

@@ -103,7 +103,6 @@ public:
 	static int getConflict(unsigned int i);
 	static const int TERM_ID_MANAGER=0;
 	static const int PREDICATE_ID_MANAGER=1;
-	static const int ATOM_ID_MANAGER=2;
 private:
 	IdsManager();
 	static vector<IdManager> idsManager;

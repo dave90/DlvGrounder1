@@ -45,13 +45,8 @@ unsigned long TermIndexAtom::firstMatch(vec_pair_long& bound, vec_pair_long& bin
 		else{
 			//If all the variables are bound, just check if there exists a fact of this kind
 			if(bind.size()==0){
-				long index = findIfAFactExists(bound, equal_var);
-				if(index!=-1){
-					find=true;
-				}
-				else{
-					find=false;
-				}
+				find = findIfAFactExists(bound, equal_var);
+
 				matches_id.insert({id,rm});
 				return id;
 			}
@@ -115,13 +110,8 @@ unsigned long TermIndexAtomMultiMap::firstMatch(vec_pair_long& bound, vec_pair_l
 		//Else check the match among the hash set indexed by that term
 		else{
 			if(bind.size()==0){
-				long index = findIfAFactExists(bound, equal_var);
-				if(index!=-1){
-					find=true;
-				}
-				else{
-					find=false;
-				}
+				find = findIfAFactExists(bound, equal_var);
+
 				matches_id.insert({id,rm});
 				return id;
 			}

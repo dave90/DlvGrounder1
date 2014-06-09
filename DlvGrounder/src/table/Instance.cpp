@@ -11,7 +11,8 @@
 #include "TermIndexAtom.h"
 
 
-long SimpleIndexAtom::findIfAFactExists(vec_pair_long& bound, map_int_int& equal_var) {
+
+bool SimpleIndexAtom::findIfAFactExists(vec_pair_long& bound, map_int_int& equal_var) {
 	vector<unsigned long> terms(bound.size() + equal_var.size());
 	for (unsigned int i = 0; i < bound.size(); i++) {
 		terms[bound[i].first] = bound[i].second;
@@ -19,10 +20,17 @@ long SimpleIndexAtom::findIfAFactExists(vec_pair_long& bound, map_int_int& equal
 	for (auto it : equal_var) {
 		terms[it.second] = terms[it.first];
 	}
-	string name = ClassicalLiteral::getNameToHash(
-			(*atoms->begin())->atom->getPredicate(), terms);
-	long index = IdsManager::getLongIndex(IdsManager::ATOM_ID_MANAGER, name);
-	return index;
+	unsigned long predicate=(*atoms->begin())->atom->getPredicate();
+	Atom *atom=new ClassicalLiteral(predicate,terms,false,false);
+	GenericAtom *genAtom=new GenericAtom;
+	genAtom->atom=atom;
+
+	bool find = atoms->count(genAtom);
+
+	delete genAtom;
+	delete atom;
+
+	return find;
 }
 
 
