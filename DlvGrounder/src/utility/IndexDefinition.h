@@ -12,7 +12,7 @@
 
 using namespace std;
 
-typedef uint_fast8_t  index_object;
+typedef unsigned int  index_object;
 
 class IndexDefinition{};
 
