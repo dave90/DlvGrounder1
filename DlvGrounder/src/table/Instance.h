@@ -53,6 +53,7 @@ typedef unordered_multimap<unsigned int,unsigned int> map_int_int;
  * Hash function for the class Atom
  */
 struct hashAtom {
+
 	size_t operator()(GenericAtom* atomFact) const {
 		return HashString::getHashStringFromConfig()->computeHash(atomFact->atom->getNameToHash());
 	}
@@ -176,43 +177,29 @@ private:
 	AtomTable nofacts;
 };
 
-/*
- * Hash function for the class Atom
- */
-struct hashInstance {
-	size_t operator()(Instances* i) const {
-		return i->getPredicate();
-	}
-	bool operator()(Instances *i1, Instances* i2) const {
-		return i1->getPredicate() == i2->getPredicate();
-	}
-};
 
 class InstancesTable {
 public:
 	void addInstance(index_object i) {
-		Instances* is = new Instances(i);
-		if(instanceTable.count(is))
-			delete is;
-		else
-			instanceTable.insert(is);
+		if(!instanceTable.count(i)){
+			Instances* is = new Instances(i);
+			instanceTable.insert({i,is});
+		}
 	};
 	// Get term by the index
 	Instances* getInstance(index_object i) {
-		Instances* is = new Instances(i);
-		auto instance = instanceTable.find(is);
-		delete is;
+		auto instance = instanceTable.find(i);
 		if(instance!=instanceTable.end())
-			return *(instance);
+			return instance->second;
 		else
 			return nullptr;
 	};
 	// Get size of the table
 	long getSize() {return instanceTable.size();};
-	void print() {for (Instances* i : instanceTable)i->print();	};
+	void print() {for (auto i : instanceTable)i.second->print();	};
 	~InstancesTable();
 private:
-	unordered_set<Instances*, hashInstance, hashInstance> instanceTable;
+	unordered_map<index_object,Instances*> instanceTable;
 };
 
 #endif /* INSTANCE_H_ */

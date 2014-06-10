@@ -142,8 +142,8 @@ Instances::~Instances() {
 
 
 InstancesTable::~InstancesTable() {
-	for (Instances* i : instanceTable) {
-		delete i;
+	for (auto i : instanceTable) {
+		delete (i.second);
 	}
 }
 

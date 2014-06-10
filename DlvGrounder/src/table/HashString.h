@@ -18,11 +18,13 @@ using namespace std;
 class HashString {
 public:
 	HashString(){};
+	~HashString(){delete hashString;}
 	virtual size_t computeHash(string s) = 0;
-	virtual ~HashString(){};
 
 	/// Return an hashString according the configuration
 	static HashString* getHashStringFromConfig();
+private:
+	static HashString *hashString;
 };
 
 class STLHashString: public HashString{

@@ -104,30 +104,31 @@ size_t MurMurHashString::computeHash(string s) {
 }
 
 HashString* HashString::getHashStringFromConfig() {
-	HashString* hash;
-	switch (Config::getInstance()->getHashType()) {
-	case HashType::STL_HASH:
-		hash = new STLHashString;
-		break;
-	case HashType::BOOST_HASH:
-		hash = new BOOSTHashString;
-		break;
-	case HashType::JAVA_HASH:
-		hash=new JavaHashString;
-		break;
-	case HashType::MUR_HASH:
-		hash=new MurMurHashString;
-		break;
-	case HashType::PERL_DJ:
-		hash=new PerlJenkinsHashString;
-		break;
-	case HashType::PERL_B:
-		hash=new PerlBernsteinHashString;
-		break;
+	if(hashString==nullptr){
+		switch (Config::getInstance()->getHashType()) {
+		case HashType::STL_HASH:
+			hashString = new STLHashString;
+			break;
+		case HashType::BOOST_HASH:
+			hashString = new BOOSTHashString;
+			break;
+		case HashType::JAVA_HASH:
+			hashString=new JavaHashString;
+			break;
+		case HashType::MUR_HASH:
+			hashString=new MurMurHashString;
+			break;
+		case HashType::PERL_DJ:
+			hashString=new PerlJenkinsHashString;
+			break;
+		case HashType::PERL_B:
+			hashString=new PerlBernsteinHashString;
+			break;
 
-	default:
-		hash = new STLHashString;
-		break;
+		default:
+			hashString = new STLHashString;
+			break;
+		}
 	}
-	return hash;
+	return hashString;
 }
