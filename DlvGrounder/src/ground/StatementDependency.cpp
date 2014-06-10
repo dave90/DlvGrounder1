@@ -393,7 +393,7 @@ void StatementDependency::createDependencyGraph(PredicateTable* pt) {
 void StatementDependency::createComponentGraph() {
 	compGraph.createComponent(depGraph, statementAtomMapping);
 	vector<boost::graph_traits<WeightGraph>::vertex_descriptor> ordering;
-	compGraph.computeAnOrdering(ordering);
+//	compGraph.computeAnOrdering(ordering);
 }
 
 void StatementDependency::print(TermTable *tb) {
