@@ -12,7 +12,7 @@
 #include <boost/functional/hash.hpp>
 #include <math.h>
 
-
+HashString *HashString::hashString;
 
 size_t STLHashString::computeHash(string s){
 	  hash<string> str_hash;
