@@ -38,7 +38,7 @@ public:
 
 	 StatementDependency* getStatementDependency() {return st;}
 
-	~RuleFactory(){};
+	~RuleFactory(){delete currentRule;};
 
 
 private:
