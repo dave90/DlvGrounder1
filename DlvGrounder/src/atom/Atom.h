@@ -41,7 +41,7 @@ public:
 	virtual string getNameToHash() = 0 ;
 
 	//ClassicalLiteral
-	virtual index_object getPredicate() const {return -1;};
+	virtual pair<bool,index_object> getPredicate() const {return {false,0};};
 	virtual void setPredicate(index_object predicate) {};
 	virtual const vector<index_object> getTerms() const {return vector<index_object>(0);};
 	virtual const unsigned int getTermsSize() const {return 0;};

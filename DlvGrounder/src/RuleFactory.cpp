@@ -26,8 +26,9 @@ void RuleFactory::addPredicate(string& name) {
 
 void RuleFactory::addFact(Atom *fact) {
 
-	instancesTable->addInstance(fact->getPredicate());
-	instancesTable->getInstance(fact->getPredicate())->addFact(fact);
+	index_object predicate=fact->getPredicate().second;
+	instancesTable->addInstance(predicate);
+	instancesTable->getInstance(predicate)->addFact(fact);
 }
 
 void RuleFactory::addClassicalAtom(vector<index_object> &terms, bool hashMinus,

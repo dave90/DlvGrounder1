@@ -21,7 +21,7 @@ public:
 	virtual const unsigned int getTermsSize() const {return terms.size();};
 	virtual index_object getTerm(int i) const{return terms[i];};
 	void setTerms(const vector<index_object>& terms){this->terms=terms;};
-	index_object getPredicate() const {return predicate;};
+	pair<bool,index_object> getPredicate() const {return {true,predicate};};
 	void setPredicate(index_object predicate) {this->predicate=predicate;};
 	bool isHasMinus() const {return hasMinus;};
 	void setHasMinus(bool hasMinus) {this->hasMinus=hasMinus;};

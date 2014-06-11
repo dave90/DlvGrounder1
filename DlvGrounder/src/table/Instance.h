@@ -25,13 +25,15 @@ using namespace std;
 struct GenericAtom{
 	Atom *atom;
 
-	GenericAtom(){}
+	GenericAtom():atom(nullptr){}
 	GenericAtom(Atom * atom){
 		this->atom=atom;
 	}
 
 	virtual bool isFact(){return true;}
 	virtual void setFact(bool isFact){};
+
+	virtual ~GenericAtom(){}
 };
 
 struct AtomUndef : GenericAtom{

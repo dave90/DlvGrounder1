@@ -18,7 +18,7 @@ using namespace std;
 class HashString {
 public:
 	HashString(){};
-	~HashString(){delete hashString;}
+	virtual ~HashString(){delete hashString;}
 	virtual size_t computeHash(string s) = 0;
 
 	/// Return an hashString according the configuration

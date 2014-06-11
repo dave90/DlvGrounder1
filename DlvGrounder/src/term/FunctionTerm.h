@@ -21,8 +21,8 @@ using namespace std;
  */
 class FunctionTerm: public Term {
 public:
-	FunctionTerm();
-	FunctionTerm(string& name,bool negative):name(name),Term(negative){};
+	FunctionTerm():Term(0),name(0){};
+	FunctionTerm(string& name,bool negative):Term(negative),name(name){};
 	FunctionTerm(string v,index_object index):name(v){setIndex(index);};
 	virtual string getName(){return name;};
 	virtual void setName(string& name){this->name=name;};

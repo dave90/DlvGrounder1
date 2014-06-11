@@ -20,7 +20,7 @@ bool SimpleIndexAtom::findIfAFactExists(vec_pair_long& bound, map_int_int& equal
 	for (auto it : equal_var) {
 		terms[it.second] = terms[it.first];
 	}
-	index_object predicate=(*atoms->begin())->atom->getPredicate();
+	index_object predicate=(*atoms->begin())->atom->getPredicate().second;
 	Atom *atom=new ClassicalLiteral(predicate,terms,false,false);
 	GenericAtom *genAtom=new GenericAtom;
 	genAtom->atom=atom;

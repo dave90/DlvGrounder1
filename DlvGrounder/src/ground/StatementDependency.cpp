@@ -72,27 +72,26 @@ void DependencyGraph::addInDependency(Rule* r) {
 	unordered_set<index_object> body_predicateVisited;
 
 	for (auto head_it = r->getBeginHead(); head_it != r->getEndHead(); head_it++) {
-
-		long pred_head = (*head_it)->getPredicate();
+		pair<bool, index_object> pred_head = (*head_it)->getPredicate();
 
 		// Verify if the predicate in the head was been visited
-		if (pred_head!=-1 && !head_predicateVisited.count(pred_head)) {
+		if (pred_head.first && !head_predicateVisited.count(pred_head.second)) {
 
 			// Set this predicate visited
-			head_predicateVisited.insert(pred_head);
+			head_predicateVisited.insert(pred_head.second);
 
 			for (auto body_it = r->getBeginBody(); body_it != r->getEndBody(); body_it++) {
 
 				// Verify if the predicate is positive
 				if (!(*body_it)->isNegative()) {
-					long pred_body = (*body_it)->getPredicate();
+					pair<bool,index_object> pred_body = (*body_it)->getPredicate();
 
 					// Verify if the predicate in the head was been visited
-					if (pred_body!=-1 && !body_predicateVisited.count(pred_body)) {
+					if (pred_body.first  && !body_predicateVisited.count(pred_body.second)) {
 
 						// Set this predicate visited
-						body_predicateVisited.insert(pred_body);
-						addEdge(pred_body, pred_head);
+						body_predicateVisited.insert(pred_body.second);
+						addEdge(pred_body.second, pred_head.second);
 
 					}
 				}
@@ -107,15 +106,15 @@ void DependencyGraph::addInDependency(Rule* r) {
 
 void DependencyGraph::deleteVertex(unordered_set<index_object>& delete_pred) {
 
-	while(delete_pred.size()>0){
+	while (delete_pred.size() > 0) {
 		// For each predicate find the vertex with pred_id because the graph we-index after
 		// remove vertex
-		index_object current_pred=*delete_pred.begin();
+		index_object current_pred = *delete_pred.begin();
 		boost::graph_traits<Graph>::vertex_iterator vi, vi_end, next;
 		tie(vi, vi_end) = boost::vertices(depGraph);
 		for (next = vi; vi != vi_end; vi = next) {
 			++next;
-			if (current_pred==depGraph[*vi].pred_id) {
+			if (current_pred == depGraph[*vi].pred_id) {
 				remove_vertex(*vi, depGraph);
 				break;
 			}
@@ -129,7 +128,7 @@ void DependencyGraph::printFile(string fileGraph) {
 
 	typedef property_map<Graph, vertex_index_t>::type IndexMap;
 //	IndexMap index = get(vertex_index, depGraph);
-	IndexMap index=get(vertex_index,depGraph);
+	IndexMap index = get(vertex_index, depGraph);
 	graph_traits<Graph>::edge_iterator ei, ei_end;
 	string graphDOT = "digraph Dependency_Graph{\n";
 
@@ -149,13 +148,13 @@ void DependencyGraph::printFile(string fileGraph) {
 	}
 	graphDOT += "}\n";
 
-		ofstream myfile;
-		myfile.open(fileGraph);
-		myfile << graphDOT;
-		myfile.close();
-		string COMMAND = "dot -Tpng " + fileGraph + " -O";
-		system(COMMAND.c_str());
-		remove(fileGraph.c_str());
+	ofstream myfile;
+	myfile.open(fileGraph);
+	myfile << graphDOT;
+	myfile.close();
+	string COMMAND = "dot -Tpng " + fileGraph + " -O";
+	system(COMMAND.c_str());
+	remove(fileGraph.c_str());
 
 }
 
@@ -170,8 +169,11 @@ void DependencyGraph::print() {
 	for (tie(ei, ei_end) = edges(depGraph); ei != ei_end; ++ei) {
 		index_object p1 = index[source(*ei, depGraph)];
 		index_object p2 = index[target(*ei, depGraph)];
-		cout<<"("<<IdsManager::getStringStrip(IdsManager::PREDICATE_ID_MANAGER,depGraph[p1].pred_id)<<","
-				<<IdsManager::getStringStrip(IdsManager::PREDICATE_ID_MANAGER,depGraph[p2].pred_id)<<")"<<" ";
+		cout << "("
+				<< IdsManager::getStringStrip(IdsManager::PREDICATE_ID_MANAGER,
+						depGraph[p1].pred_id) << ","
+				<< IdsManager::getStringStrip(IdsManager::PREDICATE_ID_MANAGER,
+						depGraph[p2].pred_id) << ")" << " ";
 	}
 
 }
@@ -252,7 +254,7 @@ void ComponentGraph::createComponent(DependencyGraph &depGraph,
 
 				bool isPositive = !(*body_it)->isNegative();
 
-				index_object pred_body = (*body_it)->getPredicate();
+				index_object pred_body = (*body_it)->getPredicate().second;
 
 				// Verify if the predicate compare in head of same rule
 				if (statementAtomMapping.isInHead(pred_body)) {
@@ -323,45 +325,46 @@ void ComponentGraph::printFile(string fileGraph) {
 
 void ComponentGraph::print() {
 	for (unsigned int i = 0; i < num_vertices(compGraph); i++) {
-		cout<<"{ ";
-		bool first=false;
+		cout << "{ ";
+		bool first = false;
 		for (auto it : component)
 			if (it.second == i) {
-				string predicate = IdsManager::getStringStrip(IdsManager::PREDICATE_ID_MANAGER,	it.first);
-				if(!first){
-					cout<<predicate + " ";
-					first=true;
-				}
-				else
-					cout<<", "<<predicate<<" ";
+				string predicate = IdsManager::getStringStrip(IdsManager::PREDICATE_ID_MANAGER,
+						it.first);
+				if (!first) {
+					cout << predicate + " ";
+					first = true;
+				} else
+					cout << ", " << predicate << " ";
 
 			}
-		cout<<"} ";
+		cout << "} ";
 	}
 }
 
-void ComponentGraph::computeAnOrdering(vector<unsigned int>& componentsOrdering){
-	boost::property_map<WeightGraph, boost::vertex_index_t>::type vertex_indices = get(boost::vertex_index, compGraph);
-	topological_sort(compGraph,back_inserter(componentsOrdering));
+void ComponentGraph::computeAnOrdering(vector<unsigned int>& componentsOrdering) {
+	boost::property_map<WeightGraph, boost::vertex_index_t>::type vertex_indices = get(
+			boost::vertex_index, compGraph);
+	topological_sort(compGraph, back_inserter(componentsOrdering));
 
 	//FIXME for now the ordering is just printed
-	for(int i=componentsOrdering.size()-1;i>=0;i--){
-		bool first=false;
+	for (int i = componentsOrdering.size() - 1; i >= 0; i--) {
+		bool first = false;
 		for (auto it : component)
 			if (it.second == vertex_indices(componentsOrdering[i])) {
-				string predicate = IdsManager::getStringStrip(IdsManager::PREDICATE_ID_MANAGER,	it.first);
-				if(!first){
-					cout<<predicate + " ";
-					first=true;
-				}
-				else
-					cout<<", "<<predicate<<" ";
+				string predicate = IdsManager::getStringStrip(IdsManager::PREDICATE_ID_MANAGER,
+						it.first);
+				if (!first) {
+					cout << predicate + " ";
+					first = true;
+				} else
+					cout << ", " << predicate << " ";
 			}
-		cout<<"} ";
+		cout << "} ";
 	}
 }
 
-void ComponentGraph::computeAllPossibleOrdering(vector<vector<unsigned int>>& componentsOrderings){
+void ComponentGraph::computeAllPossibleOrdering(vector<vector<unsigned int>>& componentsOrderings) {
 	//TODO
 }
 
@@ -400,19 +403,20 @@ void StatementDependency::print(TermTable *tb) {
 	string fileDGraph = Config::getInstance()->getFileGraph() + "DG";
 	string fileCGraph = Config::getInstance()->getFileGraph() + "CG";
 
-
-	if (Config::getInstance()->isDependency()){
+	if (Config::getInstance()->isDependency()) {
 		if (strcmp(fileDGraph.c_str(), "DG") == 0)
 			depGraph.print();
 		else
 			depGraph.printFile(fileDGraph);
-	}if (Config::getInstance()->isComponent()){
+	}
+	if (Config::getInstance()->isComponent()) {
 		if (strcmp(fileCGraph.c_str(), "CG") == 0)
 			compGraph.print();
 		else
 			compGraph.printFile(fileCGraph);
 	}
 	if (Config::getInstance()->isPrintRules())
-		for(Rule*r:rules)r->print(tb);
+		for (Rule*r : rules)
+			r->print(tb);
 }
 

@@ -42,7 +42,7 @@ void ClassicalLiteral::print(TermTable *tb){
 
 bool ClassicalLiteral::operator ==(const Atom& a) {
 
-	if(predicate!=a.getPredicate())return false;
+	if(predicate!=a.getPredicate().second)return false;
 	for(unsigned int i=0;i<terms.size();i++)
 		if(terms[i]!=a.getTerm(i))
 			return false;

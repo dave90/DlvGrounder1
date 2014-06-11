@@ -10,9 +10,6 @@
 #include <sstream>
 
 
-FunctionTerm::FunctionTerm() {
-
-}
 
 
 string FunctionTerm::getNameToHash() {

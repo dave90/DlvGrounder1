@@ -25,7 +25,7 @@
 class ArithTerm: public Term {
 public:
 	/// Take the TableTerm for the calculation
-	ArithTerm(TermTable *t):termTable(t){};
+	ArithTerm(TermTable *t):Term(0),termTable(t){};
 	///Set operator
 	virtual void setOperator(Operator op){operators.push_back(op);};
 	/// Calculate the operation based on the operator

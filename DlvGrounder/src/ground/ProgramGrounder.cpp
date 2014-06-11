@@ -79,7 +79,7 @@ void ProgramGrounder::printGroundRule(Rule *r,map_long_long& var_assign){
 	for (auto head_it = r->getBeginHead(); head_it != r->getEndHead(); head_it++) {
 		Atom *head=(*head_it);
 
-		index_object predicate=head->getPredicate();
+		index_object predicate=head->getPredicate().second;
 		vector<index_object> terms;
 
 		for(unsigned int i=0;i<head->getTermsSize();i++){
@@ -94,7 +94,7 @@ void ProgramGrounder::printGroundRule(Rule *r,map_long_long& var_assign){
 	for (auto body_it = r->getBeginBody(); body_it != r->getEndBody(); body_it++) {
 		Atom *body=(*body_it);
 
-		index_object predicate=body->getPredicate();
+		index_object predicate=body->getPredicate().second;
 		vector<index_object> terms;
 
 		//FIXME consider the anonymus variable
@@ -119,7 +119,7 @@ void ProgramGrounder::foundAssignmentRule(Rule *r,map_long_long& var_assign){
 	for (auto head_it = r->getBeginHead(); head_it != r->getEndHead(); head_it++) {
 		Atom *head=(*head_it);
 
-		index_object predicate=head->getPredicate();
+		index_object predicate=head->getPredicate().second;
 		vector<index_object> terms;
 
 		for(unsigned int i=0;i<head->getTermsSize();i++){
@@ -136,8 +136,9 @@ void ProgramGrounder::foundAssignmentRule(Rule *r,map_long_long& var_assign){
 	bool truth=true;
 	if(atoms.size()>1)truth=false;
 	for(Atom *a:atoms){
-		instancesTable->addInstance(a->getPredicate());
-		if(instancesTable->getInstance(a->getPredicate())->addNoFact(a,truth)){
+		index_object predicate=a->getPredicate().second;
+		instancesTable->addInstance(predicate);
+		if(instancesTable->getInstance(predicate)->addNoFact(a,truth)){
 			a->print(termsMap);
 			cout<<".";
 		}
@@ -192,7 +193,7 @@ void ProgramGrounder::groundRule(Rule* r) {
 		Atom *current_atom=*current_atom_it;
 		negation=current_atom->isNegative();
 
-		Instances * instance=instancesTable->getInstance(current_atom->getPredicate());
+		Instances * instance=instancesTable->getInstance(current_atom->getPredicate().second);
 
 		// if there isn't instance of that atom exit of grounding
 		if(instance==nullptr) return;
