@@ -20,6 +20,7 @@
 class ConstantTerm: public Term {
 public:
 	ConstantTerm(){};
+	ConstantTerm(bool negative):Term(negative){};
 	ConstantTerm(index_object index){setIndex(index);};
 	virtual string getName(){return IdsManager::getString(IdsManager::TERM_ID_MANAGER,getIndex());};
 	virtual string getNameToHash(){return getName();};

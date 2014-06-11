@@ -38,6 +38,7 @@ public:
 	 *  @param b if is negative
 	 */
 	Term(index_object i,bool b):index(i),negative(b){};
+	Term(bool negative):index(0),negative(negative){};
 	///Get the index of the term
 	index_object getIndex(){return index;};
 	/// Set the index of the term
@@ -71,7 +72,7 @@ public:
 	/// Print with the cout the term
 	virtual void print(TermTable *tb){cout<<IdsManager::getStringStrip(IdsManager::TERM_ID_MANAGER,getIndex());};
 	virtual ~Term(){};
-private:
+protected:
 	/*
 	 * Index of a term
 	 */

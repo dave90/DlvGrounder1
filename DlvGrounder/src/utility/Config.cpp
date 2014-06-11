@@ -13,7 +13,7 @@
 Config* Config::config;
 
 static string TermTableTypeString[]={ "BOOST", "STL", "MAP" };
-static string HashTypeString[] ={ "STL_HASH", "BOOST_HASH", "JAVA_HASH", "MUR_HASH,PERL_DJ",
+static string HashTypeString[] ={ "STL_HASH", "BOOST_HASH", "JAVA_HASH", "MUR_HASH","PERL_DJ",
 	"PERL_B" };
 static string IndexTypeString[] ={ "DEFAULT" };
 

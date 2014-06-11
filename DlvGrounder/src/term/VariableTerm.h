@@ -19,6 +19,7 @@ using namespace std;
 class VariableTerm: public Term {
 public:
 	VariableTerm(){};
+	VariableTerm(bool negative):Term(negative){};
 	VariableTerm(index_object index){setIndex(index);};
 	virtual string getName(){return IdsManager::getString(IdsManager::TERM_ID_MANAGER,getIndex());};
 	virtual bool isAnonymous(){return getName().compare("_")==0;};
