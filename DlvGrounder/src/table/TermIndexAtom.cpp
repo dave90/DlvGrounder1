@@ -193,24 +193,3 @@ void TermIndexAtomMultiMap::initializeIndexMap(){
 	Timer::getInstance()->end();
 	instantiateIndexMap=true;
 }
-
-bool TermIndexAtomMultiMap::findIfAFactExists(vec_pair_long& bound, map_int_int& equal_var) {
-//	vector<index_object> terms(bound.size() + equal_var.size());
-//	for (unsigned int i = 0; i < bound.size(); i++) {
-//		terms[bound[i].first] = bound[i].second;
-//	}
-//	for (auto it : equal_var) {
-//		terms[it.second] = terms[it.first];
-//	}
-	index_object predicate=(*atoms->begin())->atom->getPredicate().second;
-//	Atom *atom=new ClassicalLiteral(predicate,terms,false,false);
-//	GenericAtom *genAtom=new GenericAtom;
-//	genAtom->atom=atom;
-
-	bool find = indexMap.count(predicate);
-
-//	delete genAtom;
-//	delete atom;
-
-	return find;
-}
