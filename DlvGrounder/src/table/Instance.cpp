@@ -38,12 +38,14 @@ index_object SimpleIndexAtom::firstMatch(vec_pair_index_object &bound,vec_pair_i
 	index_object id = matches_id.size();
 	ResultMatch *rm = new ResultMatch(bind);
 
-	//Simple search
-	if(computeFirstMatch(*atoms,bound,bind,equal_var,rm)){
+	if(bind.size()==0 && findIfAFactExists(*atoms,bound,equal_var)){
 		find=true;
 		matches_id.insert({id,rm});
 		return id;
 	}
+
+	//Simple search
+	computeFirstMatch(*atoms,bound,bind,equal_var,rm);
 
 	matches_id.insert({id,rm});
 	nextMatch(id,bind,find);
@@ -66,17 +68,7 @@ bool SimpleIndexAtom::computeFirstMatch(const AtomTable& collection, vec_pair_in
 			// and If the term with equal variable not match skip this atom
 			if(!checkEqualVariable(equal_var,a))continue;
 			// If no bind variables but match atom finish
-			if(bind.size()==0){
-				return true;
-			}
 
-//			if(bind.size()==0){
-//				long index = findIfAFactExists(bound, equal_var);
-//				if(index!=-1){
-//					return true;
-//				}
-//				return false;
-//			}
 
 			rm->result.insert(a);
 

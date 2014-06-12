@@ -124,6 +124,7 @@ public:
 	virtual ~SimpleIndexAtom();
 protected:
 	unordered_map<index_object, ResultMatch*> matches_id;
+	/// Search in the atom table if match
 	bool computeFirstMatch(const AtomTable& collection,vec_pair_index_object &bound,vec_pair_index_object &bind,map_int_int& equal_var,ResultMatch* rm);
 	/// Test the match of bind equal variable
 	bool checkEqualVariable(map_int_int& equal_var,Atom *atom);
