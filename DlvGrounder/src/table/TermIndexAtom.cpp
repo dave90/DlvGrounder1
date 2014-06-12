@@ -9,64 +9,50 @@
 #include <boost/lexical_cast.hpp>
 #include "../utility/Timer.h"
 
+long TermIndexAtom::determineTermToBeIndexed(vec_pair_index_object& bound) {
+	//Check if the term of indexing is bound
+	int termBoundIndex = -1;
+	if(!termSetByPreference){
+		termToBeIndexed=bound[0].first;
+		termBoundIndex = bound[0].second;
+		termSetByPreference=true;
+		return termBoundIndex;
+	}
+	// If it is not possible to indexing with the set term, the indexing is not done at all
+	for (unsigned int i = 0; i < bound.size(); i++)
+		if (bound[i].first == termToBeIndexed) {
+			termBoundIndex = bound[i].second;
+			break;
+		}
+	return termBoundIndex;
+}
+
+
 index_object TermIndexAtom::firstMatch(vec_pair_index_object& bound, vec_pair_index_object& bind, map_int_int& equal_var, bool& find) {
 
 	index_object id = matches_id.size();
 	ResultMatch* rm=new ResultMatch(bind);
 
-	//Check if the term of indexing is bound
-	long termBoundIndex=-1;
-	for (unsigned int i = 0; i < bound.size(); ++i)
-		if(bound[i].first==termToBeIndexed){
-			termBoundIndex=bound[i].second;
-			break;
-		}
 
-	//If the term of indexing is bound
-	if(termBoundIndex!=-1){ //&& indexMap.count(termBoundIndex) --> Puo' non essere inizializzata
-
-		//Initialize the IndexMap if it is not yet initialized
+	long termBoundIndex = determineTermToBeIndexed(bound);
+	AtomTable* matchingTable;
+	if(termBoundIndex!=-1){
 		if(!instantiateIndexMap)
 			initializeIndexMap();
-
-		//If the term of indexing is bound and the bound size is 1, then only this term is bound
-		if(bound.size()==1){
-			for(GenericAtom* a:indexMap[termBoundIndex]){
-				if(bind.size()==0){
-					find=true;
-					matches_id.insert({id,rm});
-					return id;
-				}
-				rm->result.insert(a->atom);
-			}
-		}
-		//Else check the match among the hash set indexed by that term
-		else{
-			//If all the variables are bound, just check if there exists a fact of this kind
-			if(bind.size()==0){
-
-				find = findIfAFactExists(indexMap[termBoundIndex],bound, equal_var);
-
-				matches_id.insert({id,rm});
-				return id;
-			}
-			//Else compute the matching facts among those of the hash set indexed by that term
-			else if(computeFirstMatch(indexMap[termBoundIndex],bound,bind,equal_var,rm)){
-				find=true;
-				matches_id.insert({id,rm});
-				return id;
-			}
-		}
+		matchingTable=&indexMap[termBoundIndex];
 	}
-	else{
-		//If the given term is not bound, just iterate among all facts, like in SimpleIndexAtom
-		if(computeFirstMatch(*atoms,bound,bind,equal_var,rm)){
-			find=true;
-			matches_id.insert({id,rm});
-			return id;
-		}
+	else
+		matchingTable=atoms;
+
+	if(bind.size()==0 && findIfAFactExists(*matchingTable,bound,equal_var)){
+		find=true;
+		matches_id.insert({id,rm});
+		return id;
 	}
 
+	computeFirstMatch(*matchingTable,bound,bind,equal_var,rm);
+
+	delete(matchingTable);
 	matches_id.insert({id,rm});
 	nextMatch(id,bind,find);
 	return id;

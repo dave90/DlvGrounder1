@@ -23,6 +23,7 @@ private:
 	unsigned int termToBeIndexed;
 	bool termSetByPreference;
 	void initializeIndexMap();
+	long determineTermToBeIndexed(vec_pair_index_object& bound);
 };
 
 class TermIndexAtomMultiMap: public SimpleIndexAtom {
