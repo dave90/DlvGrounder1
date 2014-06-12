@@ -38,14 +38,16 @@ index_object SimpleIndexAtom::firstMatch(vec_pair_index_object &bound,vec_pair_i
 	index_object id = matches_id.size();
 	ResultMatch *rm = new ResultMatch(bind);
 
-	if(bind.size()==0 && findIfAFactExists(*atoms,bound,equal_var)){
-		find=true;
-		matches_id.insert({id,rm});
-		return id;
+	if(bind.size()==0){
+		if(findIfAFactExists(*atoms,bound,equal_var)){
+			find=true;
+			matches_id.insert({id,rm});
+			return id;
+		}
 	}
-
-	//Simple search
-	computeFirstMatch(*atoms,bound,bind,equal_var,rm);
+	else
+		//Simple search
+		computeFirstMatch(*atoms,bound,bind,equal_var,rm);
 
 	matches_id.insert({id,rm});
 	nextMatch(id,bind,find);

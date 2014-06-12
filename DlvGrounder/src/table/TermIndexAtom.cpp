@@ -44,15 +44,14 @@ index_object TermIndexAtom::firstMatch(vec_pair_index_object& bound, vec_pair_in
 	else
 		matchingTable=atoms;
 
-	if(bind.size()==0 && findIfAFactExists(*matchingTable,bound,equal_var)){
-		find=true;
+	if(bind.size()==0){
+		find=findIfAFactExists(*atoms,bound,equal_var);
 		matches_id.insert({id,rm});
 		return id;
 	}
 
 	computeFirstMatch(*matchingTable,bound,bind,equal_var,rm);
 
-	delete(matchingTable);
 	matches_id.insert({id,rm});
 	nextMatch(id,bind,find);
 	return id;
