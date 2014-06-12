@@ -12,7 +12,7 @@
 
 
 
-bool SimpleIndexAtom::findIfAFactExists(vec_pair_long& bound, map_int_int& equal_var) {
+bool SimpleIndexAtom::findIfAFactExists(const AtomTable& collection,vec_pair_index_object& bound, map_int_int& equal_var) {
 	vector<index_object> terms(bound.size() + equal_var.size());
 	for (unsigned int i = 0; i < bound.size(); i++) {
 		terms[bound[i].first] = bound[i].second;
@@ -25,7 +25,7 @@ bool SimpleIndexAtom::findIfAFactExists(vec_pair_long& bound, map_int_int& equal
 	GenericAtom *genAtom=new GenericAtom;
 	genAtom->atom=atom;
 
-	bool find = atoms->count(genAtom);
+	bool find = collection.count(genAtom);
 
 	delete genAtom;
 	delete atom;
@@ -34,7 +34,7 @@ bool SimpleIndexAtom::findIfAFactExists(vec_pair_long& bound, map_int_int& equal
 }
 
 
-index_object SimpleIndexAtom::firstMatch(vec_pair_long &bound,vec_pair_long &bind,map_int_int& equal_var,bool& find) {
+index_object SimpleIndexAtom::firstMatch(vec_pair_index_object &bound,vec_pair_index_object &bind,map_int_int& equal_var,bool& find) {
 	index_object id = matches_id.size();
 	ResultMatch *rm = new ResultMatch(bind);
 
@@ -50,7 +50,7 @@ index_object SimpleIndexAtom::firstMatch(vec_pair_long &bound,vec_pair_long &bin
 	return id;
 }
 
-bool SimpleIndexAtom::computeFirstMatch(const AtomTable& collection, vec_pair_long &bound,vec_pair_long &bind,map_int_int& equal_var,ResultMatch* rm){
+bool SimpleIndexAtom::computeFirstMatch(const AtomTable& collection, vec_pair_index_object &bound,vec_pair_index_object &bind,map_int_int& equal_var,ResultMatch* rm){
 	for (GenericAtom *genericAtom : collection) {
 		Atom *a=genericAtom->atom;
 
@@ -94,7 +94,7 @@ bool SimpleIndexAtom::checkEqualVariable(map_int_int& equal_var,Atom *atom){
 	return true;
 }
 
-void SimpleIndexAtom::nextMatch(index_object id,vec_pair_long &bind,bool& find) {
+void SimpleIndexAtom::nextMatch(index_object id,vec_pair_index_object &bind,bool& find) {
 	ResultMatch *rm=matches_id.find(id)->second;
 	unsigned int size=rm->result.size();
 	unsigned int num_variable=bind.size();
@@ -120,11 +120,17 @@ Instances::Instances(index_object predicate) {
 	this->predicate = predicate;
 	switch (Config::getInstance()->getIndexType()) {
 	case (IndexType::MAP):
-				indexAtom = new TermIndexAtom(&facts,Config::getInstance()->getIndexingTerm(predicate));
-				break;
+		if(Config::getInstance()->getIndexingTerm(predicate).second)
+			indexAtom = new TermIndexAtom(&facts,Config::getInstance()->getIndexingTerm(predicate).first);
+		else
+			indexAtom = new TermIndexAtom(&facts,0);
+		break;
 	case (IndexType::MULTIMAP):
-				indexAtom = new TermIndexAtomMultiMap(&facts,Config::getInstance()->getIndexingTerm(predicate));
-				break;
+		if(Config::getInstance()->getIndexingTerm(predicate).second)
+				indexAtom = new TermIndexAtomMultiMap(&facts,Config::getInstance()->getIndexingTerm(predicate).first);
+		else
+				indexAtom = new TermIndexAtomMultiMap(&facts,0);
+		break;
 	default:
 		indexAtom = new SimpleIndexAtom(&facts);
 		break;

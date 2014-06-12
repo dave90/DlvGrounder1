@@ -82,10 +82,10 @@ void Config::setIndexType(string indexType) {
 			this->indexType=static_cast<IndexType>(i);
 	}}
 
-unsigned int Config::getIndexingTerm(index_object predicate){
+pair<unsigned int,bool> Config::getIndexingTerm(index_object predicate){
 	if(this->indexingMap.count(predicate))
-		return indexingMap[predicate];
-	return 0;
+		return {indexingMap[predicate],true};
+	return {0,false};
 }
 
 void Config::configureIndexingMap(){

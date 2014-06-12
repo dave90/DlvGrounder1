@@ -17,7 +17,7 @@
 
 using namespace std;
 
-typedef unordered_map<index_object, index_object> map_long_long;
+typedef unordered_map<index_object, index_object> map_index_object_index_object;
 
 
 
@@ -48,20 +48,20 @@ private:
 	/// @param bounds the vector to push the bound variable of atom in position i in rule
 	/// @param binds the vector to push the bind variable of atom in position i in rule
 	/// @param equal_vars is the map that indicate the term with the same variable
-	void findBoundBindRule(Rule *r,vector<vec_pair_long> &bounds,vector<vec_pair_long>& binds,vector<map_int_int >& equal_vars);
+	void findBoundBindRule(Rule *r,vector<vec_pair_index_object> &bounds,vector<vec_pair_index_object>& binds,vector<map_int_int >& equal_vars);
 
 	/// Method called when find the assignment in ground rule
-	void foundAssignmentRule(Rule *r,map_long_long& var_assign);
+	void foundAssignmentRule(Rule *r,map_index_object_index_object& var_assign);
 
 	/// Print the gound rule
-	void printGroundRule(Rule *r,map_long_long& var_assign);
+	void printGroundRule(Rule *r,map_index_object_index_object& var_assign);
 
 	/// Set in bound the value for each variable present in current assignment
-	void setBoundValue(Atom *current_atom,vec_pair_long &bound,map_long_long& var_assign);
+	void setBoundValue(Atom *current_atom,vec_pair_index_object &bound,map_index_object_index_object& var_assign);
 
 	/// Remove the value in assignment for the variable present in bind
-	void removeBindValueInAssignment(Atom *current_atom,vec_pair_long &bind,map_long_long& var_assign);
+	void removeBindValueInAssignment(Atom *current_atom,vec_pair_index_object &bind,map_index_object_index_object& var_assign);
 	/// Insert the value in assignment for the variable present in bind
-	void insertBindValueInAssignment(Atom *current_atom,vec_pair_long &bind,map_long_long& var_assign);
+	void insertBindValueInAssignment(Atom *current_atom,vec_pair_index_object &bind,map_index_object_index_object& var_assign);
 };
 #endif /* PROGRAMGROUNDER_H_ */

@@ -9,11 +9,10 @@
 #include <boost/lexical_cast.hpp>
 #include "../utility/Timer.h"
 
-index_object TermIndexAtom::firstMatch(vec_pair_long& bound, vec_pair_long& bind, map_int_int& equal_var, bool& find) {
+index_object TermIndexAtom::firstMatch(vec_pair_index_object& bound, vec_pair_index_object& bind, map_int_int& equal_var, bool& find) {
 
 	index_object id = matches_id.size();
 	ResultMatch* rm=new ResultMatch(bind);
-	unordered_set<string> result_string;
 
 	//Check if the term of indexing is bound
 	long termBoundIndex=-1;
@@ -45,7 +44,8 @@ index_object TermIndexAtom::firstMatch(vec_pair_long& bound, vec_pair_long& bind
 		else{
 			//If all the variables are bound, just check if there exists a fact of this kind
 			if(bind.size()==0){
-				find = findIfAFactExists(bound, equal_var);
+
+				find = findIfAFactExists(indexMap[termBoundIndex],bound, equal_var);
 
 				matches_id.insert({id,rm});
 				return id;
@@ -74,32 +74,10 @@ index_object TermIndexAtom::firstMatch(vec_pair_long& bound, vec_pair_long& bind
 }
 
 
-bool TermIndexAtom::findIfAFactExists(vec_pair_long& bound, map_int_int& equal_var) {
-	vector<index_object> terms(bound.size() + equal_var.size());
-	for (unsigned int i = 0; i < bound.size(); i++) {
-		terms[bound[i].first] = bound[i].second;
-	}
-	for (auto it : equal_var) {
-		terms[it.second] = terms[it.first];
-	}
-	index_object predicate=(*atoms->begin())->atom->getPredicate().second;
-	Atom *atom=new ClassicalLiteral(predicate,terms,false,false);
-	GenericAtom *genAtom=new GenericAtom;
-	genAtom->atom=atom;
-
-	bool find = indexMap[predicate].count(genAtom);
-
-	delete genAtom;
-	delete atom;
-
-	return find;
-}
-
-index_object TermIndexAtomMultiMap::firstMatch(vec_pair_long& bound, vec_pair_long& bind, map_int_int& equal_var, bool& find) {
+index_object TermIndexAtomMultiMap::firstMatch(vec_pair_index_object& bound, vec_pair_index_object& bind, map_int_int& equal_var, bool& find) {
 
 	index_object id = matches_id.size();
 	ResultMatch *rm = new ResultMatch(bind);
-	unordered_set<string> result_string;
 
 	//Check if the term of indexing is bound
 	long termBoundIndex=-1;
@@ -131,7 +109,7 @@ index_object TermIndexAtomMultiMap::firstMatch(vec_pair_long& bound, vec_pair_lo
 		//Else check the match among the hash set indexed by that term
 		else{
 			if(bind.size()==0){
-				find = findIfAFactExists(bound, equal_var);
+				find = findIfAFactExists(*atoms,bound, equal_var);
 
 				matches_id.insert({id,rm});
 				return id;
@@ -165,7 +143,7 @@ index_object TermIndexAtomMultiMap::firstMatch(vec_pair_long& bound, vec_pair_lo
 
 
 void TermIndexAtom::initializeIndexMap(){
-	Timer::getInstance()->start("Creation Index Structure");
+//	Timer::getInstance()->start("Creation Index Structure");
 	unordered_set<index_object> termToBeIndexedIndices;
 
 	for (GenericAtom*a : *atoms) {
@@ -180,16 +158,16 @@ void TermIndexAtom::initializeIndexMap(){
 			indexMap[termIndex].insert(a);
 		}
 	}
-	Timer::getInstance()->end();
+//	Timer::getInstance()->end();
 	instantiateIndexMap=true;
 }
 
 void TermIndexAtomMultiMap::initializeIndexMap(){
-	Timer::getInstance()->start("Creation Index Structure");
+//	Timer::getInstance()->start("Creation Index Structure");
 	for (GenericAtom*a : *atoms) {
 		index_object termIndex=a->atom->getTerm(termToBeIndexed);
 		indexMap.insert({termIndex,a});
 	}
-	Timer::getInstance()->end();
+//	Timer::getInstance()->end();
 	instantiateIndexMap=true;
 }

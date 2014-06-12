@@ -12,30 +12,31 @@
 
 class TermIndexAtom: public SimpleIndexAtom {
 public:
-	TermIndexAtom(){ atoms=0; instantiateIndexMap=false; termToBeIndexed=0;};
-	TermIndexAtom(AtomTable* a) { atoms=a; instantiateIndexMap=false; termToBeIndexed=0;};
-	TermIndexAtom(AtomTable* a, int i) { atoms=a; instantiateIndexMap=false; termToBeIndexed=i;};
-	virtual index_object firstMatch(vec_pair_long &bound, vec_pair_long &bind,map_int_int& equal_var,bool& find);
-	virtual bool findIfAFactExists(vec_pair_long& bound, map_int_int& equal_var);
+	TermIndexAtom(): SimpleIndexAtom(), instantiateIndexMap(false), termToBeIndexed(0),termSetByPreference(false){};
+	TermIndexAtom(AtomTable* a): SimpleIndexAtom(a), instantiateIndexMap(false), termToBeIndexed(0),termSetByPreference(false){};
+	TermIndexAtom(AtomTable* a, int i): SimpleIndexAtom(a), instantiateIndexMap(false), termToBeIndexed(i),termSetByPreference(true){};
+	virtual index_object firstMatch(vec_pair_index_object &bound, vec_pair_index_object &bind,map_int_int& equal_var,bool& find);
 	virtual ~TermIndexAtom(){};
 private:
 	unordered_map<index_object,AtomTable> indexMap;
 	bool instantiateIndexMap;
 	unsigned int termToBeIndexed;
+	bool termSetByPreference;
 	void initializeIndexMap();
 };
 
 class TermIndexAtomMultiMap: public SimpleIndexAtom {
 public:
-	TermIndexAtomMultiMap(){ atoms=0; instantiateIndexMap=false; termToBeIndexed=0;};
-	TermIndexAtomMultiMap(AtomTable* a) { atoms=a; instantiateIndexMap=false; termToBeIndexed=0;};
-	TermIndexAtomMultiMap(AtomTable* a, int i) { atoms=a; instantiateIndexMap=false; termToBeIndexed=i;};
-	virtual index_object firstMatch(vec_pair_long &bound, vec_pair_long &bind,map_int_int& equal_var,bool& find);
+	TermIndexAtomMultiMap(): SimpleIndexAtom(), instantiateIndexMap(false), termToBeIndexed(0),termSetByPreference(false){};
+	TermIndexAtomMultiMap(AtomTable* a): SimpleIndexAtom(a), instantiateIndexMap(false), termToBeIndexed(0),termSetByPreference(false){};
+	TermIndexAtomMultiMap(AtomTable* a, int i): SimpleIndexAtom(a), instantiateIndexMap(false), termToBeIndexed(i),termSetByPreference(true){};
+	virtual index_object firstMatch(vec_pair_index_object &bound, vec_pair_index_object &bind,map_int_int& equal_var,bool& find);
 	virtual ~TermIndexAtomMultiMap(){};
 private:
 	unordered_multimap<index_object,GenericAtom*> indexMap;
 	bool instantiateIndexMap;
 	unsigned int termToBeIndexed;
+	bool termSetByPreference;
 	void initializeIndexMap();
 };
 

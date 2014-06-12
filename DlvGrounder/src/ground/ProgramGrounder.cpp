@@ -24,7 +24,7 @@ void ProgramGrounder::ground() {
 }
 
 
-void ProgramGrounder::findBoundBindRule(Rule *r,vector<vec_pair_long> &bounds,vector<vec_pair_long>& binds,vector<map_int_int >& equal_vars){
+void ProgramGrounder::findBoundBindRule(Rule *r,vector<vec_pair_index_object> &bounds,vector<vec_pair_index_object>& binds,vector<map_int_int >& equal_vars){
 	//variable in rule
 	unordered_set<index_object> var_assign;
 	//variable in atom
@@ -37,8 +37,8 @@ void ProgramGrounder::findBoundBindRule(Rule *r,vector<vec_pair_long> &bounds,ve
 	//INIZIALIZE bounds binds
 	for(;current_atom_it!=r->getEndBody();current_atom_it++){
 		Atom *current_atom=*current_atom_it;
-		bounds.push_back(vec_pair_long());
-		binds.push_back(vec_pair_long());
+		bounds.push_back(vec_pair_index_object());
+		binds.push_back(vec_pair_index_object());
 		equal_vars.push_back(unordered_multimap<unsigned int,unsigned int>());
 		for(unsigned int i=0;i<current_atom->getTermsSize();i++){
 
@@ -71,7 +71,7 @@ void ProgramGrounder::findBoundBindRule(Rule *r,vector<vec_pair_long> &bounds,ve
 
 }
 
-void ProgramGrounder::printGroundRule(Rule *r,map_long_long& var_assign){
+void ProgramGrounder::printGroundRule(Rule *r,map_index_object_index_object& var_assign){
 
 	Rule *groundRule=new Rule;
 
@@ -113,7 +113,7 @@ void ProgramGrounder::printGroundRule(Rule *r,map_long_long& var_assign){
 	groundRule->print(termsMap);
 }
 
-void ProgramGrounder::foundAssignmentRule(Rule *r,map_long_long& var_assign){
+void ProgramGrounder::foundAssignmentRule(Rule *r,map_index_object_index_object& var_assign){
 
 	vector<Atom*> atoms;
 	for (auto head_it = r->getBeginHead(); head_it != r->getEndHead(); head_it++) {
@@ -145,7 +145,7 @@ void ProgramGrounder::foundAssignmentRule(Rule *r,map_long_long& var_assign){
 	}
 }
 
-void ProgramGrounder::setBoundValue(Atom *current_atom,vec_pair_long &bound,map_long_long& var_assign){
+void ProgramGrounder::setBoundValue(Atom *current_atom,vec_pair_index_object &bound,map_index_object_index_object& var_assign){
 	for(unsigned int i=0;i<bound.size();i++){
 		index_object bound_variable=current_atom->getTerm(bound[i].first);
 		index_object bound_value=var_assign.find(bound_variable)->second;
@@ -154,14 +154,14 @@ void ProgramGrounder::setBoundValue(Atom *current_atom,vec_pair_long &bound,map_
 	}
 }
 
-void ProgramGrounder::removeBindValueInAssignment(Atom *current_atom,vec_pair_long &bind,map_long_long& var_assign){
+void ProgramGrounder::removeBindValueInAssignment(Atom *current_atom,vec_pair_index_object &bind,map_index_object_index_object& var_assign){
 	for(auto v:bind){
 		index_object bind_variable=current_atom->getTerm(v.first);
 		var_assign.erase(bind_variable);
 	}
 }
 
-void ProgramGrounder::insertBindValueInAssignment(Atom *current_atom,vec_pair_long &bind,map_long_long& var_assign){
+void ProgramGrounder::insertBindValueInAssignment(Atom *current_atom,vec_pair_index_object &bind,map_index_object_index_object& var_assign){
 	for(auto v:bind){
 		index_object bind_variable=current_atom->getTerm(v.first);
 		index_object bind_value=v.second;
@@ -174,7 +174,7 @@ void ProgramGrounder::insertBindValueInAssignment(Atom *current_atom,vec_pair_lo
 
 void ProgramGrounder::groundRule(Rule* r) {
 	//variable,value
-	map_long_long var_assign;
+	map_index_object_index_object var_assign;
 	list<index_object> id_match(0);
 
 	bool finish=false;
@@ -183,7 +183,7 @@ void ProgramGrounder::groundRule(Rule* r) {
 	bool find=false;
 	bool negation=false;
 
-	vector<vec_pair_long> bounds,binds;
+	vector<vec_pair_index_object> bounds,binds;
 	vector<map_int_int > equal_vars;
 
 	//TODO Order rule!

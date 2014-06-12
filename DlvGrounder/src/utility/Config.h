@@ -46,7 +46,7 @@ public:
 	void setIndexType(string indexType);
 
 	void configureIndexingMap();
-	unsigned int getIndexingTerm(index_object predicate);
+	pair<unsigned int,bool> getIndexingTerm(index_object predicate);
 
 	bool isComponent() const {
 		return component;
@@ -118,7 +118,7 @@ private:
 	bool printRules;
 
 	string indexingPreferences;
-	unordered_map<index_object, index_object> indexingMap;
+	unordered_map<index_object, unsigned int> indexingMap;
 
 	string fileGraph;
 

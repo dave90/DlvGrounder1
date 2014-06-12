@@ -48,7 +48,7 @@ struct AtomUndef : GenericAtom{
 	void setFact(bool fact){this->fact=fact;};
 };
 
-typedef vector<pair<unsigned int,index_object> > vec_pair_long;
+typedef vector<pair<unsigned int,index_object> > vec_pair_index_object;
 typedef unordered_multimap<unsigned int,unsigned int> map_int_int;
 
 /*
@@ -66,10 +66,10 @@ struct hashAtom {
 };
 
 struct hashAtomResult {
-	vec_pair_long bind;
+	vec_pair_index_object bind;
 	HashString *hash;
 
-	hashAtomResult(vec_pair_long &bind){this->bind=bind;hash=HashString::getHashStringFromConfig();}
+	hashAtomResult(vec_pair_index_object &bind){this->bind=bind;hash=HashString::getHashStringFromConfig();}
 
 	size_t operator()(Atom* atom) const {
 		return hash->computeHash(getString(atom));
@@ -95,7 +95,7 @@ typedef unordered_set<Atom*, hashAtomResult, hashAtomResult> AtomResultTable;
 
 struct ResultMatch {
 	mutable AtomResultTable result;
-	ResultMatch(vec_pair_long &bind):result(0,hashAtomResult(bind),hashAtomResult(bind)){};
+	ResultMatch(vec_pair_index_object &bind):result(0,hashAtomResult(bind),hashAtomResult(bind)){};
 
 };
 
@@ -103,13 +103,13 @@ struct ResultMatch {
 class IndexAtom {
 public:
 	IndexAtom(){atoms=0;};
-	IndexAtom(AtomTable* a) {atoms = a;}
+	IndexAtom(AtomTable* a) :atoms(a){};
 	;
 	/*
 	 *  Return id used for the nextMatch
 	 */
-	virtual index_object firstMatch(vec_pair_long &bound,vec_pair_long &bind,map_int_int& equal_var,bool& find)=0;
-	virtual void nextMatch(index_object id,vec_pair_long &bind,bool& find)=0;
+	virtual index_object firstMatch(vec_pair_index_object &bound,vec_pair_index_object &bind,map_int_int& equal_var,bool& find)=0;
+	virtual void nextMatch(index_object id,vec_pair_index_object &bind,bool& find)=0;
 	virtual ~IndexAtom() {};
 protected:
 	AtomTable* atoms;
@@ -118,16 +118,16 @@ protected:
 class SimpleIndexAtom: public IndexAtom {
 public:
 	SimpleIndexAtom(){};
-	SimpleIndexAtom(AtomTable* a) {	atoms = a;};
-	virtual index_object firstMatch(vec_pair_long &bound, vec_pair_long &bind,map_int_int& equal_var,bool& find);
-	virtual void nextMatch(index_object id,vec_pair_long &bind,bool& find);
+	SimpleIndexAtom(AtomTable* a) : IndexAtom(a){};
+	virtual index_object firstMatch(vec_pair_index_object &bound, vec_pair_index_object &bind,map_int_int& equal_var,bool& find);
+	virtual void nextMatch(index_object id,vec_pair_index_object &bind,bool& find);
 	virtual ~SimpleIndexAtom();
 protected:
 	unordered_map<index_object, ResultMatch*> matches_id;
-	bool computeFirstMatch(const AtomTable& collection,vec_pair_long &bound,vec_pair_long &bind,map_int_int& equal_var,ResultMatch* rm);
+	bool computeFirstMatch(const AtomTable& collection,vec_pair_index_object &bound,vec_pair_index_object &bind,map_int_int& equal_var,ResultMatch* rm);
 	/// Test the match of bind equal variable
 	bool checkEqualVariable(map_int_int& equal_var,Atom *atom);
-	virtual bool findIfAFactExists(vec_pair_long& bound, map_int_int& equal_var);
+	virtual bool findIfAFactExists(const AtomTable& collection,vec_pair_index_object& bound, map_int_int& equal_var);
 };
 
 class Instances {
