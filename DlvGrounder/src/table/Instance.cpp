@@ -119,10 +119,13 @@ SimpleIndexAtom::~SimpleIndexAtom() {}
 Instances::Instances(index_object predicate) {
 	this->predicate = predicate;
 	switch (Config::getInstance()->getIndexType()) {
+	case (IndexType::MAP):
+				indexAtom = new TermIndexAtom(&facts,Config::getInstance()->getIndexingTerm(predicate));
+				break;
+	case (IndexType::MULTIMAP):
+				indexAtom = new TermIndexAtomMultiMap(&facts,Config::getInstance()->getIndexingTerm(predicate));
+				break;
 	default:
-		//FIXME NOT only fact
-//		indexAtom = new TermIndexAtom(&facts,Config::getInstance()->getIndexingTerm(predicate));
-//		indexAtom = new TermIndexAtomMultiMap(&facts,Config::getInstance()->getIndexingTerm(predicate));
 		indexAtom = new SimpleIndexAtom(&facts);
 		break;
 	}

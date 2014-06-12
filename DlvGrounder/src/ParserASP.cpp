@@ -333,6 +333,9 @@ bool parseArgs(int argc, char* argv[], string& filename) {
 		ValueArg<string> hashArg("a", "hash", "Hash type", false, "STL_HASH", "string");
 		cmd.add(&hashArg);
 
+		ValueArg<string> indexingTypeArg("z", "indexType", "Index type", false, "DEFAULT", "string");
+		cmd.add(&indexingTypeArg);
+
 		SwitchArg parseArgs("p", "print", "Print parser result", false);
 		cmd.add(&parseArgs);
 
@@ -370,6 +373,7 @@ bool parseArgs(int argc, char* argv[], string& filename) {
 		// Get the value parsed by each arg.
 		string termTable = termTableArg.getValue();
 		string hash = hashArg.getValue();
+		string indexType=indexingTypeArg.getValue();
 		bool parser = parseArgs.getValue();
 		bool dependency = dependencyArgs.getValue();
 		bool component = componentArgs.getValue();
@@ -383,6 +387,7 @@ bool parseArgs(int argc, char* argv[], string& filename) {
 
 		Config::getInstance()->setTermTableType(termTable);
 		Config::getInstance()->setHashType(hash);
+		Config::getInstance()->setIndexType(indexType);
 		Config::getInstance()->setParser(parser);
 		Config::getInstance()->setDependency(dependency);
 		Config::getInstance()->setComponent(component);

@@ -39,6 +39,7 @@ void StatementBuilder::printStats() {
 		cout<<"Statistic"<<endl;
 		cout << "Term table: " << Config::getInstance()->getTermTableType() << endl;
 		cout << "Hash: " << Config::getInstance()->getHashType() << endl;
+		cout << "Index Type: " << Config::getInstance()->getIndexType() << endl;
 		cout << endl;
 		cout << "Statement: " << statement << endl;
 		cout << "Constraint: " << constraint << endl;

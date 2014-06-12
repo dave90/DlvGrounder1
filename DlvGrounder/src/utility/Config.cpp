@@ -12,10 +12,10 @@
 
 Config* Config::config;
 
-static string TermTableTypeString[]={ "BOOST", "STL", "MAP" };
+static string TermTableTypeString[]={ "BOOST", "STL" };
 static string HashTypeString[] ={ "STL_HASH", "BOOST_HASH", "JAVA_HASH", "MUR_HASH","PERL_DJ",
 	"PERL_B" };
-static string IndexTypeString[] ={ "DEFAULT" };
+static string IndexTypeString[] ={ 	"DEFAULT" , "MULTIMAP", "MAP"};
 
 Config* Config::getInstance() {
 	if(config==0)
@@ -34,9 +34,9 @@ Config::Config() {
 	statistic=false;
 	printRules=false;
 
-	 N_TT = TermTableType::MAP+1;
+	 N_TT = TermTableType::STL+1;
 	 N_H = HashType::PERL_B+1;
-	 N_I = IndexType::DEFAULT+1;
+	 N_I = IndexType::MAP+1;
 
 }
 

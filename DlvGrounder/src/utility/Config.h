@@ -18,7 +18,7 @@
 using namespace std;
 
 enum TermTableType {
-	BOOST = 0, STL, MAP
+	BOOST = 0, STL
 };
 
 enum HashType {
@@ -26,7 +26,7 @@ enum HashType {
 };
 
 enum IndexType {
-	DEFAULT = 0
+	DEFAULT = 0, MULTIMAP, MAP
 };
 
 class Config {
