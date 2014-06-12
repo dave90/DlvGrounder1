@@ -16,6 +16,7 @@ public:
 	TermIndexAtom(AtomTable* a) { atoms=a; instantiateIndexMap=false; termToBeIndexed=0;};
 	TermIndexAtom(AtomTable* a, int i) { atoms=a; instantiateIndexMap=false; termToBeIndexed=i;};
 	virtual index_object firstMatch(vec_pair_long &bound, vec_pair_long &bind,map_int_int& equal_var,bool& find);
+	virtual bool findIfAFactExists(vec_pair_long& bound, map_int_int& equal_var);
 	virtual ~TermIndexAtom(){};
 private:
 	unordered_map<index_object,AtomTable> indexMap;
@@ -30,6 +31,7 @@ public:
 	TermIndexAtomMultiMap(AtomTable* a) { atoms=a; instantiateIndexMap=false; termToBeIndexed=0;};
 	TermIndexAtomMultiMap(AtomTable* a, int i) { atoms=a; instantiateIndexMap=false; termToBeIndexed=i;};
 	virtual index_object firstMatch(vec_pair_long &bound, vec_pair_long &bind,map_int_int& equal_var,bool& find);
+	virtual bool findIfAFactExists(vec_pair_long& bound, map_int_int& equal_var);
 	virtual ~TermIndexAtomMultiMap(){};
 private:
 	unordered_multimap<index_object,GenericAtom*> indexMap;
