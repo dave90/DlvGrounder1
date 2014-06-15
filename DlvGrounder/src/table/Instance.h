@@ -117,7 +117,6 @@ protected:
 
 class SimpleIndexAtom: public IndexAtom {
 public:
-	SimpleIndexAtom(){};
 	SimpleIndexAtom(AtomTable* a) : IndexAtom(a){};
 	virtual index_object firstMatch(vec_pair_index_object &bound, vec_pair_index_object &bind,map_int_int& equal_var,bool& find);
 	virtual void nextMatch(index_object id,vec_pair_index_object &bind,bool& find);

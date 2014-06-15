@@ -12,7 +12,6 @@
 
 class TermIndexAtom: public SimpleIndexAtom {
 public:
-	TermIndexAtom(): SimpleIndexAtom(), instantiateIndexMap(false), termToBeIndexed(0),termSetByPreference(false){};
 	TermIndexAtom(AtomTable* a): SimpleIndexAtom(a), instantiateIndexMap(false), termToBeIndexed(0),termSetByPreference(false){};
 	TermIndexAtom(AtomTable* a, int i): SimpleIndexAtom(a), instantiateIndexMap(false), termToBeIndexed(i),termSetByPreference(true){};
 	virtual index_object firstMatch(vec_pair_index_object &bound, vec_pair_index_object &bind,map_int_int& equal_var,bool& find);
@@ -28,7 +27,6 @@ private:
 
 class TermIndexAtomMultiMap: public SimpleIndexAtom {
 public:
-	TermIndexAtomMultiMap(): SimpleIndexAtom(), instantiateIndexMap(false), termToBeIndexed(0),termSetByPreference(false){};
 	TermIndexAtomMultiMap(AtomTable* a): SimpleIndexAtom(a), instantiateIndexMap(false), termToBeIndexed(0),termSetByPreference(false){};
 	TermIndexAtomMultiMap(AtomTable* a, int i): SimpleIndexAtom(a), instantiateIndexMap(false), termToBeIndexed(i),termSetByPreference(true){};
 	virtual index_object firstMatch(vec_pair_index_object &bound, vec_pair_index_object &bind,map_int_int& equal_var,bool& find);

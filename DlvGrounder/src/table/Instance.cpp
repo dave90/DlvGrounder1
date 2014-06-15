@@ -38,7 +38,8 @@ index_object SimpleIndexAtom::firstMatch(vec_pair_index_object &bound,vec_pair_i
 	index_object id = matches_id.size();
 	ResultMatch *rm = new ResultMatch(bind);
 
-	if(bind.size()==0){
+	// Call findIfAFactExist only if all the terms have value
+	if(bound.size()==(*atoms->begin())->atom->getTermsSize()){
 		if(findIfAFactExists(*atoms,bound,equal_var)){
 			find=true;
 			matches_id.insert({id,rm});
@@ -71,8 +72,11 @@ bool SimpleIndexAtom::computeFirstMatch(const AtomTable& collection, vec_pair_in
 			if(!checkEqualVariable(equal_var,a))continue;
 			// If no bind variables but match atom finish
 
-
 			rm->result.insert(a);
+
+			// If bind equal 0 check if exist one element
+			// If bind equal 0 then the size of bind is not equal arity, is present anonimous
+			if(bind.size()==0)break;
 
 		}
 	}
@@ -93,7 +97,6 @@ void SimpleIndexAtom::nextMatch(index_object id,vec_pair_index_object &bind,bool
 	unsigned int size=rm->result.size();
 	unsigned int num_variable=bind.size();
 
-
 	if(size==0){
 		delete rm;
 		find=false;
@@ -101,6 +104,7 @@ void SimpleIndexAtom::nextMatch(index_object id,vec_pair_index_object &bind,bool
 	}
 
 	auto it_last_atom=rm->result.begin();
+
 	for(unsigned int i=0;i<num_variable;i++){
 		bind[i].second=(*it_last_atom)->getTerm(bind[i].first);
 	}

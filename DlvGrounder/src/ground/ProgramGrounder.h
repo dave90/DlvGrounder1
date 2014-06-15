@@ -63,5 +63,11 @@ private:
 	void removeBindValueInAssignment(Atom *current_atom,vec_pair_index_object &bind,map_index_object_index_object& var_assign);
 	/// Insert the value in assignment for the variable present in bind
 	void insertBindValueInAssignment(Atom *current_atom,vec_pair_index_object &bind,map_index_object_index_object& var_assign);
+
+	/// Debug methods
+	void printVecPair(string name,vector<vec_pair_index_object> &vec);
+	void printPair(int i, vector<vec_pair_index_object>& vec);
+	void printMapIntInt(string name,vector<map_int_int >& equal_vars);
+	void printAssignment(map_index_object_index_object& var_assign);
 };
 #endif /* PROGRAMGROUNDER_H_ */

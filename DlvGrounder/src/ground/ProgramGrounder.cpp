@@ -5,6 +5,10 @@
  *      Author: Davide
  */
 
+
+#define DEBUG 1
+
+
 #include "ProgramGrounder.h"
 
 #include <list>
@@ -22,6 +26,52 @@ void ProgramGrounder::ground() {
 	groundRule(statementDependency->getRule(0));
 	Timer::getInstance()->end();
 }
+
+void ProgramGrounder::printPair(int i, vector<vec_pair_index_object>& vec) {
+	cout << "ATOM " << i << " ";
+	for (auto v : vec[i]) {
+		cout << " [" << v.first << ",";
+		termsMap->getTerm(v.second)->print(termsMap);
+		cout << "] ";
+	}
+	cout<<endl;
+}
+
+void ProgramGrounder::printVecPair(string name,vector<vec_pair_index_object> &vec){
+
+	cout<<name<<endl;
+	for(unsigned int i=0;i<vec.size();i++){
+		printPair(i, vec);
+	}
+
+}
+
+void ProgramGrounder::printMapIntInt(string name,vector<map_int_int >& equal_vars){
+
+	cout<<name<<endl;
+	for(unsigned int i=0;i<equal_vars.size();i++){
+		cout<<"ATOM "<<i<<" ";
+		for(auto v:equal_vars[i])
+			cout<< " ["<<v.first<<","<< v.second<<"] ";
+		cout<<endl;
+	}
+
+}
+
+void ProgramGrounder::printAssignment(map_index_object_index_object& var_assign){
+
+	cout<<"ASSIGNMENT ";
+	for(auto i:var_assign){
+		cout<<"[ ";
+		termsMap->getTerm(i.first)->print(termsMap);
+		cout<<",";
+		termsMap->getTerm(i.second)->print(termsMap);
+		cout<<" ]";
+	}
+	cout<<endl;
+
+}
+
 
 
 void ProgramGrounder::findBoundBindRule(Rule *r,vector<vec_pair_index_object> &bounds,vector<vec_pair_index_object>& binds,vector<map_int_int >& equal_vars){
@@ -129,10 +179,7 @@ void ProgramGrounder::foundAssignmentRule(Rule *r,map_index_object_index_object&
 		atoms.push_back(new ClassicalLiteral(predicate,terms,false,false));
 
 	}
-//	for(Atom *a:atoms){
-//		a->print(termsMap);
-//		cout<<".";
-//	}
+
 	bool truth=true;
 	if(atoms.size()>1)truth=false;
 	for(Atom *a:atoms){
@@ -189,6 +236,16 @@ void ProgramGrounder::groundRule(Rule* r) {
 	//TODO Order rule!
 	findBoundBindRule(r,bounds,binds,equal_vars);
 
+#if DEBUG == 0
+	//DEBUG PRINT
+	cout<<"--- INIZIALIZATION ---"<<endl;
+	printVecPair("BOUND",bounds);
+	printVecPair("BIND",binds);
+	printMapIntInt("EQUAL",equal_vars);
+	cout<<"--- END INIZIALIZATION ---"<<endl;
+	// END DEBUG PRINT
+#endif
+
 	while(!finish){
 		Atom *current_atom=*current_atom_it;
 		negation=current_atom->isNegative();
@@ -203,8 +260,11 @@ void ProgramGrounder::groundRule(Rule* r) {
 		// Set value of bound based of the current assignment
 		setBoundValue(current_atom,bounds[index_current_atom],var_assign);
 
+
 		// FIND IF FIRST OR NEXT
 		bool firstMatch=index_current_atom!=id_match.size()-1;
+
+
 		if(firstMatch){
 
 			index_object id=index->firstMatch(bounds[index_current_atom],binds[index_current_atom],equal_vars[index_current_atom],find);
@@ -222,7 +282,19 @@ void ProgramGrounder::groundRule(Rule* r) {
 
 		}
 
-
+#if DEBUG == 0
+		//DEBUG PRINT
+		cout<<endl;
+		cout<<"--- Current atom: "<<index_current_atom<<" ---"<<endl;
+		cout<<"BOUND ";
+		printPair(index_current_atom,bounds);
+		cout<<"BIND ";
+		printPair(index_current_atom,binds);
+		cout<<"First match:"<<firstMatch<<endl;
+		cout<<"Find:"<<find<<endl;
+		cout<<"Negation:"<<negation<<endl;
+		// END DEBUG PRINT
+#endif
 
 		//IF MATCH
 		if( (find && !negation) | (!find && negation && firstMatch)){
@@ -230,6 +302,12 @@ void ProgramGrounder::groundRule(Rule* r) {
 
 			// Insert bind variable assignment
 			insertBindValueInAssignment(current_atom,binds[index_current_atom],var_assign);
+
+#if DEBUG == 0
+			//DEBUG PRINT
+			printAssignment(var_assign);
+			// END DEBUG PRINT
+#endif
 
 			// IF END OF RULE
 			if(current_atom_it+1==r->getEndBody()){
