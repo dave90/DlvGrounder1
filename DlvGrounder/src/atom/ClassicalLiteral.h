@@ -15,7 +15,7 @@ using namespace std;
 class ClassicalLiteral : public Atom {
 public:
 	ClassicalLiteral(): predicate(0), hasMinus(false), negative(false){};
-	ClassicalLiteral(index_object p, vector<index_object> t, bool hM, bool n): predicate(p), terms(t), hasMinus(hM), negative(n) {};
+	ClassicalLiteral(index_object p, vector<index_object> &t, bool hM, bool n): predicate(p), terms(t), hasMinus(hM), negative(n) {};
 
 	const vector<index_object> getTerms() const {return terms;};
 	virtual const unsigned int getTermsSize() const {return terms.size();};

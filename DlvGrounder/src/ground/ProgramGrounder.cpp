@@ -6,7 +6,7 @@
  */
 
 
-#define DEBUG 1
+#define DEBUG 0
 
 
 #include "ProgramGrounder.h"
@@ -94,7 +94,7 @@ void ProgramGrounder::findBoundBindRule(Rule *r,vector<vec_pair_index_object> &b
 
 			auto f=var_assign.find(current_atom->getTerm(i));
 			if(f!=var_assign.end()){
-				bounds[index_current_atom].push_back({i,0});
+				bounds[index_current_atom].push_back({i,current_atom->getTerm(i)});
 			}else{
 				// Bind only variable not anonymous and initially contains the variable
 				if(!termsMap->getTerm(current_atom->getTerm(i))->isAnonymous()){
@@ -284,15 +284,20 @@ void ProgramGrounder::groundRule(Rule* r) {
 
 #if DEBUG == 0
 		//DEBUG PRINT
-		cout<<endl;
-		cout<<"--- Current atom: "<<index_current_atom<<" ---"<<endl;
-		cout<<"BOUND ";
-		printPair(index_current_atom,bounds);
-		cout<<"BIND ";
-		printPair(index_current_atom,binds);
-		cout<<"First match:"<<firstMatch<<endl;
-		cout<<"Find:"<<find<<endl;
-		cout<<"Negation:"<<negation<<endl;
+		cout<<"ATOM "<<index_current_atom<<" ";
+		current_atom->print(termsMap);
+		cout<<" --> ";
+		vector<index_object> terms=current_atom->getTerms();
+		for(auto bind:binds[index_current_atom])
+			terms[bind.first]=bind.second;
+		for(auto bound:bounds[index_current_atom])
+			terms[bound.first]=bound.second;
+		ClassicalLiteral literal(current_atom->getPredicate().second,terms,false,false);
+		literal.print(termsMap);
+		if( (find && !negation) | (!find && negation && firstMatch))
+			cout<<" MATCH!"<<endl;
+		else
+			cout<<" NO-MATCH!"<<endl;
 		// END DEBUG PRINT
 #endif
 
@@ -303,16 +308,17 @@ void ProgramGrounder::groundRule(Rule* r) {
 			// Insert bind variable assignment
 			insertBindValueInAssignment(current_atom,binds[index_current_atom],var_assign);
 
-#if DEBUG == 0
-			//DEBUG PRINT
-			printAssignment(var_assign);
-			// END DEBUG PRINT
-#endif
 
 			// IF END OF RULE
 			if(current_atom_it+1==r->getEndBody()){
 
 				foundAssignmentRule(r,var_assign);
+#if DEBUG == 0
+			//DEBUG PRINT
+			cout<<" --> ";
+			printAssignment(var_assign);
+			// END DEBUG PRINT
+#endif
 
 			}else{
 
