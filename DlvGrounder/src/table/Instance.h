@@ -110,8 +110,8 @@ public:
 	/*
 	 *  Return id used for the nextMatch
 	 */
-	virtual index_object firstMatch(vec_pair_index_object &bound,vec_pair_index_object &bind,map_int_int& equal_var,bool& find)=0;
-	virtual void nextMatch(index_object id,vec_pair_index_object &bind,bool& find)=0;
+	virtual unsigned int firstMatch(vec_pair_index_object &bound,vec_pair_index_object &bind,map_int_int& equal_var,bool& find)=0;
+	virtual void nextMatch(unsigned int id,vec_pair_index_object &bind,bool& find)=0;
 	virtual ~IndexAtom() {};
 protected:
 	AtomTable* atoms;
@@ -120,11 +120,11 @@ protected:
 class SimpleIndexAtom: public IndexAtom {
 public:
 	SimpleIndexAtom(AtomTable* a) : IndexAtom(a),counter(0){};
-	virtual index_object firstMatch(vec_pair_index_object &bound, vec_pair_index_object &bind,map_int_int& equal_var,bool& find);
-	virtual void nextMatch(index_object id,vec_pair_index_object &bind,bool& find);
+	virtual unsigned int firstMatch(vec_pair_index_object &bound, vec_pair_index_object &bind,map_int_int& equal_var,bool& find);
+	virtual void nextMatch(unsigned int id,vec_pair_index_object &bind,bool& find);
 	virtual ~SimpleIndexAtom();
 protected:
-	unordered_map<index_object, ResultMatch*> matches_id;
+	unordered_map<unsigned int, ResultMatch*> matches_id;
 	unsigned int counter;
 	/// Search in the atom table if match
 	bool computeFirstMatch(const AtomTable& collection,vec_pair_index_object &bound,vec_pair_index_object &bind,map_int_int& equal_var,ResultMatch* rm);

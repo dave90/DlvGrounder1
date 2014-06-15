@@ -34,8 +34,8 @@ bool SimpleIndexAtom::findIfAFactExists(const AtomTable& collection,vec_pair_ind
 }
 
 
-index_object SimpleIndexAtom::firstMatch(vec_pair_index_object &bound,vec_pair_index_object &bind,map_int_int& equal_var,bool& find) {
-	index_object id = counter;counter++;
+unsigned int SimpleIndexAtom::firstMatch(vec_pair_index_object &bound,vec_pair_index_object &bind,map_int_int& equal_var,bool& find) {
+	unsigned int id = counter;counter++;
 	ResultMatch *rm = new ResultMatch(bind);
 
 	// Call findIfAFactExist only if all the terms have value
@@ -92,7 +92,7 @@ bool SimpleIndexAtom::checkEqualVariable(map_int_int& equal_var,Atom *atom){
 	return true;
 }
 
-void SimpleIndexAtom::nextMatch(index_object id,vec_pair_index_object &bind,bool& find) {
+void SimpleIndexAtom::nextMatch(unsigned int id,vec_pair_index_object &bind,bool& find) {
 	ResultMatch *rm=matches_id.find(id)->second;
 	unsigned int size=rm->result.size();
 	unsigned int num_variable=bind.size();

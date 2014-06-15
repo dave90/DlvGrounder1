@@ -222,7 +222,7 @@ void ProgramGrounder::insertBindValueInAssignment(Atom *current_atom,vec_pair_in
 void ProgramGrounder::groundRule(Rule* r) {
 	//variable,value
 	map_index_object_index_object var_assign;
-	list<index_object> id_match(0);
+	list<unsigned int> id_match(0);
 
 	bool finish=false;
 	auto current_atom_it=r->getBeginBody();
@@ -267,12 +267,12 @@ void ProgramGrounder::groundRule(Rule* r) {
 
 		if(firstMatch){
 
-			index_object id=index->firstMatch(bounds[index_current_atom],binds[index_current_atom],equal_vars[index_current_atom],find);
+			unsigned int id=index->firstMatch(bounds[index_current_atom],binds[index_current_atom],equal_vars[index_current_atom],find);
 			id_match.push_back(id);
 
 		}else{
 			if(!negation){
-				index_object id=id_match.back();
+				unsigned int id=id_match.back();
 
 				// Remove bind value in assignment
 				removeBindValueInAssignment(current_atom,binds[index_current_atom],var_assign);
@@ -329,8 +329,9 @@ void ProgramGrounder::groundRule(Rule* r) {
 
 
 			//IF FAIL MATCH AND FIRST ATOM EXIT
-			if(current_atom_it==r->getBeginBody())
+			if(current_atom_it==r->getBeginBody()){
 				finish=true;
+			}
 
 			current_atom_it--;index_current_atom--;
 			id_match.pop_back();

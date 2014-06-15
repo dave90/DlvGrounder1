@@ -28,7 +28,7 @@ long TermIndexAtom::determineTermToBeIndexed(vec_pair_index_object& bound) {
 }
 
 
-index_object TermIndexAtom::firstMatch(vec_pair_index_object& bound, vec_pair_index_object& bind, map_int_int& equal_var, bool& find) {
+unsigned int TermIndexAtom::firstMatch(vec_pair_index_object& bound, vec_pair_index_object& bind, map_int_int& equal_var, bool& find) {
 
 	index_object id = matches_id.size();
 	ResultMatch* rm=new ResultMatch(bind);
@@ -59,7 +59,7 @@ index_object TermIndexAtom::firstMatch(vec_pair_index_object& bound, vec_pair_in
 }
 
 
-index_object TermIndexAtomMultiMap::firstMatch(vec_pair_index_object& bound, vec_pair_index_object& bind, map_int_int& equal_var, bool& find) {
+unsigned int TermIndexAtomMultiMap::firstMatch(vec_pair_index_object& bound, vec_pair_index_object& bind, map_int_int& equal_var, bool& find) {
 
 	index_object id = matches_id.size();
 	ResultMatch *rm = new ResultMatch(bind);
