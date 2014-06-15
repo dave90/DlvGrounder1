@@ -69,6 +69,8 @@ struct hashAtomResult {
 	vec_pair_index_object bind;
 	HashString *hash;
 
+	hashAtomResult(){hash=HashString::getHashStringFromConfig();}
+
 	hashAtomResult(vec_pair_index_object &bind){this->bind=bind;hash=HashString::getHashStringFromConfig();}
 
 	size_t operator()(Atom* atom) const {
@@ -95,7 +97,7 @@ typedef unordered_set<Atom*, hashAtomResult, hashAtomResult> AtomResultTable;
 
 struct ResultMatch {
 	mutable AtomResultTable result;
-	ResultMatch(vec_pair_index_object &bind):result(0,hashAtomResult(bind),hashAtomResult(bind)){};
+	ResultMatch(vec_pair_index_object &bind){ result=AtomResultTable(0,hashAtomResult(bind));}
 
 };
 
