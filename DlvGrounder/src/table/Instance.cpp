@@ -35,7 +35,7 @@ bool SimpleIndexAtom::findIfAFactExists(const AtomTable& collection,vec_pair_ind
 
 
 index_object SimpleIndexAtom::firstMatch(vec_pair_index_object &bound,vec_pair_index_object &bind,map_int_int& equal_var,bool& find) {
-	index_object id = matches_id.size();
+	index_object id = counter;counter++;
 	ResultMatch *rm = new ResultMatch(bind);
 
 	// Call findIfAFactExist only if all the terms have value
@@ -99,6 +99,7 @@ void SimpleIndexAtom::nextMatch(index_object id,vec_pair_index_object &bind,bool
 
 	if(size==0){
 		delete rm;
+		matches_id.erase(id);
 		find=false;
 		return ;
 	}
