@@ -122,13 +122,13 @@ Instances::Instances(index_object predicate) {
 		if(Config::getInstance()->getIndexingTerm(predicate).second)
 			indexAtom = new TermIndexAtom(&facts,Config::getInstance()->getIndexingTerm(predicate).first);
 		else
-			indexAtom = new TermIndexAtom(&facts,0);
+			indexAtom = new TermIndexAtom(&facts);
 		break;
 	case (IndexType::MULTIMAP):
 		if(Config::getInstance()->getIndexingTerm(predicate).second)
 				indexAtom = new TermIndexAtomMultiMap(&facts,Config::getInstance()->getIndexingTerm(predicate).first);
 		else
-				indexAtom = new TermIndexAtomMultiMap(&facts,0);
+				indexAtom = new TermIndexAtomMultiMap(&facts);
 		break;
 	default:
 		indexAtom = new SimpleIndexAtom(&facts);

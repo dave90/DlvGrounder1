@@ -97,7 +97,7 @@ typedef unordered_set<Atom*, hashAtomResult, hashAtomResult> AtomResultTable;
 
 struct ResultMatch {
 	mutable AtomResultTable result;
-	ResultMatch(vec_pair_index_object &bind){ result=AtomResultTable(0,hashAtomResult(bind));}
+	ResultMatch(vec_pair_index_object &bind){ result=AtomResultTable(0,hashAtomResult(bind),hashAtomResult(bind));}
 
 };
 
