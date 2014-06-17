@@ -11,7 +11,9 @@
 #include <unordered_set>
 #include <unordered_map>
 #include <vector>
+#include <algorithm>
 #include "../atom/ClassicalLiteral.h"
+#include "HashVecInt.h"
 #include <iostream>
 
 #include <boost/lexical_cast.hpp>
@@ -57,7 +59,7 @@ typedef unordered_multimap<unsigned int,unsigned int> map_int_int;
 struct hashAtom {
 
 	size_t operator()(GenericAtom* atomFact) const {
-		return HashString::getHashStringFromConfig()->computeHash(atomFact->atom->getNameToHash());
+		return HashVecInt::getHashVecIntFromConfig()->computeHash(atomFact->atom->getTerms());
 	}
 	bool operator()(GenericAtom* t1, GenericAtom* t2) const {
 		return *(t1->atom) == *(t2->atom);
@@ -67,27 +69,30 @@ struct hashAtom {
 
 struct hashAtomResult {
 	vec_pair_index_object bind;
-	HashString *hash;
 
-	hashAtomResult(){hash=HashString::getHashStringFromConfig();}
+	hashAtomResult(){}
 
-	hashAtomResult(vec_pair_index_object &bind){this->bind=bind;hash=HashString::getHashStringFromConfig();}
+	hashAtomResult(vec_pair_index_object &bind){this->bind=bind;}
 
 	size_t operator()(Atom* atom) const {
-		return hash->computeHash(getString(atom));
+		vector<index_object> terms;
+		getTermsBind(atom,terms);
+		return HashVecInt::getHashVecIntFromConfig()->computeHash(terms);
 	}
 
 	bool operator()(Atom* a1, Atom* a2) const {
-		return getString(a1).compare(getString(a2)) == 0;
+		vector<index_object> terms1;
+		getTermsBind(a1,terms1);
+		vector<index_object> terms2;
+		getTermsBind(a2,terms2);
+		if(terms1.size()!=terms2.size())return false;
+		return equal(terms1.begin(),terms1.end(),terms2.begin());
 	}
 
-	/// Generate the string of the atom only with the bind terms
-	string getString(Atom * atom) const{
-		string result_terms="";
-		for (auto i : bind){
-			result_terms+=boost::lexical_cast<string>(atom->getTerm(i.first))+"*";
-		}
-		return result_terms;
+	/// Generate the terms of the atom only with the bind terms
+	void getTermsBind(Atom* atom,vector<index_object>& terms) const{
+		for(auto t:bind)
+			terms.push_back(atom->getTerm(t.first));
 	}
 };
 
@@ -137,9 +142,10 @@ class Instances {
 public:
 	Instances(index_object predicate);
 
-	void addFact(Atom* atom) {
+	bool addFact(Atom* atom) {
 		GenericAtom* atomFact=new GenericAtom(atom);
-		if(!facts.count(atomFact))facts.insert(atomFact);else{ delete atom;delete atomFact;}
+		if(!facts.count(atomFact))facts.insert(atomFact);else{ delete atom;delete atomFact;return false;}
+		return true;
 	};
 
 	// A no fact is true if its truth value is true, otherwise it is undefined, false atoms are not saved.

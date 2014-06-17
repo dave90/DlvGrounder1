@@ -6,7 +6,7 @@
  */
 
 
-#define DEBUG 0
+#define DEBUG 1
 
 
 #include "ProgramGrounder.h"
@@ -124,43 +124,54 @@ void ProgramGrounder::findBoundBindRule(Rule *r,vector<vec_pair_index_object> &b
 void ProgramGrounder::printGroundRule(Rule *r,map_index_object_index_object& var_assign){
 
 	Rule *groundRule=new Rule;
+	bool printRule=false;
 
 	//Groung atom in head
 	for (auto head_it = r->getBeginHead(); head_it != r->getEndHead(); head_it++) {
 		Atom *head=(*head_it);
 
 		index_object predicate=head->getPredicate().second;
-		vector<index_object> terms;
+		vector<index_object> terms=head->getTerms();
 
-		for(unsigned int i=0;i<head->getTermsSize();i++){
-			terms.push_back(var_assign.find(head->getTerm(i))->second);
+		for(unsigned int i=0;i<terms.size();i++){
+			if(var_assign.count(terms[i]))
+				terms[i]=var_assign[terms[i]];
 		}
 
-		groundRule->addInHead(new ClassicalLiteral(predicate,terms,false,false));
+		Atom *headAtom=new ClassicalLiteral(predicate,terms,false,false);
+		//check if atom is already grounded
+		instancesTable->addInstance(predicate);
+		if(instancesTable->getInstance(predicate)->addFact(headAtom))
+			printRule=true;
+
+		groundRule->addInHead(headAtom);
 
 	}
 
-	//Ground body, consider only Classical Literal
-	for (auto body_it = r->getBeginBody(); body_it != r->getEndBody(); body_it++) {
-		Atom *body=(*body_it);
+//	//Ground body, consider only Classical Literal
+//	for (auto body_it = r->getBeginBody(); body_it != r->getEndBody(); body_it++) {
+//		Atom *body=(*body_it);
+//
+//		index_object predicate=body->getPredicate().second;
+//		vector<index_object> terms;
+//
+//		//FIXME consider the anonymus variable
+//		for(unsigned int i=0;i<body->getTermsSize();i++){
+//			index_object term=body->getTerm(i);
+//
+//			if(termsMap->getTerm(term)->isVariable())
+//				terms.push_back(var_assign.find(term)->second);
+//			else
+//				terms.push_back(term);
+//		}
+//
+//		groundRule->addInBody(new ClassicalLiteral(predicate,terms,false,false));
+//
+//	}
 
-		index_object predicate=body->getPredicate().second;
-		vector<index_object> terms;
 
-		//FIXME consider the anonymus variable
-		for(unsigned int i=0;i<body->getTermsSize();i++){
-			index_object term=body->getTerm(i);
-
-			if(termsMap->getTerm(term)->isVariable())
-				terms.push_back(var_assign.find(term)->second);
-			else
-				terms.push_back(term);
-		}
-
-		groundRule->addInBody(new ClassicalLiteral(predicate,terms,false,false));
-
-	}
-	groundRule->print(termsMap);
+	if(printRule)
+		groundRule->print(termsMap);
 }
 
 void ProgramGrounder::foundAssignmentRule(Rule *r,map_index_object_index_object& var_assign){
@@ -312,7 +323,7 @@ void ProgramGrounder::groundRule(Rule* r) {
 			// IF END OF RULE
 			if(current_atom_it+1==r->getEndBody()){
 
-				foundAssignmentRule(r,var_assign);
+				printGroundRule(r,var_assign);
 #if DEBUG == 0
 			//DEBUG PRINT
 			cout<<" --> ";

@@ -43,6 +43,7 @@ private:
 	TermTable* termsMap;
 
 
+
 	/// Find bound and bind variable for each atom in rule
 	/// @param r the rule
 	/// @param bounds the vector to push the bound variable of atom in position i in rule

@@ -14,11 +14,13 @@ void  Rule::print(TermTable* tb){
 		if(i!=head.size()-1)
 			cout<<" | ";
 	}
-	cout<<" :- ";
-	for (unsigned int i = 0; i < body.size(); ++i) {
-		body[i]->print(tb);
-		if(i!=body.size()-1)
-			cout<<",";
+	if(body.size()>0){
+		cout<<" :- ";
+		for (unsigned int i = 0; i < body.size(); ++i) {
+			body[i]->print(tb);
+			if(i!=body.size()-1)
+				cout<<",";
+		}
 	}
 	cout<<"."<<endl;
 }
