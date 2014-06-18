@@ -109,33 +109,37 @@ struct ResultMatch {
 
 class IndexAtom {
 public:
-	IndexAtom(){atoms=0;};
-	IndexAtom(AtomTable* a) :atoms(a){};
+	IndexAtom(){facts=0;nofacts=0;};
+	IndexAtom(AtomTable* facts,AtomTable* nofacts) :facts(facts), nofacts(nofacts){};
 	;
 	/*
 	 *  Return id used for the nextMatch
 	 */
-	virtual unsigned int firstMatch(vec_pair_index_object &bound,vec_pair_index_object &bind,map_int_int& equal_var,bool& find)=0;
+	virtual unsigned int firstMatch(bool isEDB,vec_pair_index_object &bound,vec_pair_index_object &bind,map_int_int& equal_var,bool& find)=0;
 	virtual void nextMatch(unsigned int id,vec_pair_index_object &bind,bool& find)=0;
 	virtual ~IndexAtom() {};
 protected:
-	AtomTable* atoms;
+	AtomTable* facts;
+	AtomTable* nofacts;
 };
 
 class SimpleIndexAtom: public IndexAtom {
 public:
-	SimpleIndexAtom(AtomTable* a) : IndexAtom(a),counter(0){};
-	virtual unsigned int firstMatch(vec_pair_index_object &bound, vec_pair_index_object &bind,map_int_int& equal_var,bool& find);
+	SimpleIndexAtom(AtomTable* facts, AtomTable* nofacts) : IndexAtom(facts,nofacts),counter(0){};
+	virtual unsigned int firstMatch(bool isEDB,vec_pair_index_object &bound, vec_pair_index_object &bind,map_int_int& equal_var,bool& find);
 	virtual void nextMatch(unsigned int id,vec_pair_index_object &bind,bool& find);
 	virtual ~SimpleIndexAtom();
 protected:
 	unordered_map<unsigned int, ResultMatch*> matches_id;
 	unsigned int counter;
 	/// Search in the atom table if match
-	bool computeFirstMatch(const AtomTable& collection,vec_pair_index_object &bound,vec_pair_index_object &bind,map_int_int& equal_var,ResultMatch* rm);
+	void computeFirstMatch(const AtomTable& collection,vec_pair_index_object &bound,vec_pair_index_object &bind,map_int_int& equal_var,ResultMatch* rm);
 	/// Test the match of bind equal variable
 	bool checkEqualVariable(map_int_int& equal_var,Atom *atom);
-	virtual bool findIfAFactExists(const AtomTable& collection,vec_pair_index_object& bound, map_int_int& equal_var);
+
+	virtual bool searchForFirstMatch(AtomTable* table, const unsigned int termSize, vec_pair_index_object &bound,vec_pair_index_object &bind,map_int_int& equal_var,ResultMatch* rm);
+
+	virtual bool findIfAFactExists(const AtomTable &collection,vec_pair_index_object& bound, map_int_int& equal_var);
 };
 
 class Instances {

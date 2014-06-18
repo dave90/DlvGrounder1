@@ -20,7 +20,7 @@ bool SimpleIndexAtom::findIfAFactExists(const AtomTable& collection,vec_pair_ind
 	for (auto it : equal_var) {
 		terms[it.second] = terms[it.first];
 	}
-	index_object predicate=(*atoms->begin())->atom->getPredicate().second;
+	index_object predicate=(*facts->begin())->atom->getPredicate().second;
 	Atom *atom=new ClassicalLiteral(predicate,terms,false,false);
 	GenericAtom *genAtom=new GenericAtom;
 	genAtom->atom=atom;
@@ -34,28 +34,51 @@ bool SimpleIndexAtom::findIfAFactExists(const AtomTable& collection,vec_pair_ind
 }
 
 
-unsigned int SimpleIndexAtom::firstMatch(vec_pair_index_object &bound,vec_pair_index_object &bind,map_int_int& equal_var,bool& find) {
+unsigned int SimpleIndexAtom::firstMatch(bool isEDB,vec_pair_index_object &bound,vec_pair_index_object &bind,map_int_int& equal_var,bool& find) {
 	unsigned int id = counter;counter++;
 	ResultMatch *rm = new ResultMatch(bind);
 
-	// Call findIfAFactExist only if all the terms have value
-	if(bound.size()==(*atoms->begin())->atom->getTermsSize()){
-		if(findIfAFactExists(*atoms,bound,equal_var)){
+	if(!isEDB){
+		find=searchForFirstMatch(facts,(*facts->begin())->atom->getTermsSize(),bound,bind,equal_var,rm);
+		if(searchForFirstMatch(nofacts,(*facts->begin())->atom->getTermsSize(),bound,bind,equal_var,rm))
+			find=true;
+		if(find){
+			matches_id.insert({id,rm});
+			return id;
+		}
+		matches_id.insert({id,rm});
+		nextMatch(id,bind,find);
+		return id;
+	}
+	else{
+		if(searchForFirstMatch(facts,(*facts->begin())->atom->getTermsSize(),bound,bind,equal_var,rm)){
 			find=true;
 			matches_id.insert({id,rm});
 			return id;
 		}
+		matches_id.insert({id,rm});
+		nextMatch(id,bind,find);
+		return id;
+	}
+
+
+}
+
+bool SimpleIndexAtom::searchForFirstMatch(AtomTable* table, const unsigned int atomTermSize, vec_pair_index_object &bound,vec_pair_index_object &bind,map_int_int& equal_var,ResultMatch* rm){
+
+	// Call findIfAFactExist only if all the terms have value
+	if(bound.size()==atomTermSize){
+		if(findIfAFactExists(*table,bound,equal_var)){
+			return true;
+		}
 	}
 	else
 		//Simple search
-		computeFirstMatch(*atoms,bound,bind,equal_var,rm);
-
-	matches_id.insert({id,rm});
-	nextMatch(id,bind,find);
-	return id;
+		computeFirstMatch(*table,bound,bind,equal_var,rm);
+	return false;
 }
 
-bool SimpleIndexAtom::computeFirstMatch(const AtomTable& collection, vec_pair_index_object &bound,vec_pair_index_object &bind,map_int_int& equal_var,ResultMatch* rm){
+void SimpleIndexAtom::computeFirstMatch(const AtomTable& collection, vec_pair_index_object &bound,vec_pair_index_object &bind,map_int_int& equal_var,ResultMatch* rm){
 	for (GenericAtom *genericAtom : collection) {
 		Atom *a=genericAtom->atom;
 
@@ -80,7 +103,6 @@ bool SimpleIndexAtom::computeFirstMatch(const AtomTable& collection, vec_pair_in
 
 		}
 	}
-	return false;
 }
 
 bool SimpleIndexAtom::checkEqualVariable(map_int_int& equal_var,Atom *atom){
@@ -120,18 +142,18 @@ Instances::Instances(index_object predicate) {
 	switch (Config::getInstance()->getIndexType()) {
 	case (IndexType::MAP):
 		if(Config::getInstance()->getIndexingTerm(predicate).second)
-			indexAtom = new TermIndexAtom(&facts,Config::getInstance()->getIndexingTerm(predicate).first);
+			indexAtom = new TermIndexAtom(&facts,&nofacts,Config::getInstance()->getIndexingTerm(predicate).first);
 		else
-			indexAtom = new TermIndexAtom(&facts);
+			indexAtom = new TermIndexAtom(&facts,&nofacts);
 		break;
 	case (IndexType::MULTIMAP):
 		if(Config::getInstance()->getIndexingTerm(predicate).second)
-				indexAtom = new TermIndexAtomMultiMap(&facts,Config::getInstance()->getIndexingTerm(predicate).first);
+				indexAtom = new TermIndexAtomMultiMap(&facts,&nofacts,Config::getInstance()->getIndexingTerm(predicate).first);
 		else
-				indexAtom = new TermIndexAtomMultiMap(&facts);
+				indexAtom = new TermIndexAtomMultiMap(&facts,&nofacts);
 		break;
 	default:
-		indexAtom = new SimpleIndexAtom(&facts);
+		indexAtom = new SimpleIndexAtom(&facts,&nofacts);
 		break;
 	}
 }

@@ -12,12 +12,13 @@
 
 class TermIndexAtom: public SimpleIndexAtom {
 public:
-	TermIndexAtom(AtomTable* a): SimpleIndexAtom(a), instantiateIndexMap(false), termToBeIndexed(0), termSetByPreference(false){};
-	TermIndexAtom(AtomTable* a, int i): SimpleIndexAtom(a), instantiateIndexMap(false), termToBeIndexed(i), termSetByPreference(true){};
+	TermIndexAtom(AtomTable* facts, AtomTable* nofacts) : SimpleIndexAtom(facts,nofacts), instantiateIndexMap(false), termToBeIndexed(0), termSetByPreference(false){};
+	TermIndexAtom(AtomTable* facts, AtomTable* nofacts, int i): SimpleIndexAtom(facts,nofacts), instantiateIndexMap(false), termToBeIndexed(i), termSetByPreference(true){};
 	virtual unsigned int firstMatch(vec_pair_index_object &bound, vec_pair_index_object &bind,map_int_int& equal_var,bool& find);
 	virtual ~TermIndexAtom(){};
 private:
-	unordered_map<index_object,AtomTable> indexMap;
+	unordered_map<index_object,AtomTable> factsIndexMap;
+	unordered_map<index_object,AtomTable> nofactsIndexMap;
 	bool instantiateIndexMap;
 	unsigned int termToBeIndexed;
 	bool termSetByPreference;
@@ -27,8 +28,8 @@ private:
 
 class TermIndexAtomMultiMap: public SimpleIndexAtom {
 public:
-	TermIndexAtomMultiMap(AtomTable* a): SimpleIndexAtom(a), instantiateIndexMap(false), termToBeIndexed(0),termSetByPreference(false){};
-	TermIndexAtomMultiMap(AtomTable* a, int i): SimpleIndexAtom(a), instantiateIndexMap(false), termToBeIndexed(i),termSetByPreference(true){};
+	TermIndexAtomMultiMap(AtomTable* facts, AtomTable* nofacts) : SimpleIndexAtom(facts,nofacts), instantiateIndexMap(false), termToBeIndexed(0),termSetByPreference(false){};
+	TermIndexAtomMultiMap(AtomTable* facts, AtomTable* nofacts, int i): SimpleIndexAtom(facts,nofacts), instantiateIndexMap(false), termToBeIndexed(i),termSetByPreference(true){};
 	virtual unsigned int firstMatch(vec_pair_index_object &bound, vec_pair_index_object &bind,map_int_int& equal_var,bool& find);
 	virtual ~TermIndexAtomMultiMap(){};
 private:

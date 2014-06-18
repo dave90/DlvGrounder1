@@ -38,12 +38,12 @@ unsigned int TermIndexAtom::firstMatch(vec_pair_index_object& bound, vec_pair_in
 	if(termBoundIndex.first){
 		if(!instantiateIndexMap)
 			initializeIndexMap();
-		matchingTable=&indexMap[termBoundIndex.second];
+		matchingTable=&factsIndexMap[termBoundIndex.second];
 	}
 	else
-		matchingTable=atoms;
+		matchingTable=facts;
 
-	if(bound.size()==(*atoms->begin())->atom->getTermsSize()){
+	if(bound.size()==(*facts->begin())->atom->getTermsSize()){
 		if(findIfAFactExists(*matchingTable,bound,equal_var)){
 			find=true;
 			matches_id.insert({id,rm});
@@ -65,25 +65,26 @@ unsigned int TermIndexAtomMultiMap::firstMatch(vec_pair_index_object& bound, vec
 	unsigned int id = counter;counter++;
 	ResultMatch* rm=new ResultMatch(bind);
 
-	if(!termSetByPreference)
-		determineTermToBeIndexed(bound);
-
-	pair<bool, index_object>  termBoundIndex({false,0});
-	for (unsigned int i = 0; i < bound.size(); i++)
-		if (bound[i].first == termToBeIndexed) {
-			termBoundIndex.first = true;
-			termBoundIndex.second = bound[i].second;
-			break;
-		}
-
-	if(bound.size()==(*atoms->begin())->atom->getTermsSize()){
-		if(findIfAFactExists(*atoms,bound,equal_var)){
+	if(bound.size()==(*facts->begin())->atom->getTermsSize()){
+		if(findIfAFactExists(*facts,bound,equal_var)){
 			find=true;
 			matches_id.insert({id,rm});
 			return id;
 		}
 	}
 	else{
+
+		if(!termSetByPreference)
+			determineTermToBeIndexed(bound);
+
+		pair<bool, index_object>  termBoundIndex({false,0});
+		for (unsigned int i = 0; i < bound.size(); i++)
+			if (bound[i].first == termToBeIndexed) {
+				termBoundIndex.first = true;
+				termBoundIndex.second = bound[i].second;
+				break;
+		}
+
 		AtomTable* matchingTable=new AtomTable;
 
 		if(termBoundIndex.first){
@@ -94,7 +95,7 @@ unsigned int TermIndexAtomMultiMap::firstMatch(vec_pair_index_object& bound, vec
 				matchingTable->insert(it->second);
 		}
 		else
-			matchingTable=atoms;
+			matchingTable=facts;
 
 		computeFirstMatch(*matchingTable,bound,bind,equal_var,rm);
 	}
@@ -116,16 +117,16 @@ void TermIndexAtom::initializeIndexMap(){
 //	Timer::getInstance()->start("Creation Index Structure");
 	unordered_set<index_object> termToBeIndexedIndices;
 
-	for (GenericAtom*a : *atoms) {
+	for (GenericAtom*a : *facts) {
 		index_object termIndex=a->atom->getTerm(termToBeIndexed);
 		if(!termToBeIndexedIndices.count(termIndex)){
 			termToBeIndexedIndices.insert(termIndex);
 			AtomTable values;
 			values.insert(a);
-			indexMap.insert({termIndex,values});
+			factsIndexMap.insert({termIndex,values});
 		}
 		else{
-			indexMap[termIndex].insert(a);
+			factsIndexMap[termIndex].insert(a);
 		}
 	}
 //	Timer::getInstance()->end();
@@ -134,7 +135,7 @@ void TermIndexAtom::initializeIndexMap(){
 
 void TermIndexAtomMultiMap::initializeIndexMap(){
 //	Timer::getInstance()->start("Creation Index Structure");
-	for (GenericAtom*a : *atoms) {
+	for (GenericAtom*a : *facts) {
 		index_object termIndex=a->atom->getTerm(termToBeIndexed);
 		indexMap.insert({termIndex,a});
 	}
