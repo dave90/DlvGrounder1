@@ -22,7 +22,7 @@ void  Rule::print(TermTable* tb){
 				cout<<",";
 		}
 	}
-	cout<<"."<<endl;
+	cout<<".";
 }
 
 unordered_set<index_object> Rule::getPredicateInHead() {
@@ -65,3 +65,28 @@ unordered_set<index_object> Rule::getNegativePredicateInBody() {
 	return predicates;
 }
 
+bool Rule::operator ==(const Rule& r) {
+	  if(getSizeBody()!=r.getSizeBody())return false;
+	  if(getSizeHead()!=r.getSizeHead())return false;
+	  for(auto atom:head){
+		  bool find=false;
+		  for(auto it=r.getBeginHead();it!=r.getEndHead();it++)
+			  if(*atom==*(*it)){
+				  find=true;
+				  break;
+			  }
+		  if(!find)return false;
+	  }
+	  for(auto atom:body){
+		  bool find=false;
+		  for(auto it=r.getBeginBody();it!=r.getEndBody();it++)
+			  if(*atom==*(*it)){
+				  find=true;
+				  break;
+			  }
+		  if(!find)return false;
+	  }
+
+	  return true;
+
+}

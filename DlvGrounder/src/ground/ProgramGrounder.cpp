@@ -124,7 +124,6 @@ void ProgramGrounder::findBoundBindRule(Rule *r,vector<vec_pair_index_object> &b
 void ProgramGrounder::printGroundRule(Rule *r,map_index_object_index_object& var_assign){
 
 	Rule *groundRule=new Rule;
-	bool printRule=false;
 
 	//Groung atom in head
 	for (auto head_it = r->getBeginHead(); head_it != r->getEndHead(); head_it++) {
@@ -141,8 +140,7 @@ void ProgramGrounder::printGroundRule(Rule *r,map_index_object_index_object& var
 		Atom *headAtom=new ClassicalLiteral(predicate,terms,false,false);
 		//check if atom is already grounded
 		instancesTable->addInstance(predicate);
-		if(instancesTable->getInstance(predicate)->addFact(headAtom))
-			printRule=true;
+		instancesTable->getInstance(predicate)->addFact(headAtom);
 
 		groundRule->addInHead(headAtom);
 
@@ -169,8 +167,7 @@ void ProgramGrounder::printGroundRule(Rule *r,map_index_object_index_object& var
 //
 //	}
 
-
-	if(printRule)
+	if(groundedRule.addRule(groundRule))
 		groundRule->print(termsMap);
 }
 

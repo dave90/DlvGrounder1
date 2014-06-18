@@ -142,9 +142,17 @@ class Instances {
 public:
 	Instances(index_object predicate);
 
-	bool addFact(Atom* atom) {
+	bool addFact(Atom*& atom) {
 		GenericAtom* atomFact=new GenericAtom(atom);
-		if(!facts.count(atomFact))facts.insert(atomFact);else{ delete atom;delete atomFact;return false;}
+		if(!facts.count(atomFact))
+			facts.insert(atomFact);
+		else{
+			Atom * findAtom=(*facts.find(atomFact))->atom;
+			delete atomFact;
+			delete atom;
+			atom = findAtom;
+			return false;
+		}
 		return true;
 	};
 

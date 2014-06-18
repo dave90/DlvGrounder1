@@ -33,14 +33,18 @@ public:
 	unordered_set<index_object> getPredicateInBody();
 	unordered_set<index_object> getPositivePredicateInBody();
 	unordered_set<index_object> getNegativePredicateInBody();
+	unsigned int getSizeHead() const {return head.size();}
+	unsigned int getSizeBody() const {return body.size();}
 
-	vector<Atom*>::const_iterator getBeginBody(){return body.begin();};
-	vector<Atom*>::const_iterator getEndBody(){return body.end();};
-	vector<Atom*>::const_iterator getBeginHead(){return head.begin();};
-	vector<Atom*>::const_iterator getEndHead(){return head.end();};
+	vector<Atom*>::const_iterator getBeginBody()const{return body.begin();};
+	vector<Atom*>::const_iterator getEndBody()const{return body.end();};
+	vector<Atom*>::const_iterator getBeginHead()const{return head.begin();};
+	vector<Atom*>::const_iterator getEndHead()const{return head.end();};
 
 	void clear(){head.clear();body.clear();};
 	void print(TermTable*tb);
+
+	bool operator==(const Rule & r);
 
 private:
 	vector<Atom*> head;

@@ -21,6 +21,8 @@ class HashVecInt {
 public:
 	HashVecInt(){};
 	virtual size_t computeHash(const vector<index_object>& values)=0;
+	virtual size_t computeHash(const vector<size_t>& values)=0;
+
 	virtual ~HashVecInt(){};
 	/// Return an HashVecInt according the configuration
 	static HashVecInt* getHashVecIntFromConfig();
@@ -40,12 +42,24 @@ public:
 
 		return hash;
 	}
+	size_t computeHash(const vector<size_t> &values){
+		int length=values.size();
+		size_t hash=0;
+		for (int i = 0; i < length; i++) {
+			hash+=values[i]*pow(31.0,length-(i));
+		}
+
+		return hash;
+	}
 
 };
 
 class BoostCombineHashVecInt : private HashVecInt{
 public:
 	size_t computeHash(const vector<index_object> & values){
+		return boost::hash_range(values.begin(),values.end());
+	}
+	size_t computeHash(const vector<size_t> & values){
 		return boost::hash_range(values.begin(),values.end());
 	}
 

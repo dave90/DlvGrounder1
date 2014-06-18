@@ -20,6 +20,33 @@ using namespace std;
 typedef unordered_map<index_object, index_object> map_index_object_index_object;
 
 
+struct hashRule {
+  size_t operator()(Rule* rule) const {
+	  HashVecInt *hash=HashVecInt::getHashVecIntFromConfig();
+	  vector<size_t> atomHash;
+	  for(auto it=rule->getBeginHead();it!=rule->getEndHead();it++){
+		  atomHash.push_back(hash->computeHash((*it)->getTerms()));
+	  }
+	  for(auto it=rule->getBeginBody();it!=rule->getEndBody();it++)
+	  	  atomHash.push_back(hash->computeHash((*it)->getTerms()));
+	  return hash->computeHash(atomHash);
+  }
+  bool operator()( Rule* r1,  Rule* r2)const{
+	  return *r1==*r2;
+  }
+
+};
+
+class GroundedRule{
+public:
+	GroundedRule(){}
+	bool addRule(Rule*r){if(groundedRules.count(r))return false;groundedRules.insert(r);return true;};
+	~GroundedRule(){for(auto rule:groundedRules)delete rule;}
+
+private:
+	unordered_set<Rule*,hashRule,hashRule> groundedRules;
+};
+
 
 class ProgramGrounder {
 public:
@@ -41,6 +68,7 @@ private:
 	InstancesTable* instancesTable;
 	StatementDependency* statementDependency;
 	TermTable* termsMap;
+	GroundedRule groundedRule;
 
 
 
@@ -71,4 +99,7 @@ private:
 	void printMapIntInt(string name,vector<map_int_int >& equal_vars);
 	void printAssignment(map_index_object_index_object& var_assign);
 };
+
+
+
 #endif /* PROGRAMGROUNDER_H_ */
