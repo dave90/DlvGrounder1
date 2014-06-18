@@ -1,4 +1,8 @@
+colored(r,X) | colored(g,X) | colored(b,X) :- node(X).
+:- link(X,Y) , colored(C,X) , colored(C,Y).
 
-
-a(g(1)). t(X, f(Y )) :- p(X, Y ), a(Y ). p(g(X), Y ) |  s(Y ) :- r(X), r(Y ).
-p(X, Y ) :- r(X), t(X, Y ). r(X) :- a(g(X)), not t(X, f(X)).
+node(1).
+node(2).
+node(3).
+link(1,2).
+link(2,3).
