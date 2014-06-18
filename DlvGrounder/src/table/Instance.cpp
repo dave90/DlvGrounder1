@@ -13,6 +13,8 @@
 
 
 bool SimpleIndexAtom::findIfAFactExists(const AtomTable& collection,vec_pair_index_object& bound, map_int_int& equal_var) {
+	if(collection.size()==0)return false;
+
 	vector<index_object> terms(bound.size() + equal_var.size());
 	for (unsigned int i = 0; i < bound.size(); i++) {
 		terms[bound[i].first] = bound[i].second;
@@ -20,7 +22,10 @@ bool SimpleIndexAtom::findIfAFactExists(const AtomTable& collection,vec_pair_ind
 	for (auto it : equal_var) {
 		terms[it.second] = terms[it.first];
 	}
-	index_object predicate=(*facts->begin())->atom->getPredicate().second;
+
+	index_object predicate=(*collection.begin())->atom->getPredicate().second;
+
+
 	Atom *atom=new ClassicalLiteral(predicate,terms,false,false);
 	GenericAtom *genAtom=new GenericAtom;
 	genAtom->atom=atom;
@@ -37,10 +42,15 @@ bool SimpleIndexAtom::findIfAFactExists(const AtomTable& collection,vec_pair_ind
 unsigned int SimpleIndexAtom::firstMatch(bool isEDB,vec_pair_index_object &bound,vec_pair_index_object &bind,map_int_int& equal_var,bool& find) {
 	unsigned int id = counter;counter++;
 	ResultMatch *rm = new ResultMatch(bind);
+	unsigned int atomTermSize=0;
+	if(facts->size()>0)
+		atomTermSize=(*facts->begin())->atom->getTermsSize();
+	else
+		atomTermSize=(*nofacts->begin())->atom->getTermsSize();
 
-	if(isEDB){
-		find=searchForFirstMatch(facts,(*facts->begin())->atom->getTermsSize(),bound,bind,equal_var,rm);
-		if(searchForFirstMatch(nofacts,(*facts->begin())->atom->getTermsSize(),bound,bind,equal_var,rm))
+	if(!isEDB){
+		find=searchForFirstMatch(facts,atomTermSize,bound,bind,equal_var,rm);
+		if(searchForFirstMatch(nofacts,atomTermSize,bound,bind,equal_var,rm))
 			find=true;
 		if(find){
 			matches_id.insert({id,rm});
@@ -51,7 +61,7 @@ unsigned int SimpleIndexAtom::firstMatch(bool isEDB,vec_pair_index_object &bound
 		return id;
 	}
 	else{
-		if(searchForFirstMatch(facts,(*facts->begin())->atom->getTermsSize(),bound,bind,equal_var,rm)){
+		if(searchForFirstMatch(facts,atomTermSize,bound,bind,equal_var,rm)){
 			find=true;
 			matches_id.insert({id,rm});
 			return id;
@@ -81,7 +91,6 @@ bool SimpleIndexAtom::searchForFirstMatch(AtomTable* table, const unsigned int a
 void SimpleIndexAtom::computeFirstMatch(const AtomTable& collection, vec_pair_index_object &bound,vec_pair_index_object &bind,map_int_int& equal_var,ResultMatch* rm){
 	for (GenericAtom *genericAtom : collection) {
 		Atom *a=genericAtom->atom;
-
 		bool match = true;
 		for (unsigned int i = 0; i < bound.size(); i++)
 			if (a->getTerm(bound[i].first) != bound[i].second) {
