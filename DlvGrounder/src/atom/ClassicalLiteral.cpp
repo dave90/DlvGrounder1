@@ -34,7 +34,7 @@ void ClassicalLiteral::print(TermTable *tb){
 			cout<<"(";
 		tb->getTerm(terms[i])->print(tb);
 		if(i!=terms.size()-1)
-			cout<<", ";
+			cout<<",";
 		else
 			cout<<")";
 	}
