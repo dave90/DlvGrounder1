@@ -67,7 +67,7 @@ void RuleFactory::addBuiltinAtom(vector<index_object> &terms,TermTable*tt) {
 
 void RuleFactory::addRule() {
 	if(currentRule->isAFact()){
-		Atom *fact=currentRule->getHead()[0];
+		Atom *fact=*currentRule->getBeginHead();
 
 		addFact(fact);
 

@@ -9,25 +9,41 @@
 #define RULE_H_
 
 #include <vector>
+#include <set>
 #include <unordered_set>
 #include "../atom/Atom.h"
+#include "../table/HashVecInt.h"
 
 using namespace std;
+
+struct atomCompare {
+  bool operator() (const Atom* a1, const Atom* a2) const
+  {
+	  index_object p1=a1->getPredicate().second;
+	  index_object p2=a2->getPredicate().second;
+	  if(p1!=p2)return p1<p2;
+	  size_t hashA1=HashVecInt::getHashVecIntFromConfig()->computeHash(a1->getTerms());
+	  size_t hashA2=HashVecInt::getHashVecIntFromConfig()->computeHash(a2->getTerms());
+	  return hashA1<hashA2;
+  }
+};
+
+typedef set<Atom*,atomCompare> OrderedAtomSet;
 
 class Rule {
 public:
 	Rule(){};
 
-	const vector<Atom*>& getBody() const {return body;}
-	void setBody(const vector<Atom*>& body) {this->body = body;}
-	const vector<Atom*>& getHead() const {return head;}
-	void setHead(const vector<Atom*>& head) {this->head = head;}
+	const OrderedAtomSet& getBody() const {return body;}
+	void setBody(const OrderedAtomSet& body) {this->body = body;}
+	const OrderedAtomSet& getHead() const {return head;}
+	void setHead(const OrderedAtomSet& head) {this->head = head;}
 
 	bool isAStrongConstraint(){return head.empty();}
 	bool isAFact(){return body.empty() && head.size()==1;}
 
-	void addInHead(Atom* a){head.push_back(a);};
-	void addInBody(Atom* a){body.push_back(a);};
+	void addInHead(Atom* a){head.insert(a);};
+	void addInBody(Atom* a){body.insert(a);};
 
 	unordered_set<index_object> getPredicateInHead();
 	unordered_set<index_object> getPredicateInBody();
@@ -36,10 +52,10 @@ public:
 	unsigned int getSizeHead() const {return head.size();}
 	unsigned int getSizeBody() const {return body.size();}
 
-	vector<Atom*>::const_iterator getBeginBody()const{return body.begin();};
-	vector<Atom*>::const_iterator getEndBody()const{return body.end();};
-	vector<Atom*>::const_iterator getBeginHead()const{return head.begin();};
-	vector<Atom*>::const_iterator getEndHead()const{return head.end();};
+	OrderedAtomSet::const_iterator getBeginBody()const{return body.begin();};
+	OrderedAtomSet::const_iterator getEndBody()const{return body.end();};
+	OrderedAtomSet::const_iterator getBeginHead()const{return head.begin();};
+	OrderedAtomSet::const_iterator getEndHead()const{return head.end();};
 
 	void clear(){head.clear();body.clear();};
 	void print(TermTable*tb);
@@ -47,8 +63,8 @@ public:
 	bool operator==(const Rule & r);
 
 private:
-	vector<Atom*> head;
-	vector<Atom*> body;
+	OrderedAtomSet head;
+	OrderedAtomSet body;
 };
 
 #endif /* RULE_H_ */

@@ -284,8 +284,8 @@ void ProgramGrounder::groundRule(Rule* r) {
 
 
 		if(firstMatch){
-
-			unsigned int id=index->firstMatch(bounds[index_current_atom],binds[index_current_atom],equal_vars[index_current_atom],find);
+			bool isPredicateEdb =predicateTable->getPredicate(current_atom->getPredicate().second)->isEdb();
+			unsigned int id=index->firstMatch(isPredicateEdb,bounds[index_current_atom],binds[index_current_atom],equal_vars[index_current_atom],find);
 			id_match.push_back(id);
 
 		}else{
@@ -328,7 +328,7 @@ void ProgramGrounder::groundRule(Rule* r) {
 
 
 			// IF END OF RULE
-			if(current_atom_it+1==r->getEndBody()){
+			if(index_current_atom+1==r->getSizeBody()){
 
 				printGroundRule(r,var_assign);
 #if DEBUG == 0

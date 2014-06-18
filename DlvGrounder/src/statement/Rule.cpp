@@ -9,17 +9,21 @@
 #include "iostream"
 
 void  Rule::print(TermTable* tb){
-	for (unsigned int i = 0; i < head.size(); ++i) {
-		head[i]->print(tb);
+	unsigned int i=0;
+	for (auto atom:head) {
+		atom->print(tb);
 		if(i!=head.size()-1)
 			cout<<";";
+		i++;
 	}
 	if(body.size()>0){
 		cout<<":-";
-		for (unsigned int i = 0; i < body.size(); ++i) {
-			body[i]->print(tb);
-			if(i!=body.size()-1)
+		unsigned int i=0;
+		for (auto atom:body) {
+			atom->print(tb);
+			if(i!=head.size()-1)
 				cout<<";";
+			i++;
 		}
 	}
 	cout<<"."<<endl;
@@ -27,8 +31,8 @@ void  Rule::print(TermTable* tb){
 
 unordered_set<index_object> Rule::getPredicateInHead() {
 	unordered_set<index_object> predicates;
-	for (unsigned int i = 0; i < head.size(); ++i) {
-		pair<bool,index_object> predicate=head[i]->getPredicate();
+	for (auto atom:head) {
+		pair<bool,index_object> predicate=atom->getPredicate();
 		if(predicate.first)
 			predicates.insert(predicate.second); //TODO Con gli aggregati/choice??
 	}
@@ -37,8 +41,8 @@ unordered_set<index_object> Rule::getPredicateInHead() {
 
 unordered_set<index_object> Rule::getPredicateInBody() {
 	unordered_set<index_object> predicates;
-	for (unsigned int i = 0; i < body.size(); ++i) {
-		pair<bool,index_object> predicate=body[i]->getPredicate();
+	for (auto atom:body) {
+		pair<bool,index_object> predicate=atom->getPredicate();
 		if(predicate.first)
 			predicates.insert(predicate.second); //TODO Con gli aggregati/choice??
 	}
@@ -47,9 +51,9 @@ unordered_set<index_object> Rule::getPredicateInBody() {
 
 unordered_set<index_object> Rule::getPositivePredicateInBody() {
 	unordered_set<index_object> predicates;
-	for (unsigned int i = 0; i < body.size(); ++i) {
-		pair<bool,index_object> predicate=body[i]->getPredicate();
-		if(predicate.first && !body[i]->isNegative())
+	for (auto atom:head) {
+		pair<bool,index_object> predicate=atom->getPredicate();
+		if(predicate.first && !atom->isNegative())
 			predicates.insert(predicate.second); //TODO Con gli aggregati/choice??
 	}
 	return predicates;
@@ -57,9 +61,9 @@ unordered_set<index_object> Rule::getPositivePredicateInBody() {
 
 unordered_set<index_object> Rule::getNegativePredicateInBody() {
 	unordered_set<index_object> predicates;
-	for (unsigned int i = 0; i < body.size(); ++i) {
-		pair<bool,index_object> predicate=body[i]->getPredicate();
-		if(predicate.first && body[i]->isNegative())
+	for (auto atom:body) {
+		pair<bool,index_object> predicate=atom->getPredicate();
+		if(predicate.first && atom->isNegative())
 			predicates.insert(predicate.second); //TODO Con gli aggregati/choice??
 	}
 	return predicates;

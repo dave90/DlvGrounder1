@@ -42,18 +42,16 @@ public:
 	GroundedRule(){}
 	bool addRule(Rule*r)//{if(groundedRules.count(r))return false;groundedRules.insert(r);return true;};
 	{
-		for(Rule *rule:groundedRules)
-			if(*rule==*r)
-				return false;
-		groundedRules.push_back(r);
+		if(groundedRules.count(r))return false;
+		groundedRules.insert(r);
 		return true;
 	}
 //	~GroundedRule(){for(auto rule:groundedRules)delete rule;}
 
 private:
-//	unordered_set<Rule*,hashRule,hashRule> groundedRules;
+	unordered_set<Rule*,hashRule,hashRule> groundedRules;
 	//FIXME hash no vector
-	vector<Rule*> groundedRules;
+//	vector<Rule*> groundedRules;
 };
 
 
