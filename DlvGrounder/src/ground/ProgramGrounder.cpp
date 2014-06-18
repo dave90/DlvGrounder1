@@ -127,6 +127,9 @@ void ProgramGrounder::printGroundRule(Rule *r,map_index_object_index_object& var
 
 	Rule *groundRule=new Rule;
 
+	//Add in no fact with true if no disjunction
+	bool isTrue=r->getSizeHead()==0;
+
 	//Groung atom in head
 	for (auto head_it = r->getBeginHead(); head_it != r->getEndHead(); head_it++) {
 		Atom *head=(*head_it);
@@ -142,7 +145,7 @@ void ProgramGrounder::printGroundRule(Rule *r,map_index_object_index_object& var
 		Atom *headAtom=new ClassicalLiteral(predicate,terms,false,false);
 		//check if atom is already grounded
 		instancesTable->addInstance(predicate);
-		instancesTable->getInstance(predicate)->addFact(headAtom);
+		instancesTable->getInstance(predicate)->addNoFact(headAtom,isTrue);
 
 		groundRule->addInHead(headAtom);
 

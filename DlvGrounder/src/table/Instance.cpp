@@ -38,7 +38,7 @@ unsigned int SimpleIndexAtom::firstMatch(bool isEDB,vec_pair_index_object &bound
 	unsigned int id = counter;counter++;
 	ResultMatch *rm = new ResultMatch(bind);
 
-	if(!isEDB){
+	if(isEDB){
 		find=searchForFirstMatch(facts,(*facts->begin())->atom->getTermsSize(),bound,bind,equal_var,rm);
 		if(searchForFirstMatch(nofacts,(*facts->begin())->atom->getTermsSize(),bound,bind,equal_var,rm))
 			find=true;

@@ -161,9 +161,17 @@ public:
 	};
 
 	// A no fact is true if its truth value is true, otherwise it is undefined, false atoms are not saved.
-	bool addNoFact(Atom* atom, bool truth) {
+	bool addNoFact(Atom*& atom, bool truth) {
 		GenericAtom* atomUndef=new AtomUndef(atom,truth);
-		if(!nofacts.count(atomUndef))nofacts.insert(atomUndef);else {delete atom;delete atomUndef;return false;}
+		if(!nofacts.count(atomUndef))
+			nofacts.insert(atomUndef);
+		else {
+			Atom * findAtom=(*nofacts.find(atomUndef))->atom;
+			delete atomUndef;
+			delete atom;
+			atom = findAtom;
+			return false;
+		}
 		return true;
 	};
 
