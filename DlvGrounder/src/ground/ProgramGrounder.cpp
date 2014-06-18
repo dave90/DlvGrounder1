@@ -22,8 +22,10 @@ void ProgramGrounder::ground() {
 	statementDependency->createComponentGraph();
 
 	//Ground first rule
+	printFact();
 	Timer::getInstance()->start("Gound Rule");
-	groundRule(statementDependency->getRule(0));
+	for(unsigned int i=0;i<statementDependency->getRulesSize();i++)
+		groundRule(statementDependency->getRule(i));
 	Timer::getInstance()->end();
 }
 
@@ -146,26 +148,34 @@ void ProgramGrounder::printGroundRule(Rule *r,map_index_object_index_object& var
 
 	}
 
-//	//Ground body, consider only Classical Literal
-//	for (auto body_it = r->getBeginBody(); body_it != r->getEndBody(); body_it++) {
-//		Atom *body=(*body_it);
-//
-//		index_object predicate=body->getPredicate().second;
-//		vector<index_object> terms;
-//
-//		//FIXME consider the anonymus variable
-//		for(unsigned int i=0;i<body->getTermsSize();i++){
-//			index_object term=body->getTerm(i);
-//
-//			if(termsMap->getTerm(term)->isVariable())
-//				terms.push_back(var_assign.find(term)->second);
-//			else
-//				terms.push_back(term);
-//		}
-//
-//		groundRule->addInBody(new ClassicalLiteral(predicate,terms,false,false));
-//
-//	}
+	if(r->isAStrongConstraint()){
+		//Ground body, consider only Classical Literal
+		for (auto body_it = r->getBeginBody(); body_it != r->getEndBody(); body_it++) {
+
+			Atom *body=(*body_it);
+
+			index_object predicate=body->getPredicate().second;
+			if(predicateTable->getPredicate(predicate)->isEdb())continue;
+
+			vector<index_object> terms;
+
+			//FIXME consider the anonymus variable
+			for(unsigned int i=0;i<body->getTermsSize();i++){
+
+				//If the predicate is Edb jump this atom
+
+				index_object term=body->getTerm(i);
+
+				if(termsMap->getTerm(term)->isVariable())
+					terms.push_back(var_assign.find(term)->second);
+				else
+					terms.push_back(term);
+			}
+
+			groundRule->addInBody(new ClassicalLiteral(predicate,terms,false,false));
+
+		}
+	}
 
 	if(groundedRule.addRule(groundRule))
 		groundRule->print(termsMap);

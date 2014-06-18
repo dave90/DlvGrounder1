@@ -12,17 +12,17 @@ void  Rule::print(TermTable* tb){
 	for (unsigned int i = 0; i < head.size(); ++i) {
 		head[i]->print(tb);
 		if(i!=head.size()-1)
-			cout<<" | ";
+			cout<<";";
 	}
 	if(body.size()>0){
-		cout<<" :- ";
+		cout<<":-";
 		for (unsigned int i = 0; i < body.size(); ++i) {
 			body[i]->print(tb);
 			if(i!=body.size()-1)
-				cout<<",";
+				cout<<";";
 		}
 	}
-	cout<<".";
+	cout<<"."<<endl;
 }
 
 unordered_set<index_object> Rule::getPredicateInHead() {

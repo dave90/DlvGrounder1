@@ -134,6 +134,7 @@ public:
 	void addRuleMapping(Rule *r);
 	void createDependencyGraph(PredicateTable* pt);
 	void createComponentGraph();
+	unsigned int getRulesSize(){return rules.size();}
 	Rule* getRule(int i){return rules[i];};
 
 	void print(TermTable *tb);

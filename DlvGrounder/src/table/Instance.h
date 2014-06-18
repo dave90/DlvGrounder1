@@ -185,7 +185,7 @@ public:
 
 	IndexAtom* getIndex() {	return indexAtom;};
 
-	void print(){};
+	void print(TermTable*tb){for(GenericAtom*fact:facts){fact->atom->print(tb);cout<<"."<<endl;}};
 
 	~Instances();
 
@@ -215,7 +215,7 @@ public:
 	};
 	// Get size of the table
 	long getSize() {return instanceTable.size();};
-	void print() {for (auto i : instanceTable)i.second->print();	};
+	void print(TermTable*tb) {for (auto i : instanceTable)i.second->print(tb);	};
 	~InstancesTable();
 private:
 	unordered_map<index_object,Instances*> instanceTable;

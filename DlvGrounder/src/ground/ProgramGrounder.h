@@ -40,11 +40,20 @@ struct hashRule {
 class GroundedRule{
 public:
 	GroundedRule(){}
-	bool addRule(Rule*r){if(groundedRules.count(r))return false;groundedRules.insert(r);return true;};
-	~GroundedRule(){for(auto rule:groundedRules)delete rule;}
+	bool addRule(Rule*r)//{if(groundedRules.count(r))return false;groundedRules.insert(r);return true;};
+	{
+		for(Rule *rule:groundedRules)
+			if(*rule==*r)
+				return false;
+		groundedRules.push_back(r);
+		return true;
+	}
+//	~GroundedRule(){for(auto rule:groundedRules)delete rule;}
 
 private:
-	unordered_set<Rule*,hashRule,hashRule> groundedRules;
+//	unordered_set<Rule*,hashRule,hashRule> groundedRules;
+	//FIXME hash no vector
+	vector<Rule*> groundedRules;
 };
 
 
@@ -60,7 +69,7 @@ public:
 
 	//Print Term
 	void printTerm(){cout<<"Size Term table: "<<termsMap->getSize()<<endl;cout<<"Collision Term table: "<<termsMap->getCollision()<<endl;termsMap->print();	}
-
+	void printFact(){instancesTable->print(termsMap);};
 
 	virtual ~ProgramGrounder();
 private:
