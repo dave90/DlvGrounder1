@@ -62,8 +62,8 @@ struct hash_string_table {
 };
 
 
-typedef boost::bimap< boost::bimaps::unordered_set_of<string,hash_string_table>, boost::bimaps::set_of<index_object> > hashStringMap;
-typedef boost::bimap< boost::bimaps::unordered_set_of<unsigned int,hash_string_table>, boost::bimaps::set_of<index_object> > hashIntegerMap;
+typedef boost::bimap< boost::bimaps::unordered_set_of<string,hash_string_table>, boost::bimaps::unordered_set_of<index_object> > hashStringMap;
+typedef boost::bimap< boost::bimaps::unordered_set_of<unsigned int,hash_string_table>, boost::bimaps::unordered_set_of<index_object> > hashIntegerMap;
 
 
 class IdManager {

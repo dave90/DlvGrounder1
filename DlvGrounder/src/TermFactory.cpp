@@ -27,7 +27,7 @@ void TermFactory::setTableType() {
  void TermFactory::createVariable(string& variable,bool negative) {
 	Term *v=new VariableTerm(negative);
 
-	int index=termsMap->addTerm(v,variable);
+	index_object index=termsMap->addTerm(v,variable);
 
 	addTermsDependency(index);
 }
@@ -37,7 +37,7 @@ void TermFactory::setTableType() {
  void TermFactory::createConstant(string& constant,bool negative) {
 	Term *c=new ConstantTerm(negative);
 
-	int index=termsMap->addTerm(c,constant);
+	index_object index=termsMap->addTerm(c,constant);
 
 	addTermsDependency(index);
 
@@ -46,7 +46,7 @@ void TermFactory::setTableType() {
  void TermFactory::createConstant(unsigned& constant,bool negative) {
 	Term *c=new ConstantTerm(negative);
 
-	int index=termsMap->addTerm(c,constant);
+	index_object index=termsMap->addTerm(c,constant);
 
 	addTermsDependency(index);
 
@@ -62,7 +62,7 @@ void TermFactory::setTableType() {
 	Term *ft=terms[terms.size()-1];
 	terms.pop_back();
 
-	int index=termsMap->addTerm(ft);
+	index_object index=termsMap->addTerm(ft);
 
 
 	addTermsDependency(index);
@@ -98,7 +98,7 @@ void TermFactory::endArithTerm(){
 	Term *at=terms[terms.size()-1];
 	terms.pop_back();
 
-	int index=termsMap->addTerm(at);
+	index_object index=termsMap->addTerm(at);
 
 
 	addTermsDependency(index);
