@@ -36,11 +36,11 @@ public:
 	void setRuleBody();
 	void addRule ();
 	//Add predicate
-	void addLiteral(string name);
+	void addLiteral(string& name);
 	//Add atom in atomFactory
 	void addClassicalAtom();
 	/// Set binop for builtin atom
-	void setBinop(string binop);
+	void setBinop(string& binop);
 	//Add builtin atom in atomFactory
 	void addBuiltinAtom();
 	// Set the current Atom a negative atom
@@ -65,7 +65,7 @@ public:
 	// Set the current term a negative term
 	void setNegativeTerm();
 	/// Set operator of ArithTerm
-	void setArithOperator(string op);
+	void setArithOperator(string& op);
 	/// End arith term
 	void endArithTerm();
 	///Remove last term

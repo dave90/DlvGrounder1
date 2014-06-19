@@ -22,9 +22,8 @@ struct atomCompare {
 	  index_object p1=a1->getPredicate().second;
 	  index_object p2=a2->getPredicate().second;
 	  if(p1!=p2)return p1<p2;
-	  size_t hashA1=HashVecInt::getHashVecIntFromConfig()->computeHash(a1->getTerms());
-	  size_t hashA2=HashVecInt::getHashVecIntFromConfig()->computeHash(a2->getTerms());
-	  return hashA1<hashA2;
+
+	  return (a1->getHash())<(a2->getHash());
   }
 };
 

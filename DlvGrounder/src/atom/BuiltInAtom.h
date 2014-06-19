@@ -27,7 +27,7 @@ public:
 	index_object getSecondTerm() const {return secondTerm;};
 	void setSecondTerm(index_object secondTerm) {this->secondTerm = secondTerm;};
 
-	string getNameToHash();
+	size_t getHash() const;
 
 	virtual bool operator==(const Atom& a);
 

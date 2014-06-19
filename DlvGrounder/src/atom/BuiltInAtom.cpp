@@ -28,15 +28,9 @@ bool BuiltInAtom::evaluate(){ //TODO Operatori in Term
 	return false;
 }
 
-string BuiltInAtom::getNameToHash(){
-	ostringstream convert;
-	convert << firstTerm;
-	string name=convert.str();
-	convert << binop;
-	name+="*"+convert.str();
-	convert << secondTerm;
-	name+="*"+convert.str();
-	return name;
+//TODO
+size_t BuiltInAtom::getHash() const{
+	return 0;
 }
 
 bool BuiltInAtom::operator ==(const Atom& a) {

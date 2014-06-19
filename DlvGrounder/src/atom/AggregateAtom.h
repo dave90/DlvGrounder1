@@ -33,7 +33,7 @@ public:
 	index_object getSecondCompareTerm() const {return secondCompareTerm;};
 	void setSecondCompareTerm(index_object secondCompareTerm) {this->secondCompareTerm = secondCompareTerm;};
 
-	string getNameToHash();
+	size_t getHash() const;
 
 	~AggregateAtom() {};
 

@@ -25,11 +25,11 @@ struct hashRule {
 	  HashVecInt *hash=HashVecInt::getHashVecIntFromConfig();
 	  vector<size_t> atomHash;
 	  for(auto it=rule->getBeginHead();it!=rule->getEndHead();it++){
-		  atomHash.push_back(hash->computeHash((*it)->getTerms()));
+		  atomHash.push_back((*it)->getHash());
 	  }
 	  for(auto it=rule->getBeginBody();it!=rule->getEndBody();it++)
-	  	  atomHash.push_back(hash->computeHash((*it)->getTerms()));
-	  return hash->computeHash(atomHash);
+	  	  atomHash.push_back((*it)->getHash());
+	  return hash->computeHashSize_T(atomHash);
   }
   bool operator()( Rule* r1,  Rule* r2)const{
 	  return *r1==*r2;

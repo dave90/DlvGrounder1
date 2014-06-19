@@ -80,7 +80,7 @@ void StatementBuilder::addAggregate() {
 	aggregate++;
 }
 
-void StatementBuilder::addLiteral(string name) {
+void StatementBuilder::addLiteral(string &name) {
 	ruleFactory.addPredicate(name);
 
 	literal++;
@@ -95,7 +95,7 @@ void StatementBuilder::addClassicalAtom() {
 	negativeAtom = false;
 }
 
-void StatementBuilder::setBinop(string binop) {
+void StatementBuilder::setBinop(string& binop) {
 	ruleFactory.setBinop(binop);
 }
 
@@ -175,7 +175,7 @@ void StatementBuilder::addArithTerm() {
 	resetTerm();
 }
 
-void StatementBuilder::setArithOperator(string op){
+void StatementBuilder::setArithOperator(string& op){
 	termsFactory.setArithOperator(op);
 }
 

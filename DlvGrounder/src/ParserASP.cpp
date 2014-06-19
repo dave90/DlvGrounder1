@@ -109,9 +109,8 @@ void addId(string &name) {
 	builder->addId(name);
 }
 
-void addNumber(int &name) {
-	unsigned int unsigned_name=name;
-	builder->addNumber(unsigned_name);
+void addNumber(unsigned int &name) {
+	builder->addNumber(name);
 }
 
 void addNameFunction(string &name) {
@@ -161,7 +160,7 @@ struct asp_grammar: qi::grammar<Iterator, ascii::space_type> {
 	asp_grammar() :
 			asp_grammar::base_type(statements) {
 
-		using qi::int_;
+		using qi::uint_;
 		using qi::char_;
 		using qi::lit;
 		using qi::alnum;
@@ -255,7 +254,7 @@ struct asp_grammar: qi::grammar<Iterator, ascii::space_type> {
 		LESS_OR_EQ = lit("<=");
 		GREATER_OR_EQ = lit(">=");
 		NAF = lexeme[lit("not ")] | lexeme[lit("not") > qi::eol];
-		NUMBER = int_;
+		NUMBER = uint_;
 		STRING = char_("\"") > +(char_ - char_("\"")) > char_("\"");
 		VARIABLE = lexeme[char_("A-Z") > *char_("a-zA-Z0-9_")];
 		ANONYMOUS_VARIABLE = lit("_");
@@ -314,7 +313,7 @@ struct asp_grammar: qi::grammar<Iterator, ascii::space_type> {
 			COLON, AT, VARIABLE, ANONYMOUS_VARIABLE, PLUS, TIMES, DIV, STRING, CURLY_OPEN,
 			CURLY_CLOSE, AGGREGATE_COUNT, AGGREGATE_MAX, AGGREGATE_MIN, AGGREGATE_SUM, SQUARE_OPEN,
 			SQUARE_CLOSE, WCONS, MAXIMIZE, MINIMIZE, PERCENTAGE,COMMENT;
-	qi::rule<Iterator, int(), ascii::space_type> NUMBER;
+	qi::rule<Iterator, unsigned int(), ascii::space_type> NUMBER;
 };
 
 typedef string::const_iterator string_const_it;

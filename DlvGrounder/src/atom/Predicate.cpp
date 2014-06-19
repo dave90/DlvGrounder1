@@ -6,6 +6,7 @@
  */
 
 #include "Predicate.h"
+#include <boost/lexical_cast.hpp>
 
 #include <sstream>
 
@@ -38,8 +39,6 @@ bool Predicate::operator ==(Predicate& p) {
 }
 
 string Predicate::getNameToHash() {
-	stringstream ss;
-	ss << arity;
-	string hashString=name+"*"+ss.str();
+	string hashString=name+"*"+boost::lexical_cast<string>(arity);
 	return hashString;
 }

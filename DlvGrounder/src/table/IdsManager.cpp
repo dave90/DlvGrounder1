@@ -43,7 +43,6 @@ pair_long_bool IdManager::insert(string &s) {
 
 
 pair_long_bool IdManager::insert(unsigned int &i) {
-
 	auto its = hashIntId.left.find(i);
 	if (its == hashIntId.left.end()) {
 		pair_long_bool pairLong_bool(counter, false);

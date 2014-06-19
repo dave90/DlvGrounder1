@@ -37,13 +37,13 @@ public:
 	// Two atoms are equal if they have the same index
 	virtual bool operator==(const Atom& a)=0;
 
-	//Compute a string to be used for hashing
-	virtual string getNameToHash() = 0 ;
+	//Compute a hash of atom
+	virtual size_t getHash() const = 0 ;
 
 	//ClassicalLiteral
 	virtual pair<bool,index_object> getPredicate() const {return {false,0};};
 	virtual void setPredicate(index_object predicate) {};
-	virtual const vector<index_object> getTerms() const {return vector<index_object>(0);};
+	virtual const vector<index_object> getTerms() const { return vector<index_object>(0);};
 	virtual const unsigned int getTermsSize() const {return 0;};
 	virtual index_object getTerm(int i) const{return 0;};
 	virtual void setTerms(const vector<index_object>& terms){};

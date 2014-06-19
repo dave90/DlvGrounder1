@@ -13,12 +13,13 @@
 #include <boost/lexical_cast.hpp>
 
 #include "../table/IdsManager.h"
+#include "../table/HashVecInt.h"
 
 using namespace std;
 
-string ClassicalLiteral::getNameToHash(){
+size_t ClassicalLiteral::getHash() const{
 
-	return getNameToHash(predicate,terms);
+	return HashVecInt::getHashVecIntFromConfig()->computeHash(terms);
 
 }
 
@@ -53,12 +54,3 @@ bool ClassicalLiteral::operator ==(const Atom& a) {
 
 }
 
-string ClassicalLiteral::getNameToHash(index_object predicate, vector<index_object>& terms) {
-
-	string name = boost::lexical_cast<string>(predicate)+"*";
-	for (unsigned int i = 0; i < terms.size(); i++){
-		name+=boost::lexical_cast<string>(terms[i])+"*";
-	}
-	return name;
-
-}

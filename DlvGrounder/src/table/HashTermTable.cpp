@@ -49,6 +49,7 @@ index_object HashTermTable::addTerm(Term* t,unsigned int &s) {
 	}else{
 		delete t;
 	}
+
 	return id;
 }
 

@@ -59,7 +59,7 @@ typedef unordered_multimap<unsigned int,unsigned int> map_int_int;
 struct hashAtom {
 
 	size_t operator()(GenericAtom* atomFact) const {
-		return HashVecInt::getHashVecIntFromConfig()->computeHash(atomFact->atom->getTerms());
+		return atomFact->atom->getHash();
 	}
 	bool operator()(GenericAtom* t1, GenericAtom* t2) const {
 		return *(t1->atom) == *(t2->atom);

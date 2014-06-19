@@ -90,7 +90,7 @@ pair<unsigned int,bool> Config::getIndexingTerm(index_object predicate){
 
 void Config::configureIndexingMap(){
 
-	if(indexingPreferences!=""){
+	if(indexingPreferences.compare("")!=0){
 
 		stringstream stream(indexingPreferences);
 		string segment;

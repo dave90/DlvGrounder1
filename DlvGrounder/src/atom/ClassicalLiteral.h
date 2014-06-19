@@ -29,14 +29,10 @@ public:
 	void setNegative(bool negative) {this->negative=negative;};
 	void print(TermTable *tb);
 
-	string getNameToHash();
+	size_t getHash() const;
 
 	/// Compare predicate and terms of atoms, because used for fact
 	bool operator==(const Atom& a);
-
-
-	/// Return the Hash string for the classical literal
-	static string getNameToHash(index_object predicate,vector<index_object> &terms);
 
 
 	//TODO metodi accesso lista termini
