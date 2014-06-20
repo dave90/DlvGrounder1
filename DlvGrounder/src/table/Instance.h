@@ -12,12 +12,13 @@
 #include <unordered_map>
 #include <vector>
 #include <algorithm>
-#include "../atom/ClassicalLiteral.h"
-#include "HashVecInt.h"
 #include <iostream>
 
 #include <boost/lexical_cast.hpp>
 
+#include "HashVecInt.h"
+#include "../atom/ClassicalLiteral.h"
+#include "PredicateTable.h"
 
 using namespace std;
 
@@ -25,15 +26,18 @@ using namespace std;
 
 
 struct GenericAtom{
-	Atom *atom;
+	vector<index_object> terms;
 
-	GenericAtom():atom(nullptr){}
-	GenericAtom(Atom * atom){
-		this->atom=atom;
-	}
+	GenericAtom(){}
+	GenericAtom(vector<index_object>& t):terms(move(t)){}
 
 	virtual bool isFact(){return true;}
 	virtual void setFact(bool isFact){};
+	inline bool operator==(const GenericAtom& genericAtom) const{
+		if(terms.size()!=genericAtom.terms.size())return false;
+		return equal(terms.begin(),terms.end(),genericAtom.terms.begin());
+
+	}
 
 	virtual ~GenericAtom(){}
 };
@@ -41,10 +45,7 @@ struct GenericAtom{
 struct AtomUndef : GenericAtom{
 	bool fact;
 
-	AtomUndef(Atom * atom,bool fact){
-		this->atom=atom;
-		this->fact=fact;
-	}
+	AtomUndef(vector<index_object>& t,bool f):fact(f){terms=t;}
 
 	bool isFact(){return fact;}
 	void setFact(bool fact){this->fact=fact;};
@@ -58,11 +59,11 @@ typedef unordered_multimap<unsigned int,unsigned int> map_int_int;
  */
 struct hashAtom {
 
-	size_t operator()(GenericAtom* atomFact) const {
-		return atomFact->atom->getHash();
+	 size_t operator()(GenericAtom* atomFact) const {
+		return HashVecInt::getHashVecIntFromConfig()->computeHash(atomFact->terms);
 	}
-	bool operator()(GenericAtom* t1, GenericAtom* t2) const {
-		return *(t1->atom) == *(t2->atom);
+	 bool operator()(GenericAtom* a1, GenericAtom* a2) const {
+		return *a1==*a2;
 	}
 
 };
@@ -74,30 +75,29 @@ struct hashAtomResult {
 
 	hashAtomResult(vec_pair_index_object &bind){this->bind=bind;}
 
-	size_t operator()(Atom* atom) const {
+	size_t operator()( GenericAtom* atom) const {
 		vector<index_object> terms;
 		getTermsBind(atom,terms);
 		return HashVecInt::getHashVecIntFromConfig()->computeHash(terms);
 	}
 
-	bool operator()(Atom* a1, Atom* a2) const {
+	bool operator()( GenericAtom* atom1,  GenericAtom* atom2) const {
 		vector<index_object> terms1;
-		getTermsBind(a1,terms1);
+		getTermsBind(atom1,terms1);
 		vector<index_object> terms2;
-		getTermsBind(a2,terms2);
-		if(terms1.size()!=terms2.size())return false;
+		getTermsBind(atom2,terms2);
 		return equal(terms1.begin(),terms1.end(),terms2.begin());
 	}
 
 	/// Generate the terms of the atom only with the bind terms
-	void getTermsBind(Atom* atom,vector<index_object>& terms) const{
+	void getTermsBind( GenericAtom* atom,vector<index_object>& terms) const{
 		for(auto t:bind)
-			terms.push_back(atom->getTerm(t.first));
+			terms.push_back(atom->terms[t.first]);
 	}
 };
 
 typedef unordered_set<GenericAtom*, hashAtom, hashAtom> AtomTable;
-typedef unordered_set<Atom*, hashAtomResult, hashAtomResult> AtomResultTable;
+typedef unordered_set<GenericAtom*, hashAtomResult, hashAtomResult> AtomResultTable;
 
 
 struct ResultMatch {
@@ -109,24 +109,24 @@ struct ResultMatch {
 
 class IndexAtom {
 public:
-	IndexAtom(){facts=0;nofacts=0;};
-	IndexAtom(AtomTable* facts,AtomTable* nofacts) :facts(facts), nofacts(nofacts){};
+	IndexAtom(AtomTable* facts,AtomTable* nofacts,Predicate *p) :facts(facts), nofacts(nofacts),predicate(p){};
 	;
 	/*
 	 *  Return id used for the nextMatch
 	 */
-	virtual unsigned int firstMatch(bool isEDB,vec_pair_index_object &bound,vec_pair_index_object &bind,map_int_int& equal_var,bool& find)=0;
+	virtual unsigned int firstMatch(vec_pair_index_object &bound,vec_pair_index_object &bind,map_int_int& equal_var,bool& find)=0;
 	virtual void nextMatch(unsigned int id,vec_pair_index_object &bind,bool& find)=0;
 	virtual ~IndexAtom() {};
 protected:
 	AtomTable* facts;
 	AtomTable* nofacts;
+	Predicate* predicate;
 };
 
 class SimpleIndexAtom: public IndexAtom {
 public:
-	SimpleIndexAtom(AtomTable* facts, AtomTable* nofacts) : IndexAtom(facts,nofacts),counter(0){};
-	virtual unsigned int firstMatch(bool isEDB,vec_pair_index_object &bound, vec_pair_index_object &bind,map_int_int& equal_var,bool& find);
+	SimpleIndexAtom(AtomTable* facts, AtomTable* nofacts,Predicate *p) : IndexAtom(facts,nofacts,p),counter(0){};
+	virtual unsigned int firstMatch(vec_pair_index_object &bound, vec_pair_index_object &bind,map_int_int& equal_var,bool& find);
 	virtual void nextMatch(unsigned int id,vec_pair_index_object &bind,bool& find);
 	virtual ~SimpleIndexAtom();
 protected:
@@ -135,56 +135,47 @@ protected:
 	/// Search in the atom table if match
 	void computeFirstMatch(const AtomTable& collection,vec_pair_index_object &bound,vec_pair_index_object &bind,map_int_int& equal_var,ResultMatch* rm);
 	/// Test the match of bind equal variable
-	bool checkEqualVariable(map_int_int& equal_var,Atom *atom);
+	bool checkEqualVariable(map_int_int& equal_var,GenericAtom *atom);
 
-	virtual bool searchForFirstMatch(AtomTable* table, const unsigned int termSize, vec_pair_index_object &bound,vec_pair_index_object &bind,map_int_int& equal_var,ResultMatch* rm);
+	virtual bool searchForFirstMatch(AtomTable* table, vec_pair_index_object &bound,vec_pair_index_object &bind,map_int_int& equal_var,ResultMatch* rm);
 
 	virtual bool findIfAFactExists(const AtomTable &collection,vec_pair_index_object& bound, map_int_int& equal_var);
 };
 
 class Instances {
 public:
-	Instances(index_object predicate);
+	Instances(index_object predicate,PredicateTable *pt);
 
-	bool addFact(Atom*& atom) {
-		GenericAtom* atomFact=new GenericAtom(atom);
-		if(!facts.count(atomFact))
-			facts.insert(atomFact);
-		else{
-			Atom * findAtom=(*facts.find(atomFact))->atom;
+
+	bool addFact(vector<index_object>& terms) {
+		GenericAtom* atomFact=new GenericAtom(terms);
+		if(!facts.insert(atomFact).second){
 			delete atomFact;
-			delete atom;
-			atom = findAtom;
 			return false;
 		}
 		return true;
 	};
 
 	// A no fact is true if its truth value is true, otherwise it is undefined, false atoms are not saved.
-	bool addNoFact(Atom*& atom, bool truth) {
-		GenericAtom* atomUndef=new AtomUndef(atom,truth);
-		if(!nofacts.count(atomUndef))
-			nofacts.insert(atomUndef);
-		else {
-			Atom * findAtom=(*nofacts.find(atomUndef))->atom;
+	bool addNoFact(vector<index_object>& terms, bool truth) {
+		GenericAtom* atomUndef=new AtomUndef(terms,truth);
+		if(!nofacts.insert(atomUndef).second){
 			delete atomUndef;
-			delete atom;
-			atom = findAtom;
 			return false;
 		}
 		return true;
 	};
 
-	void setValue(Atom* atom, bool truth) {
-		GenericAtom *atomUndef=new AtomUndef(atom,truth);
+	void setValue(vector<index_object>& terms, bool truth) {
+		GenericAtom *atomUndef=new AtomUndef(terms,truth);
 		auto it=nofacts.find( atomUndef);
 		(*it)->setFact(truth);
 		delete atomUndef;
 	};
 
 
-	bool isTrue(Atom* atom) {
-		GenericAtom *atomUndef=new AtomUndef(atom,0);
+	bool isTrue(vector<index_object>& terms) {
+		GenericAtom *atomUndef=new AtomUndef(terms,0);
 		auto it=nofacts.find( atomUndef);
 		bool result = (*it)->isFact();
 		delete atomUndef;
@@ -197,12 +188,13 @@ public:
 
 	IndexAtom* getIndex() {	return indexAtom;};
 
-	void print(TermTable*tb){for(GenericAtom*fact:facts){fact->atom->print(tb);cout<<"."<<endl;}};
+	void print(TermTable*tb){for(GenericAtom*fact:facts){ClassicalLiteral::print(tb,predicate,fact->terms,false,false); cout<<"."<<endl;}};
 
 	~Instances();
 
 private:
 	index_object predicate;
+	PredicateTable *predicateTable;
 	IndexAtom* indexAtom;
 	AtomTable facts;
 	AtomTable nofacts;
@@ -211,25 +203,23 @@ private:
 
 class InstancesTable {
 public:
+	InstancesTable(PredicateTable *pt):predicateTable(pt){}
 	void addInstance(index_object i) {
 		if(!instanceTable.count(i)){
-			Instances* is = new Instances(i);
+			Instances* is = new Instances(i,predicateTable);
 			instanceTable.insert({i,is});
 		}
 	};
 	// Get term by the index
 	Instances* getInstance(index_object i) {
-		auto instance = instanceTable.find(i);
-		if(instance!=instanceTable.end())
-			return instance->second;
-		else
-			return nullptr;
+		return instanceTable.find(i)->second;
 	};
 	// Get size of the table
 	long getSize() {return instanceTable.size();};
 	void print(TermTable*tb) {for (auto i : instanceTable)i.second->print(tb);	};
 	~InstancesTable();
 private:
+	PredicateTable *predicateTable;
 	unordered_map<index_object,Instances*> instanceTable;
 };
 

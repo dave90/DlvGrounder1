@@ -43,7 +43,7 @@ unsigned int TermIndexAtom::firstMatch(vec_pair_index_object& bound, vec_pair_in
 	else
 		matchingTable=facts;
 
-	if(bound.size()==(*facts->begin())->atom->getTermsSize()){
+	if(bound.size()==predicate->getArity()){
 		if(findIfAFactExists(*matchingTable,bound,equal_var)){
 			find=true;
 			matches_id.insert({id,rm});
@@ -65,7 +65,7 @@ unsigned int TermIndexAtomMultiMap::firstMatch(vec_pair_index_object& bound, vec
 	unsigned int id = counter;counter++;
 	ResultMatch* rm=new ResultMatch(bind);
 
-	if(bound.size()==(*facts->begin())->atom->getTermsSize()){
+	if(bound.size()==predicate->getArity()){
 		if(findIfAFactExists(*facts,bound,equal_var)){
 			find=true;
 			matches_id.insert({id,rm});
@@ -118,7 +118,7 @@ void TermIndexAtom::initializeIndexMap(){
 	unordered_set<index_object> termToBeIndexedIndices;
 
 	for (GenericAtom*a : *facts) {
-		index_object termIndex=a->atom->getTerm(termToBeIndexed);
+		index_object termIndex=a->terms[termToBeIndexed];
 		if(!termToBeIndexedIndices.count(termIndex)){
 			termToBeIndexedIndices.insert(termIndex);
 			AtomTable values;
@@ -136,7 +136,7 @@ void TermIndexAtom::initializeIndexMap(){
 void TermIndexAtomMultiMap::initializeIndexMap(){
 //	Timer::getInstance()->start("Creation Index Structure");
 	for (GenericAtom*a : *facts) {
-		index_object termIndex=a->atom->getTerm(termToBeIndexed);
+		index_object termIndex=a->terms[termToBeIndexed];
 		indexMap.insert({termIndex,a});
 	}
 //	Timer::getInstance()->end();

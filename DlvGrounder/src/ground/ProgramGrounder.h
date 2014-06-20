@@ -42,8 +42,7 @@ public:
 	GroundedRule(){}
 	bool addRule(Rule*r)//{if(groundedRules.count(r))return false;groundedRules.insert(r);return true;};
 	{
-		if(groundedRules.count(r))return false;
-		groundedRules.insert(r);
+		if(!groundedRules.insert(r).second){delete r;return false;};
 		return true;
 	}
 //	~GroundedRule(){for(auto rule:groundedRules)delete rule;}
@@ -85,9 +84,6 @@ private:
 	/// @param binds the vector to push the bind variable of atom in position i in rule
 	/// @param equal_vars is the map that indicate the term with the same variable
 	void findBoundBindRule(Rule *r,vector<vec_pair_index_object> &bounds,vector<vec_pair_index_object>& binds,vector<map_int_int >& equal_vars);
-
-	/// Method called when find the assignment in ground rule
-	void foundAssignmentRule(Rule *r,map_index_object_index_object& var_assign);
 
 	/// Print the gound rule
 	void printGroundRule(Rule *r,map_index_object_index_object& var_assign);

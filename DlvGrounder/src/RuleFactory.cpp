@@ -16,7 +16,7 @@ RuleFactory::RuleFactory() {
 	binop=Binop::NONE_OP;
 
 	predicateTable=new PredicateTable;
-	instancesTable=new InstancesTable;
+	instancesTable=new InstancesTable(predicateTable);
 	st=new StatementDependency;
 }
 
@@ -28,7 +28,8 @@ void RuleFactory::addFact(Atom *fact) {
 
 	index_object predicate=fact->getPredicate().second;
 	instancesTable->addInstance(predicate);
-	instancesTable->getInstance(predicate)->addFact(fact);
+	instancesTable->getInstance(predicate)->addFact(fact->getTerms());
+	delete fact;
 }
 
 void RuleFactory::addClassicalAtom(vector<index_object> &terms, bool hashMinus,

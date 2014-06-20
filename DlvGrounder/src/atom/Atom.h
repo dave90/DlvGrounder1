@@ -43,7 +43,7 @@ public:
 	//ClassicalLiteral
 	virtual pair<bool,index_object> getPredicate() const {return {false,0};};
 	virtual void setPredicate(index_object predicate) {};
-	virtual const vector<index_object> getTerms() const { return vector<index_object>(0);};
+	virtual vector<index_object>& getTerms() { void(0);};
 	virtual const unsigned int getTermsSize() const {return 0;};
 	virtual index_object getTerm(int i) const{return 0;};
 	virtual void setTerms(const vector<index_object>& terms){};

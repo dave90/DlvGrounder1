@@ -33,7 +33,7 @@ private:
 class JavaHashVecInt : public HashVecInt{
 public:
 	JavaHashVecInt(){}
-	size_t computeHash(const vector<index_object> &values){
+	inline size_t computeHash(const vector<index_object> &values){
 		int length=values.size();
 		size_t hash=0;
 		for (int i = 0; i < length; i++) {
@@ -42,7 +42,7 @@ public:
 
 		return hash;
 	}
-	size_t computeHashSize_T(const vector<size_t> &values){
+	inline size_t computeHashSize_T(const vector<size_t> &values){
 		int length=values.size();
 		size_t hash=0;
 		for (int i = 0; i < length; i++) {
@@ -56,10 +56,10 @@ public:
 
 class BoostCombineHashVecInt : public HashVecInt{
 public:
-	size_t computeHash(const vector<index_object> & values){
+	inline size_t computeHash(const vector<index_object> & values){
 		return boost::hash_range(values.begin(),values.end());
 	}
-	size_t computeHashSize_T(const vector<size_t> & values){
+	inline size_t computeHashSize_T(const vector<size_t> & values){
 		return boost::hash_range(values.begin(),values.end());
 	}
 

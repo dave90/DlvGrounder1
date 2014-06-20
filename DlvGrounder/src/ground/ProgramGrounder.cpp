@@ -145,7 +145,8 @@ void ProgramGrounder::printGroundRule(Rule *r,map_index_object_index_object& var
 		Atom *headAtom=new ClassicalLiteral(predicate,terms,false,false);
 		//check if atom is already grounded
 		instancesTable->addInstance(predicate);
-		instancesTable->getInstance(predicate)->addNoFact(headAtom,isTrue);
+		//FIXME in rule duplicate terms
+		instancesTable->getInstance(predicate)->addNoFact(headAtom->getTerms(),isTrue);
 
 		groundRule->addInHead(headAtom);
 
@@ -158,6 +159,7 @@ void ProgramGrounder::printGroundRule(Rule *r,map_index_object_index_object& var
 			Atom *body=(*body_it);
 
 			index_object predicate=body->getPredicate().second;
+			//If the predicate is Edb jump this atom
 			if(predicateTable->getPredicate(predicate)->isEdb())continue;
 
 			vector<index_object> terms;
@@ -165,7 +167,6 @@ void ProgramGrounder::printGroundRule(Rule *r,map_index_object_index_object& var
 			//FIXME consider the anonymus variable
 			for(unsigned int i=0;i<body->getTermsSize();i++){
 
-				//If the predicate is Edb jump this atom
 
 				index_object term=body->getTerm(i);
 
@@ -184,34 +185,6 @@ void ProgramGrounder::printGroundRule(Rule *r,map_index_object_index_object& var
 		groundRule->print(termsMap);
 }
 
-void ProgramGrounder::foundAssignmentRule(Rule *r,map_index_object_index_object& var_assign){
-
-	vector<Atom*> atoms;
-	for (auto head_it = r->getBeginHead(); head_it != r->getEndHead(); head_it++) {
-		Atom *head=(*head_it);
-
-		index_object predicate=head->getPredicate().second;
-		vector<index_object> terms;
-
-		for(unsigned int i=0;i<head->getTermsSize();i++){
-			terms.push_back(var_assign.find(head->getTerm(i))->second);
-		}
-
-		atoms.push_back(new ClassicalLiteral(predicate,terms,false,false));
-
-	}
-
-	bool truth=true;
-	if(atoms.size()>1)truth=false;
-	for(Atom *a:atoms){
-		index_object predicate=a->getPredicate().second;
-		instancesTable->addInstance(predicate);
-		if(instancesTable->getInstance(predicate)->addNoFact(a,truth)){
-			a->print(termsMap);
-			cout<<".";
-		}
-	}
-}
 
 void ProgramGrounder::setBoundValue(Atom *current_atom,vec_pair_index_object &bound,map_index_object_index_object& var_assign){
 	for(unsigned int i=0;i<bound.size();i++){
@@ -287,8 +260,7 @@ void ProgramGrounder::groundRule(Rule* r) {
 
 
 		if(firstMatch){
-			bool isPredicateEdb =predicateTable->getPredicate(current_atom->getPredicate().second)->isEdb();
-			unsigned int id=index->firstMatch(isPredicateEdb,bounds[index_current_atom],binds[index_current_atom],equal_vars[index_current_atom],find);
+			unsigned int id=index->firstMatch(bounds[index_current_atom],binds[index_current_atom],equal_vars[index_current_atom],find);
 			id_match.push_back(id);
 
 		}else{

@@ -25,6 +25,10 @@ size_t ClassicalLiteral::getHash() const{
 
 
 void ClassicalLiteral::print(TermTable *tb){
+	print(tb,predicate,terms,negative,hasMinus);
+}
+
+void ClassicalLiteral::print(TermTable *tb,index_object predicate,vector<index_object>& terms,bool negative,bool hasMinus){
 	if(negative)
 		cout<<"not ";
 	if(hasMinus)
@@ -40,6 +44,7 @@ void ClassicalLiteral::print(TermTable *tb){
 			cout<<")";
 	}
 }
+
 
 bool ClassicalLiteral::operator ==(const Atom& a) {
 

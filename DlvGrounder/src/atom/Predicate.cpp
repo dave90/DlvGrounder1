@@ -14,7 +14,7 @@ void Predicate::setArity(int arity){
 	this->arity=arity;
 }
 
-int Predicate::getArity(){
+unsigned int Predicate::getArity(){
 	return this->arity;
 }
 

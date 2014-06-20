@@ -12,6 +12,6 @@ HashVecInt *HashVecInt::hashInt;
 HashVecInt* HashVecInt::getHashVecIntFromConfig() {
 	//FIXME add config switch
 	if (hashInt == nullptr)
-		hashInt = new JavaHashVecInt;
+		hashInt = new BoostCombineHashVecInt;
 	return hashInt;
 }

@@ -87,7 +87,7 @@ void StatementBuilder::addLiteral(string &name) {
 }
 
 void StatementBuilder::addClassicalAtom() {
-	vector<index_object> terms=termsFactory.getTermsInAtom();
+	vector<index_object> terms=move(termsFactory.getTermsInAtom());
 	ruleFactory.addClassicalAtom(terms, hashMinusAtom, negativeAtom);
 
 	termsFactory.clearTermsInAtom();

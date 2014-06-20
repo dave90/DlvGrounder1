@@ -19,10 +19,10 @@ using namespace std;
 class Predicate {
 public:
 	Predicate() : index(0), arity(0) {edb=true;};
-	Predicate(string name, int arity) : index(0), arity(arity), name(name) {edb=true;};
+	Predicate(string name,unsigned int arity) : index(0), arity(arity), name(name) {edb=true;};
 
 	//Getters and Setters
-	int getArity();
+	unsigned int getArity();
 	void setArity(int arity);
 	string getName();
 	void setName(string name);
@@ -41,7 +41,7 @@ public:
 
 private:
 	index_object index;
-	int arity;
+	unsigned int arity;
 	string name;
 
 	bool edb;
