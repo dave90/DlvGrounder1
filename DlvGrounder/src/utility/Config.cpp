@@ -100,9 +100,9 @@ void Config::configureIndexingMap(){
 
 			vector<string> pair_pred_term;
 			boost::split(pair_pred_term, segment, boost::is_any_of("="));
-			long predIndex=IdsManager::getLongIndex(IdsManager::PREDICATE_ID_MANAGER,pair_pred_term[0]);
-			if(predIndex>-1){ //FIXME Also need to check that the index is < of the arity, however it is checked later
-				indexingMap.insert({predIndex,boost::lexical_cast<unsigned int>(pair_pred_term[1])});
+			pair_long_bool predIndex=IdsManager::getLongIndex(IdsManager::PREDICATE_ID_MANAGER,pair_pred_term[0]);
+			if(predIndex.second){ //FIXME Also need to check that the index is < of the arity, however it is checked later
+				indexingMap.insert({predIndex.first,boost::lexical_cast<unsigned int>(pair_pred_term[1])});
 			}
 
 		}
