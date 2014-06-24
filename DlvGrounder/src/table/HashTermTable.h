@@ -32,4 +32,5 @@ private:
 	unordered_set<Term*,hashTerm,hashTerm> hash;
 };
 
+
 #endif /* HASHTERMTABLE_H_ */

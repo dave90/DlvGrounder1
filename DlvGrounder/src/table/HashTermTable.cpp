@@ -82,3 +82,4 @@ HashTermTable::~HashTermTable() {
 		delete t;
 
 }
+

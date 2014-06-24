@@ -1,8 +1,7 @@
+node(X) :- edge(X,_).
+node(X) :- edge(_,X).
 colored(r,X) | colored(g,X) | colored(b,X) :- node(X).
-:- link(X,Y) , colored(C,X) , colored(C,Y).
+:- colored(C,X) , colored(C,Y) , edge(X,Y).
 
-node(1).
-node(2).
-node(3).
-link(1,2).
-link(2,3).
+edge(1,20000000).
+edge(20000000,3).
