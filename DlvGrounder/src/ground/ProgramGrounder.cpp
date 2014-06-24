@@ -95,7 +95,8 @@ void ProgramGrounder::findBoundBindRule(Rule *r,vector<vec_pair_index_object> &b
 		for(unsigned int i=0;i<current_atom->getTermsSize();i++){
 
 			auto f=var_assign.find(current_atom->getTerm(i));
-			if(f!=var_assign.end()){
+			// if is bound or is a constant FIXME with function
+			if(f!=var_assign.end() || !termsMap->getTerm(current_atom->getTerm(i))->isVariable()){
 				bounds[index_current_atom].push_back({i,current_atom->getTerm(i)});
 			}else{
 				// Bind only variable not anonymous and initially contains the variable
@@ -188,10 +189,12 @@ void ProgramGrounder::printGroundRule(Rule *r,map_index_object_index_object& var
 
 void ProgramGrounder::setBoundValue(Atom *current_atom,vec_pair_index_object &bound,map_index_object_index_object& var_assign){
 	for(unsigned int i=0;i<bound.size();i++){
-		index_object bound_variable=current_atom->getTerm(bound[i].first);
-		index_object bound_value=var_assign.find(bound_variable)->second;
+		if(termsMap->getTerm(current_atom->getTerm(bound[i].first))->isVariable()){
+			index_object bound_variable=current_atom->getTerm(bound[i].first);
+			index_object bound_value=var_assign.find(bound_variable)->second;
 
-		bound[i].second=bound_value;
+			bound[i].second=bound_value;
+		}
 	}
 }
 

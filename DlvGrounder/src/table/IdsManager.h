@@ -160,7 +160,7 @@ private:
 
 };
 
-typedef TwoMapsIdManager IdManager;
+typedef BimapIdManager IdManager;
 class IdsManager {
 public:
 	virtual ~IdsManager();
