@@ -18,12 +18,13 @@ public:
 	virtual ~TermIndexAtom(){};
 private:
 	unordered_map<index_object,AtomTable> factsIndexMap;
-	unordered_map<index_object,AtomTable> nofactsIndexMap;
+//	unordered_map<index_object,AtomTable> nofactsIndexMap;
 	bool instantiateIndexMap;
 	unsigned int termToBeIndexed;
 	bool termSetByPreference;
 	void initializeIndexMap();
 	void determineTermToBeIndexed(vec_pair_index_object& bound);
+	pair<bool, index_object> findTermBoundIndex(vec_pair_index_object& bound);
 };
 
 class TermIndexAtomMultiMap: public SimpleIndexAtom {
@@ -39,6 +40,7 @@ private:
 	bool termSetByPreference;
 	void initializeIndexMap();
 	void determineTermToBeIndexed(vec_pair_index_object& bound);
+	pair<bool, index_object> findTermBoundIndex(vec_pair_index_object& bound);
 };
 
 

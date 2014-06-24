@@ -133,13 +133,13 @@ protected:
 	unordered_map<unsigned int, ResultMatch*> matches_id;
 	unsigned int counter;
 	/// Search in the atom table if match
-	void computeFirstMatch(const AtomTable& collection,vec_pair_index_object &bound,vec_pair_index_object &bind,map_int_int& equal_var,ResultMatch* rm);
+	void computeFirstMatch(AtomTable* collection,vec_pair_index_object &bound,vec_pair_index_object &bind,map_int_int& equal_var,ResultMatch* rm);
 	/// Test the match of bind equal variable
 	bool checkEqualVariable(map_int_int& equal_var,GenericAtom *atom);
-
-	virtual bool searchForFirstMatch(AtomTable* table, vec_pair_index_object &bound,vec_pair_index_object &bind,map_int_int& equal_var,ResultMatch* rm);
-
-	virtual bool findIfAFactExists(const AtomTable &collection,vec_pair_index_object& bound, map_int_int& equal_var);
+	///If all terms are bound call findIfAFactExists, otherwise call computeFirstMatch
+	bool searchForFirstMatch(AtomTable* table, vec_pair_index_object &bound,vec_pair_index_object &bind,map_int_int& equal_var,ResultMatch* rm);
+	///Compute the ground atom from bound terms and equal_var, compute the hash of the atom, and search for that atom efficiently in the collection
+	virtual bool findIfAFactExists(AtomTable* collection,vec_pair_index_object& bound, map_int_int& equal_var);
 };
 
 class Instances {
