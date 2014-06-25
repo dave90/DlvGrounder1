@@ -12,6 +12,8 @@
 #include <sstream>
 
 double ArithTerm::calculate() {
+	TermTable *termTable=TermTable::getInstance();
+
 	double result = termTable->getTerm(terms[0])->calculate();
 	for (unsigned int i = 1; i < terms.size(); i++) {
 		if (operators[i] == Operator::PLUS)

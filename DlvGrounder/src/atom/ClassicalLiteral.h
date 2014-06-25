@@ -34,8 +34,8 @@ public:
 	bool operator==(const Atom& a);
 
 	///Print Method , static because instance not have atoms but vector of terms
-	static void print(TermTable *tb,index_object predicate,vector<index_object>& terms,bool negative,bool hasMinus);
-	void print(TermTable *tb);
+	static void print(index_object predicate,vector<index_object>& terms,bool negative,bool hasMinus);
+	void print();
 
 
 	//TODO metodi accesso lista termini

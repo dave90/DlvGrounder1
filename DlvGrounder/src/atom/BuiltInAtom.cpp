@@ -13,6 +13,8 @@
 #include "../table/IdsManager.h"
 
 bool BuiltInAtom::evaluate(){ //TODO Operatori in Term
+	TermTable *termTable=TermTable::getInstance();
+
 	if(binop==Binop::EQUAL)
 		return termTable->getTerm(firstTerm)==termTable->getTerm(secondTerm);
 	if(binop==Binop::UNEQUAL)
@@ -44,7 +46,8 @@ bool BuiltInAtom::operator ==(const Atom& a) {
 
 }
 
-void BuiltInAtom::print(TermTable*tb){
+void BuiltInAtom::print(){
+	TermTable*tb=TermTable::getInstance();
 	tb->getTerm(firstTerm)->print(tb);
 	if(binop==Binop::EQUAL)
 		cout<<"=";

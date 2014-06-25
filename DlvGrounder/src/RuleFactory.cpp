@@ -58,8 +58,8 @@ void  RuleFactory::setBinop(string& binop){
 		this->binop=Binop::UNEQUAL;
 }
 
-void RuleFactory::addBuiltinAtom(vector<index_object> &terms,TermTable*tt) {
-	Atom *a=new BuiltInAtom(tt,terms[0],terms[1],binop,false);
+void RuleFactory::addBuiltinAtom(vector<index_object> &terms) {
+	Atom *a=new BuiltInAtom(terms[0],terms[1],binop,false);
 	if(head){
 		currentRule->addInHead(a);
 	}else

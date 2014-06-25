@@ -56,8 +56,8 @@ private:
 
 class ProgramGrounder {
 public:
-	ProgramGrounder(PredicateTable* pt,InstancesTable* it,StatementDependency* st,TermTable* tm):
-		predicateTable(pt),instancesTable(it),statementDependency(st),termsMap(tm){};
+	ProgramGrounder(PredicateTable* pt,InstancesTable* it,StatementDependency* st):
+		predicateTable(pt),instancesTable(it),statementDependency(st),termsMap(TermTable::getInstance()){};
 
 	void ground();
 	void groundRule(Rule *r);

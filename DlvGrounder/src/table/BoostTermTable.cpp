@@ -8,8 +8,7 @@
 #include "BoostTermTable.h"
 #include "IdsManager.h"
 
-BoostTermTable::BoostTermTable() {
-}
+
 
 index_object BoostTermTable::addTerm(Term* t) {
 	string hashString=t->getNameToHash();

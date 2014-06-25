@@ -11,7 +11,7 @@
 void  Rule::print(TermTable* tb){
 	unsigned int i=0;
 	for (auto atom:head) {
-		atom->print(tb);
+		atom->print();
 		if(i!=head.size()-1)
 			cout<<";";
 		i++;
@@ -20,7 +20,7 @@ void  Rule::print(TermTable* tb){
 		cout<<":-";
 		unsigned int i=0;
 		for (auto atom:body) {
-			atom->print(tb);
+			atom->print();
 			if(i!=head.size()-1)
 				cout<<";";
 			i++;

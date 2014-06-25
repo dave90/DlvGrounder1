@@ -188,7 +188,7 @@ public:
 
 	IndexAtom* getIndex() {	return indexAtom;};
 
-	void print(TermTable*tb){for(GenericAtom*fact:facts){ClassicalLiteral::print(tb,predicate,fact->terms,false,false); cout<<"."<<endl;}};
+	void print(){for(GenericAtom*fact:facts){ClassicalLiteral::print(predicate,fact->terms,false,false); cout<<"."<<endl;}};
 
 	~Instances();
 
@@ -216,7 +216,7 @@ public:
 	};
 	// Get size of the table
 	long getSize() {return instanceTable.size();};
-	void print(TermTable*tb) {for (auto i : instanceTable)i.second->print(tb);	};
+	void print(TermTable*tb) {for (auto i : instanceTable)i.second->print();	};
 	~InstancesTable();
 private:
 	PredicateTable *predicateTable;

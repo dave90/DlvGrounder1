@@ -19,6 +19,18 @@ using namespace std;
 struct atomCompare {
   bool operator() (const Atom* a1, const Atom* a2) const
   {
+	  if(a1->isNegative() && !a2->isNegative()) return false;
+	  if(!a1->isNegative() && a2->isNegative()) return true;
+
+	  unsigned int anonimus1=0;
+	  unsigned int anonimus2=0;
+
+	  for(unsigned int i=0;i<a1->getTermsSize();i++)if(TermTable::getInstance()->getTerm(a1->getTerm(i))->isAnonymous())anonimus1++;
+	  for(unsigned int i=0;i<a2->getTermsSize();i++)if(TermTable::getInstance()->getTerm(a2->getTerm(i))->isAnonymous())anonimus2++;
+
+	  if(anonimus1!=anonimus2)return anonimus1<anonimus2;
+	  if(a1->getTermsSize()!=a2->getTermsSize()) return a1->getTermsSize()>a2->getTermsSize();
+
 	  index_object p1=a1->getPredicate().second;
 	  index_object p2=a2->getPredicate().second;
 	  if(p1!=p2)return p1<p2;

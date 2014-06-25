@@ -19,7 +19,6 @@ using namespace std;
 
 class HashTermTable: public TermTable {
 public:
-	HashTermTable();
 	virtual index_object addTerm(Term *t);
 	virtual index_object addTerm(Term *t,string &s);
 	virtual index_object addTerm(Term *t,unsigned int &s);
@@ -28,7 +27,11 @@ public:
 	virtual unsigned int getSize();
 	virtual int getCollision();
 	virtual ~HashTermTable();
-private:
+
+	static TermTable* getInstance(){return new HashTermTable;}
+	HashTermTable(){}
+protected:
+
 	unordered_set<Term*,hashTerm,hashTerm> hash;
 };
 

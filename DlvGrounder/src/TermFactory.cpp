@@ -10,19 +10,10 @@
 #include "utility/Config.h"
 
 TermFactory::TermFactory() {
-	setTableType();
+	termsMap=TermTable::getInstance();
 }
 
 
-
-void TermFactory::setTableType() {
-	if(Config::getInstance()->getTermTableType()==TermTableType::BOOST)
-		termsMap=new BoostTermTable;
-	else if(Config::getInstance()->getTermTableType()==TermTableType::STL)
-		termsMap=new HashTermTable;
-	else
-		termsMap=new HashTermTable;
-}
 
  void TermFactory::createVariable(string& variable,bool negative) {
 	Term *v=new VariableTerm(negative);
@@ -77,7 +68,7 @@ void TermFactory::setTableType() {
 }
 
  void TermFactory::addArithTerm() {
-	Term *t=new ArithTerm(termsMap);
+	Term *t=new ArithTerm;
 	terms.push_back(t);
 }
 

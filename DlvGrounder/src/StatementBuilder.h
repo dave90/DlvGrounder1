@@ -71,7 +71,6 @@ public:
 	///Remove last term
 	void removeLastTerm();
 
-	TermTable* getTermTable(){return termsFactory.getTermTable();};
 	InstancesTable* getInstanceTable(){return ruleFactory.getInstancesTable();};
 	StatementDependency* getStatementDependency(){return ruleFactory.getStatementDependency();};
 	PredicateTable* getPredicateTable(){return ruleFactory.getPredicateTable();};

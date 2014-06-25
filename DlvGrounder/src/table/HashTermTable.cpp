@@ -8,8 +8,6 @@
 #include "HashTermTable.h"
 #include "IdsManager.h"
 
-HashTermTable::HashTermTable() {
-}
 
 index_object HashTermTable::addTerm(Term* t) {
 	string hashString=t->getNameToHash();

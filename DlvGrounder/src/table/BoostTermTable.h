@@ -19,7 +19,6 @@ using namespace std;
 
 class BoostTermTable: public TermTable {
 public:
-	BoostTermTable();
 	virtual index_object addTerm(Term *t);
 	virtual index_object addTerm(Term *t,string& s);
 	virtual index_object addTerm(Term *t,unsigned int &s);
@@ -28,7 +27,13 @@ public:
 	virtual unsigned int getSize();
 	virtual int getCollision();
 	virtual ~BoostTermTable();
-private:
+	static TermTable* getInstance(){return new BoostTermTable;}
+
+
+protected:
+
+
+	BoostTermTable(){}
 	boost::unordered_set<Term*,hashTerm,hashTerm> hash;
 };
 

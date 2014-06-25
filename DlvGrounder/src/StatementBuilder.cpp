@@ -102,7 +102,7 @@ void StatementBuilder::setBinop(string& binop) {
 
 void StatementBuilder::addBuiltinAtom() {
 	vector<index_object> terms=termsFactory.getTermsInAtom();
-	ruleFactory.addBuiltinAtom(terms,getTermTable());
+	ruleFactory.addBuiltinAtom(terms);
 
 	termsFactory.clearTermsInAtom();
 	hashMinusAtom = false;

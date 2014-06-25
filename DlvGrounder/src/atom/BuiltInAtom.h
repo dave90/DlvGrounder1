@@ -14,9 +14,9 @@ using namespace std;
 
 class BuiltInAtom: public Atom {
 public:
-	BuiltInAtom(TermTable* t): termTable(t), firstTerm(0), secondTerm(0), binop(Binop::NONE_OP), negative(false) {};
-	BuiltInAtom(TermTable* t, index_object firstTerm, index_object secondTerm, Binop binop, bool negative):
-		termTable(t), firstTerm(firstTerm), secondTerm(secondTerm), binop(binop), negative(negative)  {};
+	BuiltInAtom():  firstTerm(0), secondTerm(0), binop(Binop::NONE_OP), negative(false) {};
+	BuiltInAtom( index_object firstTerm, index_object secondTerm, Binop binop, bool negative):
+		 firstTerm(firstTerm), secondTerm(secondTerm), binop(binop), negative(negative)  {};
 
 	Binop getBinop() const {return binop;};
 	void setBinop(Binop binop) {this->binop = binop;};
@@ -34,11 +34,10 @@ public:
 
 	bool evaluate();
 
-	void print(TermTable*tb);
+	void print();
 	~BuiltInAtom() {};
 
 private:
-	TermTable *termTable;
 	index_object firstTerm;
 	index_object secondTerm;
 	Binop binop;

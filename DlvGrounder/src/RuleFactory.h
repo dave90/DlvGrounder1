@@ -24,7 +24,7 @@ public:
 	/// Set binop in builtin
 	void setBinop(string& binop);
 	/// Add builtin atom in rule
-	void addBuiltinAtom(vector<index_object> &terms,TermTable*tt);
+	void addBuiltinAtom(vector<index_object> &terms);
 	/// Add Fact in Instances
 	void addFact(Atom *fact);
 	/// Set head false and put the next atoms in the body

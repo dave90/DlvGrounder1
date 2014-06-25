@@ -27,7 +27,6 @@ class TermFactory {
 public:
 	// Set table to hash stl table of terms
 	TermFactory();
-	void setTableType();
 	// Create a Variable term
 	void createVariable(string& variable,bool negative);
 	//Create String Constant term
@@ -55,8 +54,6 @@ public:
 	/// Remove Terms in atom
 	void clearTermsInAtom(){termsInAtom.clear();};
 
-
-	TermTable*  getTermTable(){return termsMap;};
 
 	~TermFactory(){};
 private:

@@ -449,8 +449,7 @@ int main(int argc, char* argv[]) {
 
 		delete str;
 		ProgramGrounder grounder(client::builder->getPredicateTable(),
-				client::builder->getInstanceTable(), client::builder->getStatementDependency(),
-				client::builder->getTermTable());
+				client::builder->getInstanceTable(), client::builder->getStatementDependency());
 
 		grounder.ground();
 

@@ -25,7 +25,7 @@
 class ArithTerm: public Term {
 public:
 	/// Take the TableTerm for the calculation
-	ArithTerm(TermTable *t):Term(0),termTable(t){};
+	ArithTerm():Term(0){};
 	///Set operator
 	virtual void setOperator(Operator op){operators.push_back(op);};
 	/// Calculate the operation based on the operator
@@ -40,8 +40,6 @@ public:
 private:
 	// All the index of the terms to calculate the operation
 	vector<index_object> terms;
-	TermTable *termTable;
-
 	// The operators
 	vector<Operator> operators;
 };

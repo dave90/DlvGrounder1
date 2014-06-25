@@ -79,8 +79,7 @@ public:
 	virtual void setChoiceElements(const vector<vector<index_object> > choiceElements) {};
 
 
-	virtual void print();
-	virtual void print(TermTable*tb){};
+	virtual void print(){};
 	virtual ~Atom(){};
 };
 

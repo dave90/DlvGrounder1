@@ -6,7 +6,7 @@
  */
 
 
-#define DEBUG 1
+#define DEBUG 0
 
 
 #include "ProgramGrounder.h"
@@ -221,6 +221,7 @@ void ProgramGrounder::groundRule(Rule* r) {
 	map_index_object_index_object var_assign;
 	list<unsigned int> id_match(0);
 
+	//TODO Order rule!
 	bool finish=false;
 	auto current_atom_it=r->getBeginBody();
 	unsigned int index_current_atom=0;
@@ -230,7 +231,6 @@ void ProgramGrounder::groundRule(Rule* r) {
 	vector<vec_pair_index_object> bounds,binds;
 	vector<map_int_int > equal_vars;
 
-	//TODO Order rule!
 	findBoundBindRule(r,bounds,binds,equal_vars);
 
 #if DEBUG == 0
@@ -281,7 +281,7 @@ void ProgramGrounder::groundRule(Rule* r) {
 #if DEBUG == 0
 		//DEBUG PRINT
 		cout<<"ATOM "<<index_current_atom<<" ";
-		current_atom->print(termsMap);
+		current_atom->print();
 		cout<<" --> ";
 		vector<index_object> terms=current_atom->getTerms();
 		for(auto bind:binds[index_current_atom])
@@ -289,7 +289,7 @@ void ProgramGrounder::groundRule(Rule* r) {
 		for(auto bound:bounds[index_current_atom])
 			terms[bound.first]=bound.second;
 		ClassicalLiteral literal(current_atom->getPredicate().second,terms,false,false);
-		literal.print(termsMap);
+		literal.print();
 		if( (find && !negation) | (!find && negation && firstMatch))
 			cout<<" MATCH!"<<endl;
 		else

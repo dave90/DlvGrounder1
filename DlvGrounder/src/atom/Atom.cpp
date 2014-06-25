@@ -15,6 +15,3 @@ Atom::Atom(index_object predicate){
 
 
 
-void Atom::print(){
-}
-

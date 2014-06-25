@@ -24,11 +24,13 @@ size_t ClassicalLiteral::getHash() const{
 }
 
 
-void ClassicalLiteral::print(TermTable *tb){
-	print(tb,predicate,terms,negative,hasMinus);
+void ClassicalLiteral::print(){
+	print(predicate,terms,negative,hasMinus);
 }
 
-void ClassicalLiteral::print(TermTable *tb,index_object predicate,vector<index_object>& terms,bool negative,bool hasMinus){
+void ClassicalLiteral::print(index_object predicate,vector<index_object>& terms,bool negative,bool hasMinus){
+	TermTable*tb=TermTable::getInstance();
+
 	if(negative)
 		cout<<"not ";
 	if(hasMinus)

@@ -14,6 +14,7 @@
  */
 
 #include "../term/Term.h"
+#include "../utility/Config.h"
 
 using namespace std;
 
@@ -32,7 +33,7 @@ struct hashTerm {
 
 class TermTable {
 public:
-	TermTable();
+	TermTable(){};
 	//Add term in the table
 	virtual index_object addTerm(Term *t)=0;
 	//Add term in the table with the hash s
@@ -48,7 +49,12 @@ public:
 	// Get the collision of the IdManager
 	virtual int getCollision()=0;
 	virtual void print(){};
-	virtual ~TermTable();
+	virtual ~TermTable(){};
+
+	static TermTable* getInstance();
+protected:
+
+	static TermTable* termTable;
 };
 
 
