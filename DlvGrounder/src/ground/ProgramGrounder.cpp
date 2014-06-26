@@ -6,7 +6,7 @@
  */
 
 
-#define DEBUG 0
+#define DEBUG 1
 
 
 #include "ProgramGrounder.h"
@@ -33,7 +33,7 @@ void ProgramGrounder::printPair(int i, vector<vec_pair_index_object>& vec) {
 	cout << "ATOM " << i << " ";
 	for (auto v : vec[i]) {
 		cout << " [" << v.first << ",";
-		termsMap->getTerm(v.second)->print(termsMap);
+		termsMap->getTerm(v.second)->print();
 		cout << "] ";
 	}
 	cout<<endl;
@@ -65,9 +65,9 @@ void ProgramGrounder::printAssignment(map_index_object_index_object& var_assign)
 	cout<<"ASSIGNMENT ";
 	for(auto i:var_assign){
 		cout<<"[ ";
-		termsMap->getTerm(i.first)->print(termsMap);
+		termsMap->getTerm(i.first)->print();
 		cout<<",";
-		termsMap->getTerm(i.second)->print(termsMap);
+		termsMap->getTerm(i.second)->print();
 		cout<<" ]";
 	}
 	cout<<endl;
@@ -126,7 +126,7 @@ void ProgramGrounder::findBoundBindRule(Rule *r,vector<vec_pair_index_object> &b
 
 void ProgramGrounder::printGroundRule(Rule *r,map_index_object_index_object& var_assign){
 
-	Rule *groundRule=new Rule;
+	GroundRule *groundRule=new GroundRule;
 
 	//Add in no fact with true if no disjunction
 	bool isTrue=r->getSizeHead()==0;
@@ -138,16 +138,18 @@ void ProgramGrounder::printGroundRule(Rule *r,map_index_object_index_object& var
 		index_object predicate=head->getPredicate().second;
 		vector<index_object> terms=head->getTerms();
 
-		for(unsigned int i=0;i<terms.size();i++){
-			if(var_assign.count(terms[i]))
-				terms[i]=var_assign[terms[i]];
+		for(unsigned int i=0;i<head->getTermsSize();i++){
+			if(var_assign.count(head->getTerm(i)))
+				terms[i]=var_assign[head->getTerm(i)];
+			else
+				terms[i]=head->getTerm(i);
 		}
 
-		Atom *headAtom=new ClassicalLiteral(predicate,terms,false,false);
+		GroundAtom *headAtom=new GroundAtom(predicate,terms);
 		//check if atom is already grounded
 		instancesTable->addInstance(predicate);
 		//FIXME in rule duplicate terms
-		instancesTable->getInstance(predicate)->addNoFact(headAtom->getTerms(),isTrue);
+		instancesTable->getInstance(predicate)->addNoFact(headAtom->atom,isTrue);
 
 		groundRule->addInHead(headAtom);
 
@@ -177,13 +179,16 @@ void ProgramGrounder::printGroundRule(Rule *r,map_index_object_index_object& var
 					terms.push_back(term);
 			}
 
-			groundRule->addInBody(new ClassicalLiteral(predicate,terms,false,false));
+			GenericAtom *atom=instancesTable->getInstance(predicate)->getGenericAtom(terms);
+
+			//FIXME duplicate fact
+			groundRule->addInBody(new GroundAtom(predicate,atom));
 
 		}
 	}
 
 	if(groundedRule.addRule(groundRule))
-		groundRule->print(termsMap);
+		groundRule->print();
 }
 
 

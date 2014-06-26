@@ -399,7 +399,7 @@ void StatementDependency::createComponentGraph() {
 //	compGraph.computeAnOrdering(ordering);
 }
 
-void StatementDependency::print(TermTable *tb) {
+void StatementDependency::print() {
 	string fileDGraph = Config::getInstance()->getFileGraph() + "DG";
 	string fileCGraph = Config::getInstance()->getFileGraph() + "CG";
 
@@ -417,6 +417,6 @@ void StatementDependency::print(TermTable *tb) {
 	}
 	if (Config::getInstance()->isPrintRules())
 		for (Rule*r : rules)
-			r->print(tb);
+			r->print();
 }
 

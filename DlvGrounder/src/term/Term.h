@@ -23,7 +23,6 @@ using namespace std;
  *
  *  The structure of a Term is based on the Composite pattern
  */
-class TermTable;
 
 /// Operator for arith term
 enum Operator {
@@ -70,7 +69,7 @@ public:
 	/// Return the string used to hash the term
 	virtual string getNameToHash(){return "";};
 	/// Print with the cout the term
-	virtual void print(TermTable *tb){cout<<IdsManager::getStringStrip(IdsManager::TERM_ID_MANAGER,getIndex());};
+	virtual void print(){cout<<IdsManager::getStringStrip(IdsManager::TERM_ID_MANAGER,getIndex());};
 	virtual ~Term(){};
 protected:
 	/*

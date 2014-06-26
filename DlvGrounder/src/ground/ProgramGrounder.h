@@ -12,6 +12,7 @@
 #include "../table/Instance.h"
 #include "../table/TermTable.h"
 #include "StatementDependency.h"
+#include "../statement/GroundRule.h"
 
 #include<vector>
 
@@ -19,9 +20,9 @@ using namespace std;
 
 typedef unordered_map<index_object, index_object> map_index_object_index_object;
 
-
+// Hash Ground rule combining hash of atoms in the rule
 struct hashRule {
-  size_t operator()(Rule* rule) const {
+  size_t operator()(GroundRule* rule) const {
 	  HashVecInt *hash=HashVecInt::getHashVecIntFromConfig();
 	  vector<size_t> atomHash;
 	  for(auto it=rule->getBeginHead();it!=rule->getEndHead();it++){
@@ -31,26 +32,28 @@ struct hashRule {
 	  	  atomHash.push_back((*it)->getHash());
 	  return hash->computeHashSize_T(atomHash);
   }
-  bool operator()( Rule* r1,  Rule* r2)const{
+  bool operator()( GroundRule* r1,  GroundRule* r2)const{
 	  return *r1==*r2;
   }
 
 };
 
+/**
+ * 	GroundedRule is a set of GroundedRule
+ */
 class GroundedRule{
 public:
 	GroundedRule(){}
-	bool addRule(Rule*r)//{if(groundedRules.count(r))return false;groundedRules.insert(r);return true;};
+	/// Adding rule if exist in the set otherwise delete it
+	bool addRule(GroundRule*r)
 	{
 		if(!groundedRules.insert(r).second){delete r;return false;};
 		return true;
 	}
-//	~GroundedRule(){for(auto rule:groundedRules)delete rule;}
+	~GroundedRule(){for(auto rule:groundedRules)delete rule;}
 
 private:
-	unordered_set<Rule*,hashRule,hashRule> groundedRules;
-	//FIXME hash no vector
-//	vector<Rule*> groundedRules;
+	unordered_set<GroundRule*,hashRule,hashRule> groundedRules;
 };
 
 
@@ -62,11 +65,11 @@ public:
 	void ground();
 	void groundRule(Rule *r);
 
-	void print(){statementDependency->print(termsMap);};
+	void print(){statementDependency->print();};
 
 	//Print Term
 	void printTerm(){cout<<"Size Term table: "<<termsMap->getSize()<<endl;cout<<"Collision Term table: "<<termsMap->getCollision()<<endl;termsMap->print();	}
-	void printFact(){instancesTable->print(termsMap);};
+	void printFact(){instancesTable->print();};
 
 	virtual ~ProgramGrounder();
 private:

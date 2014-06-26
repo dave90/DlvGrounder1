@@ -27,12 +27,12 @@ string FunctionTerm::getNameToHash() {
 	return hashString;
 }
 
-void FunctionTerm::print(TermTable *tb) {
+void FunctionTerm::print() {
 	cout<<IdsManager::getStringStrip(IdsManager::TERM_ID_MANAGER,getIndex())<<"(";
 	for(unsigned int i=0;i<terms.size();i++){
 		if(i!=0)
 			cout<<",";
-		tb->getTerm(terms[i])->print(tb);
+		TermTable::getInstance()->getTerm(terms[i])->print();
 	}
 	cout<<")";
 }

@@ -39,7 +39,7 @@ void ClassicalLiteral::print(index_object predicate,vector<index_object>& terms,
 	for (unsigned int i = 0; i < terms.size(); ++i){
 		if(i==0)
 			cout<<"(";
-		tb->getTerm(terms[i])->print(tb);
+		tb->getTerm(terms[i])->print();
 		if(i!=terms.size()-1)
 			cout<<",";
 		else

@@ -38,12 +38,13 @@ string ArithTerm::getNameToHash() {
 	return name;
 }
 
-void ArithTerm::print(TermTable* tb) {
+void ArithTerm::print() {
+	TermTable *tb=TermTable::getInstance();
 	for (unsigned int i = 0; i < terms.size() - 1; i++) {
-		tb->getTerm(terms[i])->print(tb);
+		tb->getTerm(terms[i])->print();
 		cout  << getNameOperator(operators[i]);
 	}
-	tb->getTerm(terms[terms.size() - 1])->print(tb);
+	tb->getTerm(terms[terms.size() - 1])->print();
 }
 
 string ArithTerm::getNameOperator(Operator op) {

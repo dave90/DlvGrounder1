@@ -30,7 +30,7 @@ public:
 	virtual void popTerm(){terms.pop_back();};
 	virtual vector<index_object> getTerms(){return terms;};
 	virtual string getNameToHash();
-	virtual void print(TermTable *tb);
+	virtual void print();
 private:
 	string name;
 

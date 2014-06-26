@@ -8,7 +8,7 @@
 #include "Rule.h"
 #include "iostream"
 
-void  Rule::print(TermTable* tb){
+void  Rule::print(){
 	unsigned int i=0;
 	for (auto atom:head) {
 		atom->print();
@@ -93,4 +93,9 @@ bool Rule::operator ==(const Rule& r) {
 
 	  return true;
 
+}
+
+Rule::~Rule() {
+	for(auto atom:head)delete atom;
+	for(auto atom:body)delete atom;
 }

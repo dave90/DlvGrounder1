@@ -34,7 +34,7 @@ public:
 	virtual void addTerm(index_object termIndex){terms.push_back(termIndex);};
 	virtual void popTerm(){terms.pop_back();};
 	virtual string getNameToHash();
-	virtual void print(TermTable* tb);
+	virtual void print();
 	/// Return the operator in string
 	static string getNameOperator(Operator op);
 private:

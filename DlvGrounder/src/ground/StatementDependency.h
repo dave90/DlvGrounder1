@@ -137,7 +137,7 @@ public:
 	unsigned int getRulesSize(){return rules.size();}
 	Rule* getRule(int i){return rules[i];};
 
-	void print(TermTable *tb);
+	void print();
 
 	virtual ~StatementDependency(){for(Rule *r:rules)delete r;};
 private:

@@ -48,7 +48,7 @@ bool BuiltInAtom::operator ==(const Atom& a) {
 
 void BuiltInAtom::print(){
 	TermTable*tb=TermTable::getInstance();
-	tb->getTerm(firstTerm)->print(tb);
+	tb->getTerm(firstTerm)->print();
 	if(binop==Binop::EQUAL)
 		cout<<"=";
 	if(binop==Binop::UNEQUAL)
@@ -61,6 +61,6 @@ void BuiltInAtom::print(){
 		cout<<">";
 	if(binop==Binop::GREATER_OR_EQ)
 		cout<<">=";
-	tb->getTerm(secondTerm)->print(tb);
+	tb->getTerm(secondTerm)->print();
 }
 

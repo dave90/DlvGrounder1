@@ -156,11 +156,23 @@ public:
 		return true;
 	};
 
+	GenericAtom* getGenericAtom(vector<index_object>& terms) {
+		GenericAtom* atomFact=new GenericAtom(terms);
+		auto it=facts.find(atomFact);
+		if(it==facts.end())
+			it=nofacts.find(atomFact);
+
+		delete atomFact;
+		return *it;
+	};
+
 	// A no fact is true if its truth value is true, otherwise it is undefined, false atoms are not saved.
-	bool addNoFact(vector<index_object>& terms, bool truth) {
-		GenericAtom* atomUndef=new AtomUndef(terms,truth);
+	bool addNoFact(GenericAtom*& atomUndef, bool truth) {
 		if(!nofacts.insert(atomUndef).second){
-			delete atomUndef;
+			// Delete the atom duplicate and return atom in nofact table
+			GenericAtom* atomToDelete=atomUndef;
+			atomUndef=*nofacts.find(atomToDelete);
+			delete atomToDelete;
 			return false;
 		}
 		return true;
@@ -216,7 +228,7 @@ public:
 	};
 	// Get size of the table
 	long getSize() {return instanceTable.size();};
-	void print(TermTable*tb) {for (auto i : instanceTable)i.second->print();	};
+	void print() {for (auto i : instanceTable)i.second->print();	};
 	~InstancesTable();
 private:
 	PredicateTable *predicateTable;
