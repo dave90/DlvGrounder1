@@ -18,7 +18,7 @@ public:
 	virtual ~TermIndexAtom(){};
 private:
 	unordered_map<index_object,AtomTable> factsIndexMap;
-//	unordered_map<index_object,AtomTable> nofactsIndexMap;
+	unordered_map<index_object,AtomTable> nofactsIndexMap;
 	bool instantiateIndexMap;
 	unsigned int termToBeIndexed;
 	bool termSetByPreference;
@@ -34,7 +34,8 @@ public:
 	virtual unsigned int firstMatch(vec_pair_index_object &bound, vec_pair_index_object &bind,map_int_int& equal_var,bool& find);
 	virtual ~TermIndexAtomMultiMap(){};
 private:
-	unordered_multimap<index_object,GenericAtom*> indexMap;
+	unordered_multimap<index_object,GenericAtom*> factsIndexMap;
+	unordered_multimap<index_object,GenericAtom*> nofactsIndexMap;
 	bool instantiateIndexMap;
 	unsigned int termToBeIndexed;
 	bool termSetByPreference;

@@ -72,19 +72,13 @@ unsigned int TermIndexAtom::firstMatch(vec_pair_index_object& bound, vec_pair_in
 	}
 
 	//If it is EDB and it is not all bound, search also in nofacts for match
-	if(!predicate->isEdb()){
-//		if(termBoundIndex.first)
-//			matchingTable=&nofactsIndexMap[termBoundIndex.second];
-//		else
-//			matchingTable=nofacts;
-//
-//		if(searchForFirstMatch(matchingTable,bound,bind,equal_var,rm)){
-//			find=true;
-//			matches_id.insert({id,rm});
-//			return id;
-//		}
-		//Simple search, because nofacts has to be updated and not initialized just at the beginning --> //TODO
-		if(searchForFirstMatch(nofacts,bound,bind,equal_var,rm)){
+	if(!predicate->isEdb() && nofacts->size()>0){
+		if(termBoundIndex.first)
+			matchingTable=&nofactsIndexMap[termBoundIndex.second];
+		else
+			matchingTable=nofacts;
+
+		if(searchForFirstMatch(matchingTable,bound,bind,equal_var,rm)){
 			find=true;
 			matches_id.insert({id,rm});
 			return id;
@@ -104,7 +98,7 @@ unsigned int TermIndexAtomMultiMap::firstMatch(vec_pair_index_object& bound, vec
 	ResultMatch* rm=new ResultMatch(bind);
 
 	if(bound.size()==predicate->getArity()){
-		if(findIfAFactExists(facts,bound,equal_var)){
+		if(findIfAFactExists(facts,bound,equal_var) || findIfAFactExists(nofacts,bound,equal_var)){
 			find=true;
 			matches_id.insert({id,rm});
 			return id;
@@ -117,7 +111,7 @@ unsigned int TermIndexAtomMultiMap::firstMatch(vec_pair_index_object& bound, vec
 		AtomTable* matchingTable=new AtomTable;
 
 		if(termBoundIndex.first){
-			auto pair=indexMap.equal_range(termBoundIndex.second);
+			auto pair=factsIndexMap.equal_range(termBoundIndex.second);
 			for(auto it=pair.first;it!=pair.second;it++)
 				matchingTable->insert(it->second);
 		}
@@ -125,24 +119,23 @@ unsigned int TermIndexAtomMultiMap::firstMatch(vec_pair_index_object& bound, vec
 			matchingTable=facts;
 
 		computeFirstMatch(matchingTable,bound,bind,equal_var,rm);
-		if(!predicate->isEdb()){
-	//		if(termBoundIndex.first)
-	//			matchingTable=&nofactsIndexMap[termBoundIndex.second];
-	//		else
-	//			matchingTable=nofacts;
-	//
-	//		if(searchForFirstMatch(matchingTable,bound,bind,equal_var,rm)){
-	//			find=true;
-	//			matches_id.insert({id,rm});
-	//			return id;
-	//		}
-			//Simple search, because nofacts has to be updated and not initialized just at the beginning --> //TODO
-			if(searchForFirstMatch(nofacts,bound,bind,equal_var,rm)){
-				find=true;
-				matches_id.insert({id,rm});
-				return id;
+
+		if(!predicate->isEdb() && nofacts->size()>0){
+
+			matchingTable->clear();
+
+			if(termBoundIndex.first){
+				auto pair=nofactsIndexMap.equal_range(termBoundIndex.second);
+				for(auto it=pair.first;it!=pair.second;it++)
+					matchingTable->insert(it->second);
 			}
+			else
+				matchingTable=nofacts;
+
+			computeFirstMatch(matchingTable,bound,bind,equal_var,rm);
+
 		}
+
 	}
 
 	matches_id.insert({id,rm});
@@ -164,14 +157,27 @@ void TermIndexAtom::initializeIndexMap(){
 
 	for (GenericAtom*a : *facts) {
 		index_object termIndex=a->terms[termToBeIndexed];
-		if(!termToBeIndexedIndices.count(termIndex)){
-			termToBeIndexedIndices.insert(termIndex);
+		if(termToBeIndexedIndices.insert(termIndex).second){
 			AtomTable values;
 			values.insert(a);
 			factsIndexMap.insert({termIndex,values});
 		}
 		else{
 			factsIndexMap[termIndex].insert(a);
+		}
+	}
+	if(!predicate->isEdb()){
+		termToBeIndexedIndices.clear();
+		for (GenericAtom*a : *nofacts) {
+			index_object termIndex=a->terms[termToBeIndexed];
+			if(termToBeIndexedIndices.insert(termIndex).second){
+				AtomTable values;
+				values.insert(a);
+				nofactsIndexMap.insert({termIndex,values});
+			}
+			else{
+				nofactsIndexMap[termIndex].insert(a);
+			}
 		}
 	}
 //	Timer::getInstance()->end();
@@ -182,7 +188,13 @@ void TermIndexAtomMultiMap::initializeIndexMap(){
 //	Timer::getInstance()->start("Creation Index Structure");
 	for (GenericAtom*a : *facts) {
 		index_object termIndex=a->terms[termToBeIndexed];
-		indexMap.insert({termIndex,a});
+		factsIndexMap.insert({termIndex,a});
+	}
+	if(!predicate->isEdb()){
+		for (GenericAtom*a : *nofacts) {
+				index_object termIndex=a->terms[termToBeIndexed];
+				nofactsIndexMap.insert({termIndex,a});
+		}
 	}
 //	Timer::getInstance()->end();
 	instantiateIndexMap=true;
