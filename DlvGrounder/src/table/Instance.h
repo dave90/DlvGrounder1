@@ -224,7 +224,9 @@ public:
 	};
 	// Get term by the index
 	Instances* getInstance(index_object i) {
-		return instanceTable.find(i)->second;
+		auto result= instanceTable.find(i);
+		if(result==instanceTable.end()) return nullptr;
+		return result->second;
 	};
 	// Get size of the table
 	long getSize() {return instanceTable.size();};
