@@ -14,13 +14,14 @@
 using namespace std;
 
 /*
- *  Represent a variable term
+ * Represent a term variable
+ *
+ * The variable is in IdsManager for avoiding duplication
  */
 class VariableTerm: public Term {
 public:
 	VariableTerm():Term(0){};
 	VariableTerm(bool negative):Term(negative){};
-	VariableTerm(index_object index){setIndex(index);};
 	virtual string getName(){return IdsManager::getString(IdsManager::TERM_ID_MANAGER,getIndex());};
 	virtual bool isAnonymous(){return getName().compare("_")==0;};
 	virtual bool isVariable(){return true;};

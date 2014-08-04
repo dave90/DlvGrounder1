@@ -9,51 +9,42 @@
 #include "IdsManager.h"
 
 
-index_object HashTermTable::addTerm(Term* t) {
-	string hashString=t->getNameToHash();
-	pair_long_bool p=IdsManager::getIndex(IdsManager::TERM_ID_MANAGER, hashString);
-	index_object id=p.first;
-	if(!p.second){
+void HashTermTable::insertTermByIndex(index_object &id,bool insert,Term* t) {
+	if (insert) {
+		// Term t is not present
 		t->setIndex(id);
 		hash.insert(t);
-	}else{
+	} else {
+		// Term t already exist
 		delete t;
 	}
-	return id;
+}
 
+index_object HashTermTable::addTerm(Term* t) {
+	string hashString=t->getNameToHash();
+
+
+	return addTerm(t,hashString);
 }
 
 
 index_object HashTermTable::addTerm(Term* t,string &s) {
-	pair_long_bool p=IdsManager::getIndex(IdsManager::TERM_ID_MANAGER, s);
+	pair_long_bool index_bool=IdsManager::getIndex(IdsManager::TERM_ID_MANAGER, s);
 
-	index_object id=p.first;
-	if(!p.second){
-		t->setIndex(id);
-		hash.insert(t);
-	}else{
-		delete t;
-	}
-	return id;
+	insertTermByIndex(index_bool.first,!index_bool.second, t);
+
+	return index_bool.first;
 }
 
 index_object HashTermTable::addTerm(Term* t,unsigned int &s) {
-	pair_long_bool p=IdsManager::getIndex(IdsManager::TERM_ID_MANAGER, s);
+	pair_long_bool index_bool=IdsManager::getIndex(IdsManager::TERM_ID_MANAGER, s);
 
-	index_object id=p.first;
-	if(!p.second){
-		t->setIndex(id);
-		hash.insert(t);
-	}else{
-		delete t;
-	}
+	insertTermByIndex(index_bool.first,!index_bool.second, t);
 
-	return id;
+	return index_bool.first;
 }
 
 
-void HashTermTable::removeTerm(index_object index) {
-}
 
 Term* HashTermTable::getTerm(index_object index) {
 	Term t;

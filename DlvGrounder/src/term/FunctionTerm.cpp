@@ -8,7 +8,7 @@
 #include "FunctionTerm.h"
 
 #include <sstream>
-
+#include <boost/lexical_cast.hpp>
 
 
 
@@ -17,11 +17,7 @@ string FunctionTerm::getNameToHash() {
 
 	string number;
 	for(unsigned int i=0;i<terms.size();i++){
-		stringstream ss;
-		ss << terms[i];
-		number = ss.str();
-
-		hashString+=number+"*";
+		hashString+=boost::lexical_cast<string>(terms[i])+"*";
 	}
 
 	return hashString;

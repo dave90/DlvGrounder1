@@ -29,12 +29,18 @@ public:
 	virtual void addTerm(index_object termIndex){terms.push_back(termIndex);};
 	virtual void popTerm(){terms.pop_back();};
 	virtual vector<index_object> getTerms(){return terms;};
+	/// Return the name of the function concatenated with '*' and the id of the composites term
 	virtual string getNameToHash();
 	virtual void print();
 private:
+	/**
+	 *   The name of a function
+	 */
 	string name;
 
-	// All the index of the terms inside the function
+	/**
+	 *  All the index of the terms inside the function
+	*/
 	vector<index_object> terms;
 };
 

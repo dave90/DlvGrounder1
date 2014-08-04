@@ -68,7 +68,6 @@ public:
 	void print(){statementDependency->print();};
 
 	//Print Term
-	void printTerm(){cout<<"Size Term table: "<<termsMap->getSize()<<endl;cout<<"Collision Term table: "<<termsMap->getCollision()<<endl;termsMap->print();	}
 	void printFact(){instancesTable->print();};
 
 	virtual ~ProgramGrounder();

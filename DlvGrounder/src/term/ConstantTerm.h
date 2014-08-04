@@ -16,15 +16,17 @@
 
 /*
  *  Represent a constant term (string,number...)
+ *
+ *  The constant is in IdsManager for avoiding duplication
  */
 class ConstantTerm: public Term {
 public:
 	ConstantTerm():Term(0){};
 	ConstantTerm(bool negative):Term(negative){};
-	ConstantTerm(index_object index){setIndex(index);};
 	virtual string getName(){return IdsManager::getString(IdsManager::TERM_ID_MANAGER,getIndex());};
 	virtual string getNameToHash(){return getName();};
-	//FIXME take the integer not the general find of IdManager
+	//FIXME we can optimize adding the method in IdsManager for returning the integer value
+	/// Return the value of the constant
 	virtual double calculate(){	return atof(getName().c_str());};
 };
 

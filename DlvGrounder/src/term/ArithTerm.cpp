@@ -20,9 +20,14 @@ double ArithTerm::calculate() {
 			result += termTable->getTerm(terms[i])->calculate();
 		else if (operators[i] == Operator::MINUS)
 			result -= termTable->getTerm(terms[i])->calculate();
-		else if (operators[i] == Operator::DIV)
-			result /= termTable->getTerm(terms[i])->calculate();
-		else if (operators[i] == Operator::TIMES)
+		else if (operators[i] == Operator::DIV){
+			double number=termTable->getTerm(terms[i])->calculate();
+			//FIXME For not stop the program division by 0 is 0
+			if(number != 0)
+				result /= number;
+			else
+				result = 0;
+		}else if (operators[i] == Operator::TIMES)
 			result *= termTable->getTerm(terms[i])->calculate();
 	}
 

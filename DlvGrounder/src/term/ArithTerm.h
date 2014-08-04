@@ -16,31 +16,34 @@
 
 /**
  *  ArithTerm is an arithmetic with the list of a terms
- *  and the relative operator (+,-,*,M)
+ *  and the relative operator (+,-,*,/)
  *
- *  The calculation of the operation is based on the pattern strategy
+ *  Contains vector of id terms and vectors of relative operators
  *
  */
 
 class ArithTerm: public Term {
 public:
-	/// Take the TableTerm for the calculation
 	ArithTerm():Term(0){};
-	///Set operator
+	///Ad an operator in the vector
 	virtual void setOperator(Operator op){operators.push_back(op);};
-	/// Calculate the operation based on the operator
+	/// Calculate the value based on the operators and terms
 	virtual double calculate();
-	///Add term for the calculation
 	virtual void addTerm(index_object termIndex){terms.push_back(termIndex);};
 	virtual void popTerm(){terms.pop_back();};
+	/// Return the string composed by the concatenation of terms and operators
 	virtual string getNameToHash();
 	virtual void print();
-	/// Return the operator in string
+	/// Return the string of enum operator
 	static string getNameOperator(Operator op);
 private:
-	// All the index of the terms to calculate the operation
+	/**
+	 *  All the index of the terms to calculate the operation
+	 */
 	vector<index_object> terms;
-	// The operators
+	/*
+	 * The operators
+	 */
 	vector<Operator> operators;
 };
 
