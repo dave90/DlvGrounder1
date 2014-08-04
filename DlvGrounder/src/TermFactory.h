@@ -16,8 +16,6 @@
 #include "term/FunctionTerm.h"
 #include "term/ConstantTerm.h"
 #include "term/ArithTerm.h"
-#include "table/HashTermTable.h"
-#include "table/BoostTermTable.h"
 #include "utility/IndexDefinition.h"
 
 
