@@ -6,12 +6,17 @@
  */
 
 #include "HashVecInt.h"
+#include "../utility/Config.h"
 
 HashVecInt *HashVecInt::hashInt;
 
 HashVecInt* HashVecInt::getHashVecIntFromConfig() {
-	//FIXME add config switch
 	if (hashInt == nullptr)
-		hashInt = new BoostCombineHashVecInt;
+		if(Config::getInstance()->getHashType()==HashType::BOOST_HASH)
+			hashInt = new BoostCombineHashVecInt;
+		else
+			// Default select Java
+			hashInt = new JavaHashVecInt;
+
 	return hashInt;
 }

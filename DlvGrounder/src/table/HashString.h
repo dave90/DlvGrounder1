@@ -15,10 +15,15 @@
 
 using namespace std;
 
+/**
+ *  Abstract class that compute the hash of string
+ *  The class is a singleton
+ */
 class HashString {
 public:
 	HashString(){};
 	virtual ~HashString(){delete hashString;}
+	///Compute the hash of a string
 	virtual size_t computeHash(string s) = 0;
 
 	/// Return an hashString according the configuration
@@ -27,12 +32,18 @@ private:
 	static HashString *hashString;
 };
 
+/**
+ *  Compute the hash  with stl method
+ */
 class STLHashString: public HashString{
 public:
 	STLHashString(){};
 	virtual size_t computeHash(string s);
 };
 
+/**
+ *  Compute the hash  with boost method
+ */
 class BOOSTHashString: public HashString{
 public:
 	BOOSTHashString(){};
@@ -40,6 +51,9 @@ public:
 
 };
 
+/**
+ *  Compute the hash  with java method
+ */
 class JavaHashString: public HashString{
 public:
 	JavaHashString(){};
@@ -47,6 +61,9 @@ public:
 
 };
 
+/**
+ *  Compute the hash  with perl Bernstein method
+ */
 class PerlBernsteinHashString: public HashString{
 public:
 	PerlBernsteinHashString(){};
@@ -54,6 +71,9 @@ public:
 
 };
 
+/**
+ *  Compute the hash  with perl Jenkins method
+ */
 class PerlJenkinsHashString: public HashString{
 public:
 	PerlJenkinsHashString(){};
@@ -61,13 +81,9 @@ public:
 
 };
 
-class BOOSTHashRange: public HashString{
-public:
-	BOOSTHashRange(){};
-	virtual size_t computeHash(string s);
-
-};
-
+/**
+ *  Compute the hash  with murmur method
+ */
 class MurMurHashString: public HashString{
 public:
 	MurMurHashString(){srand (time(NULL));seed=rand();};

@@ -16,20 +16,27 @@
 
 using namespace std;
 
-
+/**
+ *  Calculate the hash of a vector of integers
+ */
 class HashVecInt {
 public:
 	HashVecInt(){};
+	/// Calculate the hash of a vector of index_object
 	virtual size_t computeHash(const vector<index_object>& values)=0;
+	/// Calculate the hash of a vector of size_t
 	virtual size_t computeHashSize_T(const vector<size_t>& values)=0;
 
-	virtual ~HashVecInt(){};
+	virtual ~HashVecInt(){delete hashInt;};
 	/// Return an HashVecInt according the configuration
 	static HashVecInt* getHashVecIntFromConfig();
 private:
 	static HashVecInt *hashInt;
 };
 
+/**
+ *  Calculate the hash with java method
+ */
 class JavaHashVecInt : public HashVecInt{
 public:
 	JavaHashVecInt(){}
@@ -54,6 +61,9 @@ public:
 
 };
 
+/**
+ *  Calculate the hash with boost combine method
+ */
 class BoostCombineHashVecInt : public HashVecInt{
 public:
 	inline size_t computeHash(const vector<index_object> & values){

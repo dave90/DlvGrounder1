@@ -14,7 +14,6 @@
 
 #include <vector>
 #include <cstring>
-#include <unordered_map>
 #include <boost/bimap.hpp>
 #include <boost/bimap/unordered_set_of.hpp>
 #include <boost/bimap/set_of.hpp>
@@ -31,31 +30,26 @@ typedef pair<unsigned int, index_object> pair_const_id;
 
 typedef pair<index_object, bool> pair_long_bool;
 
+/**
+ *  Hash of string ad index object used for bimap definition
+ */
 struct hash_string_table {
 	static HashString* hash;
-	size_t operator()(const string& p) const {
+
+	size_t operator()(string p) const {
 		return hash->computeHash(p);
 	}
-	size_t operator()(const index_object& i) const {
-		return i;
-	}
-	size_t operator()(index_object* i) const {
-		return *i;
-	}
+
 	bool operator()(const pair_string_id &p1, const pair_string_id &p2) const {
 		return strcmp(p1.first.c_str(), p2.first.c_str()) == 0;
 	}
+
+	size_t operator()(unsigned int p) const {
+		return p;
+	}
+
 	bool operator()(const pair_const_id &p1, const pair_const_id &p2) const {
 		return p1.first == p2.first;
-	}
-	bool operator()(const string &p1, const string &p2) const {
-		return strcmp(p1.c_str(), p2.c_str()) == 0;
-	}
-	bool operator()(const index_object &p1, const index_object &p2) const {
-		return p1==p2;
-	}
-	bool operator()(index_object* p1, index_object* p2) const {
-			return *p1==*p2;
 	}
 };
 
@@ -63,120 +57,111 @@ struct hash_string_table {
 typedef boost::bimap< boost::bimaps::unordered_set_of<string,hash_string_table>, boost::bimaps::unordered_set_of<index_object> > hashStringMap;
 typedef boost::bimap< boost::bimaps::unordered_set_of<unsigned int,hash_string_table>, boost::bimaps::unordered_set_of<index_object> > hashIntegerMap;
 
-class AbstractIdManager {
+/**
+*	Manages the assignment of an index for each string or integer
+*	and store it in a bimap
+*/
+class BimapIdManager {
 public:
-	AbstractIdManager();
-	//return an index and if the string exist
-	virtual pair_long_bool insert(string &s)=0;
-	//return an index and if the integer exist
-	virtual pair_long_bool insert(unsigned int& s)=0;
-	//Find the String with the given index
-	virtual string findStringName(index_object &index)=0;
-	//Find the Integer with the given index
-	virtual unsigned int findIntName(index_object &index)=0;
-	//Find the String or Integer with the given index and return the string of integer
-	virtual string findName(index_object& index)=0;
-	//Find the Index with the given name
-	virtual pair_long_bool findIndex(string& name)=0;
-	//return the number of collisions
-	virtual index_object getCollision()=0;
-	virtual ~AbstractIdManager(){};
-protected:
-	index_object counter;
-	void setHashType();
-};
+	///Empty constructor, initialize counter and the hash respect the input configuration
+	BimapIdManager(){counter = 0;setHashType();};
 
-class BimapIdManager : public AbstractIdManager{
-public:
-	BimapIdManager(): AbstractIdManager(){};
-	//return an index and if the string exist
+	///Insert the string if not exist and return the index
 	pair_long_bool insert(string &s);
-	//return an index and if the integer exist
+
+	///Insert the integer if not exist and return the index
 	pair_long_bool insert(unsigned int& s);
-	//Find the String with the given index
-	string findStringName(index_object &index);
-	//Find the Integer with the given index
-	unsigned int findIntName(index_object &index);
-	//Find the String or Integer with the given index and return the string of integer
-	string findName(index_object& index);
+
+	//Find the string with the given index
+	string findStringName(index_object &index){
+		return hashStringId.right.find(index)->second;
+	}
+
+	//Find the integer with the given index
+	unsigned int findIntName(index_object &index){
+		return hashIntId.right.find(index)->second;
+	}
+
+	//Find the String or Integer with the given index and return a string
+	string findName(index_object& index){
+		auto it = hashStringId.right.find(index);
+		if(it!=hashStringId.right.end())
+			return it->second;
+		return boost::lexical_cast<string>(findIntName(index));
+	}
+
 	//Find the Index with the given name
-	pair_long_bool findIndex(string& name);
+	pair_long_bool findIndex(string& name){
+		if(hashStringId.left.find(name)!=hashStringId.left.end())
+			return {hashStringId.left.find(name)->second,true};
+		return {0,false};
+	}
+
 	//return the number of collisions
 	index_object getCollision();
 private:
+	/**
+	 *  Bimap of string and index
+	 */
 	hashStringMap hashStringId;
+	/**
+	*  Bimap of integer and index
+	*/
 	hashIntegerMap hashIntId;
-};
 
-class TwoMapsIdManager : public AbstractIdManager{
-public:
-	TwoMapsIdManager(): AbstractIdManager(){};
-	//return an index and if the string exist
-	pair_long_bool insert(string &s);
-	//return an index and if the integer exist
-	pair_long_bool insert(unsigned int& s);
-	//Find the String with the given index
-	string findStringName(index_object &index);
-	//Find the Integer with the given index
-	unsigned int findIntName(index_object &index);
-	//Find the String or Integer with the given index and return the string of integer
-	string findName(index_object& index);
-	//Find the Index with the given name
-	pair_long_bool findIndex(string& name);
-	//return the number of collisions
-	index_object getCollision();
-private:
+	/**
+	 *  Counter for assign the index
+	 */
+	index_object counter;
 
-	unordered_map<string, index_object,hash_string_table,hash_string_table> hashStringIdStringKey;
-	unordered_map<index_object*,const string*,hash_string_table,hash_string_table> hashStringIdIndexObjectKey;
-
-	unordered_map<unsigned int, index_object,hash_string_table,hash_string_table> hashIntegerIdIntegerKey;
-	unordered_map<index_object*,const unsigned int*,hash_string_table,hash_string_table> hashIntegerIdIndexObjectKey;
+	/// Set the hash to be used in according to input configuration
+	void setHashType(){
+		hash_string_table::hash = HashString::getHashStringFromConfig();
+	}
 
 };
 
 
-class OneMapIdManager : public AbstractIdManager{
-public:
-	OneMapIdManager(): AbstractIdManager(){};
-	//return an index and if the string exist
-	pair_long_bool insert(string &s);
-	//return an index and if the integer exist
-	pair_long_bool insert(unsigned int& s);
-	//Find the String with the given index
-	string findStringName(index_object &index);
-	//Find the Integer with the given index
-	unsigned int findIntName(index_object &index);
-	//Find the String or Integer with the given index and return the string of integer
-	string findName(index_object& index);
-	//Find the Index with the given name
-	pair_long_bool findIndex(string& name);
-	//return the number of collisions
-	index_object getCollision();
-private:
-
-	unordered_map<string, index_object,hash_string_table,hash_string_table> hashStringIdStringKey;
-	unordered_map<unsigned int, index_object,hash_string_table,hash_string_table> hashIntegerIdIntegerKey;
-
-};
-
-typedef BimapIdManager IdManager;
+/**
+*	Set of IdManager, for manage multiple IdManager
+*	For each IdManager create an static final ID
+*
+*	The class is static
+*/
 class IdsManager {
 public:
-	virtual ~IdsManager();
+	/// Search in the idManager with specific ID the index of a string, if is not present insert the string in a IdManage
 	static pair_long_bool getIndex(unsigned int idManager, string& s);
-	static pair_long_bool getIndex(unsigned int idManager, unsigned int& s);
+	/// Search in the idManager with specific ID the index of a integer, if is not present insert the string in a IdManage
+	static pair_long_bool getIndex(unsigned int idManager, unsigned int& integer);
 
-	// Given an index and the IdManager type, returns the corresponding string
+	/// Given an index and the ID of IdManager, returns the corresponding string
 	static string getString(unsigned int idManager, index_object index);
+	/// Given a string and the ID of IdManager, returns the corresponding index and true if exist the string, else false
 	static pair_long_bool getLongIndex(unsigned int idManager, string name);
+
+	/// Given an index and the ID of IdManager return the string stripped in the IdManager with the ID.
+	/// The string is a substring of original string, start to index 0 to the first character '*'
 	static string getStringStrip(unsigned int idManager, index_object index){string s=getString(idManager,index);return s.substr(0, s.find("*"));};
-	static int getConflict(unsigned int i);
+
+	/// Return the number of conflict
+	static int getConflict(unsigned int i){
+		return idsManager[i].getCollision();
+	}
+
+	/// The id of a IdManager that contain the term
 	static const int TERM_ID_MANAGER=0;
+	/// The id of a IdManager that contain the predicate
 	static const int PREDICATE_ID_MANAGER=1;
+	virtual ~IdsManager(){};
 private:
-	IdsManager();
-	static vector<IdManager> idsManager;
+	///Private constructor
+	IdsManager(){};
+
+	/**
+	 *  A vector of IdManager, the index of each IdManager is a position of that vector
+	 */
+	static vector<BimapIdManager> idsManager;
 };
 
 #endif /* IDSMANAGER_H_ */

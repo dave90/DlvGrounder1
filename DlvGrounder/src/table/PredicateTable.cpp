@@ -8,12 +8,10 @@
 #include "PredicateTable.h"
 #include "IdsManager.h"
 
-PredicateTable::PredicateTable() {
-	// TODO Auto-generated constructor stub
-
-}
-
 index_object PredicateTable::insertPredicate(Predicate* p) {
+	// Calculate the index of a predicate with IdManager and if
+	// the index is present delete else add in a table
+
 	string nameHash=p->getNameToHash();
 	pair<index_object, bool> resultIdManager = IdsManager::getIndex(IdsManager::PREDICATE_ID_MANAGER, nameHash);
 	index_object index = resultIdManager.first;
@@ -46,7 +44,6 @@ void PredicateTable::setEdb(index_object index) {
 void PredicateTable::setIdb(index_object index) {
 	Predicate *p = new Predicate;
 	p->setIndex(index);
-//	Predicate *tmp=*hash.find(&p);
 	(*hash.find(p))->setIdb();
 	delete p;
 }
