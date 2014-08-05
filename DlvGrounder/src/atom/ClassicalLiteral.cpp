@@ -8,19 +8,15 @@
 #include "ClassicalLiteral.h"
 
 #include <iostream>
-#include <string>
-
-#include <boost/lexical_cast.hpp>
 
 #include "../table/IdsManager.h"
 #include "../table/HashVecInt.h"
+#include "../table/TermTable.h"
 
 using namespace std;
 
 size_t ClassicalLiteral::getHash() const{
-
 	return HashVecInt::getHashVecIntFromConfig()->computeHash(terms);
-
 }
 
 
@@ -48,14 +44,13 @@ void ClassicalLiteral::print(index_object predicate,vector<index_object>& terms,
 }
 
 
-bool ClassicalLiteral::operator ==(const Atom& a) {
+bool ClassicalLiteral::operator==(const Atom& a) {
 
 	if(predicate!=a.getPredicate().second)return false;
 	if(terms.size()!=a.getTermsSize())return false;
 	for(unsigned int i=0;i<terms.size();i++)
-		if(terms[i]!=a.getTerm(i))
+		if(terms[i]!=a.getTerm(i).second)
 			return false;
-
 
 	return true;
 

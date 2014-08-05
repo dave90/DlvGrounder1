@@ -6,12 +6,6 @@
  */
 
 #include "Atom.h"
-#include <iostream>
-using namespace std;
-
-Atom::Atom(index_object predicate){
-	setPredicate(predicate);
-}
 
 
 

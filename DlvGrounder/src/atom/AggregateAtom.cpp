@@ -9,7 +9,7 @@
 #include <sstream>
 using namespace std;
 
-//TODO
-size_t AggregateAtom::getHash() const{
-	return 0;
+void AggregateAtom::print() {
+
+
 }

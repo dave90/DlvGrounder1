@@ -14,35 +14,48 @@ using namespace std;
 
 class Choice: public Atom {
 public:
-	Choice(): firstCompareTerm(0), firstBinop(Binop::NONE_OP), secondCompareTerm(0), secondBinop(Binop::NONE_OP) {};
+	///Default constructor
+	Choice(): firstBinop(Binop::NONE_OP), secondBinop(Binop::NONE_OP) {};
 
-	const vector<vector<index_object>> getChoiceElements() const {return choiceElements;};
-	void setChoiceElements(const vector<vector<index_object> >& choiceElements) {this->choiceElements = choiceElements;};
+	/** Constructor
+	 * @param fB set the first binary operation
+	 * @param sB set the second binary operation
+	 * @param t set the terms vector
+	 * @param cE set the choice elements vectors
+	 */
+	Choice(Binop fB, Binop sB, vector<index_object> t, vector<ChoiceElement> cE)
+		: Atom(t), firstBinop(fB), secondBinop(sB), choiceElements(move(cE)) {};
+
+	///Getter method for the first binary operation
 	Binop getFirstBinop() const {return firstBinop;};
+	///Setter method for the first binary operation
 	void setFirstBinop(Binop firstBinop) {this->firstBinop = firstBinop;};
-	index_object getFirstCompareTerm() const {return firstCompareTerm;};
-	void setFirstCompareTerm(index_object firstCompareTerm) {this->firstCompareTerm = firstCompareTerm;};
+	///Getter method for the second binary operation
 	Binop getSecondBinop() const {return secondBinop;};
+	///Setter method for the second binary operation
 	void setSecondBinop(Binop secondBinop) {this->secondBinop = secondBinop;};
-	index_object getSecondCompareTerm() const {return secondCompareTerm;};
-	void setSecondCompareTerm(index_object secondCompareTerm) {this->secondCompareTerm = secondCompareTerm;};
+	///Getter method for the choice elements
+	const vector<ChoiceElement> getChoiceElements() const {return choiceElements;};
+	///Setter method for the choice elements
+	void setChoiceElements(const vector<ChoiceElement>& choiceElements) {this->choiceElements = choiceElements;};
 
-	size_t getHash();
+	///This method compute the resulting hash of a choice atom TODO
+	size_t getHash() const {return 0;};
 
+	///Destructor
 	~Choice() {};
 
 private:
-	index_object firstCompareTerm;
+	///First binary operation
 	Binop firstBinop;
-	index_object secondCompareTerm;
+	///Second binary operation
 	Binop secondBinop;
+	//Vector of choice elements
+	vector<ChoiceElement> choiceElements;
 
-	/* For each vector in choiceElements:
-	 * the first element is the classical literal
-	 * and the remaining elements are the naf literals
-	 * */
-	vector<vector<index_object>> choiceElements;
-
+	/* For the vector of terms, it contains the first and the second term of comparison.
+	 * Notice that the vector contains the terms in the same order as they appear: the first term in position 0, the second in position 1.
+	 */
 };
 
 #endif /* CHOICE_H_ */
