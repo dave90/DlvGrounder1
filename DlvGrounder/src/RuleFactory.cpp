@@ -59,7 +59,7 @@ void  RuleFactory::setBinop(string& binop){
 }
 
 void RuleFactory::addBuiltinAtom(vector<index_object> &terms) {
-	Atom *a=new BuiltInAtom(terms[0],terms[1],binop,false);
+	Atom *a=new BuiltInAtom(binop,false,terms);
 	if(head){
 		currentRule->addInHead(a);
 	}else

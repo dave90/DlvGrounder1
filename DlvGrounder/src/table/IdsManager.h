@@ -17,7 +17,7 @@
 #include <boost/bimap.hpp>
 #include <boost/bimap/unordered_set_of.hpp>
 #include <boost/bimap/set_of.hpp>
-
+#include <boost/lexical_cast.hpp>
 #include "HashString.h"
 
 #include "../utility/IndexDefinition.h"

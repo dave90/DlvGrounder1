@@ -94,21 +94,21 @@ void ProgramGrounder::findBoundBindRule(Rule *r,vector<vec_pair_index_object> &b
 		equal_vars.push_back(unordered_multimap<unsigned int,unsigned int>());
 		for(unsigned int i=0;i<current_atom->getTermsSize();i++){
 
-			auto f=var_assign.find(current_atom->getTerm(i));
+			auto f=var_assign.find(current_atom->getTerm(i).second);
 			// if is bound or is a constant FIXME with function
-			if(f!=var_assign.end() || !termsMap->getTerm(current_atom->getTerm(i))->isVariable()){
-				bounds[index_current_atom].push_back({i,current_atom->getTerm(i)});
+			if(f!=var_assign.end() || !termsMap->getTerm(current_atom->getTerm(i).second)->isVariable()){
+				bounds[index_current_atom].push_back({i,current_atom->getTerm(i).second});
 			}else{
 				// Bind only variable not anonymous and initially contains the variable
-				if(!termsMap->getTerm(current_atom->getTerm(i))->isAnonymous()){
-					binds[index_current_atom].push_back({i,current_atom->getTerm(i)});
+				if(!termsMap->getTerm(current_atom->getTerm(i).second)->isAnonymous()){
+					binds[index_current_atom].push_back({i,current_atom->getTerm(i).second});
 
-					auto it=var_atom.find(current_atom->getTerm(i));
+					auto it=var_atom.find(current_atom->getTerm(i).second);
 					if(it!=var_atom.end())
 							equal_vars[index_current_atom].insert({it->second,i});
 						else
 							//insert the variable and the index of term
-							var_atom.insert({current_atom->getTerm(i),i});
+							var_atom.insert({current_atom->getTerm(i).second,i});
 				}
 			}
 		}
@@ -139,10 +139,10 @@ void ProgramGrounder::printGroundRule(Rule *r,map_index_object_index_object& var
 		vector<index_object> terms=head->getTerms();
 
 		for(unsigned int i=0;i<head->getTermsSize();i++){
-			if(var_assign.count(head->getTerm(i)))
-				terms[i]=var_assign[head->getTerm(i)];
+			if(var_assign.count(head->getTerm(i).second))
+				terms[i]=var_assign[head->getTerm(i).second];
 			else
-				terms[i]=head->getTerm(i);
+				terms[i]=head->getTerm(i).second;
 		}
 
 		GroundAtom *headAtom=new GroundAtom(predicate,terms);
@@ -171,7 +171,7 @@ void ProgramGrounder::printGroundRule(Rule *r,map_index_object_index_object& var
 			for(unsigned int i=0;i<body->getTermsSize();i++){
 
 
-				index_object term=body->getTerm(i);
+				index_object term=body->getTerm(i).second;
 
 				if(termsMap->getTerm(term)->isVariable())
 					terms.push_back(var_assign.find(term)->second);
@@ -194,8 +194,8 @@ void ProgramGrounder::printGroundRule(Rule *r,map_index_object_index_object& var
 
 void ProgramGrounder::setBoundValue(Atom *current_atom,vec_pair_index_object &bound,map_index_object_index_object& var_assign){
 	for(unsigned int i=0;i<bound.size();i++){
-		if(termsMap->getTerm(current_atom->getTerm(bound[i].first))->isVariable()){
-			index_object bound_variable=current_atom->getTerm(bound[i].first);
+		if(termsMap->getTerm(current_atom->getTerm(bound[i].first).second)->isVariable()){
+			index_object bound_variable=current_atom->getTerm(bound[i].first).second;
 			index_object bound_value=var_assign.find(bound_variable)->second;
 
 			bound[i].second=bound_value;
@@ -205,14 +205,14 @@ void ProgramGrounder::setBoundValue(Atom *current_atom,vec_pair_index_object &bo
 
 void ProgramGrounder::removeBindValueInAssignment(Atom *current_atom,vec_pair_index_object &bind,map_index_object_index_object& var_assign){
 	for(auto v:bind){
-		index_object bind_variable=current_atom->getTerm(v.first);
+		index_object bind_variable=current_atom->getTerm(v.first).second;
 		var_assign.erase(bind_variable);
 	}
 }
 
 void ProgramGrounder::insertBindValueInAssignment(Atom *current_atom,vec_pair_index_object &bind,map_index_object_index_object& var_assign){
 	for(auto v:bind){
-		index_object bind_variable=current_atom->getTerm(v.first);
+		index_object bind_variable=current_atom->getTerm(v.first).second;
 		index_object bind_value=v.second;
 		var_assign.insert({bind_variable,bind_value});
 	}
