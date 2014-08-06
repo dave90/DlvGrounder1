@@ -49,16 +49,9 @@ void addWeak() {
 	builder->addWeak();
 }
 
-void addConstraint() {
-	builder->addConstraint();
-}
 
 void addChoiche() {
 	builder->addChoiche();
-}
-
-void addDisjunction() {
-	builder->addDisjunction();
 }
 
 void addAggregate() {
@@ -174,7 +167,7 @@ struct asp_grammar: qi::grammar<Iterator, ascii::space_type> {
 				| (WCONS >> -body >> DOT >> SQUARE_OPEN >> weight_at_level
 						>> SQUARE_CLOSE[&client::addWeak]) | (optimize >> DOT) | ( PERCENTAGE >> COMMENT);
 
-		head = disjunction[&client::addDisjunction] | choice[&client::addChoiche];
+		head = disjunction | choice[&client::addChoiche];
 
 		choice = -(term_arithTerm >> binop) >> CURLY_OPEN >> choiche_elements >> CURLY_CLOSE
 				>> -(binop >> term_arithTerm);

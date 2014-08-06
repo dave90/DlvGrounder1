@@ -8,9 +8,6 @@
 #ifndef TERMFACTORY_H_
 #define TERMFACTORY_H_
 
-/*
- *  TermFactory  create a Term and push in the Term Table
- */
 
 #include "term/VariableTerm.h"
 #include "term/FunctionTerm.h"
@@ -20,31 +17,42 @@
 
 
 
+/**
+ *  Manage the creation of the terms
+ *  Group all term encountered like a terms in a atom for simplify
+ *  the manage of terms in atom
+ */
 class TermFactory {
 
 public:
-	// Set table to hash stl table of terms
-	TermFactory();
-	// Create a Variable term
+	TermFactory(){termsMap=TermTable::getInstance();};
+	/// Create a Variable term
 	void createVariable(string& variable,bool negative);
-	//Create String Constant term
+	/// Create string constant term
 	void createConstant(string& constant,bool negative);
-	//Create Integer Constant term
+	/// Create integer constant term
 	void createConstant(unsigned int& constant,bool negative);
-	//Create Function Term and push it in a queue
-	void createFunction(string& name,bool negative);
-	// Put the Function term in the tail of a queue in the Table Term
+	/// Create function term (all terms henceforth met are added in terms )
+	void createFunction(string& name,bool negative){
+		Term *ft=new FunctionTerm(name,negative);
+		terms.push_back(ft);
+	};
+	/// End functional term (all terms henceforth met are added in termsInAtom if there isn't another dependency)
 	void endFunction();
-	//Add Arithmetic term
-	void addArithTerm();
-	///Remove last term
+	/// Add arithmetic term (all terms henceforth met are added in terms )
+	void addArithTerm(){
+		Term *t=new ArithTerm;
+		terms.push_back(t);
+	}
+	/// Remove last term
 	void removeLastTerm();
 	/// Set operator of ArithTerm
 	void setArithOperator(string& op);
-	/// End arith term
+	/// End arith term (all terms henceforth met are added in termsInAtom if there isn't another dependency)
 	void endArithTerm();
 
-	//if terms.size>0 Add term in functional term otherwise return index
+	/// If a functional term or arith term hash encontered all the
+	/// the terms are added in terms else added in termsInAtom
 	void addTermsDependency(index_object index);
 
 	/// Return the terms in atom
@@ -56,7 +64,7 @@ public:
 	~TermFactory(){};
 private:
 	/*
-	 *  Store the order of the term function encountered for nested function
+	 *  Store the order of the term function or arith terms encountered for nested dependency
 	 *
 	 */
 	vector<Term*> terms;
@@ -67,7 +75,7 @@ private:
 
 
 	/*
-	 *  Table of the all terms, TEMPORARY POSITION
+	 *  Table of the all terms,
 	 */
 	TermTable *termsMap;
 

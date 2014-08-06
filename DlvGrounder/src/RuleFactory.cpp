@@ -11,20 +11,20 @@
 #include "atom/BuiltInAtom.h"
 
 RuleFactory::RuleFactory() {
+	// Initialize all variable
+
 	head=true;
 	currentRule=new Rule;
 	binop=Binop::NONE_OP;
 
 	predicateTable=new PredicateTable;
 	instancesTable=new InstancesTable(predicateTable);
-	st=new StatementDependency;
+	statementDependency=new StatementDependency;
 }
 
-void RuleFactory::addPredicate(string& name) {
-	lastPredicate=name;
-}
 
 void RuleFactory::addFact(Atom *fact) {
+	// Add a Instances in instaces table and then add the fact
 
 	index_object predicate=fact->getPredicate().second;
 	instancesTable->addInstance(predicate);
@@ -34,6 +34,8 @@ void RuleFactory::addFact(Atom *fact) {
 
 void RuleFactory::addClassicalAtom(vector<index_object> &terms, bool hashMinus,
 		bool negative) {
+	/// Create classical literal adding the predicate in the predicate table and after add it in the rule
+
 	Predicate *p=new Predicate(lastPredicate,terms.size());
 	index_object predIndex=predicateTable->insertPredicate(p);
 	Atom *a=new ClassicalLiteral(predIndex,terms,hashMinus,negative);
@@ -44,6 +46,8 @@ void RuleFactory::addClassicalAtom(vector<index_object> &terms, bool hashMinus,
 }
 
 void  RuleFactory::setBinop(string& binop){
+	// Set the binop operator given the operator string
+
 	if(binop.compare(">")==0)
 		this->binop=Binop::GREATER;
 	else	if(binop.compare("<")==0)
@@ -67,6 +71,10 @@ void RuleFactory::addBuiltinAtom(vector<index_object> &terms) {
 }
 
 void RuleFactory::addRule() {
+	// If a rule have one literal in a head is a fact and add it in InstanceTable
+	// else set the predicate in the rule IDB and add the rule in the StatementDependency
+
+
 	if(currentRule->isAFact()){
 		Atom *fact=*currentRule->getBeginHead();
 
@@ -79,7 +87,7 @@ void RuleFactory::addRule() {
 		unordered_set<index_object> pred_head=currentRule->getPredicateInHead();
 		for(index_object p:pred_head)predicateTable->setIdb(p);
 
-		st->addRuleMapping(currentRule);
+		statementDependency->addRuleMapping(currentRule);
 
 		currentRule = new Rule;
 	}

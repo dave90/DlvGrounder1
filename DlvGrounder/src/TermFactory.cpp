@@ -9,9 +9,6 @@
 
 #include "utility/Config.h"
 
-TermFactory::TermFactory() {
-	termsMap=TermTable::getInstance();
-}
 
 
 
@@ -43,11 +40,6 @@ TermFactory::TermFactory() {
 
 }
 
- void TermFactory::createFunction(string& name,bool negative) {
-	Term *ft=new FunctionTerm(name,negative);
-
-	terms.push_back(ft);
-}
 
  void TermFactory::endFunction() {
 	Term *ft=terms[terms.size()-1];
@@ -65,11 +57,6 @@ TermFactory::TermFactory() {
 		terms[terms.size()-1]->addTerm(index);
 	else
 		termsInAtom.push_back(index);
-}
-
- void TermFactory::addArithTerm() {
-	Term *t=new ArithTerm;
-	terms.push_back(t);
 }
 
 void TermFactory::setArithOperator(string& op){

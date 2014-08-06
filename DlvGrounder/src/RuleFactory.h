@@ -14,11 +14,15 @@
 #include "statement/Rule.h"
 #include "ground/StatementDependency.h"
 
+/**
+ *  Manage the creation of the rules and literals
+ */
+
 class RuleFactory {
 public:
 	RuleFactory();
-	/// Method for creation of Atom
-	void addPredicate(string& name);
+	/// Add predicate of the atom
+	void addPredicate(string& name){lastPredicate=name;};
 	/// Add classical atom in rule
 	void addClassicalAtom(vector<index_object> &terms,bool hashMinus,bool negative);
 	/// Set binop in builtin
@@ -29,28 +33,40 @@ public:
 	void addFact(Atom *fact);
 	/// Set head false and put the next atoms in the body
 	void setAtomInHead(bool b){head=b;};
-	/// Add rule and if have head set the predicates IDB
+	/// Add rule and if have head, set the predicates IDB
 	void addRule();
 
-	 InstancesTable* getInstancesTable() {return instancesTable;}
+	/// Return the InstanceTable
+	InstancesTable* getInstancesTable() {return instancesTable;}
 
-	 PredicateTable* getPredicateTable() {return predicateTable;}
+	/// Return PredicateTable
+	PredicateTable* getPredicateTable() {return predicateTable;}
 
-	 StatementDependency* getStatementDependency() {return st;}
+	/// Return the StatementDependency
+	StatementDependency* getStatementDependency() {return statementDependency;}
 
 	~RuleFactory(){delete currentRule;};
 
 
 private:
+	/**
+	 *  Table of predicate
+	 */
 	PredicateTable* predicateTable;
+	/**
+	 *  Table of all the instances
+	 */
 	InstancesTable* instancesTable;
-	StatementDependency* st;
+
+	/**
+	 *  Dipendency of the atoms and rules
+	 */
+	StatementDependency* statementDependency;
 
 
 	/*
 	 *  Variable for parsing atom
 	 */
-
 	string lastPredicate;
 
 	/*
