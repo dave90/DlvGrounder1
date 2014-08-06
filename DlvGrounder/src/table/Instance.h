@@ -53,7 +53,7 @@ struct AtomUndef : GenericAtom{
 };
 
 ///A vector of pair of unsigned integer values and index_object values @see IndexDefinition
-typedef vector<pair<unsigned int,index_object> > vec_pair_index_object;
+typedef vector<pair<unsigned int,index_object>> vec_pair_index_object;
 ///An unordered map with unsigned integers as keys and values
 typedef unordered_multimap<unsigned int,unsigned int> map_int_int;
 
