@@ -10,6 +10,7 @@
 
 #include <unordered_map>
 #include <unordered_set>
+#include <list>
 
 #include <boost/graph/strong_components.hpp>
 #include <boost/graph/adjacency_list.hpp>
@@ -21,129 +22,152 @@
 using namespace std;
 
 /**
- *  StatementAtomMapping contains the ralation of atoms and statements
- *
+ *  This class contains the dependency correlation between predicates and statements
  */
 class StatementAtomMapping {
 public:
 	StatementAtomMapping(){};
-	/// Add rule in the relation atom statement
+	///This method adds a rule, determining which predicates appear in it
 	void addRule(Rule *r);
-	/// Get rule where the predicate compare in head
-	/// @param p is the index of predicate
-	/// @param rules the rules that p compare in head
+	/// Getter for the rule in which the predicate appear in the head
+	/// @param p The index of predicate
+	/// @param rules The vector that will be filled in with the rules in which p appear in the head
 	void getRuleInHead(index_object p,vector<Rule*> & rules);
-	/// Get rule where the predicate compare in body
-	/// @param p is the index of predicate
+	/// Getter for the rule in which the predicate appear in the body
+	/// @param p The index of predicate
+	/// @param rules The vector that will be filled in with the rules in which p appear in the body
 	const vector<Rule*> getRuleInBody(index_object p);
-	/// Return true if compare in the head of one rule
-	/// @param p is the index of predicate
+	/// Return true if the predicate p appear in the head of at least one rule
+	/// @param p The index of predicate
 	bool isInHead(index_object p);
 	virtual ~StatementAtomMapping();
 private:
+	//The unordered multimap containing the maps between predicates and rules in which they appear in the head
 	unordered_multimap<index_object, Rule*> headMap;
+	//The unordered multimap containing the maps between predicates and rules in which they appear in the body
 	unordered_multimap<index_object, Rule*> bodyMap;
 
 };
 
 
-// The vertex of the Dependency graph
+// This utility struct defines a predicate as vertex, containing its index
 struct predicate_vertex {
-	// Id of the predicate
     index_object pred_id;
 };
 
-
-typedef boost::adjacency_list< boost::setS, boost::vecS , boost::directedS,predicate_vertex> Graph;
-typedef boost::adjacency_list< boost::setS, boost::vecS , boost::directedS ,predicate_vertex,boost::property<boost::edge_weight_t, int>> WeightGraph;
+//Definition of a non-weighted graph with adjacency list
+typedef boost::adjacency_list< boost::setS, boost::vecS, boost::directedS, predicate_vertex> Graph;
+//Definition of a weighted graph with adjacency list
+typedef boost::adjacency_list< boost::setS, boost::vecS, boost::directedS, predicate_vertex, boost::property<boost::edge_weight_t, int>> WeightGraph;
 
 /*
- *  The dependency graph of the program
+ *  This class represents the dependency graph of the program
  */
 class DependencyGraph{
 public:
 	DependencyGraph(){};
-	/// Add the atoms in rule in Dependency Graph
-	///@param rule of the program
-	///@param statementAtomMapping the relation atom statement
+
+	/// This method adds the atoms in the rule in the dependency graph
 	void addInDependency(Rule* rule);
-	/// Calculate strong component and put predicate_id and component
-	/// The method put for each predicate the relative component in the map component
+
+	/// This method computes the strong components of the dependency graph.
+	/// It also put for each predicate the relative component in the map of components.
 	void calculateStrongComponent(unordered_map<index_object,unsigned int> &component);
 
-	/// Add edge in the graph
-	void addEdge(index_object pred_body,index_object pred_head);
-	/// Delete the vertex with predicate in hash set
-	/// predicateIndexGMap CHANGED can't use anymore
-	void deleteVertex(unordered_set<index_object>& delete_pred);
+	/// This method adds an edge in the dependency graph between the two predicate given
+	void addEdge(index_object pred_body, index_object pred_head);
 
-	/// Print predicate index
+	// This method deletes the vertex corresponding to the given predicate
+	 void deleteVertex(unordered_set<index_object>& delete_pred);
+
+	/// This method prints the dependency graph in a file using DOT standard format
 	void printFile(string fileGraph);
+	///Printer method (on standard output)
 	void print();
 
 private:
-	/*
-	 *  Dependency Graph and Component Graph
-	 */
+	/// The Dependency Graph
 	Graph depGraph;
-	/*
-	 *  Map that contains key = Id of the predicate , value = id of the vertex in depGraph
-	 */
+	/// The map that containing as keys indices of the predicate,
+	/// and as values indices of the vertex in the dependency graph
 	unordered_map<index_object, unsigned int> predicateIndexGMap;
 };
 
 /*
- *  The component graph of the program
+ *   This class represents the component graph of the program
  */
 class ComponentGraph{
 public:
 	ComponentGraph(){};
+
 	/// Create component graph
-	///@param rules is the rules of the program
-	///@param statementAtomMapping the relation atom statement
+	///@param depGraph The dependency graph
+	///@param statementAtomMapping The dependency correlation between predicates and rules
 	void createComponent(DependencyGraph &depGraph,StatementAtomMapping &statementAtomMapping);
 
-	/// Add edge in the graph
+	/// This method adds an edge with the specified weight in the component graph between the two predicate given
 	void addEdge(index_object pred_body,index_object pred_head,int weight);
-	void computeAnOrdering(vector<unsigned int>& componentsOrdering);
+	/// This method compute a single possible ordering among components
+	void computeAnOrdering(list<unsigned int>& componentsOrdering);
+	/// This method compute all possible orderings among components
 	void computeAllPossibleOrdering(vector<vector<unsigned int>>& componentsOrderings);
+
+	///Getter for the components mapping
+	const unordered_map<index_object, unsigned int>& getComponent() const {	return component;}
+
+	/// This method prints the dependency graph in a file using DOT standard format
 	void printFile(string fileGraph);
+	///Printer method (on standard output)
 	void print();
 
-private:
-	// Calculate the strong components with boost function
 
-	/*
-	 *  Dependency Graph and Component Graph
-	 */
+private:
+	/// The Component Graph
 	WeightGraph compGraph;
-	/*
-	 * For each predicate (in indices) relative component
-	 */
+	///This unordered map maps each predicate to its relative component
 	unordered_map<index_object,unsigned int> component;
 };
 
 /**
- * 	StatementDependency manage the creation of the dependency graph
+ * 	This class manages the overall creation of the dependency graph
  * 	and the component graph
  */
 class StatementDependency {
 public:
-	StatementDependency(){};
-	/// Add the mapping head and body with the rule and the graphs are created according to these
-	void addRuleMapping(Rule *r);
-	void createDependencyGraph(PredicateTable* pt);
-	void createComponentGraph();
-	unsigned int getRulesSize(){return rules.size();}
-	Rule* getRule(int i){return rules[i];};
 
+	StatementDependency(){};
+
+	/// This method determines the predicates appearing in the rule,
+	/// stores their mapping, and updates the dependency graph properly according this mapping
+	void addRuleMapping(Rule *r);
+
+	/// This method creates the dependency graph
+	void createDependencyGraph(PredicateTable* pt);
+	/// This method creates the components graph
+	void createComponentGraph();
+
+	/// This method creates the components graph and compute an ordering for the components
+	/// @param rulesOrdering A vector that will be filled in with rules according to the components ordering
+	void createComponentGraphAndComputeAnOrdering(vector<Rule*>& rulesOrdering);
+
+	/// This method returns the number of rules in the program
+	unsigned int getRulesSize(){return rules.size();}
+	/// Getter for the ith rule
+	Rule* getRule(int i) {return rules[i];};
+
+	///Printer method
 	void print();
 
 	virtual ~StatementDependency(){for(Rule *r:rules)delete r;};
+
 private:
+	/// The Dependency Graph
 	DependencyGraph depGraph;
+	/// The Component Graph
 	ComponentGraph compGraph;
+	/// The dependency correlation between predicates and rules
 	StatementAtomMapping statementAtomMapping;
+	/// The vector of rules composing the program
 	vector<Rule*> rules;
 };
 
