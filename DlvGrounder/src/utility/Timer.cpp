@@ -30,21 +30,3 @@ void Timer::print() {
 	for(unsigned int i=0;i<stamps.size();i++)
 		stamps[i].print();
 }
-
-Timer::~Timer() {
-	delete timer;
-}
-
-Timer::Timer() {
-
-}
-
-TimerStamp::TimerStamp(string l,double d) {
-	label=l;
-	diff=d;
-}
-
-
-void TimerStamp::print() {
-	cout<<label<<" : "<<diff<<endl;
-}

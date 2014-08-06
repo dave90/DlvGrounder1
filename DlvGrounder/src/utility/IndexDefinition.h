@@ -8,9 +8,12 @@
 #ifndef INDEXDEFINITION_H_
 #define INDEXDEFINITION_H_
 
-#include <cstdint>
 
 using namespace std;
+
+/**
+ *  Definition of the type of index
+ */
 
 //typedef uint_fast8_t  index_object;
 //typedef unsigned long  index_object;
