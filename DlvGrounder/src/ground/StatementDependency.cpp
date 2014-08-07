@@ -6,6 +6,8 @@
  */
 
 #include "StatementDependency.h"
+#include "../utility/Config.h"
+#include "../table/IdsManager.h"
 
 #include <algorithm>
 
@@ -15,8 +17,6 @@
 #include <boost/lexical_cast.hpp>
 #include <boost/graph/topological_sort.hpp>
 
-#include "../utility/Config.h"
-#include "../table/IdsManager.h"
 
 void StatementAtomMapping::addRule(Rule* r) {
 	unordered_set<index_object> head = r->getPredicateInHead();
@@ -67,29 +67,29 @@ StatementAtomMapping::~StatementAtomMapping() {
 
 void DependencyGraph::addInDependency(Rule* r) {
 
-	// Temp hash_set of predicate
+	// Temporary set of predicates
 	unordered_set<index_object> head_predicateVisited;
 	unordered_set<index_object> body_predicateVisited;
 
 	for (auto head_it = r->getBeginHead(); head_it != r->getEndHead(); head_it++) {
 		pair<bool, index_object> pred_head = (*head_it)->getPredicate();
 
-		// Verify if the predicate in the head was been visited
+		// Check if the predicate in the head has been visited
 		if (pred_head.first && !head_predicateVisited.count(pred_head.second)) {
 
-			// Set this predicate visited
+			// Set this predicate as visited
 			head_predicateVisited.insert(pred_head.second);
 
 			for (auto body_it = r->getBeginBody(); body_it != r->getEndBody(); body_it++) {
 
-				// Verify if the predicate is positive
+				// Check if the predicate is positive, otherwise skip it
 				if (!(*body_it)->isNegative()) {
 					pair<bool,index_object> pred_body = (*body_it)->getPredicate();
 
-					// Verify if the predicate in the head was been visited
+					// Check if the predicate in the head has been visited
 					if (pred_body.first  && !body_predicateVisited.count(pred_body.second)) {
 
-						// Set this predicate visited
+						// Set this predicate as visited
 						body_predicateVisited.insert(pred_body.second);
 						addEdge(pred_body.second, pred_head.second);
 
@@ -98,7 +98,7 @@ void DependencyGraph::addInDependency(Rule* r) {
 
 			}
 		}
-		//set unvisited all predicate in the body of the rule
+		//Set all predicate in the body as unvisited, and then continue with the next atom
 		body_predicateVisited.clear();
 	}
 
@@ -107,8 +107,8 @@ void DependencyGraph::addInDependency(Rule* r) {
 void DependencyGraph::deleteVertex(unordered_set<index_object>& delete_pred) {
 
 	while (delete_pred.size() > 0) {
-		// For each predicate find the vertex with pred_id because the graph we-index after
-		// remove vertex
+		// Boost actually re-indexes the vertices after one vertex has been deleted.
+		// So it is needed to find again the new vertex index for each predicate.
 		index_object current_pred = *delete_pred.begin();
 		boost::graph_traits<Graph>::vertex_iterator vi, vi_end, next;
 		tie(vi, vi_end) = boost::vertices(depGraph);
@@ -132,14 +132,14 @@ void DependencyGraph::printFile(string fileGraph) {
 	graph_traits<Graph>::edge_iterator ei, ei_end;
 	string graphDOT = "digraph Dependency_Graph{\n";
 
-	// Print the edge
+	// Print the edges
 	for (tie(ei, ei_end) = edges(depGraph); ei != ei_end; ++ei) {
 		index_object p1 = index[source(*ei, depGraph)];
 		index_object p2 = index[target(*ei, depGraph)];
 		graphDOT += lexical_cast<string>(p1) + "->" + lexical_cast<string>(p2) + ";\n";
 	}
 
-	//Print label  (the name of the predicate)
+	//Print labels  (the name of the predicate)
 	for (unsigned int i = 0; i < num_vertices(depGraph); i++) {
 		graphDOT += lexical_cast<string>(i) + " [label= \"";
 		string predicate = IdsManager::getStringStrip(IdsManager::PREDICATE_ID_MANAGER,
@@ -165,7 +165,7 @@ void DependencyGraph::print() {
 	IndexMap index = get(vertex_index, depGraph);
 	graph_traits<Graph>::edge_iterator ei, ei_end;
 
-	// Print the edge
+	// Print the edges
 	for (tie(ei, ei_end) = edges(depGraph); ei != ei_end; ++ei) {
 		index_object p1 = index[source(*ei, depGraph)];
 		index_object p2 = index[target(*ei, depGraph)];
@@ -181,8 +181,8 @@ void DependencyGraph::print() {
 void DependencyGraph::addEdge(index_object pred_body, index_object pred_head) {
 	unsigned int index_i, index_j;
 	auto it1 = predicateIndexGMap.find(pred_body);
-	// Calculate if the predicate is present in the graph
-	// otherwise assign at the predicate new id (map size)
+	// Check if each predicate is already present in the graph
+	// otherwise assign at to it a new id, for this purpose the map size is used
 	if (it1 != predicateIndexGMap.end())
 		index_i = it1->second;
 	else {
@@ -202,16 +202,18 @@ void DependencyGraph::addEdge(index_object pred_body, index_object pred_head) {
 	depGraph[index_j].pred_id = pred_head;
 }
 
-void DependencyGraph::calculateStrongComponent(
-		unordered_map<index_object, unsigned int> &component) {
+void DependencyGraph::calculateStrongComponent(unordered_map<index_object, unsigned int> &component) {
+
 	typedef boost::graph_traits<Graph>::vertex_descriptor Vertex;
 	std::vector<int> discover_time(boost::num_vertices(depGraph));
 	vector<unsigned int> component_indexed;
 	component_indexed.resize(boost::num_vertices(depGraph));
 	std::vector<boost::default_color_type> color(boost::num_vertices(depGraph));
 	std::vector<Vertex> root(boost::num_vertices(depGraph));
+
 	boost::strong_components(depGraph, &component_indexed[0],
 			boost::root_map(&root[0]).color_map(&color[0]).discover_time_map(&discover_time[0]));
+
 	for (unsigned int i = 0; i < component_indexed.size(); i++) {
 		component.insert( { depGraph[i].pred_id, component_indexed[i] });
 	}
@@ -256,7 +258,7 @@ void ComponentGraph::createComponent(DependencyGraph &depGraph,
 
 				index_object pred_body = (*body_it)->getPredicate().second;
 
-				// Verify if the predicate compare in head of same rule
+				// Check if the predicate appear in the head also
 				if (statementAtomMapping.isInHead(pred_body)) {
 					int weight = isPositive;
 					if (!isPositive)
@@ -286,7 +288,7 @@ void ComponentGraph::printFile(string fileGraph) {
 	typedef property_map<WeightGraph, vertex_index_t>::type IndexMap;
 	IndexMap index = get(vertex_index, compGraph);
 
-	// Print the edge
+	// Print the edges
 	for (tie(ei, ei_end) = edges(compGraph); ei != ei_end; ++ei) {
 		graphDOT += lexical_cast<string>(index[source(*ei, compGraph)]) + "->"
 				+ lexical_cast<string>(index[target(*ei, compGraph)]) + "[color= ";
@@ -298,7 +300,7 @@ void ComponentGraph::printFile(string fileGraph) {
 		graphDOT += "];\n";
 	}
 
-	//Print the label (the predicates in the component)
+	//Print the labels (the predicates in the component)
 	for (unsigned int i = 0; i < num_vertices(compGraph); i++) {
 		graphDOT += lexical_cast<string>(i);
 		graphDOT += " [label= \"";
@@ -342,27 +344,66 @@ void ComponentGraph::print() {
 	}
 }
 
-void ComponentGraph::computeAnOrdering(vector<unsigned int>& componentsOrdering) {
-	boost::property_map<WeightGraph, boost::vertex_index_t>::type vertex_indices = get(
-			boost::vertex_index, compGraph);
-	topological_sort(compGraph, back_inserter(componentsOrdering));
+void ComponentGraph::computeAnOrdering(list<unsigned int>& componentsOrdering) {
 
-	//FIXME for now the ordering is just printed
-	for (int i = componentsOrdering.size() - 1; i >= 0; i--) {
-		bool first = false;
-		for (auto it : component)
-			if (it.second == vertex_indices(componentsOrdering[i])) {
-				string predicate = IdsManager::getStringStrip(IdsManager::PREDICATE_ID_MANAGER,
-						it.first);
-				if (!first) {
-					cout << predicate + " ";
-					first = true;
-				} else
-					cout << ", " << predicate << " ";
-			}
-		cout << "} ";
+	try {
+		topological_sort(compGraph, front_inserter(componentsOrdering));
+	} catch (boost::not_a_dag const& e) {
+		this->recursive_sort(componentsOrdering);
 	}
+
+//	//Print the found ordering
+//	boost::property_map<WeightGraph, boost::vertex_index_t>::type vertex_indices = get(
+//				boost::vertex_index, compGraph);
+//	for (auto itL: componentsOrdering) {
+//		bool first = false;
+//		for (auto it : component)
+//			if (it.second == vertex_indices(itL)) {
+//				string predicate = IdsManager::getStringStrip(IdsManager::PREDICATE_ID_MANAGER,
+//						it.first);
+//				if (!first) {
+//					cout << "{ " << predicate + " ";
+//					first = true;
+//				} else
+//					cout << ", " << predicate;
+//			}
+//		cout << "}  ";
+//	}
+//	cout<<endl;
+
 }
+
+void ComponentGraph::recursive_sort(list<unsigned int>& componentsOrdering) {
+
+	unordered_set<unsigned int> compOrd;
+
+	using namespace boost;
+	property_map<WeightGraph, edge_weight_t>::type weightmap = get(edge_weight, compGraph);
+	typedef graph_traits<WeightGraph>::edge_iterator edge_iter;
+	std::pair<edge_iter, edge_iter> ep;
+	edge_iter ei, ei_end;
+
+	for (tie(ei, ei_end) = edges(compGraph); ei != ei_end; ++ei) {
+		unsigned int sourceVertex = source(*ei,compGraph);
+		unsigned int targetVertex = target(*ei,compGraph);
+		if(!compOrd.count(sourceVertex)){
+			compOrd.insert(sourceVertex);
+			if (weightmap[*ei] > 0)
+				componentsOrdering.push_back(sourceVertex);
+			else
+				componentsOrdering.push_back(sourceVertex);
+		}
+		if(!compOrd.count(targetVertex)){
+			compOrd.insert(targetVertex);
+			if (weightmap[*ei] > 0)
+				componentsOrdering.push_back(targetVertex);
+			else
+				componentsOrdering.push_front(targetVertex);
+		}
+	}
+
+}
+
 
 void ComponentGraph::computeAllPossibleOrdering(vector<vector<unsigned int>>& componentsOrderings) {
 	//TODO
@@ -383,7 +424,6 @@ void ComponentGraph::computeAllPossibleOrdering(vector<vector<unsigned int>>& co
 void StatementDependency::addRuleMapping(Rule* r) {
 	statementAtomMapping.addRule(r);
 	rules.push_back(r);
-
 	depGraph.addInDependency(r);
 }
 
@@ -395,8 +435,22 @@ void StatementDependency::createDependencyGraph(PredicateTable* pt) {
 
 void StatementDependency::createComponentGraph() {
 	compGraph.createComponent(depGraph, statementAtomMapping);
-	vector<boost::graph_traits<WeightGraph>::vertex_descriptor> ordering;
-//	compGraph.computeAnOrdering(ordering);
+}
+
+void StatementDependency::createComponentGraphAndComputeAnOrdering(unordered_map<unsigned int,vector<Rule*>>& rulesOrdering) {
+	compGraph.createComponent(depGraph, statementAtomMapping);
+	list<unsigned int> ordering;
+	compGraph.computeAnOrdering(ordering);
+	int i=0;
+	for(auto comp: ordering){
+		rulesOrdering.insert({i,vector<Rule*>()});
+		for (auto pair: compGraph.getComponent())
+			if(pair.second==comp){
+				index_object predicate=pair.first;
+				statementAtomMapping.getRuleInHead(predicate,rulesOrdering[i]);
+			}
+		i++;
+	}
 }
 
 void StatementDependency::print() {
@@ -419,4 +473,3 @@ void StatementDependency::print() {
 		for (Rule*r : rules)
 			r->print();
 }
-

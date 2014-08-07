@@ -135,23 +135,23 @@ void SimpleIndexAtom::nextMatch(unsigned int id,vec_pair_index_object &bind,bool
 Instances::Instances(index_object predicate,PredicateTable *pt) {
 	this->predicate = predicate;
 	this->predicateTable=pt;
-	Predicate *predicatePointers=predicateTable->getPredicate(predicate);
+	Predicate *predicatePointer=predicateTable->getPredicate(predicate);
 	///Properly set the IndexAtom type
 	switch (Config::getInstance()->getIndexType()) {
 	case (IndexType::MAP):
 		if(Config::getInstance()->getIndexingTerm(predicate).second)
-			indexAtom = new SingleTermIndexAtom(&facts,&nofacts,Config::getInstance()->getIndexingTerm(predicate).first,predicatePointers);
+			indexAtom = new SingleTermIndexAtom(&facts,&nofacts,Config::getInstance()->getIndexingTerm(predicate).first,predicatePointer);
 		else
-			indexAtom = new SingleTermIndexAtom(&facts,&nofacts,predicatePointers);
+			indexAtom = new SingleTermIndexAtom(&facts,&nofacts,predicatePointer);
 		break;
 	case (IndexType::MULTIMAP):
 		if(Config::getInstance()->getIndexingTerm(predicate).second)
-				indexAtom = new SingleTermIndexAtomMultiMap(&facts,&nofacts,Config::getInstance()->getIndexingTerm(predicate).first,predicatePointers);
+				indexAtom = new SingleTermIndexAtomMultiMap(&facts,&nofacts,Config::getInstance()->getIndexingTerm(predicate).first,predicatePointer);
 		else
-				indexAtom = new SingleTermIndexAtomMultiMap(&facts,&nofacts,predicatePointers);
+				indexAtom = new SingleTermIndexAtomMultiMap(&facts,&nofacts,predicatePointer);
 		break;
 	default:
-		indexAtom = new SimpleIndexAtom(&facts,&nofacts,predicatePointers);
+		indexAtom = new SimpleIndexAtom(&facts,&nofacts,predicatePointer);
 		break;
 	}
 }
