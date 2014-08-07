@@ -10,7 +10,7 @@
 
 #include <string>
 #include <vector>
-
+#include <iostream>
 #include <boost/timer.hpp>
 
 using namespace std;
