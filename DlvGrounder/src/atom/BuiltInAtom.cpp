@@ -19,19 +19,23 @@ bool BuiltInAtom::evaluate(){
 
 	TermTable *termTable=TermTable::getInstance();
 
+	// Take the value of firstBinop and SecondBinop
+	double value1= *termTable->getTerm(firstTerm)->calculate();
+	double value2= *termTable->getTerm(secondTerm)->calculate();
+
 	if(binop==Binop::EQUAL)
-		return *termTable->getTerm(firstTerm)==*termTable->getTerm(secondTerm);
+		return value1==value2;
 	if(binop==Binop::UNEQUAL)
-		return !(*termTable->getTerm(firstTerm)==*termTable->getTerm(secondTerm));
-//TODO Following Operators in Term
-//	if(binop==Binop::LESS)
-//		return *termTable->getTerm(firstTerm)<*termTable->getTerm(secondTerm);
-//	if(binop==Binop::LESS_OR_EQ)
-//			return *termTable->getTerm(firstTerm)<=*termTable->getTerm(secondTerm);
-//	if(binop==Binop::GREATER)
-//			return *termTable->getTerm(firstTerm)>*termTable->getTerm(secondTerm);
-//	if(binop==Binop::GREATER_OR_EQ)
-//			return *termTable->getTerm(firstTerm)>=*termTable->getTerm(secondTerm);
+		return value1!=value2;
+	if(binop==Binop::LESS)
+		return value1<value2;
+	if(binop==Binop::LESS_OR_EQ)
+		return value1<=value2;
+	if(binop==Binop::GREATER)
+		return value1>value2;
+	if(binop==Binop::GREATER_OR_EQ)
+		return value1>=value2;
+
 	return false;
 }
 
