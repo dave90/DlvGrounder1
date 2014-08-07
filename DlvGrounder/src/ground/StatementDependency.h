@@ -126,6 +126,10 @@ private:
 	WeightGraph compGraph;
 	///This unordered map maps each predicate to its relative component
 	unordered_map<index_object,unsigned int> component;
+
+	///This method computes an ordering among components if the component graph is cyclic
+	void recursive_sort(list<unsigned int>& componentsOrdering);
+
 };
 
 /**
@@ -147,8 +151,8 @@ public:
 	void createComponentGraph();
 
 	/// This method creates the components graph and compute an ordering for the components
-	/// @param rulesOrdering A vector that will be filled in with rules according to the components ordering
-	void createComponentGraphAndComputeAnOrdering(vector<Rule*>& rulesOrdering);
+	/// @param rulesOrdering A map that maps to each components the corresponding rules
+	void createComponentGraphAndComputeAnOrdering(unordered_map<unsigned int,vector<Rule*>>& rulesOrdering);
 
 	/// This method returns the number of rules in the program
 	unsigned int getRulesSize(){return rules.size();}

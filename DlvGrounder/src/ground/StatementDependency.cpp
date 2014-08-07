@@ -345,9 +345,16 @@ void ComponentGraph::print() {
 }
 
 void ComponentGraph::computeAnOrdering(list<unsigned int>& componentsOrdering) {
-	topological_sort(compGraph, front_inserter(componentsOrdering));
+
+	try {
+		topological_sort(compGraph, front_inserter(componentsOrdering));
+	} catch (boost::not_a_dag const& e) {
+		this->recursive_sort(componentsOrdering);
+	}
 
 //	//Print the found ordering
+//	boost::property_map<WeightGraph, boost::vertex_index_t>::type vertex_indices = get(
+//				boost::vertex_index, compGraph);
 //	for (auto itL: componentsOrdering) {
 //		bool first = false;
 //		for (auto it : component)
@@ -365,6 +372,38 @@ void ComponentGraph::computeAnOrdering(list<unsigned int>& componentsOrdering) {
 //	cout<<endl;
 
 }
+
+void ComponentGraph::recursive_sort(list<unsigned int>& componentsOrdering) {
+
+	unordered_set<unsigned int> compOrd;
+
+	using namespace boost;
+	property_map<WeightGraph, edge_weight_t>::type weightmap = get(edge_weight, compGraph);
+	typedef graph_traits<WeightGraph>::edge_iterator edge_iter;
+	std::pair<edge_iter, edge_iter> ep;
+	edge_iter ei, ei_end;
+
+	for (tie(ei, ei_end) = edges(compGraph); ei != ei_end; ++ei) {
+		unsigned int sourceVertex = source(*ei,compGraph);
+		unsigned int targetVertex = target(*ei,compGraph);
+		if(!compOrd.count(sourceVertex)){
+			compOrd.insert(sourceVertex);
+			if (weightmap[*ei] > 0)
+				componentsOrdering.push_back(sourceVertex);
+			else
+				componentsOrdering.push_back(sourceVertex);
+		}
+		if(!compOrd.count(targetVertex)){
+			compOrd.insert(targetVertex);
+			if (weightmap[*ei] > 0)
+				componentsOrdering.push_back(targetVertex);
+			else
+				componentsOrdering.push_front(targetVertex);
+		}
+	}
+
+}
+
 
 void ComponentGraph::computeAllPossibleOrdering(vector<vector<unsigned int>>& componentsOrderings) {
 	//TODO
@@ -396,27 +435,22 @@ void StatementDependency::createDependencyGraph(PredicateTable* pt) {
 
 void StatementDependency::createComponentGraph() {
 	compGraph.createComponent(depGraph, statementAtomMapping);
-	list<unsigned int> ordering;
-	compGraph.computeAnOrdering(ordering);
-	vector<Rule*> rulesOrdering;
-	for(auto comp: ordering)
-		for (auto pair: compGraph.getComponent())
-			if(pair.second==comp){
-				index_object predicate=pair.first;
-				statementAtomMapping.getRuleInHead(predicate,rulesOrdering);
-			}
 }
 
-void StatementDependency::createComponentGraphAndComputeAnOrdering(vector<Rule*>& rulesOrdering) {
+void StatementDependency::createComponentGraphAndComputeAnOrdering(unordered_map<unsigned int,vector<Rule*>>& rulesOrdering) {
 	compGraph.createComponent(depGraph, statementAtomMapping);
 	list<unsigned int> ordering;
 	compGraph.computeAnOrdering(ordering);
-	for(auto comp: ordering)
+	int i=0;
+	for(auto comp: ordering){
+		rulesOrdering.insert({i,vector<Rule*>()});
 		for (auto pair: compGraph.getComponent())
 			if(pair.second==comp){
 				index_object predicate=pair.first;
-				statementAtomMapping.getRuleInHead(predicate,rulesOrdering);
+				statementAtomMapping.getRuleInHead(predicate,rulesOrdering[i]);
 			}
+		i++;
+	}
 }
 
 void StatementDependency::print() {
@@ -439,4 +473,3 @@ void StatementDependency::print() {
 		for (Rule*r : rules)
 			r->print();
 }
-
