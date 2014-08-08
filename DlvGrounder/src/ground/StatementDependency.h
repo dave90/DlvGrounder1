@@ -78,7 +78,7 @@ public:
 	void addEdge(index_object pred_body, index_object pred_head);
 
 	// This method deletes the vertex corresponding to the given predicate
-	 void deleteVertex(unordered_set<index_object>& delete_pred);
+	void deleteVertex(unordered_set<index_object>& delete_pred);
 
 	/// This method prints the dependency graph in a file using DOT standard format
 	void printFile(string fileGraph);
@@ -150,9 +150,13 @@ public:
 	/// This method creates the components graph
 	void createComponentGraph();
 
-	/// This method creates the components graph and compute an ordering for the components
-	/// @param rulesOrdering A map that maps to each components the corresponding rules
-	void createComponentGraphAndComputeAnOrdering(unordered_map<unsigned int,vector<Rule*>>& rulesOrdering);
+	/// This method creates the components graph and compute an ordering for the components.
+	/// It also classifies the rules for each components as exit or recursive.
+	/// An rule occurring in a component is recursive if there is a predicate belonging
+	/// to the component in its positive body, otherwise it is said to be an exit rule.
+	/// @param exitRules A vector containing at the ith position a vector containing the exit rules for the ith components
+	/// @param recursiveRules A vector containing at the ith position a vector containing the recursive rules for the ith components
+	void createComponentGraphAndComputeAnOrdering(vector<vector<Rule*>>& exitRules, vector<vector<Rule*>>& recursiveRules);
 
 	/// This method returns the number of rules in the program
 	unsigned int getRulesSize(){return rules.size();}
@@ -173,6 +177,14 @@ private:
 	StatementAtomMapping statementAtomMapping;
 	/// The vector of rules composing the program
 	vector<Rule*> rules;
+	/// This method checks if a rule is a recursive rule or an exit rule
+	/// An rule occurring in a component is recursive if there is a predicate belonging
+	/// to the component in its positive body, otherwise it is said to be an exit rule.
+	/// @param rule A rule
+	/// @param component The component to which the rule belongs
+	/// @retval true If the rule is an exit rule
+	/// @retval false If the rule is a recursive rule
+	bool checkIfExitRule(unsigned int component, Rule* rule);
 };
 
 

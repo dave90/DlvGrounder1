@@ -49,8 +49,7 @@ bool StatementAtomMapping::isInHead(index_object p) {
 	return false;
 }
 
-StatementAtomMapping::~StatementAtomMapping() {
-}
+StatementAtomMapping::~StatementAtomMapping() {}
 
 /*
  *
@@ -346,8 +345,10 @@ void ComponentGraph::print() {
 
 void ComponentGraph::computeAnOrdering(list<unsigned int>& componentsOrdering) {
 
+	// If the component graph is a-cyclic is suffices to compute a topological sort to get a valid components ordering
 	try {
 		topological_sort(compGraph, front_inserter(componentsOrdering));
+	// Otherwise an not_a_dag exception is thrown, and it is computed an ordering taking into account that the graph is cyclic
 	} catch (boost::not_a_dag const& e) {
 		this->recursive_sort(componentsOrdering);
 	}
@@ -373,9 +374,45 @@ void ComponentGraph::computeAnOrdering(list<unsigned int>& componentsOrdering) {
 
 }
 
+// TODO Try with a DFS visit of the graph for components ordering.
+// This leads to check for paths among vertices and cycles.
+// Weighs have to be take into account as well.
+struct recursive_visitor : public boost::dfs_visitor<>
+{
+	list<unsigned int> order;
+    unordered_set<unsigned int> visited;
+
+    recursive_visitor(){};
+
+    template <class Vertex, class Graph>
+    void discover_vertex(Vertex v, Graph& g){
+
+    }
+
+    template <class Edge, class Graph>
+    void examine_edge(Edge e, Graph& g) {
+
+    }
+
+    template <class Edge, class Graph>
+    void back_edge(Edge e, Graph& g) {
+
+    }
+
+    template <class Edge, class Graph>
+    void tree_edge(Edge e, Graph& g) {
+
+    }
+
+    template <class Edge, class Graph>
+	void forward_or_cross_edge(Edge e, Graph& g) {
+
+	}
+};
+
 void ComponentGraph::recursive_sort(list<unsigned int>& componentsOrdering) {
 
-	unordered_set<unsigned int> compOrd;
+	unordered_set<unsigned int> compVisited;
 
 	using namespace boost;
 	property_map<WeightGraph, edge_weight_t>::type weightmap = get(edge_weight, compGraph);
@@ -383,20 +420,27 @@ void ComponentGraph::recursive_sort(list<unsigned int>& componentsOrdering) {
 	std::pair<edge_iter, edge_iter> ep;
 	edge_iter ei, ei_end;
 
+	// For each edge in the graph, consider its weight
 	for (tie(ei, ei_end) = edges(compGraph); ei != ei_end; ++ei) {
 		unsigned int sourceVertex = source(*ei,compGraph);
 		unsigned int targetVertex = target(*ei,compGraph);
-		if(!compOrd.count(sourceVertex)){
-			compOrd.insert(sourceVertex);
+		//If the source vertex has not been visited yet, mark it has visited
+		if(!compVisited.count(sourceVertex)){
+			compVisited.insert(sourceVertex);
+			// If it has a positive weight, then the source vertex must be evaluated before the target vertex
 			if (weightmap[*ei] > 0)
 				componentsOrdering.push_back(sourceVertex);
+			// If it has a negative weight, then the source vertex should possibly be evaluated before the target vertex
 			else
 				componentsOrdering.push_back(sourceVertex);
 		}
-		if(!compOrd.count(targetVertex)){
-			compOrd.insert(targetVertex);
+		//If the target vertex has not been visited yet, mark it has visited
+		if(!compVisited.count(targetVertex)){
+			compVisited.insert(targetVertex);
+			// If it has a positive weight, it is added after the source
 			if (weightmap[*ei] > 0)
 				componentsOrdering.push_back(targetVertex);
+			// If it has a positive weight, it is added after the source
 			else
 				componentsOrdering.push_front(targetVertex);
 		}
@@ -437,21 +481,54 @@ void StatementDependency::createComponentGraph() {
 	compGraph.createComponent(depGraph, statementAtomMapping);
 }
 
-void StatementDependency::createComponentGraphAndComputeAnOrdering(unordered_map<unsigned int,vector<Rule*>>& rulesOrdering) {
+void StatementDependency::createComponentGraphAndComputeAnOrdering(vector<vector<Rule*>>& exitRules, vector<vector<Rule*>>& recursiveRules) {
+
+	/// Create the component graph
 	compGraph.createComponent(depGraph, statementAtomMapping);
+
+	/// Compute a possible ordering among components
 	list<unsigned int> ordering;
 	compGraph.computeAnOrdering(ordering);
+
+	/// Declaration of some temporary variables
+	vector<Rule*> componentsRules;
 	int i=0;
+
 	for(auto comp: ordering){
-		rulesOrdering.insert({i,vector<Rule*>()});
+		exitRules.push_back(vector<Rule*>());
+		recursiveRules.push_back(vector<Rule*>());
 		for (auto pair: compGraph.getComponent())
 			if(pair.second==comp){
+
+				/// Get all the rules for the current component
 				index_object predicate=pair.first;
-				statementAtomMapping.getRuleInHead(predicate,rulesOrdering[i]);
+				statementAtomMapping.getRuleInHead(predicate,componentsRules);
+
+				/// For each rule classify it as exit or recursive
+				for(Rule* r: componentsRules){
+					if(checkIfExitRule(i,r))
+						exitRules[i].push_back(r);
+					else
+						recursiveRules[i].push_back(r);
+				}
 			}
+
 		i++;
+		componentsRules.clear();
 	}
+
 }
+
+bool StatementDependency::checkIfExitRule(unsigned int component, Rule* rule){
+	unordered_set<index_object> positivePredicates=rule->getPositivePredicateInBody();
+	unordered_map<index_object, unsigned int> components=compGraph.getComponent();
+	for (auto pair: compGraph.getComponent())
+		if(pair.second==component && positivePredicates.count(pair.first)){
+				return false;
+		}
+	return true;
+}
+
 
 void StatementDependency::print() {
 	string fileDGraph = Config::getInstance()->getFileGraph() + "DG";

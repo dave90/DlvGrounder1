@@ -16,19 +16,52 @@
 
 
 void ProgramGrounder::ground() {
+
 	//Create the dependency graph
 	statementDependency->createDependencyGraph(predicateTable);
-	//Create the component graph
-	statementDependency->createComponentGraph();
+
+	// Create the component graph and compute an ordering among components
+	// Components' rules are classified as exit or recursive.
+	// An rule occurring in a component is recursive if there is a predicate belonging
+	// to the component in its positive body, otherwise it is said to be an exit rule.
+	vector<vector<Rule*>> exitRules;
+	vector<vector<Rule*>> recursiveRules;
+	statementDependency->createComponentGraphAndComputeAnOrdering(exitRules,recursiveRules);
 
 	printFact();
 
 	Timer::getInstance()->start("Ground Rule");
-	///Ground each rule
-	for(unsigned int i=0;i<statementDependency->getRulesSize();i++)
-		groundRule(statementDependency->getRule(i));
+	//If there are more than one component, ground them according to the ordering
+	if(exitRules.size()>1)
+	{
+		for(unsigned int component=0;component<exitRules.size();component++){
 
+			/// Grounding of exit rules
+			for(Rule* r: exitRules[component])
+				groundRule(r);
+
+			/// Grounding of recursive rules
+			bool finish=false;
+			while(!finish && recursiveRules[component].size()>0){
+				for(Rule* r: recursiveRules[component])
+					if(groundRecursiveRule(r))
+						finish=true;
+			}
+
+		}
+	}
+	//If there aren't components, then there is just an EDB predicate.
+	//In this case simply ground the rules defining it.
+	else{
+		for(unsigned int i=0;i<statementDependency->getRulesSize();i++)
+			groundRule(statementDependency->getRule(i));
+	}
 	Timer::getInstance()->end();
+}
+
+bool ProgramGrounder::groundRecursiveRule(Rule* r){
+	//TODO
+	return 1;
 }
 
 void ProgramGrounder::printPair(int i, vector<vec_pair_index_object>& vec) {
@@ -237,7 +270,7 @@ void ProgramGrounder::groundRule(Rule* r) {
 	map_index_object_index_object var_assign;
 	list<unsigned int> id_match(0);
 
-	//TODO Sort the atoms in the rule in a more smart way, currently no sorting is performed
+	//TODO Sort the atoms in the rule in a smarter way, currently no sorting is performed
 
 	bool finish=false;
 	auto current_atom_it=r->getBeginBody();

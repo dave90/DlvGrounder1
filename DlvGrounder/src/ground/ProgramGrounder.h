@@ -82,9 +82,12 @@ public:
 
 	///This method executes the overall grounding process
 	void ground();
-	/// This method executes the grounding of a single rule
+	/// This method executes the grounding of a single exit rule
 	/// @param r The rule to be grounded
 	void groundRule(Rule *r);
+	/// This method executes the grounding of a single recursive rule
+	/// @param r The rule to be grounded
+	bool groundRecursiveRule(Rule* r);
 
 	///Printer method for
 	void print(){statementDependency->print();};

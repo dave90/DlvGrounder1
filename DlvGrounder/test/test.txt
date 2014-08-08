@@ -1,7 +1,3 @@
-node(X) :- edge(X,_).
-node(X) :- edge(_,X).
-colored(r,X) | colored(g,X) | colored(b,X) :- node(X).
-:- colored(C,X) , colored(C,Y) , edge(X,Y).
-
-edge(1,20000000).
-edge(20000000,3).
+q(X*2) :- a(X),not t(X), X+2<=5.
+a(3).
+t(5).
