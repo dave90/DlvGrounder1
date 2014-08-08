@@ -1,3 +1,11 @@
-q(X*2) :- a(X),not t(X), X+2<=5.
-a(3).
-t(5).
+a(X1,Y1,X2,Y2) :- edge(X1,Y1) , edge(X2,Y2), X1=X2+1, Y1=Y2+1.
+a(X1,Y1,X2,Y2) :- edge(X1,Y1) , edge(X2,Y2), X1=X2*2, Y1=Y2*2.
+a(X1,Y1,X2,Y2) :- edge(X1,Y1) , edge(X2,Y2), X1=X2-3, Y1=Y2-3.
+a(X1,Y1,X2,Y2) :- edge(X1,Y1) , edge(X2,Y2), X1=X2/4, Y1=Y2/4.
+a(X1+1,Y1+1) :- edge(X1,Y1), X1!=Y1.
+a(X1+1,Y1+1) :- edge(X1,Y1), X1<Y1, edge(X2,Y2), X1!=Y2.
+a(X1+1,Y1+1) :- edge(X1,Y1), Y1>X1, edge(X2,Y2), X1=X2+1.
+a(X1+1,Y1+1) :- edge(X1,Y1), Y1>X1, edge(X2,Y2), X1=X2+1,edge(X1,Y2).
+
+
+
