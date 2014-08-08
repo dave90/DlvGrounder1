@@ -25,12 +25,17 @@
 class ArithTerm: public Term {
 public:
 	ArithTerm():Term(0){};
+	ArithTerm(vector<Operator> operators):operators(operators){};
 	///Ad an operator in the vector
 	virtual void setOperator(Operator op){operators.push_back(op);};
 	/// Calculate the value based on the operators and terms
 	virtual double calculate();
 	virtual void addTerm(index_object termIndex){terms.push_back(termIndex);};
 	virtual void popTerm(){terms.pop_back();};
+	virtual index_object substitute(unordered_map<index_object, index_object>& substritutionTerm);
+	virtual bool isArithTerm(){return true;};
+
+
 	/// Return the string composed by the concatenation of terms and operators
 	virtual string getNameToHash();
 	virtual void print();

@@ -138,6 +138,13 @@ private:
 	void printPair(int i, vector<vec_pair_index_object>& vec);
 	void printMapIntInt(string name,vector<map_int_int >& equal_vars);
 	void printAssignment(map_index_object_index_object& var_assign);
+	IndexAtom* match(const vector<vec_pair_index_object>& bounds,
+			unsigned int index_current_atom,
+			const vector<vec_pair_index_object>& binds,
+			const vector<map_int_int>& equal_vars, bool negation,
+			Instances* instance, Atom* current_atom,
+			map_index_object_index_object& var_assign, bool& firstMatch,
+			list<unsigned int>& id_match, bool& find);
 };
 
 #endif /* PROGRAMGROUNDER_H_ */

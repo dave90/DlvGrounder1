@@ -12,6 +12,7 @@
 #include <string>
 #include <vector>
 #include <iostream>
+#include <unordered_map>
 
 #include "../table/IdsManager.h"
 
@@ -19,8 +20,10 @@ using namespace std;
 
 /// Operator of and arithmetic term
 enum Operator {
-	PLUS=0, MINUS, DIV, TIMES
+	PLUS=0, MINUS=1, DIV=2, TIMES=3
 };
+
+typedef vector<pair<index_object,index_object>> vector_pair_index;
 
 /**
  *  Term is an abstract class that represent one general Term.
@@ -52,6 +55,8 @@ public:
 	virtual bool isAnonymous(){return false;};
 	/// Return true if is variable
 	virtual bool isVariable(){return false;};
+	/// Return true if is an arithmetic term
+	virtual bool isArithTerm(){return false;};
 	///Add the index of a composite term
 	virtual void addTerm(index_object termIndex){};
 	///Remove last index of a term
@@ -62,6 +67,9 @@ public:
 	virtual void setOperator(Operator op){};
 	/// Calculate the value for arithmetic term
 	virtual double calculate(){return 0;};
+	/// Substitute the term with the given terms and return the index of substitute term
+	/// @param substritutionTerm map of index_object. The first index is the ID of term to substitute and second the value
+	virtual index_object substitute(unordered_map<index_object, index_object>& substritutionTerm){return getIndex();};
 	/// Return the string used to hash the term
 	virtual string getNameToHash(){return "";};
 	/// Print with the cout the term

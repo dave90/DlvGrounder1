@@ -151,15 +151,10 @@ void ProgramGrounder::printGroundRule(Rule *r,map_index_object_index_object& var
 	for (auto head_it = r->getBeginHead(); head_it != r->getEndHead(); head_it++) {
 		Atom *head=(*head_it);
 
-		index_object predicate=head->getPredicate().second;
-		vector<index_object> terms=head->getTerms();
+		Atom *groundAtom=head->ground(var_assign);
+		index_object predicate=groundAtom->getPredicate().second;
+		vector<index_object> terms=groundAtom->getTerms();
 
-		for(unsigned int i=0;i<head->getTermsSize();i++){
-			if(var_assign.count(head->getTerm(i).second))
-				terms[i]=var_assign[head->getTerm(i).second];
-			else
-				terms[i]=head->getTerm(i).second;
-		}
 
 		GroundAtom *headAtom=new GroundAtom(predicate,terms);
 		//Check if the atom is already grounded, if not it is added to no facts
@@ -168,6 +163,7 @@ void ProgramGrounder::printGroundRule(Rule *r,map_index_object_index_object& var
 		instancesTable->getInstance(predicate)->addNoFact(headAtom->atom,isTrue);
 
 		groundRule->addInHead(headAtom);
+		delete groundAtom;
 
 	}
 
@@ -235,6 +231,7 @@ void ProgramGrounder::insertBindValueInAssignment(Atom *current_atom,vec_pair_in
 }
 
 
+
 void ProgramGrounder::groundRule(Rule* r) {
 	//The map of the assignment, map each variables to its assigned value
 	map_index_object_index_object var_assign;
@@ -267,39 +264,67 @@ void ProgramGrounder::groundRule(Rule* r) {
 	while(!finish){
 		Atom *current_atom=*current_atom_it;
 		negation=current_atom->isNegative();
-
+		bool firstMatch;
 		Instances * instance=instancesTable->getInstance(current_atom->getPredicate().second);
 
-		// If there aren't instances of the current atom stop grounding process of this rule
-		if(instance==nullptr) return;
+		// Special case where must not call firstMatch or nextMatch
+		if(current_atom->isBuiltIn() || instance==nullptr){
+			// If is builtIn ground builtIn and evaluate
+			// If there isn't instances the search fails (find equal false) and if isn't negated then the algoritm have to stop
 
-		IndexAtom* indexingStrategy = instance->getIndex();
 
-		//According to the current assignment, set the values of the bound variables of the current atom
-		setBoundValue(current_atom,bounds[index_current_atom],var_assign);
+			firstMatch=true;
+			id_match.push_back(0);
 
-		// Finally the bind variables are provided with a value
+			// First check builtin because haven't an Instances
+			if(current_atom->isBuiltIn()){
 
-		// Determine if it is needed to perform a first or next match
-		bool firstMatch=index_current_atom!=id_match.size()-1;
+				Atom *groundBuiltIn=current_atom->ground(var_assign);
+				find=groundBuiltIn->evaluate();
+				delete groundBuiltIn;
 
-		//Perform a first match and save the integer identifier returned, useful to perform further next matches
-		if(firstMatch){
-			unsigned int id=indexingStrategy->firstMatch(bounds[index_current_atom],binds[index_current_atom],equal_vars[index_current_atom],find);
-			id_match.push_back(id);
+			}else if(instance==nullptr){
+
+				if(!negation)
+					return ;
+				else
+					find=false;
+
+			}
 
 		}else{
-			//If the atom is not negated perform a next match
-			if(!negation){
-				unsigned int id=id_match.back();
 
-				// Remove bind value in assignment
-				removeBindValueInAssignment(current_atom,binds[index_current_atom],var_assign);
 
-				indexingStrategy->nextMatch(id,binds[index_current_atom],find);
+			IndexAtom* indexingStrategy = instance->getIndex();
+
+			//According to the current assignment, set the values of the bound variables of the current atom
+			setBoundValue(current_atom,bounds[index_current_atom],var_assign);
+
+			// Finally the bind variables are provided with a value
+
+			// Determine if it is needed to perform a first or next match
+			firstMatch=index_current_atom!=id_match.size()-1;
+
+			//Perform a first match and save the integer identifier returned, useful to perform further next matches
+			if(firstMatch){
+				unsigned int id=indexingStrategy->firstMatch(bounds[index_current_atom],binds[index_current_atom],equal_vars[index_current_atom],find);
+				id_match.push_back(id);
+
+			}else{
+				//If the atom is not negated perform a next match
+				if(!negation){
+					unsigned int id=id_match.back();
+
+					// Remove bind value in assignment
+					removeBindValueInAssignment(current_atom,binds[index_current_atom],var_assign);
+
+					indexingStrategy->nextMatch(id,binds[index_current_atom],find);
+				}
+
 			}
 
 		}
+
 
 #if DEBUG == 1
 		//DEBUG PRINT
@@ -330,6 +355,9 @@ void ProgramGrounder::groundRule(Rule* r) {
 			if(index_current_atom+1==r->getSizeBody()){
 				printGroundRule(r,var_assign);
 
+				//If last atom is BuiltIn return to last atom no BuiltIn
+				while((*current_atom_it)->isBuiltIn() || (*current_atom_it)->isNegative()){current_atom_it--;index_current_atom--;id_match.pop_back();}
+
 #if DEBUG == 1
 			//DEBUG PRINT
 			cout<<" --> ";
@@ -346,14 +374,15 @@ void ProgramGrounder::groundRule(Rule* r) {
 		}else{
 
 			// If the process is come back to the first atom the grounding process is finished
-			if(current_atom_it==r->getBeginBody()){
+			if(current_atom_it==r->getBeginBody())
 				finish=true;
+			else{
+
+				// Otherwise the current assignment is no valid anymore, and the grounding process
+				// comes back to the previous atom skipping the BuiltIn
+				do{current_atom_it--;index_current_atom--;id_match.pop_back();}while((*current_atom_it)->isBuiltIn() || (*current_atom_it)->isNegative());
+
 			}
-
-			// Otherwise the current assignment is no valid anymore, and the grounding process comes back to the previous atom
-			current_atom_it--;index_current_atom--;
-			id_match.pop_back();
-
 		}
 
 	}

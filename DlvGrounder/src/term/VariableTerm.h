@@ -26,6 +26,13 @@ public:
 	virtual bool isAnonymous(){return getName().compare("_")==0;};
 	virtual bool isVariable(){return true;};
 	virtual string getNameToHash(){	return getName();};
+	virtual index_object substitute(unordered_map<index_object, index_object>& substritutionTerm){
+		for(auto term_value:substritutionTerm)
+			if(term_value.first == getIndex()){
+				return term_value.second;
+			}
+		return getIndex();
+	};
 };
 
 #endif /* VARIABLETERM_H_ */

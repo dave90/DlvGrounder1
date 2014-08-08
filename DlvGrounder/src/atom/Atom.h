@@ -14,6 +14,7 @@ class ChoiceElement;
 
 #include <vector>
 #include <string>
+#include <unordered_map>
 #include "AggregateElement.h"
 #include "ChoiceElement.h"
 #include "../utility/IndexDefinition.h"
@@ -101,6 +102,10 @@ public:
 	virtual Binop getBinop() const {return Binop::NONE_OP;};
 	///Setter method for the binary operation
 	virtual void setBinop(Binop binop) {};
+	/// Return true if is BuiltInAtom
+	virtual bool isBuiltIn(){return false;};
+	///This method evaluate the truth value of the built-in atom
+	virtual bool evaluate(){return false;};
 	/*****************************************************/
 
 	/******** Methods useful for AggregateAtom ********/
@@ -129,6 +134,12 @@ public:
 	virtual void setChoiceElements(const vector<vector<index_object> >& choiceElements) {};
 	/*****************************************************/
 
+	/// Substitute the terms in the atom with the given terms and return the atom with terms sobstitute
+	/// @param substritutionTerm map of index_object. The first index is the ID of term to substitute and second the value
+	virtual Atom* substitute(unordered_map<index_object, index_object>& substritutionTerm){return nullptr;};
+	/// Substitute the term with constant term and calculate the arithmetic terms
+	/// The subclasses have to implement the substitute method for create correct type class of Atom
+	virtual Atom* ground(unordered_map<index_object, index_object>& substritutionTerm);
 	///Printer method
 	virtual void print() = 0;
 	///Destructor

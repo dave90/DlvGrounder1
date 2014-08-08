@@ -33,3 +33,17 @@ void FunctionTerm::print() {
 	cout<<")";
 }
 
+index_object FunctionTerm::substitute(unordered_map<index_object, index_object>& substritutionTerm) {
+	// Create a new function replacing the term in a vector
+	// Recursively call substitute for nested function
+	// At the end add a new function in a table and return index
+
+	Term *subTerm=new FunctionTerm(name,negative);
+
+	TermTable *termTable=TermTable::getInstance();
+	for(auto term:terms){
+		index_object sub_index=termTable->getTerm(term)->substitute(substritutionTerm);
+		subTerm->addTerm(sub_index);
+	}
+	return termTable->addTerm(subTerm);
+}

@@ -56,8 +56,14 @@ public:
 	///This method evaluate the truth value of the built-in atom
 	bool evaluate();
 
+	/// Return true if is BuiltInAtom
+	virtual bool isBuiltIn(){return true;};
+
 	///Printer Method
 	void print();
+
+	/// Substitute the term and return a new Atom with term substituted
+	virtual Atom* substitute(unordered_map<index_object, index_object>& substritutionTerm);
 
 	///Destructor
 	~BuiltInAtom() {};

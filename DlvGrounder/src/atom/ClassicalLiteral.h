@@ -9,6 +9,8 @@
 #define CLASSICALLITERAL_H_
 
 #include "Atom.h"
+#include "../table/TermTable.h"
+
 using namespace std;
 
 /**
@@ -59,6 +61,11 @@ public:
 	static void print(index_object predicate,vector<index_object>& terms,bool negative,bool hasMinus);
 	///Printer Method
 	void print();
+
+	/// Substitute the term and return a new Atom with term substituted
+	virtual Atom* substitute(unordered_map<index_object, index_object>& substritutionTerm);
+
+
 
 	///Destructor
 	~ClassicalLiteral() {};

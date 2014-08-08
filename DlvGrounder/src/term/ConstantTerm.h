@@ -28,6 +28,14 @@ public:
 	//FIXME we can optimize adding the method in IdsManager for returning the integer value
 	/// Return the value of the constant
 	virtual double calculate(){	return atof(getName().c_str());};
+	virtual index_object substitute(unordered_map<index_object, index_object>& substritutionTerm){
+		for(auto term_value:substritutionTerm)
+			if(term_value.first == getIndex()){
+				return term_value.second;
+			}
+		return getIndex();
+	};
+
 };
 
 #endif /* CONSTANTTERM_H_ */

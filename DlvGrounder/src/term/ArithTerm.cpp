@@ -13,21 +13,20 @@
 
 double ArithTerm::calculate() {
 	TermTable *termTable=TermTable::getInstance();
-
 	double result = termTable->getTerm(terms[0])->calculate();
 	for (unsigned int i = 1; i < terms.size(); i++) {
-		if (operators[i] == Operator::PLUS)
+		if (operators[i-1] == Operator::PLUS)
 			result += termTable->getTerm(terms[i])->calculate();
-		else if (operators[i] == Operator::MINUS)
+		else if (operators[i-1] == Operator::MINUS)
 			result -= termTable->getTerm(terms[i])->calculate();
-		else if (operators[i] == Operator::DIV){
+		else if (operators[i-1] == Operator::DIV){
 			double number=termTable->getTerm(terms[i])->calculate();
 			//FIXME For not stop the program division by 0 is 0
 			if(number != 0)
 				result /= number;
 			else
 				result = 0;
-		}else if (operators[i] == Operator::TIMES)
+		}else if (operators[i-1] == Operator::TIMES)
 			result *= termTable->getTerm(terms[i])->calculate();
 	}
 
@@ -62,4 +61,18 @@ string ArithTerm::getNameOperator(Operator op) {
 	if (op == Operator::DIV)
 		return "/";
 	return "";
+}
+
+index_object ArithTerm::substitute(unordered_map<index_object, index_object>& substritutionTerm) {
+	// Create a new arithmetic term replacing the term in a vector
+	// Recursively call substitute for nested function
+	// At the end add a new term in a table and return index
+
+	Term *subTerm=new ArithTerm(operators);
+	TermTable *termTable=TermTable::getInstance();
+	for(index_object term:terms){
+		index_object sub_index=termTable->getTerm(term)->substitute(substritutionTerm);
+		subTerm->addTerm(sub_index);
+	}
+	return termTable->addTerm(subTerm);
 }

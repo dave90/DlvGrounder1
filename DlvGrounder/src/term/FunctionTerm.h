@@ -21,7 +21,6 @@ using namespace std;
  */
 class FunctionTerm: public Term {
 public:
-	FunctionTerm():Term(0),name(0){};
 	FunctionTerm(string& name,bool negative):Term(negative),name(name){};
 	FunctionTerm(string v,index_object index):name(v){setIndex(index);};
 	virtual string getName(){return name;};
@@ -29,6 +28,7 @@ public:
 	virtual void addTerm(index_object termIndex){terms.push_back(termIndex);};
 	virtual void popTerm(){terms.pop_back();};
 	virtual vector<index_object> getTerms(){return terms;};
+	virtual index_object substitute(unordered_map<index_object, index_object>& substritutionTerm);
 	/// Return the name of the function concatenated with '*' and the id of the composites term
 	virtual string getNameToHash();
 	virtual void print();

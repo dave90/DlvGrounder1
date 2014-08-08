@@ -56,3 +56,13 @@ bool ClassicalLiteral::operator==(const Atom& a) {
 
 }
 
+Atom* ClassicalLiteral::substitute(unordered_map<index_object, index_object>& substritutionTerm){
+		vector<index_object> terms_substitute;
+		TermTable *termTable=TermTable::getInstance();
+		for(index_object term:terms)
+			terms_substitute.push_back( termTable->getTerm(term)->substitute(substritutionTerm) );
+		return new ClassicalLiteral(predicate,terms_substitute,hasMinus,negative);
+};
+
+
+

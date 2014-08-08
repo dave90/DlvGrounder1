@@ -20,8 +20,8 @@ bool BuiltInAtom::evaluate(){
 	TermTable *termTable=TermTable::getInstance();
 
 	// Take the value of firstBinop and SecondBinop
-	double value1= *termTable->getTerm(firstTerm)->calculate();
-	double value2= *termTable->getTerm(secondTerm)->calculate();
+	double value1= termTable->getTerm(firstTerm)->calculate();
+	double value2= termTable->getTerm(secondTerm)->calculate();
 
 	if(binop==Binop::EQUAL)
 		return value1==value2;
@@ -76,3 +76,10 @@ void BuiltInAtom::print(){
 	tb->getTerm(secondTerm)->print();
 }
 
+Atom* BuiltInAtom::substitute(unordered_map<index_object, index_object>& substritutionTerm) {
+	vector<index_object> terms_substitute;
+	TermTable *termTable=TermTable::getInstance();
+	for(index_object term:terms)
+		terms_substitute.push_back( termTable->getTerm(term)->substitute(substritutionTerm) );
+	return new BuiltInAtom(binop,negative,terms_substitute);
+}
