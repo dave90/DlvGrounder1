@@ -131,9 +131,9 @@ public:
 	///This method implementation is demanded to sub-classes.
 	///It have to find all the matching facts and no facts and return just the first of those.
 	///The returned integer will be used to get the other ones through nextMatch method @see nextMatch(unsigned int id, vec_pair_index_object &bind, bool& find)
-	virtual unsigned int firstMatch(vec_pair_index_object &bound, vec_pair_index_object &bind, map_int_int& equal_var, bool& find)=0;
+	virtual unsigned int firstMatch(vec_pair_index_object &bound, vec_pair_index_object &bind,vec_pair_index_object& boundFunction,vec_pair_index_object &bindFunction, map_int_int& equal_var, bool& find)=0;
 	///This method is used to get the further matching facts and no facts one by one each time it is invoked.
-	virtual void nextMatch(unsigned int id, vec_pair_index_object &bind, bool& find)=0;
+	virtual void nextMatch(unsigned int id, vec_pair_index_object &bind,vec_pair_index_object& boundFunction,vec_pair_index_object &bindFunction, bool& find)=0;
 	///Destructor
 	virtual ~IndexAtom() {};
 protected:
@@ -154,9 +154,9 @@ public:
 	///Constructor
 	SimpleIndexAtom(AtomTable* facts, AtomTable* nofacts,Predicate *p) : IndexAtom(facts,nofacts,p), counter(0){};
 	///Virtual method implementation
-	virtual unsigned int firstMatch(vec_pair_index_object &bound, vec_pair_index_object &bind, map_int_int& equal_var, bool& find);
+	virtual unsigned int firstMatch(vec_pair_index_object &bound, vec_pair_index_object &bind,vec_pair_index_object& boundFunction,vec_pair_index_object &bindFunction, map_int_int& equal_var, bool& find);
 	///Virtual method implementation
-	virtual void nextMatch(unsigned int id, vec_pair_index_object &bind, bool& find);
+	virtual void nextMatch(unsigned int id, vec_pair_index_object &bind,vec_pair_index_object&boundFunction,vec_pair_index_object &bindFunction, bool& find);
 	///Destructor
 	virtual ~SimpleIndexAtom() {};
 protected:
@@ -166,13 +166,15 @@ protected:
 	unsigned int counter;
 
 	///This method given an AtomTable computes the matching facts and nofacts and returns the first one of those
-	void computeFirstMatch(AtomTable* collection,vec_pair_index_object &bound,vec_pair_index_object &bind,map_int_int& equal_var,ResultMatch* rm);
+	void computeFirstMatch(AtomTable* collection,vec_pair_index_object &bound,vec_pair_index_object &bind,vec_pair_index_object& boundFunction,vec_pair_index_object &bindFunction,map_int_int& equal_var,ResultMatch* rm);
 	///This method checks the matching of bind equal variable, that are variables that appear more than one times in the atom.
 	bool checkEqualVariable(map_int_int& equal_var,GenericAtom *atom);
 	///This method invokes findIfAFactExists method if all the variables are bound, otherwise invokes the computeFirstMatch method
-	bool searchForFirstMatch(AtomTable* table, vec_pair_index_object &bound,vec_pair_index_object &bind,map_int_int& equal_var,ResultMatch* rm);
+	bool searchForFirstMatch(AtomTable* table, vec_pair_index_object &bound,vec_pair_index_object &bind,vec_pair_index_object& boundFunction,vec_pair_index_object &bindFunction,map_int_int& equal_var,ResultMatch* rm);
 	///This method builds a ground atom using the bound variables and checks if it is true
 	virtual bool findIfAFactExists(AtomTable* collection,vec_pair_index_object& bound, map_int_int& equal_var);
+	/// This method check if a generic atom match with the bound function and put the value of bind variable in bindFunction
+	virtual bool checkFunctionVariable(GenericAtom *genericAtom,vec_pair_index_object &boundFunction,vec_pair_index_object &bindFunction);
 };
 
 /**
@@ -331,7 +333,7 @@ public:
 	 */
 	SingleTermIndexAtom(AtomTable* facts, AtomTable* nofacts, int i, Predicate *p): SimpleIndexAtom(facts,nofacts,p), instantiateIndexMaps(false), positionOfIndexing(i), positionOfIndexingSetByUser(true){};
 	///Overload of firstMatch method
-	unsigned int firstMatch(vec_pair_index_object &bound, vec_pair_index_object &bind,map_int_int& equal_var,bool& find);
+	unsigned int firstMatch(vec_pair_index_object &bound, vec_pair_index_object &bind,vec_pair_index_object& boundFunction,vec_pair_index_object bindFunction, map_int_int& equal_var,bool& find);
 	///Destructor
 	~SingleTermIndexAtom(){};
 private:
@@ -386,7 +388,7 @@ public:
 	 */
 	SingleTermIndexAtomMultiMap(AtomTable* facts, AtomTable* nofacts, int i,Predicate *p): SimpleIndexAtom(facts,nofacts,p), instantiateIndexMaps(false), positionOfIndexing(i),positionOfIndexingSetByUser(true){};
 	///Overload of firstMatch method
-	unsigned int firstMatch(vec_pair_index_object &bound, vec_pair_index_object &bind,map_int_int& equal_var,bool& find);
+	unsigned int firstMatch(vec_pair_index_object &bound, vec_pair_index_object &bind,vec_pair_index_object& boundFunction,vec_pair_index_object &bindFunction, map_int_int& equal_var, bool& find);
 	///Destructor
 	~SingleTermIndexAtomMultiMap(){};
 

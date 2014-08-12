@@ -57,6 +57,10 @@ public:
 	virtual bool isVariable(){return false;};
 	/// Return true if is an arithmetic term
 	virtual bool isArithTerm(){return false;};
+	/// Return true if is a constant term
+	virtual bool isConstantTerm(){return false;};
+	/// Return true if is a functional term
+	virtual bool isFunctionalTerm(){return false;};
 	///Add the index of a composite term
 	virtual void addTerm(index_object termIndex){};
 	///Remove last index of a term
@@ -74,6 +78,10 @@ public:
 	virtual string getNameToHash(){return "";};
 	/// Print with the cout the term
 	virtual void print(){cout<<IdsManager::getStringStrip(IdsManager::TERM_ID_MANAGER,getIndex());};
+	/// Match a function with given id of term, compare the constant term and put in binds
+	/// a value of the variable term present in termToMatch
+	/// Return true if constant term are equal, else false
+	virtual bool match(index_object termToMatch,vector_pair_index& binds){return false;};
 	virtual ~Term(){};
 protected:
 	/*

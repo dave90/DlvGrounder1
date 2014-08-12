@@ -25,6 +25,7 @@ public:
 	ConstantTerm(bool negative):Term(negative){};
 	virtual string getName(){return IdsManager::getString(IdsManager::TERM_ID_MANAGER,getIndex());};
 	virtual string getNameToHash(){return getName();};
+	virtual bool isConstantTerm(){return true;};
 	//FIXME we can optimize adding the method in IdsManager for returning the integer value
 	/// Return the value of the constant
 	virtual double calculate(){	return atof(getName().c_str());};
@@ -35,6 +36,9 @@ public:
 			}
 		return getIndex();
 	};
+
+	virtual bool match(index_object termToMatch,vector_pair_index& binds);
+
 
 };
 

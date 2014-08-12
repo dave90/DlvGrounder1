@@ -27,10 +27,15 @@ public:
 	virtual void setName(string& name){this->name=name;};
 	virtual void addTerm(index_object termIndex){terms.push_back(termIndex);};
 	virtual void popTerm(){terms.pop_back();};
+	virtual bool isFunctionalTerm(){return true;};
 	virtual vector<index_object> getTerms(){return terms;};
 	virtual index_object substitute(unordered_map<index_object, index_object>& substritutionTerm);
 	/// Return the name of the function concatenated with '*' and the id of the composites term
 	virtual string getNameToHash();
+	/// Match a function with given id of term, compare the constant term and put in binds
+	/// a value of the variable term present in termToMatch
+	/// Return true if constant term are equal, else false
+	virtual bool match(index_object termToMatch,vector_pair_index& binds);
 	virtual void print();
 private:
 	/**

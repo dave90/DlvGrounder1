@@ -13,7 +13,6 @@
 
 Atom* Atom::ground(unordered_map<index_object, index_object>& substritutionTerm){
 	Atom *substitute_atom=substitute(substritutionTerm);
-
 	TermTable *termTable=TermTable::getInstance();
 	vector<index_object> terms_arith_calculated;
 	index_object index;
