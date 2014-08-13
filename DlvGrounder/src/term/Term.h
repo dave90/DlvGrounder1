@@ -13,6 +13,7 @@
 #include <vector>
 #include <iostream>
 #include <unordered_map>
+#include <unordered_set>
 
 #include "../table/IdsManager.h"
 
@@ -58,6 +59,8 @@ public:
 	/// Return true if is a constant term or contain only constant terms
 	virtual bool isConstant(){return false;};
 	/// Return true if is an arithmetic term
+	virtual bool isArith(){return false;};
+	/// Return true if is an arithmetic term
 	virtual bool isArithTerm(){return false;};
 	/// Return true if is a constant term
 	virtual bool isConstantTerm(){return false;};
@@ -74,8 +77,8 @@ public:
 	virtual vector<index_object> getTerms(){return vector<index_object>();};
 	/// Set operator for arithmetic Term
 	virtual void setOperator(Operator op){};
-	/// Calculate the value for arithmetic term
-	virtual double calculate(){return 0;};
+	/// Calculate the value for arithmetic term and return the ID of the result term
+	virtual index_object calculate(){return index;};
 	/// If the term is variable insert the variables in the vector
 	virtual void getVariable(unordered_set<index_object>& variables){void(0);};
 	/// Substitute the term with the given terms and return the index of substitute term

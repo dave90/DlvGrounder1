@@ -48,6 +48,27 @@ index_object FunctionTerm::substitute(unordered_map<index_object, index_object>&
 	return termTable->addTerm(subTerm);
 }
 
+index_object FunctionTerm::calculate() {
+	// Create a new function replacing the term in a vector
+	// Recursively call calculate for nested function
+	// At the end add a new function in a table and return index
+	if(!isArith()) return getIndex();
+
+	Term *subTerm=new FunctionTerm(name,negative);
+
+	TermTable *termTable=TermTable::getInstance();
+	index_object sub_index=0;
+
+	for(auto term:terms){
+		if(termTable->getTerm(term)->isArith()){
+			sub_index=termTable->getTerm(term)->calculate();
+		}else
+			sub_index=term;
+		subTerm->addTerm(sub_index);
+	}
+	return termTable->addTerm(subTerm);
+}
+
 bool FunctionTerm::match(index_object termToMatch, unordered_map<index_object, index_object>& varAssignment) {
 	// If is anonymus return true, if have same name and same arity continue and
 	// recursivley check match, if one fail return true

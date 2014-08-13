@@ -33,8 +33,8 @@ public:
 	/// If one term are variable then return false, else true
 	virtual bool isVariable(){
 		for(index_object term:terms)
-			if(TermTable::getInstance()->getTerm(term)->isVariable())return false;
-		return true;
+			if(TermTable::getInstance()->getTerm(term)->isVariable())return true;
+		return false;
 	}
 
 	virtual bool isConstant(){
@@ -48,7 +48,13 @@ public:
 			TermTable::getInstance()->getTerm(term)->getVariable(variables);
 	};
 
+	virtual bool isArith(){
+		for(index_object term:terms)
+			if(TermTable::getInstance()->getTerm(term)->isArith())return true;
+		return false;
+	};
 
+	virtual index_object calculate();
 	virtual index_object substitute(unordered_map<index_object, index_object>& substritutionTerm);
 	/// Return the name of the function concatenated with '*' and the id of the composites term
 	virtual string getNameToHash();

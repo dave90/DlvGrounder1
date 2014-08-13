@@ -22,6 +22,8 @@
 
 using namespace std;
 
+typedef unordered_map<index_object,index_object> map_index_index;
+
 ///This struct implements a generic atom composed by just its terms
 struct GenericAtom{
 	vector<index_object> terms;
@@ -81,7 +83,7 @@ struct hashAtomResult {
 
 	hashAtomResult(){}
 
-	hashAtomResult(vec_pair_index_object &bind){this->bind=bind;}
+	hashAtomResult(vector<unsigned int> &bind){this->bind=bind;}
 
 	///Hash function built over bind variables
 	size_t operator()(GenericAtom* atom) const {

@@ -89,7 +89,6 @@ unsigned int SimpleIndexAtom::firstMatch(Atom *templateAtom,map_index_index& cur
 }
 
 bool SimpleIndexAtom::searchForFirstMatch(AtomTable* table, ResultMatch* rm){
-
 	//Call findIfAFactExist only if all the terms are bound
 	if(templateAtom->isGround()){
 		if(findIfAFactExists(table)){
@@ -132,7 +131,6 @@ void SimpleIndexAtom::nextMatch(unsigned int id,Atom *templateAtom,map_index_ind
 	}
 
 	auto it_last_atom=rm->result.begin();
-
 	//Insert the value of variable in assignment
 	match(*it_last_atom,templateAtom,currentAssignment);
 

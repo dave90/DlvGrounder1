@@ -29,17 +29,18 @@ public:
 	///Ad an operator in the vector
 	virtual void setOperator(Operator op){operators.push_back(op);};
 	/// Calculate the value based on the operators and terms
-	virtual double calculate();
+	virtual index_object calculate();
 	virtual void addTerm(index_object termIndex){terms.push_back(termIndex);};
 	virtual void popTerm(){terms.pop_back();};
 	virtual index_object substitute(unordered_map<index_object, index_object>& substritutionTerm);
 	virtual bool isArithTerm(){return true;};
+	virtual bool isArith(){return true;};
 
 	/// If one term are variable then return false, else true
 	virtual bool isVariable(){
 		for(index_object term:terms)
-			if(TermTable::getInstance()->getTerm(term)->isVariable())return false;
-		return true;
+			if(TermTable::getInstance()->getTerm(term)->isVariable())return true;
+		return false;
 	}
 
 	virtual bool isConstant(){

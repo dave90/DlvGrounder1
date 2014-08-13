@@ -18,6 +18,7 @@ class ChoiceElement;
 #include "AggregateElement.h"
 #include "ChoiceElement.h"
 #include "../utility/IndexDefinition.h"
+#include "../table/TermTable.h"
 
 using namespace std;
 
@@ -74,7 +75,7 @@ public:
 	/// Return true if is ground, each term is constant term
 	virtual bool isGround(){
 		for(index_object term:terms)
-			if(TermTable::getInstance()->getTerm(term)->isConstant())return false;
+			if(!TermTable::getInstance()->getTerm(term)->isConstant())return false;
 		return true;
 	}
 

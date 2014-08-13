@@ -6,7 +6,7 @@
  */
 
 
-#define DEBUG 0
+#define DEBUG 1
 
 #include <list>
 
@@ -64,36 +64,6 @@ bool ProgramGrounder::groundRecursiveRule(Rule* r){
 	return 1;
 }
 
-void ProgramGrounder::printPair(int i, vector<vec_pair_index_object>& vec) {
-	cout << "ATOM " << i << " ";
-	for (auto v : vec[i]) {
-		cout << " [" << v.first << ",";
-		termsMap->getTerm(v.second)->print();
-		cout << "] ";
-	}
-	cout<<endl;
-}
-
-void ProgramGrounder::printVecPair(string name,vector<vec_pair_index_object> &vec){
-
-	cout<<name<<endl;
-	for(unsigned int i=0;i<vec.size();i++){
-		printPair(i, vec);
-	}
-
-}
-
-void ProgramGrounder::printMapIntInt(string name,vector<map_int_int >& equal_vars){
-
-	cout<<name<<endl;
-	for(unsigned int i=0;i<equal_vars.size();i++){
-		cout<<"ATOM "<<i<<" ";
-		for(auto v:equal_vars[i])
-			cout<< " ["<<v.first<<","<< v.second<<"] ";
-		cout<<endl;
-	}
-
-}
 
 void ProgramGrounder::printAssignment(map_index_index& var_assign){
 
@@ -109,73 +79,36 @@ void ProgramGrounder::printAssignment(map_index_index& var_assign){
 
 }
 
+void ProgramGrounder::printVariables(vector<unordered_set<index_object>> variables_atoms){
+	unsigned int counter_atom_debug=0;
+	for(auto vec:variables_atoms){
+		cout<<"Atom "<<counter_atom_debug<<" ";
+		for(auto variable:vec)
+			termsMap->getTerm(variable)->print();cout<<" ";
+		cout<<endl;
+		counter_atom_debug++;
+	}
+}
 
-void ProgramGrounder::findBoundBindRule(Rule *r,vector<vec_pair_index_object> &bounds,vector<vec_pair_index_object>& binds,vector<vec_pair_index_object> &boundsFunction,vector<vec_pair_index_object>& bindsFunction,vector<map_int_int >& equal_vars){
-	//The set of variables in the rule
-	unordered_set<index_object> var_assign;
-	//This map is needed to determine equal variables, see later
-	unordered_map<index_object,unsigned int> var_atom;
 
-	auto current_atom_it=r->getBeginBody();
-	int index_current_atom=0;
+void ProgramGrounder::findBindVariablesRule(Rule *r,vector<unordered_set<index_object> >& variables){
+	unordered_set<index_object> total_variable;
+	unsigned int index_current_atom=0;
 
-	//For each atom determines the bound and the bind variables, as well as equal variables
-	for(;current_atom_it!=r->getEndBody();current_atom_it++){
+	//For each atom determines the bound and the bind variables
+	for(auto current_atom_it=r->getBeginBody();current_atom_it!=r->getEndBody();current_atom_it++){
 		Atom *current_atom=*current_atom_it;
-		// A vector of bound variables is a vec_pair_index_object, that is a vector of pairs <unsigned int, index_object>.
-		// The integer represents the position in the terms vector in which the bound variable is,
-		// while the index_object is the term itself. The same holds for bind variables.
-		// The pairs are needed because some terms (anonymous variables, or equal vars) are skipped by the grounding process.
-		bounds.push_back(vec_pair_index_object());
-		binds.push_back(vec_pair_index_object());
-		boundsFunction.push_back(vec_pair_index_object());
-		bindsFunction.push_back(vec_pair_index_object());
-		// A map of equal vars is a map whose keys and values are unsigned integers.
-		// Indeed for each variable that appears more than one time,
-		// it is stored in the map its position mapped to the position in which that variable appear first.
-		equal_vars.push_back(map_int_int());
+		unordered_set<index_object> variablesInAtom=current_atom->getVariable();
+		variables.push_back(unordered_set<index_object>());
 
-		for(unsigned int i=0;i<current_atom->getTermsSize();i++){
-
-			if(termsMap->getTerm(current_atom->getTerm(i).second)->isFunctionalTerm()){
-				boundsFunction[index_current_atom].push_back({i,current_atom->getTerm(i).second});
-				continue;
-			}
-
-			auto f=var_assign.find(current_atom->getTerm(i).second);
-			//If a term doesn't appear for the first time in the current atom or is not a variable it is classified as bound (FIXME add function)
-			//The pair stored is made by the position, and the term itself.
-			if(f!=var_assign.end() || !termsMap->getTerm(current_atom->getTerm(i).second)->isVariable()){
-				bounds[index_current_atom].push_back({i,current_atom->getTerm(i).second});
-			}else{
-				// Otherwise if is not anonymous it is classified as bind. (FIXME add function)
-				// The pair stored is made by the position, and the term itself. This is just for initialing purpose,
-				// during the grounding process real possible values will be found.
-				if(!termsMap->getTerm(current_atom->getTerm(i).second)->isAnonymous()){
-					binds[index_current_atom].push_back({i,current_atom->getTerm(i).second});
-
-					// In the var_atom map, are stored all the bind variables found.
-					// If a variables is already present in var_atom, this means that it appears more than one time in the atom, so it is an equal var
-					auto it=var_atom.find(current_atom->getTerm(i).second);
-					if(it!=var_atom.end())
-						equal_vars[index_current_atom].insert({it->second,i});
-					else
-						var_atom.insert({current_atom->getTerm(i).second,i});
-
-				}
-			}
+		for(auto variable:variablesInAtom){
+			if(!total_variable.count(variable))
+				variables[index_current_atom].insert(variable);
 		}
-		// After computing the bind variables for the current atom, add them to the set of variables of the rule.
-		// It is needed to put them just now, when they have been completely determined.
-		// If they are put during the for loop, if there are equal variables, they are put in the bound variables,
-		// so there will conflicts between bound and bind variables (their intersection is not empty).
-		for(auto b: binds[index_current_atom])
-			var_assign.insert(b.second);
 
-		//Erase the content of var_atom, since it will be used for the next atom
-		var_atom.clear();
-
+		for(auto variable:variablesInAtom)total_variable.insert(variable);
 		index_current_atom++;
+
 	}
 }
 
@@ -244,44 +177,16 @@ void ProgramGrounder::printGroundRule(Rule *r,map_index_index& var_assign){
 }
 
 
-void ProgramGrounder::setBoundValue(Atom *current_atom,vec_pair_index_object &bound,vec_pair_index_object &boundFunction,map_index_index& var_assign){
-	for(unsigned int i=0;i<bound.size();i++){
-		if(termsMap->getTerm(current_atom->getTerm(bound[i].first).second)->isVariable()){
-			index_object bound_variable=current_atom->getTerm(bound[i].first).second;
-			index_object bound_value=var_assign.find(bound_variable)->second;
-
-			bound[i].second=bound_value;
-		}
-	}
-	for(unsigned int i=0;i<boundFunction.size();i++){
-
-		index_object ground_function=termsMap->getTerm(current_atom->getTerm(boundFunction[i].first).second)->substitute(var_assign);
-		boundFunction[i].second=ground_function;
-	}
+Atom* ProgramGrounder::setBoundValue(Atom *current_atom,map_index_index& var_assign){
+	return current_atom->ground(var_assign);
 }
 
-void ProgramGrounder::removeBindValueInAssignment(Atom *current_atom,vec_pair_index_object &bind,vec_pair_index_object &bindFunction,map_index_index& var_assign){
-	for(auto v:bind){
-		index_object bind_variable=current_atom->getTerm(v.first).second;
-		var_assign.erase(bind_variable);
-	}
-	for(auto v:bindFunction){
-		var_assign.erase(v.first);
-	}
+void ProgramGrounder::removeBindValueInAssignment(unordered_set<index_object> bind_variables,map_index_index& var_assign){
+
+	for(index_object variable:bind_variables)
+		var_assign.erase(variable);
 
 }
-
-void ProgramGrounder::insertBindValueInAssignment(Atom *current_atom,vec_pair_index_object &bind,vec_pair_index_object &bindFunction,map_index_index& var_assign){
-	for(auto v:bind){
-		index_object bind_variable=current_atom->getTerm(v.first).second;
-		index_object bind_value=v.second;
-		var_assign.insert({bind_variable,bind_value});
-	}
-	for(auto v:bindFunction){
-		var_assign.insert({v.first,v.second});
-	}
-}
-
 
 
 void ProgramGrounder::groundRule(Rule* r) {
@@ -297,18 +202,17 @@ void ProgramGrounder::groundRule(Rule* r) {
 	bool find=false;
 	bool negation=false;
 
-	vector<vec_pair_index_object> bounds,binds,boundsFunction,bindsFunction;
-	vector<map_int_int > equal_vars;
+	// Contain for each atom the set of variables
+	vector<unordered_set<index_object> > variables_atoms;
+	Atom *templateAtom=0;
 
-	//Determine bind, bound and equal variables
-	findBoundBindRule(r,bounds,binds,boundsFunction,bindsFunction,equal_vars);
+	//Determine bind value for each atoms
+	findBindVariablesRule(r,variables_atoms);
 
 #if DEBUG == 1
 	//DEBUG PRINT
 	cout<<"--- INIZIALIZATION ---"<<endl;
-	printVecPair("BOUND",bounds);
-	printVecPair("BIND",binds);
-	printMapIntInt("EQUAL",equal_vars);
+	printVariables(variables_atoms);
 	cout<<"--- END INIZIALIZATION ---"<<endl;
 	// END DEBUG PRINT
 #endif
@@ -355,23 +259,24 @@ void ProgramGrounder::groundRule(Rule* r) {
 			// Determine if it is needed to perform a first or next match
 			firstMatch=index_current_atom!=id_match.size()-1;
 
+			//According to the current assignment, set the values of the bound variables of the current atom
+			// Remove bind value in assignment
+			removeBindValueInAssignment(variables_atoms[index_current_atom],var_assign);
+			if(templateAtom!=nullptr)delete templateAtom;
+			templateAtom=setBoundValue(current_atom,var_assign);
+
 			//Perform a first match and save the integer identifier returned, useful to perform further next matches
 			if(firstMatch){
-				//According to the current assignment, set the values of the bound variables of the current atom
-				setBoundValue(current_atom,bounds[index_current_atom],boundsFunction[index_current_atom],var_assign);
 
-				unsigned int id=indexingStrategy->firstMatch(bounds[index_current_atom],binds[index_current_atom],boundsFunction[index_current_atom],bindsFunction[index_current_atom],equal_vars[index_current_atom],find);
+				unsigned int id=indexingStrategy->firstMatch(templateAtom,var_assign,find);
 				id_match.push_back(id);
+
 
 			}else{
 				//If the atom is not negated perform a next match
 				if(!negation){
 					unsigned int id=id_match.back();
-					//FIXME Remove variable in function
-					// Remove bind value in assignment
-					removeBindValueInAssignment(current_atom,binds[index_current_atom],bindsFunction[index_current_atom],var_assign);
-
-					indexingStrategy->nextMatch(id,binds[index_current_atom],boundsFunction[index_current_atom],bindsFunction[index_current_atom],find);
+					indexingStrategy->nextMatch(id,templateAtom,var_assign,find);
 				}
 
 			}
@@ -384,13 +289,9 @@ void ProgramGrounder::groundRule(Rule* r) {
 		cout<<"ATOM "<<index_current_atom<<" ";
 		current_atom->print();
 		cout<<" --> ";
-		vector<index_object> terms=current_atom->getTerms();
-		for(auto bind:binds[index_current_atom])
-			terms[bind.first]=bind.second;
-		for(auto bound:bounds[index_current_atom])
-			terms[bound.first]=bound.second;
-		ClassicalLiteral literal(current_atom->getPredicate().second,terms,false,false);
-		literal.print();
+		Atom *literal=current_atom->ground(var_assign);
+		literal->print();
+		delete literal;
 		if( (find && !negation) | (!find && negation && firstMatch))
 			cout<<" MATCH!"<<endl;
 		else
@@ -402,7 +303,6 @@ void ProgramGrounder::groundRule(Rule* r) {
 		// if no match is found, but the atom is negated, so it was performed first match on it
 		// insert the bind variables returned values in the current assignment
 		if( (find && !negation) || (!find && negation && firstMatch)){
-			insertBindValueInAssignment(current_atom,binds[index_current_atom],bindsFunction[index_current_atom],var_assign);
 
 			//If there is no more atom, a valid assignment is found and it is printed
 			if(index_current_atom+1==r->getSizeBody()){

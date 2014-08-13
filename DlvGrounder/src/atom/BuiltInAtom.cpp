@@ -20,8 +20,8 @@ bool BuiltInAtom::evaluate(){
 	TermTable *termTable=TermTable::getInstance();
 
 	// Take the value of firstBinop and SecondBinop
-	double value1= termTable->getTerm(firstTerm)->calculate();
-	double value2= termTable->getTerm(secondTerm)->calculate();
+	unsigned int value1= atof(termTable->getTerm( termTable->getTerm(firstTerm)->calculate() )->getName().c_str());
+	unsigned int value2= atof(termTable->getTerm( termTable->getTerm(secondTerm)->calculate() )->getName().c_str());
 
 	if(binop==Binop::EQUAL)
 		return value1==value2;

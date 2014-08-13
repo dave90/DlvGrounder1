@@ -110,44 +110,25 @@ private:
 	///The set of grounder rules
 	GroundedRules groundedRule;
 
-	/** This method determines the bound and bind variables for each atom in the body of a rule.
-	 * It also checks for each atom the presence of same variables more time.
-	 * During grounding process the variables of an atom are classified as bind or bound.
-	 * Bind variables are the ones that have no assignment yet, while the bound ones have an assignment.
+	/** This method determines the variables for each atom in the body of a rule.
 	 *
 	 * 	@param r The rule
-	 * 	@param bounds The vector that will be filled in with bound variables for each atom.
-	 * 	The ith position in this vector contains the bound variables for the ith atom in the body of the rule.
-	 * 	@param binds The vector that will be filled in with bind variables for each atom.
-	 * 	The ith position in this vector contains the bind variables for the ith atom in the body of the rule.
-	 * 	@param equal_vars The vector that will be filled in with a map for each atom.
-	 * 	The ith position in this vector contains the map of the the equal variables for the ith atom in the body of the rule.
+	 * 	@param variables The vector that will be filled in with variables variables for each atom.
 	 */
-	void findBoundBindRule(Rule *r,vector<vec_pair_index_object> &bounds,vector<vec_pair_index_object>& binds,vector<vec_pair_index_object> &boundsFunction,vector<vec_pair_index_object>& bindsFunction,vector<map_int_int >& equal_vars);
+	void findBindVariablesRule(Rule *r,vector<unordered_set<index_object> >& variables);
 
 	/// Printer method for the grounded rules
 	void printGroundRule(Rule *r,map_index_index& var_assign);
 
-	///This method given an assignment for the variables, updates the assigned values for the bound variables.
-	void setBoundValue(Atom *current_atom,vec_pair_index_object &bound,vec_pair_index_object &boundFunction,map_index_index& var_assign);
+	///This method given an assignment for the variables return a partial ground atom of current_atom
+	Atom* setBoundValue(Atom *current_atom,map_index_index& var_assign);
 
 	///This method removes the assigned values to bind variables from the given assignment
-	void removeBindValueInAssignment(Atom *current_atom,vec_pair_index_object &bind,vec_pair_index_object &bindFunction,map_index_index& var_assign);
-	///This method inserts the assigned values to bind variables from the given assignment
-	void insertBindValueInAssignment(Atom *current_atom,vec_pair_index_object &bind,vec_pair_index_object &bindFunction,map_index_index& var_assign);
+	void removeBindValueInAssignment(unordered_set<index_object> bind_variables, map_index_index& var_assign);
 
 	// These are some printer methods used for debug purpose.
-	void printVecPair(string name,vector<vec_pair_index_object> &vec);
-	void printPair(int i, vector<vec_pair_index_object>& vec);
-	void printMapIntInt(string name,vector<map_int_int >& equal_vars);
 	void printAssignment(map_index_index& var_assign);
-	IndexAtom* match(const vector<vec_pair_index_object>& bounds,
-			unsigned int index_current_atom,
-			const vector<vec_pair_index_object>& binds,
-			const vector<map_int_int>& equal_vars, bool negation,
-			Instances* instance, Atom* current_atom,
-			map_index_index& var_assign, bool& firstMatch,
-			list<unsigned int>& id_match, bool& find);
+	void printVariables(vector<unordered_set<index_object>> variables_atoms);
 };
 
 #endif /* PROGRAMGROUNDER_H_ */

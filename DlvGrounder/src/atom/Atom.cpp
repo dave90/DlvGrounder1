@@ -20,13 +20,9 @@ Atom* Atom::ground(unordered_map<index_object, index_object>& substritutionTerm)
 	for(unsigned int i=0;i<substitute_atom->getTermsSize();i++){
 		index_object term=substitute_atom->getTerm(i).second;
 
-		if(termTable->getTerm(term)->isArithTerm()){
+		if(termTable->getTerm(term)->isArith()){
 			/// Calculate the value of arithmetic term and add in terms table
-			unsigned int value=termTable->getTerm(term)->calculate();
-			Term *constantTerm=new ConstantTerm;
-
-			index=termTable->addTerm(constantTerm,value);
-
+			index=termTable->getTerm(term)->calculate();
 
 		}else
 			index=term;

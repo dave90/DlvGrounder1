@@ -6,31 +6,33 @@
  */
 
 #include "ArithTerm.h"
+#include "../term/ConstantTerm.h"
 
 #include<boost/lexical_cast.hpp>
 
 #include <sstream>
 
-double ArithTerm::calculate() {
+index_object ArithTerm::calculate() {
 	TermTable *termTable=TermTable::getInstance();
-	double result = termTable->getTerm(terms[0])->calculate();
+	unsigned int result = atof(termTable->getTerm(terms[0])->getName().c_str());
 	for (unsigned int i = 1; i < terms.size(); i++) {
+		unsigned int value=atof(termTable->getTerm(terms[i])->getName().c_str());
 		if (operators[i-1] == Operator::PLUS)
-			result += termTable->getTerm(terms[i])->calculate();
+			result += value;
 		else if (operators[i-1] == Operator::MINUS)
-			result -= termTable->getTerm(terms[i])->calculate();
+			result -= value;
 		else if (operators[i-1] == Operator::DIV){
-			double number=termTable->getTerm(terms[i])->calculate();
 			//FIXME For not stop the program division by 0 is 0
-			if(number != 0)
-				result /= number;
+			if(value != 0)
+				result /= value;
 			else
 				result = 0;
 		}else if (operators[i-1] == Operator::TIMES)
-			result *= termTable->getTerm(terms[i])->calculate();
+			result *= value;
 	}
 
-	return result;
+	Term *constantTerm=new ConstantTerm;
+	return TermTable::getInstance()->addTerm(constantTerm,result);
 }
 
 string ArithTerm::getNameToHash() {
