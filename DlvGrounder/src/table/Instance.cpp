@@ -143,7 +143,6 @@ void SimpleIndexAtom::nextMatch(unsigned int id,vec_pair_index_object &bind,vec_
 		bind[i].second=(*it_last_atom)->terms[bind[i].first];
 	}
 	checkFunctionVariable(*it_last_atom,boundFunction,bindFunction);
-
 	find=true;
 	rm->result.erase(it_last_atom);
 }

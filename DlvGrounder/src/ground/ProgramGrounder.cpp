@@ -349,8 +349,6 @@ void ProgramGrounder::groundRule(Rule* r) {
 
 			IndexAtom* indexingStrategy = instance->getIndex();
 
-			//According to the current assignment, set the values of the bound variables of the current atom
-			setBoundValue(current_atom,bounds[index_current_atom],boundsFunction[index_current_atom],var_assign);
 
 			// Finally the bind variables are provided with a value
 
@@ -359,6 +357,9 @@ void ProgramGrounder::groundRule(Rule* r) {
 
 			//Perform a first match and save the integer identifier returned, useful to perform further next matches
 			if(firstMatch){
+				//According to the current assignment, set the values of the bound variables of the current atom
+				setBoundValue(current_atom,bounds[index_current_atom],boundsFunction[index_current_atom],var_assign);
+
 				unsigned int id=indexingStrategy->firstMatch(bounds[index_current_atom],binds[index_current_atom],boundsFunction[index_current_atom],bindsFunction[index_current_atom],equal_vars[index_current_atom],find);
 				id_match.push_back(id);
 
@@ -366,7 +367,7 @@ void ProgramGrounder::groundRule(Rule* r) {
 				//If the atom is not negated perform a next match
 				if(!negation){
 					unsigned int id=id_match.back();
-
+					//FIXME Remove variable in function
 					// Remove bind value in assignment
 					removeBindValueInAssignment(current_atom,binds[index_current_atom],bindsFunction[index_current_atom],var_assign);
 
