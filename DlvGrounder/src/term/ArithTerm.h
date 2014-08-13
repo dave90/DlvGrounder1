@@ -35,6 +35,20 @@ public:
 	virtual index_object substitute(unordered_map<index_object, index_object>& substritutionTerm);
 	virtual bool isArithTerm(){return true;};
 
+	/// If one term are variable then return false, else true
+	virtual bool isVariable(){
+		for(index_object term:terms)
+			if(TermTable::getInstance()->getTerm(term)->isVariable())return false;
+		return true;
+	}
+
+	virtual bool isConstant(){
+		for(index_object term:terms)
+			if(!TermTable::getInstance()->getTerm(term)->isConstant())return false;
+		return true;
+	};
+
+
 
 	/// Return the string composed by the concatenation of terms and operators
 	virtual string getNameToHash();

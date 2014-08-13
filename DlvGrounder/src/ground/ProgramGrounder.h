@@ -19,7 +19,7 @@
 using namespace std;
 
 ///A unordered map whose keys and values are of index_object type @see IndexDefinition
-typedef unordered_map<index_object, index_object> map_index_object_index_object;
+typedef unordered_map<index_object, index_object> map_index_index;
 
 ///This struct implements an hash function and an equality comparator for ground rules @see GroundRule
 struct hashRule {
@@ -126,27 +126,27 @@ private:
 	void findBoundBindRule(Rule *r,vector<vec_pair_index_object> &bounds,vector<vec_pair_index_object>& binds,vector<vec_pair_index_object> &boundsFunction,vector<vec_pair_index_object>& bindsFunction,vector<map_int_int >& equal_vars);
 
 	/// Printer method for the grounded rules
-	void printGroundRule(Rule *r,map_index_object_index_object& var_assign);
+	void printGroundRule(Rule *r,map_index_index& var_assign);
 
 	///This method given an assignment for the variables, updates the assigned values for the bound variables.
-	void setBoundValue(Atom *current_atom,vec_pair_index_object &bound,vec_pair_index_object &boundFunction,map_index_object_index_object& var_assign);
+	void setBoundValue(Atom *current_atom,vec_pair_index_object &bound,vec_pair_index_object &boundFunction,map_index_index& var_assign);
 
 	///This method removes the assigned values to bind variables from the given assignment
-	void removeBindValueInAssignment(Atom *current_atom,vec_pair_index_object &bind,vec_pair_index_object &bindFunction,map_index_object_index_object& var_assign);
+	void removeBindValueInAssignment(Atom *current_atom,vec_pair_index_object &bind,vec_pair_index_object &bindFunction,map_index_index& var_assign);
 	///This method inserts the assigned values to bind variables from the given assignment
-	void insertBindValueInAssignment(Atom *current_atom,vec_pair_index_object &bind,vec_pair_index_object &bindFunction,map_index_object_index_object& var_assign);
+	void insertBindValueInAssignment(Atom *current_atom,vec_pair_index_object &bind,vec_pair_index_object &bindFunction,map_index_index& var_assign);
 
 	// These are some printer methods used for debug purpose.
 	void printVecPair(string name,vector<vec_pair_index_object> &vec);
 	void printPair(int i, vector<vec_pair_index_object>& vec);
 	void printMapIntInt(string name,vector<map_int_int >& equal_vars);
-	void printAssignment(map_index_object_index_object& var_assign);
+	void printAssignment(map_index_index& var_assign);
 	IndexAtom* match(const vector<vec_pair_index_object>& bounds,
 			unsigned int index_current_atom,
 			const vector<vec_pair_index_object>& binds,
 			const vector<map_int_int>& equal_vars, bool negation,
 			Instances* instance, Atom* current_atom,
-			map_index_object_index_object& var_assign, bool& firstMatch,
+			map_index_index& var_assign, bool& firstMatch,
 			list<unsigned int>& id_match, bool& find);
 };
 

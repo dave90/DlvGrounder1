@@ -38,3 +38,10 @@ Atom* Atom::ground(unordered_map<index_object, index_object>& substritutionTerm)
 	return substitute_atom;
 };
 
+unordered_set<index_object> Atom::getVariable(){
+	unordered_set<index_object> variables;
+	for(index_object term:terms)
+		TermTable::getInstance()->getTerm(term)->getVariable(variables);
+	return variables;
+}
+

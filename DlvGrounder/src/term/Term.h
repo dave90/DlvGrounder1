@@ -53,14 +53,19 @@ public:
 	virtual void setName(string& name){};
 	/// Return true if is anonymous variable
 	virtual bool isAnonymous(){return false;};
-	/// Return true if is variable
+	/// Return true if is a variable term of contain variables terms
 	virtual bool isVariable(){return false;};
+	/// Return true if is a constant term or contain only constant terms
+	virtual bool isConstant(){return false;};
 	/// Return true if is an arithmetic term
 	virtual bool isArithTerm(){return false;};
 	/// Return true if is a constant term
 	virtual bool isConstantTerm(){return false;};
 	/// Return true if is a functional term
 	virtual bool isFunctionalTerm(){return false;};
+	/// Return true if is a variable term
+	virtual bool isVariableTerm(){return false;};
+
 	///Add the index of a composite term
 	virtual void addTerm(index_object termIndex){};
 	///Remove last index of a term
@@ -71,6 +76,8 @@ public:
 	virtual void setOperator(Operator op){};
 	/// Calculate the value for arithmetic term
 	virtual double calculate(){return 0;};
+	/// If the term is variable insert the variables in the vector
+	virtual void getVariable(unordered_set<index_object>& variables){void(0);};
 	/// Substitute the term with the given terms and return the index of substitute term
 	/// @param substritutionTerm map of index_object. The first index is the ID of term to substitute and second the value
 	virtual index_object substitute(unordered_map<index_object, index_object>& substritutionTerm){return getIndex();};
@@ -81,7 +88,7 @@ public:
 	/// Match a function with given id of term, compare the constant term and put in binds
 	/// a value of the variable term present in termToMatch
 	/// Return true if constant term are equal, else false
-	virtual bool match(index_object termToMatch,vector_pair_index& binds){return false;};
+	virtual bool match(index_object termToMatch,unordered_map<index_object, index_object>& varAssignment){return false;};
 	virtual ~Term(){};
 protected:
 	/*

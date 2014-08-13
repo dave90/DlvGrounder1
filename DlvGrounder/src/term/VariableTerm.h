@@ -24,7 +24,11 @@ public:
 	VariableTerm(bool negative):Term(negative){};
 	virtual string getName(){return IdsManager::getString(IdsManager::TERM_ID_MANAGER,getIndex());};
 	virtual bool isAnonymous(){return getName().compare("_")==0;};
-	virtual bool isVariable(){return true;};
+	/// If isn't anonymus return true else false
+	virtual bool isVariable(){if(!isAnonymous())return true;return false;};
+	virtual bool isVariableTerm(){return true;};
+
+	virtual void getVariable(unordered_set<index_object>& variables){variables.insert(getIndex());};
 	virtual string getNameToHash(){	return getName();};
 	virtual index_object substitute(unordered_map<index_object, index_object>& substritutionTerm){
 		for(auto term_value:substritutionTerm)

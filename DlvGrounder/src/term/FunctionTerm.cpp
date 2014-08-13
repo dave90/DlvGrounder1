@@ -48,25 +48,26 @@ index_object FunctionTerm::substitute(unordered_map<index_object, index_object>&
 	return termTable->addTerm(subTerm);
 }
 
-bool FunctionTerm::match(index_object termToMatch, vector_pair_index& binds) {
+bool FunctionTerm::match(index_object termToMatch, unordered_map<index_object, index_object>& varAssignment) {
 	// If is anonymus return true, if have same name and same arity continue and
 	// recursivley check match, if one fail return true
 
 	TermTable *termTable=TermTable::getInstance();
 
 	Term * term=termTable->getTerm(termToMatch);
+
 	if(term->isAnonymous()) return true;
-	if(term->isVariable()){ binds.push_back({termToMatch,getIndex()});return true;}
+	if(term->isVariableTerm()){ varAssignment.insert({termToMatch,getIndex()});return true;}
 	if(!term->isFunctionalTerm()) return false;
 	if(term->getName().compare(getName()) != 0)return false;
 	if(term->getTerms().size() != terms.size())return false;
 
-	vector_pair_index bindsInTerm;
+	unordered_map<index_object, index_object> assignInTerm(varAssignment);
 	for(unsigned int i=0;i<terms.size();i++)
-		if(!termTable->getTerm(terms[i])->match(term->getTerms()[i],bindsInTerm))
+		if(!termTable->getTerm(terms[i])->match(term->getTerms()[i],assignInTerm))
 			return false;
 
-	binds.insert(binds.end(),bindsInTerm.begin(),bindsInTerm.end());
+	for(auto assignment:assignInTerm)varAssignment.insert(assignment);
 
 	return true;
 }

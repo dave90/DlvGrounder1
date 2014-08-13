@@ -10,21 +10,40 @@
 #include "IdsManager.h"
 //#include "../utility/Timer.h"
 
+bool IndexAtom::match(GenericAtom *genericAtom,Atom *templateAtom,map_index_index& currentAssignment){
+	// Call match for each term and if all term result true put the assignment in the current assignment
 
-bool SimpleIndexAtom::findIfAFactExists(AtomTable* collection,vec_pair_index_object& bound, map_int_int& equal_var) {
+
+	TermTable *table=TermTable::getInstance();
+	unordered_map<index_object, index_object> assignInTerm(currentAssignment);
+
+	for(int i=0;i<genericAtom->terms.size();i++)
+		if(!table->getTerm(genericAtom->terms[i])->match(templateAtom->getTerm(i).second,assignInTerm))
+			return false;
+
+	for(auto assignment:assignInTerm)currentAssignment.insert(assignment);
+	return true;
+}
+
+bool IndexAtom::match(GenericAtom *genericAtom,Atom *templateAtom){
+	// Call match for each term and if all term result true put the assignment in the current assignment
+
+	TermTable *table=TermTable::getInstance();
+	unordered_map<index_object, index_object> assignInTerm;
+
+	for(int i=0;i<genericAtom->terms.size();i++)
+		if(!table->getTerm(genericAtom->terms[i])->match(templateAtom->getTerm(i).second,assignInTerm))
+			return false;
+
+	return true;
+}
+
+
+bool SimpleIndexAtom::findIfAFactExists(AtomTable* collection) {
 	if(collection->size()==0)return false;
 
-	//Build the ground atom using the bound value assigned, also taking into account the presence of equal variables
-	vector<index_object> terms(predicate->getArity());
-	for (unsigned int i = 0; i < bound.size(); i++) {
-		terms[bound[i].first] = bound[i].second;
-	}
-	for (auto it : equal_var) {
-		terms[it.second] = terms[it.first];
-	}
-
 	//Compute the hash of the atom
-	GenericAtom *genAtom=new GenericAtom(terms);
+	GenericAtom *genAtom=new GenericAtom(templateAtom->getTerms());
 
 	//Look for the atom
 	bool find = collection->count(genAtom);
@@ -34,16 +53,20 @@ bool SimpleIndexAtom::findIfAFactExists(AtomTable* collection,vec_pair_index_obj
 }
 
 
-unsigned int SimpleIndexAtom::firstMatch(vec_pair_index_object &bound,vec_pair_index_object &bind,vec_pair_index_object& boundFunction,vec_pair_index_object &bindFunction,map_int_int& equal_var,bool& find) {
+unsigned int SimpleIndexAtom::firstMatch(Atom *templateAtom,map_index_index& currentAssignment, bool& find) {
 	unsigned int id = counter;counter++;
 
-	//Add hash functional term
-	vec_pair_index_object termToHash(bind);
-	for(auto index_function:boundFunction)termToHash.push_back(index_function);
-	ResultMatch *rm = new ResultMatch(termToHash);
+	this->templateAtom=templateAtom;
+	this->currentAssignment=&currentAssignment;
+
+	// Hash the bind term, the variable term or term that contain variable term
+	vector<unsigned int> bind;
+	for(unsigned int i=0;i<templateAtom->getTermsSize();i++)
+		if(TermTable::getInstance()->getTerm(templateAtom->getTerm(i).second)->isVariable())bind.push_back(i);
+	ResultMatch *rm = new ResultMatch(bind);
 
 	//Search in facts for match
-	if(searchForFirstMatch(facts,bound,bind,boundFunction,bindFunction,equal_var,rm)){
+	if(searchForFirstMatch(facts,rm)){
 		find=true;
 		matches_id.insert({id,rm});
 		return id;
@@ -51,7 +74,7 @@ unsigned int SimpleIndexAtom::firstMatch(vec_pair_index_object &bound,vec_pair_i
 
 	//If it is EDB and not terms are bound, search also in no facts for match
 	if(!predicate->isEdb()){
-		if(searchForFirstMatch(nofacts,bound,bind,boundFunction,bindFunction,equal_var,rm)){
+		if(searchForFirstMatch(nofacts,rm)){
 			find=true;
 			matches_id.insert({id,rm});
 			return id;
@@ -59,75 +82,46 @@ unsigned int SimpleIndexAtom::firstMatch(vec_pair_index_object &bound,vec_pair_i
 	}
 
 	matches_id.insert({id,rm});
-	nextMatch(id,bind,boundFunction,bindFunction,find);
+	nextMatch(id,templateAtom,currentAssignment,find);
 	return id;
 
 
 }
 
-bool SimpleIndexAtom::searchForFirstMatch(AtomTable* table, vec_pair_index_object &bound,vec_pair_index_object &bind,vec_pair_index_object& boundFunction,vec_pair_index_object &bindFunction,map_int_int& equal_var,ResultMatch* rm){
+bool SimpleIndexAtom::searchForFirstMatch(AtomTable* table, ResultMatch* rm){
 
 	//Call findIfAFactExist only if all the terms are bound
-	if(bind.size()==0 && boundFunction.size()==0){
-		if(findIfAFactExists(table,bound,equal_var)){
+	if(templateAtom->isGround()){
+		if(findIfAFactExists(table)){
 			return true;
 		}
 	}
 	else
 		//Compute the first match
-		computeFirstMatch(table,bound,bind,boundFunction,bindFunction,equal_var,rm);
+		computeFirstMatch(table,rm);
 	return false;
 }
 
-void SimpleIndexAtom::computeFirstMatch(AtomTable* collection,vec_pair_index_object &bound,vec_pair_index_object &bind,vec_pair_index_object& boundFunction,vec_pair_index_object &bindFunction,map_int_int& equal_var,ResultMatch* rm){
+void SimpleIndexAtom::computeFirstMatch(AtomTable* collection,ResultMatch* rm){
 	for (GenericAtom *genericAtom : *collection) {
-		bool match = true;
-		for (unsigned int i = 0; i < bound.size(); i++)
-			if (genericAtom->terms[bound[i].first] != bound[i].second) {
-				match = false;
-				break;
-			}
-		if (match) {
-			//Test the match of bind equal variable and if the terms with equal variables not match skip this atom
-			if(!checkEqualVariable(equal_var,genericAtom)) continue;
-			if(!checkFunctionVariable(genericAtom,boundFunction,bindFunction)) continue;
+
+		if (match(genericAtom,templateAtom)) {
 			rm->result.insert(genericAtom);
 
 			//If there are no more bind variables stop.
 			//Notice that the size of the bind variables vector is not always equal to the arity of the predicate.
 			//Indeed, there can be anonymous variables that are not considered to be bind.
 			//The same holds for bound variables.
-			if(bind.size()==0 && boundFunction.size()==0)break;
+			if(templateAtom->isGround())break;
 
 		}
 	}
 }
 
-bool SimpleIndexAtom::checkEqualVariable(map_int_int& equal_var,GenericAtom *atom){
-	for(auto it:equal_var){
-		if(atom->terms[it.first] != atom->terms[it.second] ) {
-			return false;
-		}
-	}
-	return true;
-}
 
-bool SimpleIndexAtom::checkFunctionVariable(GenericAtom *atom,vec_pair_index_object &boundFunction,vec_pair_index_object &bindFunction){
-	// Clear bindFunction, for each function in boundFunction check the match and put bind value in bindFunction
-	TermTable *termTable=TermTable::getInstance();
-	vec_pair_index_object bind;
-	bindFunction.clear();
-	for(auto functions_index:boundFunction){
-		Term *function_bound=termTable->getTerm(atom->terms[functions_index.first]);
-		if(!function_bound->match(functions_index.second,bindFunction)) return false;
-	}
-	return true;
-}
-
-void SimpleIndexAtom::nextMatch(unsigned int id,vec_pair_index_object &bind,vec_pair_index_object& boundFunction,vec_pair_index_object &bindFunction,bool& find) {
+void SimpleIndexAtom::nextMatch(unsigned int id,Atom *templateAtom,map_index_index& currentAssignment,bool& find) {
 	ResultMatch *rm=matches_id.find(id)->second;
 	unsigned int size=rm->result.size();
-	unsigned int num_variable=bind.size();
 
 	///Return the next matching facts or no facts retrived from the integer identifier assigned by the firstMatch method
 	if(size==0){
@@ -139,10 +133,9 @@ void SimpleIndexAtom::nextMatch(unsigned int id,vec_pair_index_object &bind,vec_
 
 	auto it_last_atom=rm->result.begin();
 
-	for(unsigned int i=0;i<num_variable;i++){
-		bind[i].second=(*it_last_atom)->terms[bind[i].first];
-	}
-	checkFunctionVariable(*it_last_atom,boundFunction,bindFunction);
+	//Insert the value of variable in assignment
+	match(*it_last_atom,templateAtom,currentAssignment);
+
 	find=true;
 	rm->result.erase(it_last_atom);
 }
@@ -243,100 +236,100 @@ pair<bool, index_object> SingleTermIndexAtomMultiMap::createIndex(vec_pair_index
 	return termBoundIndex;
 }
 
-unsigned int SingleTermIndexAtom::firstMatch(vec_pair_index_object &bound, vec_pair_index_object &bind,vec_pair_index_object& boundFunction,vec_pair_index_object bindFunction, map_int_int& equal_var,bool& find) {
+//unsigned int SingleTermIndexAtom::firstMatch(vec_pair_index_object &bound, vec_pair_index_object &bind,vec_pair_index_object& boundFunction,vec_pair_index_object bindFunction, map_int_int& equal_var,bool& find) {
+//
+//	unsigned int id = counter;counter++;
+//	ResultMatch* rm=new ResultMatch(bind);
+//
+//	AtomTable* matchingTable;
+//
+//	pair<bool, index_object> termBoundIndex = createIndex(bound);
+//
+//	if(termBoundIndex.first)
+//		matchingTable=&factsIndexMap[termBoundIndex.second];
+//	else
+//		matchingTable=facts;
+//
+//	//Search in facts for match
+//	if(searchForFirstMatch(matchingTable,bound,bind,boundFunction,bindFunction,equal_var,rm)){
+//		find=true;
+//		matches_id.insert({id,rm});
+//		return id;
+//	}
+//
+//	//If it is EDB and it is not all bound, search also in no facts for match
+//	if(!predicate->isEdb() && nofacts->size()>0){
+//		if(termBoundIndex.first)
+//			matchingTable=&nofactsIndexMap[termBoundIndex.second];
+//		else
+//			matchingTable=nofacts;
+//
+//		if(searchForFirstMatch(matchingTable,bound,bind,boundFunction,bindFunction,equal_var,rm)){
+//			find=true;
+//			matches_id.insert({id,rm});
+//			return id;
+//		}
+//	}
+//
+//	matches_id.insert({id,rm});
+//	nextMatch(id,bind,boundFunction,bindFunction,find);
+//	return id;
+//
+//}
 
-	unsigned int id = counter;counter++;
-	ResultMatch* rm=new ResultMatch(bind);
 
-	AtomTable* matchingTable;
-
-	pair<bool, index_object> termBoundIndex = createIndex(bound);
-
-	if(termBoundIndex.first)
-		matchingTable=&factsIndexMap[termBoundIndex.second];
-	else
-		matchingTable=facts;
-
-	//Search in facts for match
-	if(searchForFirstMatch(matchingTable,bound,bind,boundFunction,bindFunction,equal_var,rm)){
-		find=true;
-		matches_id.insert({id,rm});
-		return id;
-	}
-
-	//If it is EDB and it is not all bound, search also in no facts for match
-	if(!predicate->isEdb() && nofacts->size()>0){
-		if(termBoundIndex.first)
-			matchingTable=&nofactsIndexMap[termBoundIndex.second];
-		else
-			matchingTable=nofacts;
-
-		if(searchForFirstMatch(matchingTable,bound,bind,boundFunction,bindFunction,equal_var,rm)){
-			find=true;
-			matches_id.insert({id,rm});
-			return id;
-		}
-	}
-
-	matches_id.insert({id,rm});
-	nextMatch(id,bind,boundFunction,bindFunction,find);
-	return id;
-
-}
-
-
-unsigned int SingleTermIndexAtomMultiMap::firstMatch(vec_pair_index_object& bound, vec_pair_index_object& bind,vec_pair_index_object& boundFunction,vec_pair_index_object &bindFunction, map_int_int& equal_var, bool& find) {
-
-	unsigned int id = counter;counter++;
-	ResultMatch* rm=new ResultMatch(bind);
-
-	if(bound.size()==predicate->getArity()){
-		if(findIfAFactExists(facts,bound,equal_var) || findIfAFactExists(nofacts,bound,equal_var)){
-			find=true;
-			matches_id.insert({id,rm});
-			return id;
-		}
-	}
-	else{
-
-		pair<bool, index_object> termBoundIndex = createIndex(bound);
-
-		AtomTable* matchingTable=new AtomTable;
-
-		if(termBoundIndex.first){
-			auto pair=factsIndexMap.equal_range(termBoundIndex.second);
-			for(auto it=pair.first;it!=pair.second;it++)
-				matchingTable->insert(it->second);
-		}
-		else
-			matchingTable=facts;
-
-		//Search in facts for match
-		computeFirstMatch(matchingTable,bound,bind,boundFunction,bindFunction,equal_var,rm);
-
-		//If it is EDB and it is not all bound, search also in no facts for match
-		if(!predicate->isEdb() && nofacts->size()>0){
-
-			matchingTable->clear();
-
-			if(termBoundIndex.first){
-				auto pair=nofactsIndexMap.equal_range(termBoundIndex.second);
-				for(auto it=pair.first;it!=pair.second;it++)
-					matchingTable->insert(it->second);
-			}
-			else
-				matchingTable=nofacts;
-
-			computeFirstMatch(matchingTable,bound,bind,boundFunction,bindFunction,equal_var,rm);
-
-		}
-
-	}
-
-	matches_id.insert({id,rm});
-	nextMatch(id,bind,boundFunction,bindFunction,find);
-	return id;
-}
+//unsigned int SingleTermIndexAtomMultiMap::firstMatch(vec_pair_index_object& bound, vec_pair_index_object& bind,vec_pair_index_object& boundFunction,vec_pair_index_object &bindFunction, map_int_int& equal_var, bool& find) {
+//
+//	unsigned int id = counter;counter++;
+//	ResultMatch* rm=new ResultMatch(bind);
+//
+//	if(bound.size()==predicate->getArity()){
+//		if(findIfAFactExists(facts,bound,equal_var) || findIfAFactExists(nofacts,bound,equal_var)){
+//			find=true;
+//			matches_id.insert({id,rm});
+//			return id;
+//		}
+//	}
+//	else{
+//
+//		pair<bool, index_object> termBoundIndex = createIndex(bound);
+//
+//		AtomTable* matchingTable=new AtomTable;
+//
+//		if(termBoundIndex.first){
+//			auto pair=factsIndexMap.equal_range(termBoundIndex.second);
+//			for(auto it=pair.first;it!=pair.second;it++)
+//				matchingTable->insert(it->second);
+//		}
+//		else
+//			matchingTable=facts;
+//
+//		//Search in facts for match
+//		computeFirstMatch(matchingTable,bound,bind,boundFunction,bindFunction,equal_var,rm);
+//
+//		//If it is EDB and it is not all bound, search also in no facts for match
+//		if(!predicate->isEdb() && nofacts->size()>0){
+//
+//			matchingTable->clear();
+//
+//			if(termBoundIndex.first){
+//				auto pair=nofactsIndexMap.equal_range(termBoundIndex.second);
+//				for(auto it=pair.first;it!=pair.second;it++)
+//					matchingTable->insert(it->second);
+//			}
+//			else
+//				matchingTable=nofacts;
+//
+//			computeFirstMatch(matchingTable,bound,bind,boundFunction,bindFunction,equal_var,rm);
+//
+//		}
+//
+//	}
+//
+//	matches_id.insert({id,rm});
+//	nextMatch(id,bind,boundFunction,bindFunction,find);
+//	return id;
+//}
 
 
 void SingleTermIndexAtom::initializeIndexMaps(){

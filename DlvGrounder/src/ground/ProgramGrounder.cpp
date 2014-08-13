@@ -95,7 +95,7 @@ void ProgramGrounder::printMapIntInt(string name,vector<map_int_int >& equal_var
 
 }
 
-void ProgramGrounder::printAssignment(map_index_object_index_object& var_assign){
+void ProgramGrounder::printAssignment(map_index_index& var_assign){
 
 	cout<<"ASSIGNMENT ";
 	for(auto i:var_assign){
@@ -179,7 +179,7 @@ void ProgramGrounder::findBoundBindRule(Rule *r,vector<vec_pair_index_object> &b
 	}
 }
 
-void ProgramGrounder::printGroundRule(Rule *r,map_index_object_index_object& var_assign){
+void ProgramGrounder::printGroundRule(Rule *r,map_index_index& var_assign){
 
 	//Build a ground rule with the given vars assignment
 	GroundRule *groundRule=new GroundRule;
@@ -244,7 +244,7 @@ void ProgramGrounder::printGroundRule(Rule *r,map_index_object_index_object& var
 }
 
 
-void ProgramGrounder::setBoundValue(Atom *current_atom,vec_pair_index_object &bound,vec_pair_index_object &boundFunction,map_index_object_index_object& var_assign){
+void ProgramGrounder::setBoundValue(Atom *current_atom,vec_pair_index_object &bound,vec_pair_index_object &boundFunction,map_index_index& var_assign){
 	for(unsigned int i=0;i<bound.size();i++){
 		if(termsMap->getTerm(current_atom->getTerm(bound[i].first).second)->isVariable()){
 			index_object bound_variable=current_atom->getTerm(bound[i].first).second;
@@ -260,7 +260,7 @@ void ProgramGrounder::setBoundValue(Atom *current_atom,vec_pair_index_object &bo
 	}
 }
 
-void ProgramGrounder::removeBindValueInAssignment(Atom *current_atom,vec_pair_index_object &bind,vec_pair_index_object &bindFunction,map_index_object_index_object& var_assign){
+void ProgramGrounder::removeBindValueInAssignment(Atom *current_atom,vec_pair_index_object &bind,vec_pair_index_object &bindFunction,map_index_index& var_assign){
 	for(auto v:bind){
 		index_object bind_variable=current_atom->getTerm(v.first).second;
 		var_assign.erase(bind_variable);
@@ -271,7 +271,7 @@ void ProgramGrounder::removeBindValueInAssignment(Atom *current_atom,vec_pair_in
 
 }
 
-void ProgramGrounder::insertBindValueInAssignment(Atom *current_atom,vec_pair_index_object &bind,vec_pair_index_object &bindFunction,map_index_object_index_object& var_assign){
+void ProgramGrounder::insertBindValueInAssignment(Atom *current_atom,vec_pair_index_object &bind,vec_pair_index_object &bindFunction,map_index_index& var_assign){
 	for(auto v:bind){
 		index_object bind_variable=current_atom->getTerm(v.first).second;
 		index_object bind_value=v.second;
@@ -286,7 +286,7 @@ void ProgramGrounder::insertBindValueInAssignment(Atom *current_atom,vec_pair_in
 
 void ProgramGrounder::groundRule(Rule* r) {
 	//The map of the assignment, map each variables to its assigned value
-	map_index_object_index_object var_assign;
+	map_index_index var_assign;
 	list<unsigned int> id_match(0);
 
 	//TODO Sort the atoms in the rule in a smarter way, currently no sorting is performed
