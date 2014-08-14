@@ -51,7 +51,7 @@ unordered_set<index_object> Rule::getPredicateInBody() {
 
 unordered_set<index_object> Rule::getPositivePredicateInBody() {
 	unordered_set<index_object> predicates;
-	for (auto atom:head) {
+	for (auto atom:body) {
 		pair<bool,index_object> predicate=atom->getPredicate();
 		if(predicate.first && !atom->isNegative())
 			predicates.insert(predicate.second); //TODO Con gli aggregati/choice??
