@@ -128,21 +128,34 @@ struct ResultMatch {
 
 class IndexAtom {
 public:
+	//Constructor for all the fields except delta
+	IndexAtom(AtomTable* facts, AtomTable* nofacts, Predicate *p) : facts(facts), nofacts(nofacts), delta(nullptr), predicate(p) {};
 	//Constructor for all the fields
-	IndexAtom(AtomTable* facts, AtomTable* nofacts, Predicate *p) : facts(facts), nofacts(nofacts), predicate(p) {};
+	IndexAtom(AtomTable* facts, AtomTable* nofacts, AtomTable* delta, Predicate *p) : facts(facts), nofacts(nofacts), delta(delta), predicate(p) {};
 	///This method implementation is demanded to sub-classes.
 	///It have to find all the matching facts and no facts and return just the first of those.
 	///The returned integer will be used to get the other ones through nextMatch method @see nextMatch
-	virtual unsigned int firstMatch(Atom *templateAtom,map_index_index& currentAssignment, bool& find)=0;
+	virtual unsigned int firstMatch(bool searchInDelta, Atom *templateAtom, map_index_index& currentAssignment, bool& find)=0;
 	///This method is used to get the further matching facts and no facts one by one each time it is invoked.
-	virtual void nextMatch(unsigned int id,Atom *templateAtom,map_index_index& currentAssignment, bool& find)=0;
+	virtual void nextMatch(unsigned int id,Atom *templateAtom, map_index_index& currentAssignment, bool& find)=0;
+
+	virtual bool count(int table,GenericAtom* atom)=0;
+	virtual void find(int table,GenericAtom*& atom)=0;
+
 	///Destructor
 	virtual ~IndexAtom() {};
+
+	static const int FACTS=0;
+	static const int NOFACTS=1;
+	static const int DELTA=2;
+
 protected:
 	//A pointer to the set of facts
 	AtomTable* facts;
 	//A pointer to the set of no facts, that are undefined atoms
 	AtomTable* nofacts;
+	//A pointer to the set of no facts derived in the previous iteration, that are undefined atoms
+	AtomTable* delta;
 	///The predicate
 	Predicate* predicate;
 
@@ -163,11 +176,17 @@ protected:
 class SimpleIndexAtom: public IndexAtom {
 public:
 	///Constructor
-	SimpleIndexAtom(AtomTable* facts, AtomTable* nofacts,Predicate *p) : IndexAtom(facts,nofacts,p), counter(0){templateAtom=0;currentAssignment=0;};
+	SimpleIndexAtom(AtomTable* facts, AtomTable* nofacts,Predicate *p) : IndexAtom(facts,nofacts,p), counter(0), templateAtom(0), currentAssignment(0){};
+	///Constructor
+	SimpleIndexAtom(AtomTable* facts, AtomTable* nofacts, AtomTable* delta, Predicate *p) : IndexAtom(facts,nofacts,delta,p), counter(0), templateAtom(0), currentAssignment(0){};
 	///Virtual method implementation
-	virtual unsigned int firstMatch(Atom *templateAtom,map_index_index& currentAssignment, bool& find);
+	virtual unsigned int firstMatch(bool searchInDelta, Atom *templateAtom, map_index_index& currentAssignment, bool& find);
 	///Virtual method implementation
 	virtual void nextMatch(unsigned int id,Atom *templateAtom,map_index_index& currentAssignment, bool& find);
+	///Virtual method implementation
+	virtual bool count(int table,GenericAtom* atom);
+	///Virtual method implementation
+	virtual void find(int table,GenericAtom*& atom);
 	///Destructor
 	virtual ~SimpleIndexAtom() {};
 protected:
@@ -185,7 +204,7 @@ protected:
 	///This method invokes findIfAFactExists method if all the variables are bound, otherwise invokes the computeFirstMatch method
 	bool searchForFirstMatch(AtomTable* table,ResultMatch* rm);
 	///This method builds a ground atom using the bound variables and checks if it is true
-	virtual bool findIfAFactExists(AtomTable* collection);
+	virtual bool findIfExists(AtomTable* collection);
 };
 
 /**
@@ -195,7 +214,9 @@ protected:
 class Instances {
 public:
 	///Constructor
-	Instances(index_object predicate,PredicateTable *pt);
+	Instances(index_object predicate,PredicateTable *pt): predicate(predicate),predicateTable(pt),indexAtom(0) {this->configureIndexAtom();}
+
+	Instances(){indexAtom=0;predicate=0;predicateTable=0;};
 
 	bool addFact(const vector<index_object>& terms) {
 		GenericAtom* atomFact=new GenericAtom(terms);
@@ -220,7 +241,9 @@ public:
 	///This method adds a no facts to the no facts table.
 	///Its truth value can be true or undefined, if it false it is not stored at all
 	bool addNoFact(GenericAtom*& atomUndef, bool truth) {
-		if(!nofacts.insert(atomUndef).second){
+		atomUndef->setFact(truth);
+		bool isFact=indexAtom->count(IndexAtom::FACTS,atomUndef);
+		if( isFact || !nofacts.insert(atomUndef).second){
 			// If the atom is not present, it is added. The temporary atom duplicate is deleted and the inserted atom is assigned.
 			GenericAtom* atomToDelete=atomUndef;
 			atomUndef=*nofacts.find(atomToDelete);
@@ -255,13 +278,19 @@ public:
 	///Getter for the IndexAtom
 	IndexAtom* getIndex() {return indexAtom;};
 
+	virtual bool addDelta(GenericAtom*& atomUndef, bool truth) {return false;}
+	virtual bool addNextDelta(GenericAtom*& atomUndef, bool truth){return false;}
+	virtual void moveNextDeltaInDelta(){}
+
 	///Printer method
-	void print(){for(GenericAtom*fact:facts){ClassicalLiteral::print(predicate,fact->terms,false,false); cout<<"."<<endl;}};
+	virtual void print(){for(GenericAtom*fact:facts){ClassicalLiteral::print(predicate,fact->terms,false,false); cout<<"."<<endl;}}
 
 	///Destructor
-	~Instances();
+	virtual ~Instances();
 
-private:
+	virtual void configureIndexAtom();
+
+protected:
 	///The predicate
 	index_object predicate;
 	///A pointer to the predicate table
@@ -272,6 +301,63 @@ private:
 	AtomTable facts;
 	//The set of no facts, that are undefined atoms
 	AtomTable nofacts;
+
+
+};
+
+class InstancesDelta : public Instances {
+public:
+	InstancesDelta(index_object predicate,PredicateTable *pt) {this->predicate=predicate;this->predicateTable=pt;this->indexAtom=0;this->configureIndexAtom();}
+
+	///This method adds a no facts to the delta table.
+	///Its truth value can be true or undefined, if it false it is not stored at all
+	bool addDelta(GenericAtom*& atomUndef, bool truth) ;
+
+	bool addNextDelta(GenericAtom*& atomUndef, bool truth);
+
+	void moveNextDeltaInDelta(){
+//		print();
+//		cout<<endl;
+		if(delta.size()>0){
+//			indexAtom->updateDelta(); TODO
+			for(GenericAtom* atom: delta)
+				nofacts.insert(atom);
+			delta.clear();
+		}
+		if(nextDelta.size()>0){
+			for(GenericAtom* atom: nextDelta){
+//				indexAtom->addToIndexMapDelta(atom); TODO
+				delta.insert(atom);
+			}
+			nextDelta.clear();
+		}
+	}
+
+	///Printer method
+	void print(){
+		Instances::print();
+//		cout<<IdsManager::getStringStrip(IdsManager::PREDICATE_ID_MANAGER,predicate)<<" No Facts";
+//		for(GenericAtom*fact:nofacts){cout<<"\t";ClassicalLiteral::print(predicate,fact->terms,false,false); cout<<". ";}
+//		cout<<"\nDelta";
+//		for(GenericAtom*fact:delta){cout<<"\t";ClassicalLiteral::print(predicate,fact->terms,false,false); cout<<". ";}
+//		cout<<endl;
+	};
+
+	virtual ~InstancesDelta(){
+		for (auto it = delta.begin(); it != delta.end(); it++){
+			delete *it;
+		}
+		for (auto it = nextDelta.begin(); it != nextDelta.end(); it++){
+			delete *it;
+		}
+	};
+private:
+	/// The set of no facts, computed in the last iteration
+	AtomTable delta;
+	/// The set of no facts, computed in the last iteration
+	AtomTable nextDelta;
+
+	virtual void configureIndexAtom();
 };
 
 /**
@@ -284,9 +370,13 @@ public:
 	InstancesTable(PredicateTable *pt):predicateTable(pt){}
 
 	///This method adds an Instance for a predicate
-	void addInstance(index_object i) {
+	void addInstance(index_object i, bool recursive) {
 		if(!instanceTable.count(i)){
-			Instances* is = new Instances(i,predicateTable);
+			Instances* is;
+			if(recursive)
+				is = new InstancesDelta(i,predicateTable);
+			else
+				is = new Instances(i,predicateTable);
 			instanceTable.insert({i,is});
 		}
 	};
@@ -334,6 +424,7 @@ public:
 	 * Calling this constructor subsumes that the indexing term is not set by the user
 	 */
 	SingleTermIndexAtom(AtomTable* facts, AtomTable* nofacts,Predicate *p) : SimpleIndexAtom(facts,nofacts,p), instantiateIndexMaps(false), positionOfIndexing(0), positionOfIndexingSetByUser(false){};
+	SingleTermIndexAtom(AtomTable* facts, AtomTable* nofacts,AtomTable* delta,Predicate *p) : SimpleIndexAtom(facts,nofacts,delta,p), instantiateIndexMaps(false), positionOfIndexing(0), positionOfIndexingSetByUser(false){};
 	/**
 	 * Constructor
 	 * @param facts An AtomTable of facts
@@ -343,8 +434,10 @@ public:
 	 * Calling this constructor subsumes that the indexing term is set by the user
 	 */
 	SingleTermIndexAtom(AtomTable* facts, AtomTable* nofacts, int i, Predicate *p): SimpleIndexAtom(facts,nofacts,p), instantiateIndexMaps(false), positionOfIndexing(i), positionOfIndexingSetByUser(true){};
+	SingleTermIndexAtom(AtomTable* facts, AtomTable* nofacts, AtomTable* delta, int i, Predicate *p): SimpleIndexAtom(facts,nofacts,delta,p), instantiateIndexMaps(false), positionOfIndexing(i), positionOfIndexingSetByUser(true){};
+
 	///Overload of firstMatch method
-//	unsigned int firstMatch(vec_pair_index_object &bound, vec_pair_index_object &bind,vec_pair_index_object& boundFunction,vec_pair_index_object bindFunction, map_int_int& equal_var,bool& find);
+	virtual unsigned int firstMatch(bool searchInDelta, Atom *templateAtom, map_index_index& currentAssignment, bool& find);
 	///Destructor
 	~SingleTermIndexAtom(){};
 private:
@@ -363,10 +456,10 @@ private:
 	void initializeIndexMaps();
 	///This method determines which is the actual term corresponding to position given by the user,
 	///if no position is given it is used the first admissible term as indexing term
-	void determineTermToBeIndexed(vec_pair_index_object& bound);
+//	void determineTermToBeIndexed(vec_pair_index_object& bound);
 	///This method carry out the indexing strategy, determining the indexing term with determineTermToBeIndexed method and then filling the
 	///data structures with initializeIndexMaps method
-	pair<bool, index_object> createIndex(vec_pair_index_object& bound);
+	pair<bool, index_object> createIndex(vector<unsigned int>& bind);
 };
 
 /**
@@ -389,6 +482,7 @@ public:
 	 * Calling this constructor subsumes that the indexing term is not set by the user
 	 */
 	SingleTermIndexAtomMultiMap(AtomTable* facts, AtomTable* nofacts,Predicate *p) : SimpleIndexAtom(facts,nofacts,p), instantiateIndexMaps(false), positionOfIndexing(0),positionOfIndexingSetByUser(false){};
+	SingleTermIndexAtomMultiMap(AtomTable* facts, AtomTable* nofacts,AtomTable* delta,Predicate *p) : SimpleIndexAtom(facts,nofacts,delta,p), instantiateIndexMaps(false), positionOfIndexing(0),positionOfIndexingSetByUser(false){};
 	/**
 	 * Constructor
 	 * @param facts An AtomTable of facts
@@ -398,8 +492,9 @@ public:
 	 * Calling this constructor subsumes that the indexing term is set by the user
 	 */
 	SingleTermIndexAtomMultiMap(AtomTable* facts, AtomTable* nofacts, int i,Predicate *p): SimpleIndexAtom(facts,nofacts,p), instantiateIndexMaps(false), positionOfIndexing(i),positionOfIndexingSetByUser(true){};
+	SingleTermIndexAtomMultiMap(AtomTable* facts, AtomTable* nofacts, AtomTable* delta, int i,Predicate *p): SimpleIndexAtom(facts,nofacts,delta,p), instantiateIndexMaps(false), positionOfIndexing(i),positionOfIndexingSetByUser(true){};
 	///Overload of firstMatch method
-//	unsigned int firstMatch(vec_pair_index_object &bound, vec_pair_index_object &bind,vec_pair_index_object& boundFunction,vec_pair_index_object &bindFunction, map_int_int& equal_var, bool& find);
+	virtual unsigned int firstMatch(bool searchInDelta, Atom *templateAtom, map_index_index& currentAssignment, bool& find);
 	///Destructor
 	~SingleTermIndexAtomMultiMap(){};
 
@@ -419,10 +514,10 @@ private:
 	void initializeIndexMaps();
 	///This method determines which is the actual term corresponding to position given by the user,
 	///if no position is given it is used the first admissible term as indexing term
-	void determineTermToBeIndexed(vec_pair_index_object& bound);
+//	void determineTermToBeIndexed(vec_pair_index_object& bound);
 	///This method carry out the indexing strategy, determining the indexing term with determineTermToBeIndexed method and then filling the
 	///data structures with initializeIndexMaps method
-	pair<bool, index_object> createIndex(vec_pair_index_object& bound);
+	pair<bool, index_object> createIndex(vector<unsigned int>& bind);
 };
 
 

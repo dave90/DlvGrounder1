@@ -18,8 +18,7 @@
 
 using namespace std;
 
-///A unordered map whose keys and values are of index_object type @see IndexDefinition
-typedef unordered_map<index_object, index_object> map_index_index;
+typedef vector<unordered_set<index_object>> vector_set_index;
 
 ///This struct implements an hash function and an equality comparator for ground rules @see GroundRule
 struct hashRule {
@@ -82,12 +81,9 @@ public:
 
 	///This method executes the overall grounding process
 	void ground();
-	/// This method executes the grounding of a single exit rule
-	/// @param r The rule to be grounded
-	void groundRule(Rule *r);
 	/// This method executes the grounding of a single recursive rule
 	/// @param r The rule to be grounded
-	bool groundRecursiveRule(Rule* r);
+	bool groundRule(Rule* r, bool isRecursive, bool firstIteraction);
 
 	///Printer method for
 	void print(){statementDependency->print();};
@@ -118,13 +114,15 @@ private:
 	void findBindVariablesRule(Rule *r,vector<unordered_set<index_object> >& variables);
 
 	/// Printer method for the grounded rules
-	void printGroundRule(Rule *r,map_index_index& var_assign);
+	bool printGroundRule(Rule *r,map_index_index& var_assign,bool isRecursive,bool firstIteration);
 
 	///This method given an assignment for the variables return a partial ground atom of current_atom
 	Atom* setBoundValue(Atom *current_atom,map_index_index& var_assign);
 
 	///This method removes the assigned values to bind variables from the given assignment
 	void removeBindValueInAssignment(unordered_set<index_object> bind_variables, map_index_index& var_assign);
+
+	void updateDelta(Rule* r);
 
 	// These are some printer methods used for debug purpose.
 	void printAssignment(map_index_index& var_assign);

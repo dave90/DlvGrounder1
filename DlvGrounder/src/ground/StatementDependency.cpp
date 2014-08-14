@@ -203,19 +203,20 @@ void DependencyGraph::addEdge(index_object pred_body, index_object pred_head) {
 
 void DependencyGraph::calculateStrongComponent(unordered_map<index_object, unsigned int> &component) {
 
-	typedef boost::graph_traits<Graph>::vertex_descriptor Vertex;
-	std::vector<int> discover_time(boost::num_vertices(depGraph));
-	vector<unsigned int> component_indexed;
-	component_indexed.resize(boost::num_vertices(depGraph));
-	std::vector<boost::default_color_type> color(boost::num_vertices(depGraph));
-	std::vector<Vertex> root(boost::num_vertices(depGraph));
+	using namespace boost;
+	typedef graph_traits<Graph>::vertex_descriptor Vertex;
 
-	boost::strong_components(depGraph, &component_indexed[0],
-			boost::root_map(&root[0]).color_map(&color[0]).discover_time_map(&discover_time[0]));
+	std::vector<int> component_indices(num_vertices(depGraph)), discover_time(num_vertices(depGraph));
+	std::vector<default_color_type> color(num_vertices(depGraph));
+	std::vector<Vertex> root(num_vertices(depGraph));
+	strong_components(depGraph, make_iterator_property_map(component_indices.begin(), get(vertex_index, depGraph)),
+							  root_map(make_iterator_property_map(root.begin(), get(vertex_index, depGraph))).
+							  color_map(make_iterator_property_map(color.begin(), get(vertex_index, depGraph))).
+							  discover_time_map(make_iterator_property_map(discover_time.begin(), get(vertex_index, depGraph))));
 
-	for (unsigned int i = 0; i < component_indexed.size(); i++) {
-		component.insert( { depGraph[i].pred_id, component_indexed[i] });
-	}
+	for (unsigned int i = 0; i < component_indices.size(); i++)
+		component.insert( { depGraph[i].pred_id, component_indices[i] });
+
 }
 
 /*
@@ -345,6 +346,16 @@ void ComponentGraph::print() {
 
 void ComponentGraph::computeAnOrdering(list<unsigned int>& componentsOrdering) {
 
+	// If the component graph is not connected, then if there are some components any ordering is valid
+	if(num_vertices(compGraph)==0 && num_edges(compGraph)==0 && component.size()>0){
+		unordered_set<unsigned int> components;
+		for(auto pair:component)
+			components.insert(pair.second);
+		for(auto it:components)
+			componentsOrdering.push_back(it);
+		return;
+	}
+
 	// If the component graph is a-cyclic is suffices to compute a topological sort to get a valid components ordering
 	try {
 		topological_sort(compGraph, front_inserter(componentsOrdering));
@@ -353,24 +364,24 @@ void ComponentGraph::computeAnOrdering(list<unsigned int>& componentsOrdering) {
 		this->recursive_sort(componentsOrdering);
 	}
 
-//	//Print the found ordering
-//	boost::property_map<WeightGraph, boost::vertex_index_t>::type vertex_indices = get(
-//				boost::vertex_index, compGraph);
-//	for (auto itL: componentsOrdering) {
-//		bool first = false;
-//		for (auto it : component)
-//			if (it.second == vertex_indices(itL)) {
-//				string predicate = IdsManager::getStringStrip(IdsManager::PREDICATE_ID_MANAGER,
-//						it.first);
-//				if (!first) {
-//					cout << "{ " << predicate + " ";
-//					first = true;
-//				} else
-//					cout << ", " << predicate;
-//			}
-//		cout << "}  ";
-//	}
-//	cout<<endl;
+	//		//Print the found ordering
+	//		boost::property_map<WeightGraph, boost::vertex_index_t>::type vertex_indices = get(
+	//					boost::vertex_index, compGraph);
+	//		for (auto itL: componentsOrdering) {
+	//			bool first = false;
+	//			for (auto it : component)
+	//				if (it.second == vertex_indices(itL)) {
+	//					string predicate = IdsManager::getStringStrip(IdsManager::PREDICATE_ID_MANAGER,
+	//							it.first);
+	//					if (!first) {
+	//						cout << "{ " << predicate + " ";
+	//						first = true;
+	//					} else
+	//						cout << ", " << predicate;
+	//				}
+	//			cout << "}  ";
+	//		}
+	//		cout<<endl;
 
 }
 
@@ -481,8 +492,18 @@ void StatementDependency::createComponentGraph() {
 	compGraph.createComponent(depGraph, statementAtomMapping);
 }
 
-void StatementDependency::createComponentGraphAndComputeAnOrdering(vector<vector<Rule*>>& exitRules, vector<vector<Rule*>>& recursiveRules) {
+// An utility function that specifies how to sort the rules of a component
+bool sortRules (Rule* r1,Rule* r2) {
 
+	unordered_set<index_object> headSecondRule=r2->getPredicateInHead();
+	for(auto it=r1->getBeginBody();it!=r1->getEndBody();it++)
+		if(headSecondRule.count((*it)->getPredicate().second))
+			return false;
+	return true;
+
+}
+
+void StatementDependency::createComponentGraphAndComputeAnOrdering(vector<vector<Rule*>>& exitRules, vector<vector<Rule*>>& recursiveRules) {
 	/// Create the component graph
 	compGraph.createComponent(depGraph, statementAtomMapping);
 
@@ -494,41 +515,43 @@ void StatementDependency::createComponentGraphAndComputeAnOrdering(vector<vector
 	vector<Rule*> componentsRules;
 	int i=0;
 
+	unordered_map<index_object, unsigned int> components=compGraph.getComponent();
+
 	for(auto comp: ordering){
 		exitRules.push_back(vector<Rule*>());
 		recursiveRules.push_back(vector<Rule*>());
-		for (auto pair: compGraph.getComponent())
+		for (auto pair: components)
 			if(pair.second==comp){
 
 				/// Get all the rules for the current component
 				index_object predicate=pair.first;
 				statementAtomMapping.getRuleInHead(predicate,componentsRules);
-
 				/// For each rule classify it as exit or recursive
 				for(Rule* r: componentsRules){
-					if(checkIfExitRule(i,r))
+					if(checkIfExitRule(comp,r))
 						exitRules[i].push_back(r);
 					else
 						recursiveRules[i].push_back(r);
 				}
+				componentsRules.clear();
+
 			}
-
 		i++;
-		componentsRules.clear();
 	}
-
+	for(unsigned int i=0;i<recursiveRules.size();i++)
+		sort(recursiveRules[i].begin(),recursiveRules[i].end(),sortRules);
 }
+
 
 bool StatementDependency::checkIfExitRule(unsigned int component, Rule* rule){
 	unordered_set<index_object> positivePredicates=rule->getPositivePredicateInBody();
 	unordered_map<index_object, unsigned int> components=compGraph.getComponent();
-	for (auto pair: compGraph.getComponent())
-		if(pair.second==component && positivePredicates.count(pair.first)){
-				return false;
-		}
+
+	for (auto pair: components)
+		if(pair.second==component && positivePredicates.count(pair.first))
+			return false;
 	return true;
 }
-
 
 void StatementDependency::print() {
 	string fileDGraph = Config::getInstance()->getFileGraph() + "DG";
@@ -545,8 +568,10 @@ void StatementDependency::print() {
 			compGraph.print();
 		else
 			compGraph.printFile(fileCGraph);
+
 	}
 	if (Config::getInstance()->isPrintRules())
 		for (Rule*r : rules)
 			r->print();
+
 }

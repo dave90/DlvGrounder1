@@ -24,7 +24,7 @@ void ClassicalLiteral::print(){
 	print(predicate,terms,negative,hasMinus);
 }
 
-void ClassicalLiteral::print(index_object predicate,vector<index_object>& terms,bool negative,bool hasMinus){
+void ClassicalLiteral::print(index_object predicate,const vector<index_object>& terms,bool negative,bool hasMinus){
 	TermTable*tb=TermTable::getInstance();
 
 	if(negative)

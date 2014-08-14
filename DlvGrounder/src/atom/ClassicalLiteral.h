@@ -58,7 +58,7 @@ public:
 
 	///This method is used in the printer method @see print()
 	//It is static since it is used in Instance class, where just terms are stored instead of the whole classical atom
-	static void print(index_object predicate,vector<index_object>& terms,bool negative,bool hasMinus);
+	static void print(index_object predicate,const vector<index_object>& terms,bool negative,bool hasMinus);
 	///Printer Method
 	void print();
 
