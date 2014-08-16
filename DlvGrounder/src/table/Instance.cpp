@@ -52,8 +52,81 @@ bool SimpleIndexAtom::findIfExists(AtomTable* collection) {
 	return find;
 }
 
-bool SimpleIndexAtom::count(int table,GenericAtom* atom) {
-	//FIXME Per l'indicizzato usare tabelle indicizzate se non vuote
+bool SingleTermIndexAtom::count(int table,GenericAtom*& atom) {
+	AtomTable* collection;
+	pair<bool, index_object> termBoundIndex( { false, 0 });
+	if(instantiateIndexMaps){
+		for(unsigned int i=0;i<atom->terms.size();i++){
+			Term* t=TermTable::getInstance()->getTerm(atom->terms[i]);
+			if(positionOfIndexingSetByUser && i == positionOfIndexing && t->isConstant()) {
+					termBoundIndex.first = true;
+					termBoundIndex.second = t->getIndex();
+					break;
+			}
+		}
+	}
+	switch (table) {
+		case FACTS:
+			if(instantiateIndexMaps) collection=&factsIndexMap[termBoundIndex.second];
+			else collection=facts;
+			break;
+		case NOFACTS:
+			if(instantiateIndexMaps) collection=&nofactsIndexMap[termBoundIndex.second];
+			else collection=nofacts;
+			break;
+		case DELTA:
+			if(instantiateIndexMaps) collection=&deltaIndexMap[termBoundIndex.second];
+			else collection=delta;
+			break;
+		default:
+			return false;
+	}
+	if(collection->size()==0)return false;
+
+	//Look for the atom
+	bool find = collection->count(atom);
+
+	return find;
+}
+
+void SingleTermIndexAtom::find(int table,GenericAtom*& atom) {
+	AtomTable* collection;
+	pair<bool, index_object> termBoundIndex( { false, 0 });
+	if(instantiateIndexMaps){
+		for(unsigned int i=0;i<atom->terms.size();i++){
+			Term* t=TermTable::getInstance()->getTerm(atom->terms[i]);
+			if(positionOfIndexingSetByUser && i == positionOfIndexing && t->isConstant()) {
+					termBoundIndex.first = true;
+					termBoundIndex.second = t->getIndex();
+					break;
+			}
+		}
+	}
+	switch (table) {
+		case FACTS:
+			if(instantiateIndexMaps) collection=&factsIndexMap[termBoundIndex.second];
+			else collection=facts;
+			break;
+		case NOFACTS:
+			if(instantiateIndexMaps) collection=&nofactsIndexMap[termBoundIndex.second];
+			else collection=nofacts;
+			break;
+		case DELTA:
+			if(instantiateIndexMaps) collection=&deltaIndexMap[termBoundIndex.second];
+			else collection=delta;
+			break;
+		default:
+			atom=nullptr; return;
+	}
+	if(collection->size()==0) {atom=nullptr; return;}
+
+	//Find the atom
+	GenericAtom* tmp=atom;
+	atom = (*collection->find(tmp));
+	delete tmp;
+}
+
+bool SimpleIndexAtom::count(int table,GenericAtom*& atom) {
 	AtomTable* collection;
 	switch (table) {
 		case FACTS:
@@ -70,7 +143,6 @@ bool SimpleIndexAtom::count(int table,GenericAtom* atom) {
 	}
 	if(collection->size()==0)return false;
 
-	//Compute the hash of the atom
 	//Look for the atom
 	bool find = collection->count(atom);
 
@@ -93,11 +165,11 @@ void SimpleIndexAtom::find(int table,GenericAtom*& atom) {
 			atom=nullptr;
 			return;
 	}
-	if(collection->size()==0) atom=nullptr;
+	if(collection->size()==0) {atom=nullptr; return;}
 
-	//Look for the atom
+	//Find the atom
 	GenericAtom* tmp=atom;
-	atom = collection->find(tmp)._M_cur_node->_M_v;
+	atom = (*collection->find(tmp));
 	delete tmp;
 }
 
@@ -183,7 +255,7 @@ void SimpleIndexAtom::nextMatch(unsigned int id,Atom *templateAtom,map_index_ind
 	ResultMatch *rm=matches_id.find(id)->second;
 	unsigned int size=rm->result.size();
 
-	///Return the next matching facts or no facts retrived from the integer identifier assigned by the firstMatch method
+	///Return the next matching facts or no facts retrieved from the integer identifier assigned by the firstMatch method
 	if(size==0){
 		delete rm;
 		matches_id.erase(id);
@@ -253,6 +325,15 @@ Instances::~Instances() {
 	delete (indexAtom);
 }
 
+InstancesDelta::~InstancesDelta(){
+	for (auto it = delta.begin(); it != delta.end(); it++){
+		delete *it;
+	}
+	for (auto it = nextDelta.begin(); it != nextDelta.end(); it++){
+		delete *it;
+	}
+}
+
 
 InstancesTable::~InstancesTable() {
 	for (auto i : instanceTable) {
@@ -277,14 +358,11 @@ bool InstancesDelta::addDelta(GenericAtom*& atomUndef, bool truth) {
 		indexAtom->find(IndexAtom::DELTA,atomUndef);
 		return false;
 	}
-
-//	indexAtom->addToIndexMapDelta(atomUndef);
 	return true;
 }
 
 
 bool InstancesDelta::addNextDelta(GenericAtom*& atomUndef, bool truth) {
-		//FIXME find if exits
 		bool isInFacts=indexAtom->count(IndexAtom::FACTS,atomUndef);
 		if(isInFacts){
 			indexAtom->find(IndexAtom::FACTS,atomUndef);
@@ -311,6 +389,7 @@ bool InstancesDelta::addNextDelta(GenericAtom*& atomUndef, bool truth) {
 	}
 
 
+// Delete methods
 //void SingleTermIndexAtom::determineTermToBeIndexed(vec_pair_index_object& bound) {
 //	///If the position of the indexing term is not set by the user the first admissible term is the first bound term
 //	if(!positionOfIndexingSetByUser && bound.size()>0){
@@ -327,9 +406,50 @@ bool InstancesDelta::addNextDelta(GenericAtom*& atomUndef, bool truth) {
 //	}
 //}
 
+void SingleTermIndexAtom::updateDelta(AtomTable* nextDelta) {
+	if(instantiateIndexMaps){
+		for(GenericAtom* atom: *delta){
+			index_object termIndex=atom->terms[positionOfIndexing];
+			if(nofactsIndexMap.count(termIndex)){
+				nofactsIndexMap[termIndex].insert(atom);
+			}
+			else{
+				AtomTable values;
+				values.insert(atom);
+				nofactsIndexMap.insert({termIndex,values});
+			}
+		}
+		deltaIndexMap.clear();
+		for(GenericAtom* atom: *nextDelta){
+			index_object termIndex=atom->terms[positionOfIndexing];
+			if(deltaIndexMap.count(termIndex)){
+				deltaIndexMap[termIndex].insert(atom);
+			}
+			else{
+				AtomTable values;
+				values.insert(atom);
+				deltaIndexMap.insert({termIndex,values});
+			}
+		}
+	}
+}
+
+void SingleTermIndexAtomMultiMap::updateDelta(AtomTable* nextDelta) {
+	if(instantiateIndexMaps){
+		for(GenericAtom* atom: *delta){
+			index_object termIndex=atom->terms[positionOfIndexing];
+			nofactsIndexMap.insert({termIndex,atom});
+		}
+		deltaIndexMap.clear();
+		for(GenericAtom* atom: *nextDelta){
+			index_object termIndex=atom->terms[positionOfIndexing];
+			deltaIndexMap.insert({termIndex,atom});
+		}
+	}
+}
+
 pair<bool, index_object> SingleTermIndexAtom::createIndex(vector<unsigned int>& bind) {
-	//Determine the indexing term
-	//Initialize the maps
+	// Compute the bind variables, determine the indexing term and fill the facts and no facts maps if not yet filled
 	pair<bool, index_object> termBoundIndex( { false, 0 });
 	for(unsigned int i=0;i<templateAtom->getTermsSize();i++){
 		Term* t=TermTable::getInstance()->getTerm(templateAtom->getTerm(i).second);
@@ -350,8 +470,7 @@ pair<bool, index_object> SingleTermIndexAtom::createIndex(vector<unsigned int>& 
 }
 
 pair<bool, index_object> SingleTermIndexAtomMultiMap::createIndex(vector<unsigned int>& bind) {
-	//Determine the indexing term
-	//Initialize the maps
+	// Compute the bind variables, determine the indexing term and fill the facts and no facts maps if not yet filled
 	pair<bool, index_object> termBoundIndex( { false, 0 });
 	for(unsigned int i=0;i<templateAtom->getTermsSize();i++){
 		Term* t=TermTable::getInstance()->getTerm(templateAtom->getTerm(i).second);
@@ -385,15 +504,23 @@ unsigned int SingleTermIndexAtom::firstMatch(bool searchInDelta, Atom *templateA
 
 	ResultMatch *rm = new ResultMatch(bind);
 
-	if(searchInDelta){ //FIXME Indexing Delta
+	//Search only in delta
+	if(searchInDelta){
+		AtomTable* matchingTable;
+
+		if(termBoundIndex.first)
+			matchingTable=&deltaIndexMap[termBoundIndex.second];
+		else
+			matchingTable=delta;
 		if(delta!=nullptr){
-			if(searchForFirstMatch(delta,rm)){
+			if(searchForFirstMatch(matchingTable,rm)){
 				find=true;
 				matches_id.insert({id,rm});
 				return id;
 			}
 		}
 	}
+	//Search in facts and no facts
 	else{
 
 		AtomTable* matchingTable;
@@ -438,7 +565,8 @@ unsigned int SingleTermIndexAtomMultiMap::firstMatch(bool searchInDelta, Atom *t
 	this->templateAtom=templateAtom;
 	this->currentAssignment=&currentAssignment;
 
-	if(searchInDelta && delta!=nullptr){ //FIXME
+	//Search only in delta
+	if(searchInDelta && delta!=nullptr){
 		if(templateAtom->isGround()){
 			vector<unsigned int> bind;
 			ResultMatch *rm = new ResultMatch(bind);
@@ -456,15 +584,15 @@ unsigned int SingleTermIndexAtomMultiMap::firstMatch(bool searchInDelta, Atom *t
 			pair<bool, index_object> termBoundIndex = createIndex(bind);
 			ResultMatch *rm = new ResultMatch(bind);
 
-	//		if(termBoundIndex.first){
-	//			AtomTable* matchingTable=new AtomTable;
-	//			auto pair=deltaIndexMap.equal_range(termBoundIndex.second);
-	//			for(auto it=pair.first;it!=pair.second;it++)
-	//				matchingTable->insert(it->second);
-	//			computeFirstMatch(matchingTable,rm);
-	//			delete matchingTable;
-	//		}
-	//		else
+			if(termBoundIndex.first){
+				AtomTable* matchingTable=new AtomTable;
+				auto pair=deltaIndexMap.equal_range(termBoundIndex.second);
+				for(auto it=pair.first;it!=pair.second;it++)
+					matchingTable->insert(it->second);
+				computeFirstMatch(matchingTable,rm);
+				delete matchingTable;
+			}
+			else
 				//Search in facts for match
 				computeFirstMatch(delta,rm);
 				matches_id.insert({id,rm});
@@ -472,6 +600,7 @@ unsigned int SingleTermIndexAtomMultiMap::firstMatch(bool searchInDelta, Atom *t
 				return id;
 		}
 	}
+	//Search only in facts and no facts
 	else{
 		if(templateAtom->isGround()){
 			vector<unsigned int> bind;
@@ -486,7 +615,7 @@ unsigned int SingleTermIndexAtomMultiMap::firstMatch(bool searchInDelta, Atom *t
 			return id;
 		}
 		else{
-			// Hash the bind term, the variable term or term that contain variable term
+			// Hash the bind term, the variable term or term that contains the variable term
 			vector<unsigned int> bind;
 			pair<bool, index_object> termBoundIndex = createIndex(bind);
 			ResultMatch *rm = new ResultMatch(bind);

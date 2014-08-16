@@ -40,8 +40,6 @@ struct GroundAtom{
 		return HashVecInt::getHashVecIntFromConfig()->computeHash(atom->terms);
 	}
 
-	~GroundAtom(){delete atom;};
-
 };
 
 /// @brief This struct implements a comparator for ground atoms

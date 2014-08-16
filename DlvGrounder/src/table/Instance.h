@@ -133,15 +133,21 @@ public:
 	//Constructor for all the fields
 	IndexAtom(AtomTable* facts, AtomTable* nofacts, AtomTable* delta, Predicate *p) : facts(facts), nofacts(nofacts), delta(delta), predicate(p) {};
 	///This method implementation is demanded to sub-classes.
-	///It have to find all the matching facts and no facts and return just the first of those.
+	///It have to find all the matching atoms and return just the first of those.
 	///The returned integer will be used to get the other ones through nextMatch method @see nextMatch
 	virtual unsigned int firstMatch(bool searchInDelta, Atom *templateAtom, map_index_index& currentAssignment, bool& find)=0;
-	///This method is used to get the further matching facts and no facts one by one each time it is invoked.
+	///This method implementation is demanded to sub-classes.
+	///It is used to get the further matching atoms one by one each time it is invoked.
 	virtual void nextMatch(unsigned int id,Atom *templateAtom, map_index_index& currentAssignment, bool& find)=0;
-
-	virtual bool count(int table,GenericAtom* atom)=0;
+	///This method implementation is demanded to sub-classes.
+	///It determine whether the given atom is present in the specified table.
+	virtual bool count(int table,GenericAtom*& atom)=0;
+	///This method implementation is demanded to sub-classes.
+	///It present, t finds the given atom in the specified table.
 	virtual void find(int table,GenericAtom*& atom)=0;
-
+	///This method implementation is demanded to sub-classes.
+	///It is used to update the delta table for recursive predicates.
+	virtual void updateDelta(AtomTable* nextDelta)=0;
 	///Destructor
 	virtual ~IndexAtom() {};
 
@@ -184,9 +190,11 @@ public:
 	///Virtual method implementation
 	virtual void nextMatch(unsigned int id,Atom *templateAtom,map_index_index& currentAssignment, bool& find);
 	///Virtual method implementation
-	virtual bool count(int table,GenericAtom* atom);
+	virtual bool count(int table,GenericAtom*& atom);
 	///Virtual method implementation
 	virtual void find(int table,GenericAtom*& atom);
+	///Virtual method implementation
+	virtual void updateDelta(AtomTable* nextDelta){};
 	///Destructor
 	virtual ~SimpleIndexAtom() {};
 protected:
@@ -241,8 +249,8 @@ public:
 	///This method adds a no facts to the no facts table.
 	///Its truth value can be true or undefined, if it false it is not stored at all
 	bool addNoFact(GenericAtom*& atomUndef, bool truth) {
-		atomUndef->setFact(truth);
 		bool isFact=indexAtom->count(IndexAtom::FACTS,atomUndef);
+		atomUndef->setFact(truth);
 		if( isFact || !nofacts.insert(atomUndef).second){
 			// If the atom is not present, it is added. The temporary atom duplicate is deleted and the inserted atom is assigned.
 			GenericAtom* atomToDelete=atomUndef;
@@ -305,63 +313,50 @@ protected:
 
 };
 
+/*
+ * This class extends Instances, adding to it a delta, and next delta table.
+ * It is used to manage the instances of a recursive predicate in recursive rules.
+ */
 class InstancesDelta : public Instances {
 public:
 	InstancesDelta(index_object predicate,PredicateTable *pt) {this->predicate=predicate;this->predicateTable=pt;this->indexAtom=0;this->configureIndexAtom();}
 
-	///This method adds a no facts to the delta table.
-	///Its truth value can be true or undefined, if it false it is not stored at all
-	bool addDelta(GenericAtom*& atomUndef, bool truth) ;
+	///This method adds a no facts to the delta table if it is yet not present in the facts, no facts and delta tables.
+	///Its truth value can be true or undefined, if it false it is not stored at all.
+	bool addDelta(GenericAtom*& atomUndef, bool truth);
 
+	///This method adds a no facts to the next delta table if it is yet not present in the facts, no facts, delta and next delta tables.
+	///Its truth value can be true or undefined, if it false it is not stored at all.
 	bool addNextDelta(GenericAtom*& atomUndef, bool truth);
 
 	void moveNextDeltaInDelta(){
-//		print();
-//		cout<<endl;
 		if(delta.size()>0){
-//			indexAtom->updateDelta(); TODO
 			for(GenericAtom* atom: delta)
 				nofacts.insert(atom);
 			delta.clear();
 		}
 		if(nextDelta.size()>0){
+			indexAtom->updateDelta(&nextDelta);
 			for(GenericAtom* atom: nextDelta){
-//				indexAtom->addToIndexMapDelta(atom); TODO
 				delta.insert(atom);
 			}
 			nextDelta.clear();
 		}
 	}
 
-	///Printer method
-	void print(){
-		Instances::print();
-//		cout<<IdsManager::getStringStrip(IdsManager::PREDICATE_ID_MANAGER,predicate)<<" No Facts";
-//		for(GenericAtom*fact:nofacts){cout<<"\t";ClassicalLiteral::print(predicate,fact->terms,false,false); cout<<". ";}
-//		cout<<"\nDelta";
-//		for(GenericAtom*fact:delta){cout<<"\t";ClassicalLiteral::print(predicate,fact->terms,false,false); cout<<". ";}
-//		cout<<endl;
-	};
-
-	virtual ~InstancesDelta(){
-		for (auto it = delta.begin(); it != delta.end(); it++){
-			delete *it;
-		}
-		for (auto it = nextDelta.begin(); it != nextDelta.end(); it++){
-			delete *it;
-		}
-	};
+	virtual ~InstancesDelta();
 private:
-	/// The set of no facts, computed in the last iteration
+	/// The set of no facts, computed in the previous iteration
 	AtomTable delta;
-	/// The set of no facts, computed in the last iteration
+	/// The set of no facts, computed in the current iteration
 	AtomTable nextDelta;
 
+	// This method configure the indexing strategy.
 	virtual void configureIndexAtom();
 };
 
 /**
- * This class stores the instances for all the predicate
+ * This class stores the instances for all the predicate.
  */
 
 class InstancesTable {
@@ -424,6 +419,14 @@ public:
 	 * Calling this constructor subsumes that the indexing term is not set by the user
 	 */
 	SingleTermIndexAtom(AtomTable* facts, AtomTable* nofacts,Predicate *p) : SimpleIndexAtom(facts,nofacts,p), instantiateIndexMaps(false), positionOfIndexing(0), positionOfIndexingSetByUser(false){};
+	/**
+	 * Constructor
+	 * @param facts An AtomTable of facts
+	 * @param nofacts An AtomTable of no facts
+	 * @param delta An AtomTable of no facts containing the result of the previous grounding iteration
+	 * @param predicate The predicate corresponding to the facts and the no facts.
+	 * Calling this constructor subsumes that the indexing term is not set by the user
+	 */
 	SingleTermIndexAtom(AtomTable* facts, AtomTable* nofacts,AtomTable* delta,Predicate *p) : SimpleIndexAtom(facts,nofacts,delta,p), instantiateIndexMaps(false), positionOfIndexing(0), positionOfIndexingSetByUser(false){};
 	/**
 	 * Constructor
@@ -434,17 +437,34 @@ public:
 	 * Calling this constructor subsumes that the indexing term is set by the user
 	 */
 	SingleTermIndexAtom(AtomTable* facts, AtomTable* nofacts, int i, Predicate *p): SimpleIndexAtom(facts,nofacts,p), instantiateIndexMaps(false), positionOfIndexing(i), positionOfIndexingSetByUser(true){};
+	/**
+	 * Constructor
+	 * @param facts An AtomTable of facts
+	 * @param no facts An AtomTable of no facts
+	 * @param delta An AtomTable of no facts containing the result of the previous grounding iteration
+	 * @param i The position for the indexing term
+	 * @param predicate The predicate corresponding to the facts and the no facts.
+	 * Calling this constructor subsumes that the indexing term is set by the user
+	 */
 	SingleTermIndexAtom(AtomTable* facts, AtomTable* nofacts, AtomTable* delta, int i, Predicate *p): SimpleIndexAtom(facts,nofacts,delta,p), instantiateIndexMaps(false), positionOfIndexing(i), positionOfIndexingSetByUser(true){};
-
 	///Overload of firstMatch method
 	virtual unsigned int firstMatch(bool searchInDelta, Atom *templateAtom, map_index_index& currentAssignment, bool& find);
+	///Virtual method implementation
+	virtual void updateDelta(AtomTable* nextDelta);
+	///Virtual method implementation
+	virtual bool count(int table,GenericAtom*& atom);
+	///Virtual method implementation
+	virtual void find(int table,GenericAtom*& atom);
 	///Destructor
 	~SingleTermIndexAtom(){};
+
 private:
 	///Data structure for indexed facts
 	unordered_map<index_object,AtomTable> factsIndexMap;
 	///Data structure for indexed no facts
 	unordered_map<index_object,AtomTable> nofactsIndexMap;
+	///Data structure for indexed delta
+	unordered_map<index_object,AtomTable> deltaIndexMap;
 	///Determine whether the indexing has been filled in
 	bool instantiateIndexMaps;
 	///The position of the indexing term
@@ -454,11 +474,10 @@ private:
 
 	///This method fills in the indexing data structures
 	void initializeIndexMaps();
-	///This method determines which is the actual term corresponding to position given by the user,
-	///if no position is given it is used the first admissible term as indexing term
-//	void determineTermToBeIndexed(vec_pair_index_object& bound);
-	///This method carry out the indexing strategy, determining the indexing term with determineTermToBeIndexed method and then filling the
-	///data structures with initializeIndexMaps method
+
+	/// This method carry out the indexing strategy, determining the indexing term with which is the actual term
+	/// corresponding to position given by the user or if no position is given it is used the first admissible term as indexing term.
+	/// Then filling the data structures invoking the initializeIndexMaps method.
 	pair<bool, index_object> createIndex(vector<unsigned int>& bind);
 };
 
@@ -482,6 +501,14 @@ public:
 	 * Calling this constructor subsumes that the indexing term is not set by the user
 	 */
 	SingleTermIndexAtomMultiMap(AtomTable* facts, AtomTable* nofacts,Predicate *p) : SimpleIndexAtom(facts,nofacts,p), instantiateIndexMaps(false), positionOfIndexing(0),positionOfIndexingSetByUser(false){};
+	/**
+	 * Constructor
+	 * @param facts An AtomTable of facts
+	 * @param no facts An AtomTable of no facts
+	 * @param delta An AtomTable of no facts containing the result of the previous grounding iteration
+	 * @param predicate The predicate corresponding to the facts and the no facts.
+	 * Calling this constructor subsumes that the indexing term is not set by the user
+	 */
 	SingleTermIndexAtomMultiMap(AtomTable* facts, AtomTable* nofacts,AtomTable* delta,Predicate *p) : SimpleIndexAtom(facts,nofacts,delta,p), instantiateIndexMaps(false), positionOfIndexing(0),positionOfIndexingSetByUser(false){};
 	/**
 	 * Constructor
@@ -492,9 +519,20 @@ public:
 	 * Calling this constructor subsumes that the indexing term is set by the user
 	 */
 	SingleTermIndexAtomMultiMap(AtomTable* facts, AtomTable* nofacts, int i,Predicate *p): SimpleIndexAtom(facts,nofacts,p), instantiateIndexMaps(false), positionOfIndexing(i),positionOfIndexingSetByUser(true){};
+	/**
+	 * Constructor
+	 * @param facts An AtomTable of facts
+	 * @param no facts An AtomTable of no facts
+	 * @param delta An AtomTable of no facts containing the result of the previous grounding iteration
+	 * @param i The position for the indexing term
+	 * @param predicate The predicate corresponding to the facts and the no facts.
+	 * Calling this constructor subsumes that the indexing term is set by the user
+	 */
 	SingleTermIndexAtomMultiMap(AtomTable* facts, AtomTable* nofacts, AtomTable* delta, int i,Predicate *p): SimpleIndexAtom(facts,nofacts,delta,p), instantiateIndexMaps(false), positionOfIndexing(i),positionOfIndexingSetByUser(true){};
 	///Overload of firstMatch method
 	virtual unsigned int firstMatch(bool searchInDelta, Atom *templateAtom, map_index_index& currentAssignment, bool& find);
+	//Virtual method implementation
+	virtual void updateDelta(AtomTable* nextDelta);
 	///Destructor
 	~SingleTermIndexAtomMultiMap(){};
 
@@ -503,6 +541,8 @@ private:
 	unordered_multimap<index_object,GenericAtom*> factsIndexMap;
 	///Data structure for indexed no facts
 	unordered_multimap<index_object,GenericAtom*> nofactsIndexMap;
+	///Data structure for indexed delta
+	unordered_multimap<index_object,GenericAtom*> deltaIndexMap;
 	///Determine whether the indexing has been filled in
 	bool instantiateIndexMaps;
 	///The position of the indexing term
@@ -512,11 +552,10 @@ private:
 
 	///This method fills in the indexing data structures
 	void initializeIndexMaps();
-	///This method determines which is the actual term corresponding to position given by the user,
-	///if no position is given it is used the first admissible term as indexing term
-//	void determineTermToBeIndexed(vec_pair_index_object& bound);
-	///This method carry out the indexing strategy, determining the indexing term with determineTermToBeIndexed method and then filling the
-	///data structures with initializeIndexMaps method
+
+	/// This method carry out the indexing strategy, determining the indexing term with which is the actual term
+	/// corresponding to position given by the user or if no position is given it is used the first admissible term as indexing term.
+	/// Then filling the data structures invoking the initializeIndexMaps method.
 	pair<bool, index_object> createIndex(vector<unsigned int>& bind);
 };
 

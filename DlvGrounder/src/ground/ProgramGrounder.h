@@ -18,8 +18,6 @@
 
 using namespace std;
 
-typedef vector<unordered_set<index_object>> vector_set_index;
-
 ///This struct implements an hash function and an equality comparator for ground rules @see GroundRule
 struct hashRule {
 
@@ -81,11 +79,14 @@ public:
 
 	///This method executes the overall grounding process
 	void ground();
-	/// This method executes the grounding of a single recursive rule
+
+	/// This method executes the grounding of a rule
 	/// @param r The rule to be grounded
+	/// @parm isRecursive If the rule is recursive
+	/// @param firstIteraction If it is the first iteration or not (useful for recursive rules)
 	bool groundRule(Rule* r, bool isRecursive, bool firstIteraction);
 
-	///Printer method for
+	///Printer method
 	void print(){statementDependency->print();};
 
 	//Printer method for facts
@@ -106,14 +107,12 @@ private:
 	///The set of grounder rules
 	GroundedRules groundedRule;
 
-	/** This method determines the variables for each atom in the body of a rule.
-	 *
-	 * 	@param r The rule
-	 * 	@param variables The vector that will be filled in with variables variables for each atom.
-	 */
+	/// This method determines the variables for each atom in the body of a rule.
+	/// @param r The rule
+	///	@param variables The vector that will be filled in with variables for each atom.
 	void findBindVariablesRule(Rule *r,vector<unordered_set<index_object> >& variables);
 
-	/// Printer method for the grounded rules
+	/// Printer method for the grounded rules according to the given assignment
 	bool printGroundRule(Rule *r,map_index_index& var_assign,bool isRecursive,bool firstIteration);
 
 	///This method given an assignment for the variables return a partial ground atom of current_atom
@@ -122,6 +121,7 @@ private:
 	///This method removes the assigned values to bind variables from the given assignment
 	void removeBindValueInAssignment(unordered_set<index_object> bind_variables, map_index_index& var_assign);
 
+	///This method update the delta table according to the last iteration (useful for recursive rules)
 	void updateDelta(Rule* r);
 
 	// These are some printer methods used for debug purpose.

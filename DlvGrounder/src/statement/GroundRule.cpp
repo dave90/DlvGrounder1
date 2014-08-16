@@ -33,12 +33,15 @@ bool GroundRule::operator ==(const GroundRule& r) {
 }
 
 void GroundRule::print() {
-	unsigned int i=0;
-	for (auto atom:head) {
-		ClassicalLiteral::print(atom->predicate,atom->atom->terms,false,false);
-		if(i!=head.size()-1)
-			cout<<";";
-		i++;
+	if(head.size()>0){
+		unsigned int i=0;
+		for (auto atom:head) {
+			ClassicalLiteral::print(atom->predicate,atom->atom->terms,false,false);
+			if(i!=head.size()-1)
+				cout<<";";
+			i++;
+		}
+		if(body.size()==0) cout<<"."<<endl;
 	}
 	if(body.size()>0){
 		cout<<":-";
@@ -49,8 +52,8 @@ void GroundRule::print() {
 				cout<<";";
 			i++;
 		}
+		cout<<"."<<endl;
 	}
-	cout<<"."<<endl;
 }
 
 GroundRule::~GroundRule() {

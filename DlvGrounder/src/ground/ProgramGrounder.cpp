@@ -20,7 +20,7 @@ void ProgramGrounder::ground() {
 	//Create the dependency graph
 	statementDependency->createDependencyGraph(predicateTable);
 
-	// Create the component graph and compute an ordering among components
+	// Create the component graph and compute an ordering among components.
 	// Components' rules are classified as exit or recursive.
 	// An rule occurring in a component is recursive if there is a predicate belonging
 	// to the component in its positive body, otherwise it is said to be an exit rule.
@@ -31,32 +31,49 @@ void ProgramGrounder::ground() {
 	printFact();
 
 	Timer::getInstance()->start("Ground Rule");
-	//Ground each module according to the ordering
+	// Ground each module according to the ordering:
 	// For each component, each rule is either recursive or exit,
 	// Exit rules are grounded just once, while recursive rules are grounded until no more knowledge is derived
 	for(unsigned int component=0;component<exitRules.size();component++){
-//		cout<<component<<"  "<<exitRules[component].size()<<"  "<<recursiveRules[component].size()<<endl;
-		/// Grounding of exit rules
+
+#if DEBUG == 1
+		cout<<"Component: "<<component;
+		cout<<"\tExit rules: "<<exitRules[component].size();
+		cout<<"\tRecursive rules: "<<recursiveRules[component].size()<<endl;
+#endif
+
+		// Ground exit rules
 		for(Rule* r: exitRules[component])
 			groundRule(r,false,false);
 
+		// Ground recursive rules
 		if(recursiveRules[component].size()>0){
-	 		/// Grounding of recursive rules
 			bool finish=false;
 			bool firstIteration=true;
 			unsigned int n_rules=recursiveRules[component].size();
 
 			while(!finish && n_rules>0){
-//				cout<<endl<<"Iterazione: "<<firstIteration<<endl;
 				bool end=true;
+				// Since in the first iteration search is performed in facts and no facts tables,
+				// while in the next iteration search is performed in the delta table, it is needed
+				// to keep track if the current iteration is the first or not.
 				for(unsigned int i=0;i<n_rules;i++){
 					Rule* r=recursiveRules[component][i];
+					//If no more knowledge is derived the grounding of this component can stop
+#if DEBUG == 1
+					r->print();
+#endif
 					if(groundRule(r,firstIteration,true))
 						end=false;
 				}
+#if DEBUG == 1
+				cout<<"First Iteration: "<<firstIteration<<" Finish: "<<end<<endl;
+#endif
 				finish=end;
 				if(!firstIteration){
 					for(unsigned int i=0; i<n_rules;i++)
+						// Move the content of the delta table in the no fact table,
+						// and fill delta with the content of the next delta table.
 						updateDelta(recursiveRules[component][i]);
 				}
 				if(firstIteration) firstIteration=false;
@@ -93,7 +110,7 @@ bool ProgramGrounder::groundRule(Rule* r, bool firstIteraction, bool isRecursive
 	vector<unordered_set<index_object>> variables_atoms;
 	Atom *templateAtom=0;
 
-	//Determine bind value for each atoms
+	//Determine bind variables for each atoms
 	findBindVariablesRule(r,variables_atoms);
 
 #if DEBUG == 1
@@ -109,23 +126,22 @@ bool ProgramGrounder::groundRule(Rule* r, bool firstIteraction, bool isRecursive
 		negation=current_atom->isNegative();
 		bool firstMatch;
 		Instances * instance=instancesTable->getInstance(current_atom->getPredicate().second);
-
-		// Special case where must not call firstMatch or nextMatch
+//		instance->print();
+		// If the current atom is a built in or the instance table is null
+		// then firstMatch or nextMatch must not be invoked
 		if(current_atom->isBuiltIn() || instance==nullptr){
-			// If is builtIn ground builtIn and evaluate
-			// If there isn't instances the search fails (find equal false) and if isn't negated then the algoritm have to stop
-
 
 			firstMatch=true;
 			id_match.push_back(0);
 
-			// First check builtin because haven't an Instances
+			//  If it is a built in atom, ground it and evaluate it (Built in have not instance table, since they have not a predicate)
 			if(current_atom->isBuiltIn()){
 
 				Atom *groundBuiltIn=current_atom->ground(var_assign);
 				find=groundBuiltIn->evaluate();
 				delete groundBuiltIn;
 
+			// If there isn't instances the search fails (find equal false) and if isn't negated then the algorithm have to stop
 			}else if(instance==nullptr){
 
 				if(!negation)
@@ -136,28 +152,26 @@ bool ProgramGrounder::groundRule(Rule* r, bool firstIteraction, bool isRecursive
 			}
 
 		}else{
-
-
+			// Otherwise a search is made in instance in order to provide bind variables with a value
 			IndexAtom* indexingStrategy = instance->getIndex();
-
-
-			// Finally the bind variables are provided with a value
 
 			// Determine if it is needed to perform a first or next match
 			firstMatch=index_current_atom!=id_match.size()-1;
 
-			//According to the current assignment, set the values of the bound variables of the current atom
-			// Remove bind value in assignment
+			// Remove bind value in assignment (from the previous assignment)
 			removeBindValueInAssignment(variables_atoms[index_current_atom],var_assign);
 			if(templateAtom!=nullptr)delete templateAtom;
 			templateAtom=setBoundValue(current_atom,var_assign);
 
-			//Perform a first match and save the integer identifier returned, useful to perform further next matches
+			// Perform a first match and save the integer identifier returned, useful to perform further next matches
 			if(firstMatch){
 				unsigned int id=0;
+				// If the rule is recursive, then if it is the iteration the search is performed in the facts and no facts table,
+				// otherwise it is performed just in the delta table.
 				if(isRecursive)
 					id=indexingStrategy->firstMatch(!firstIteraction,templateAtom,var_assign,find);
 				else
+					// If the rule is an exit rule, then the search is performed in the facts and no facts table
 					id=indexingStrategy->firstMatch(false,templateAtom,var_assign,find);
 				id_match.push_back(id);
 
@@ -181,7 +195,7 @@ bool ProgramGrounder::groundRule(Rule* r, bool firstIteraction, bool isRecursive
 		Atom *literal=current_atom->ground(var_assign);
 		literal->print();
 		delete literal;
-		if( (find && !negation) | (!find && negation && firstMatch))
+		if( (find && !negation) || (!find && negation && firstMatch))
 			cout<<" MATCH!"<<endl;
 		else
 			cout<<" NO-MATCH!"<<endl;
@@ -195,7 +209,9 @@ bool ProgramGrounder::groundRule(Rule* r, bool firstIteraction, bool isRecursive
 
 			//If there is no more atom, a valid assignment is found and it is printed
 			if(index_current_atom+1==r->getSizeBody()){
-				bool added=printGroundRule(r,var_assign,true,firstIteraction);
+				// The method printGroundRule returns true if the ground rule derived from the current assignment was not derived before,
+				// in this case new knowledge is derived.
+				bool added=printGroundRule(r,var_assign,isRecursive,firstIteraction);
 				if(added) newKnowledge=true;
 
 				//If last atom is BuiltIn return to last atom no BuiltIn
@@ -227,7 +243,6 @@ bool ProgramGrounder::groundRule(Rule* r, bool firstIteraction, bool isRecursive
 
 			}
 		}
-		delete templateAtom;
 	}
 	return newKnowledge;
 }
@@ -313,7 +328,7 @@ bool ProgramGrounder::printGroundRule(Rule *r,map_index_index& var_assign,bool i
 			added=instancesTable->getInstance(predicate)->addNoFact(headAtom->atom,isTrue);
 
 		groundRule->addInHead(headAtom);
-		delete headAtom;
+
 		delete groundAtom;
 
 	}
