@@ -141,10 +141,14 @@ public:
 	virtual void nextMatch(unsigned int id,Atom *templateAtom, map_index_index& currentAssignment, bool& find)=0;
 	///This method implementation is demanded to sub-classes.
 	///It determine whether the given atom is present in the specified table.
-	virtual bool count(int table,GenericAtom*& atom)=0;
+	///@param table An integer that can be one among the constants FACTS, NOFACTS or DELTA
+	///@parm atom The atom to look for
+	virtual bool count(int table, GenericAtom*& atom)=0;
 	///This method implementation is demanded to sub-classes.
-	///It present, t finds the given atom in the specified table.
-	virtual void find(int table,GenericAtom*& atom)=0;
+	///It present, it finds the given atom in the specified table.
+	///@param table An integer that can be one among the constants FACTS, NOFACTS or DELTA
+	///@parm atom The atom to look for
+	virtual void find(int table, GenericAtom*& atom)=0;
 	///This method implementation is demanded to sub-classes.
 	///It is used to update the delta table for recursive predicates.
 	virtual void updateDelta(AtomTable* nextDelta)=0;
@@ -173,46 +177,6 @@ protected:
 	/// Return true if the genericAtom match with the template atom
 	/// Two atom match if a constant term are equal.
 	virtual bool match(GenericAtom *genericAtom,Atom *templateAtom);
-};
-
-/**
- * @brief This class is a basic and simple implementation of IndexAtom (@see IndexAtom)
- * @details Searching for match is performed over the whole tables of facts and non facts with a linear scan.
- */
-class SimpleIndexAtom: public IndexAtom {
-public:
-	///Constructor
-	SimpleIndexAtom(AtomTable* facts, AtomTable* nofacts,Predicate *p) : IndexAtom(facts,nofacts,p), counter(0), templateAtom(0), currentAssignment(0){};
-	///Constructor
-	SimpleIndexAtom(AtomTable* facts, AtomTable* nofacts, AtomTable* delta, Predicate *p) : IndexAtom(facts,nofacts,delta,p), counter(0), templateAtom(0), currentAssignment(0){};
-	///Virtual method implementation
-	virtual unsigned int firstMatch(bool searchInDelta, Atom *templateAtom, map_index_index& currentAssignment, bool& find);
-	///Virtual method implementation
-	virtual void nextMatch(unsigned int id,Atom *templateAtom,map_index_index& currentAssignment, bool& find);
-	///Virtual method implementation
-	virtual bool count(int table,GenericAtom*& atom);
-	///Virtual method implementation
-	virtual void find(int table,GenericAtom*& atom);
-	///Virtual method implementation
-	virtual void updateDelta(AtomTable* nextDelta){};
-	///Destructor
-	virtual ~SimpleIndexAtom() {};
-protected:
-	///The unordered map used to store the integer identifiers returned by the firstMach method
-	unordered_map<unsigned int, ResultMatch*> matches_id;
-	///The counter used to assign the integer identifiers returned by the firstMach method
-	unsigned int counter;
-	///Current templateAtom passed in firstMatch
-	Atom *templateAtom;
-	///Current assignment passed in firstMatch
-	map_index_index* currentAssignment;
-
-	///This method given an AtomTable computes the matching facts and nofacts and returns the first one of those
-	void computeFirstMatch(AtomTable* collection,ResultMatch* rm);
-	///This method invokes findIfAFactExists method if all the variables are bound, otherwise invokes the computeFirstMatch method
-	bool searchForFirstMatch(AtomTable* table,ResultMatch* rm);
-	///This method builds a ground atom using the bound variables and checks if it is true
-	virtual bool findIfExists(AtomTable* collection);
 };
 
 /**
@@ -286,8 +250,11 @@ public:
 	///Getter for the IndexAtom
 	IndexAtom* getIndex() {return indexAtom;};
 
+	///Virtual method @see InstancesDelta
 	virtual bool addDelta(GenericAtom*& atomUndef, bool truth) {return false;}
+	///Virtual method @see InstancesDelta
 	virtual bool addNextDelta(GenericAtom*& atomUndef, bool truth){return false;}
+	///Virtual method @see InstancesDelta
 	virtual void moveNextDeltaInDelta(){}
 
 	///Printer method
@@ -295,8 +262,6 @@ public:
 
 	///Destructor
 	virtual ~Instances();
-
-	virtual void configureIndexAtom();
 
 protected:
 	///The predicate
@@ -310,6 +275,8 @@ protected:
 	//The set of no facts, that are undefined atoms
 	AtomTable nofacts;
 
+	///This method configures the indexing strategy
+	virtual void configureIndexAtom();
 
 };
 
@@ -329,20 +296,9 @@ public:
 	///Its truth value can be true or undefined, if it false it is not stored at all.
 	bool addNextDelta(GenericAtom*& atomUndef, bool truth);
 
-	void moveNextDeltaInDelta(){
-		if(delta.size()>0){
-			for(GenericAtom* atom: delta)
-				nofacts.insert(atom);
-			delta.clear();
-		}
-		if(nextDelta.size()>0){
-			indexAtom->updateDelta(&nextDelta);
-			for(GenericAtom* atom: nextDelta){
-				delta.insert(atom);
-			}
-			nextDelta.clear();
-		}
-	}
+	///This method moves the content of the delta table in the no facts table,
+	///and then moves the content of the next delta table in the delta table.
+	void moveNextDeltaInDelta();
 
 	virtual ~InstancesDelta();
 private:
@@ -351,7 +307,7 @@ private:
 	/// The set of no facts, computed in the current iteration
 	AtomTable nextDelta;
 
-	// This method configure the indexing strategy.
+	// This method configures the indexing strategy.
 	virtual void configureIndexAtom();
 };
 
@@ -396,6 +352,46 @@ private:
 	PredicateTable* predicateTable;
 	///The map that stores all the Instances
 	unordered_map<index_object,Instances*> instanceTable;
+};
+
+/**
+ * @brief This class is a basic and simple implementation of IndexAtom (@see IndexAtom)
+ * @details Searching for match is performed over the whole tables of facts and non facts with a linear scan.
+ */
+class SimpleIndexAtom: public IndexAtom {
+public:
+	///Constructor
+	SimpleIndexAtom(AtomTable* facts, AtomTable* nofacts,Predicate *p) : IndexAtom(facts,nofacts,p), counter(0), templateAtom(0), currentAssignment(0){};
+	///Constructor
+	SimpleIndexAtom(AtomTable* facts, AtomTable* nofacts, AtomTable* delta, Predicate *p) : IndexAtom(facts,nofacts,delta,p), counter(0), templateAtom(0), currentAssignment(0){};
+	///Virtual method implementation
+	virtual unsigned int firstMatch(bool searchInDelta, Atom *templateAtom, map_index_index& currentAssignment, bool& find);
+	///Virtual method implementation
+	virtual void nextMatch(unsigned int id,Atom *templateAtom,map_index_index& currentAssignment, bool& find);
+	///Virtual method implementation
+	virtual bool count(int table,GenericAtom*& atom);
+	///Virtual method implementation
+	virtual void find(int table,GenericAtom*& atom);
+	///Virtual method implementation
+	virtual void updateDelta(AtomTable* nextDelta){};
+	///Destructor
+	virtual ~SimpleIndexAtom() {};
+protected:
+	///The unordered map used to store the integer identifiers returned by the firstMach method
+	unordered_map<unsigned int, ResultMatch*> matches_id;
+	///The counter used to assign the integer identifiers returned by the firstMach method
+	unsigned int counter;
+	///Current templateAtom passed in firstMatch
+	Atom *templateAtom;
+	///Current assignment passed in firstMatch
+	map_index_index* currentAssignment;
+
+	///This method given an AtomTable computes the matching facts and nofacts and returns the first one of those
+	void computeFirstMatch(AtomTable* collection,ResultMatch* rm);
+	///This method invokes findIfAFactExists method if all the variables are bound, otherwise invokes the computeFirstMatch method
+	bool searchForFirstMatch(AtomTable* table,ResultMatch* rm);
+	///This method builds a ground atom using the bound variables and checks if it is true
+	virtual bool findIfExists(AtomTable* collection);
 };
 
 /**

@@ -1,11 +1,24 @@
-a(X1,Y1,X2,Y2) :- edge(X1,Y1) , edge(X2,Y2), X1=X2+1, Y1=Y2+1.
-a(X1,Y1,X2,Y2) :- edge(X1,Y1) , edge(X2,Y2), X1=X2*2, Y1=Y2*2.
-a(X1,Y1,X2,Y2) :- edge(X1,Y1) , edge(X2,Y2), X1=X2-3, Y1=Y2-3.
-a(X1,Y1,X2,Y2) :- edge(X1,Y1) , edge(X2,Y2), X1=X2/4, Y1=Y2/4.
-a(X1+1,Y1+1) :- edge(X1,Y1), X1!=Y1.
-a(X1+1,Y1+1) :- edge(X1,Y1), X1<Y1, edge(X2,Y2), X1!=Y2.
-a(X1+1,Y1+1) :- edge(X1,Y1), Y1>=X1, edge(X2,Y2), X1=X2+1.
-a(X1+1,Y1+1) :- edge(X1,Y1), Y1>X1, edge(X2,Y2), X1=X2+1,edge(X1,Y2).
+%a(X1,Y1,X2,Y2) :- edge(X1,Y1) , edge(X2,Y2), X1=X2+1, Y1=Y2+1.
+%a(X1,Y1,X2,Y2) :- edge(X1,Y1) , edge(X2,Y2), X1=X2*2, Y1=Y2*2.
+%a(X1,Y1,X2,Y2) :- edge(X1,Y1) , edge(X2,Y2), X1=X2-3, Y1=Y2-3.
+%a(X1,Y1,X2,Y2) :- edge(X1,Y1) , edge(X2,Y2), X1=X2/4, Y1=Y2/4.
+%a(X1+1,Y1+1) :- edge(X1,Y1), X1!=Y1.
+%a(X1+1,Y1+1) :- edge(X1,Y1), X1<Y1, edge(X2,Y2), X1!=Y2.
+%a(X1+1,Y1+1) :- edge(X1,Y1), Y1>=X1, edge(X2,Y2), X1=X2+1.
+%a(X1+1,Y1+1) :- edge(X1,Y1), Y1>X1, edge(X2,Y2), X1=X2+1,edge(X1,Y2).
 
+% Tipologia di test falliti:
 
+%%% Test 1 (stesse variabili, le equal var)
+b(X,X,Y):-value(X,X,Y).
+value(0,1,2).
+value(1,1,2).
+value(2,0,2).
+%%%%%%%%%%%%%%
 
+%%% Test 2 (funzioni + arith)
+a(X,Y):-link(f(X),f(X+2)),link(f(Y),f(Y+3)).
+
+link(f(1),f(3)).
+link(f(1),f(4)).
+%%%%%%%%%%%%%%
