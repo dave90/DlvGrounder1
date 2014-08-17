@@ -24,9 +24,9 @@ void Instances::configureIndexAtom(){
 		break;
 	case (IndexType::MULTIMAP):
 		if(Config::getInstance()->getIndexingTerm(predicate).second)
-				indexAtom = new SingleTermIndexAtomMultiMap(&facts,&nofacts,Config::getInstance()->getIndexingTerm(predicate).first,predicatePointer);
+			indexAtom = new SingleTermIndexAtomMultiMap(&facts,&nofacts,Config::getInstance()->getIndexingTerm(predicate).first,predicatePointer);
 		else
-				indexAtom = new SingleTermIndexAtomMultiMap(&facts,&nofacts,predicatePointer);
+			indexAtom = new SingleTermIndexAtomMultiMap(&facts,&nofacts,predicatePointer);
 		break;
 	default:
 		indexAtom = new SimpleIndexAtom(&facts,&nofacts,predicatePointer);
