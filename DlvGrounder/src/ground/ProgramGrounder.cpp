@@ -244,6 +244,8 @@ bool ProgramGrounder::groundRule(Rule* r, bool firstIteraction, bool isRecursive
 			}
 		}
 	}
+	delete templateAtom;
+
 	return newKnowledge;
 }
 
