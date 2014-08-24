@@ -506,7 +506,8 @@ bool sortRules (Rule* r1,Rule* r2) {
 
 }
 
-void StatementDependency::createComponentGraphAndComputeAnOrdering(vector<vector<Rule*>>& exitRules, vector<vector<Rule*>>& recursiveRules) {
+void StatementDependency::createComponentGraphAndComputeAnOrdering(vector<vector<Rule*>>& exitRules, vector<vector<Rule*>>& recursiveRules,
+		vector<unordered_set<index_object>>& componentPredicateInHead) {
 	/// Create the component graph
 	compGraph.createComponent(depGraph, statementAtomMapping);
 
@@ -524,9 +525,10 @@ void StatementDependency::createComponentGraphAndComputeAnOrdering(vector<vector
 	for(auto comp: ordering){
 		exitRules.push_back(vector<Rule*>());
 		recursiveRules.push_back(vector<Rule*>());
+		componentPredicateInHead.push_back(unordered_set<index_object>());
+
 		for (auto pair: components)
 			if(pair.second==comp){
-
 				/// Get all the rules for the current component
 				index_object predicate=pair.first;
 				statementAtomMapping.getRuleInHead(predicate,componentsRules);
@@ -535,16 +537,21 @@ void StatementDependency::createComponentGraphAndComputeAnOrdering(vector<vector
 					if(addedRules.insert(r).second){
 						if(checkIfExitRule(comp,r))
 							exitRules[i].push_back(r);
-						else
+						else{
 							recursiveRules[i].push_back(r);
+							componentPredicateInHead[i].insert(r->getPredicateInHead().begin(),r->getPredicateInHead().end());
+						}
 					}
 				}
 				componentsRules.clear();
 			}
 		i++;
 	}
+
+
 	for(unsigned int i=0;i<recursiveRules.size();i++)
 		sort(recursiveRules[i].begin(),recursiveRules[i].end(),sortRules);
+
 }
 
 

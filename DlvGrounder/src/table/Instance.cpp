@@ -14,41 +14,6 @@
 
 void Instances::configureIndexAtom(){
 	Predicate *predicatePointer=predicateTable->getPredicate(predicate);
-	///Properly set the IndexAtom type
-	switch (Config::getInstance()->getIndexType()) {
-	case (IndexType::MAP):
-		if(Config::getInstance()->getIndexingTerm(predicate).second)
-			indexAtom = new SingleTermIndexAtom(&facts,&nofacts,Config::getInstance()->getIndexingTerm(predicate).first,predicatePointer);
-		else
-			indexAtom = new SingleTermIndexAtom(&facts,&nofacts,predicatePointer);
-		break;
-	case (IndexType::MULTIMAP):
-		if(Config::getInstance()->getIndexingTerm(predicate).second)
-			indexAtom = new SingleTermIndexAtomMultiMap(&facts,&nofacts,Config::getInstance()->getIndexingTerm(predicate).first,predicatePointer);
-		else
-			indexAtom = new SingleTermIndexAtomMultiMap(&facts,&nofacts,predicatePointer);
-		break;
-	default:
-		indexAtom = new SimpleIndexAtom(&facts,&nofacts,predicatePointer);
-		break;
-	}
-}
-
-
-Instances::~Instances() {
-	for (auto it = facts.begin(); it != facts.end(); it++){
-		delete *it;
-	}
-	for (auto it = nofacts.begin(); it != nofacts.end(); it++){
-		delete *it;
-	}
-	delete (indexAtom);
-}
-
-/****************************************************** INSTANCES DELTA ***************************************************/
-
-void InstancesDelta::configureIndexAtom(){
-	Predicate *predicatePointer=predicateTable->getPredicate(predicate);
 	// Properly set the IndexAtom type
 	switch (Config::getInstance()->getIndexType()) {
 	case (IndexType::MAP):
@@ -69,7 +34,24 @@ void InstancesDelta::configureIndexAtom(){
 	}
 }
 
-void InstancesDelta::moveNextDeltaInDelta(){
+
+Instances::~Instances() {
+	for (auto it = facts.begin(); it != facts.end(); it++){
+		delete *it;
+	}
+	for (auto it = nofacts.begin(); it != nofacts.end(); it++){
+		delete *it;
+	}
+	for (auto it = delta.begin(); it != delta.end(); it++){
+			delete *it;
+	}
+	for (auto it = nextDelta.begin(); it != nextDelta.end(); it++){
+		delete *it;
+	}
+	delete (indexAtom);
+}
+
+void Instances::moveNextDeltaInDelta(){
 	if(delta.size()>0){
 		for(GenericAtom* atom: delta)
 			nofacts.insert(atom);
@@ -84,7 +66,7 @@ void InstancesDelta::moveNextDeltaInDelta(){
 	}
 }
 
-bool InstancesDelta::addDelta(GenericAtom*& atomUndef) {
+bool Instances::addDelta(GenericAtom*& atomUndef) {
 	// If the atom is not present, it is added. The temporary atom duplicate is deleted and the inserted atom is assigned.
 	bool isInFacts=indexAtom->count(IndexAtom::FACTS,atomUndef);
 	if(isInFacts){
@@ -104,7 +86,7 @@ bool InstancesDelta::addDelta(GenericAtom*& atomUndef) {
 	return true;
 }
 
-bool InstancesDelta::addNextDelta(GenericAtom*& atomUndef) {
+bool Instances::addNextDelta(GenericAtom*& atomUndef) {
 		bool isInFacts=indexAtom->count(IndexAtom::FACTS,atomUndef);
 		if(isInFacts){
 			indexAtom->find(IndexAtom::FACTS,atomUndef);
@@ -129,15 +111,6 @@ bool InstancesDelta::addNextDelta(GenericAtom*& atomUndef) {
 		}
 		return true;
 	}
-
-InstancesDelta::~InstancesDelta(){
-	for (auto it = delta.begin(); it != delta.end(); it++){
-		delete *it;
-	}
-	for (auto it = nextDelta.begin(); it != nextDelta.end(); it++){
-		delete *it;
-	}
-}
 
 /****************************************************** INSTANCES TABLE***************************************************/
 
@@ -252,13 +225,11 @@ unsigned int SimpleIndexAtom::firstMatch(bool searchInDelta,Atom *templateAtom,m
 
 	//Search only in delta for match
 	if(searchInDelta){
-		if(delta!=nullptr){
-			//Search in delta for match
-			if(searchForFirstMatch(delta,rm)){
-				find=true;
-				matches_id.insert({id,rm});
-				return id;
-			}
+		//Search in delta for match
+		if(searchForFirstMatch(delta,rm)){
+			find=true;
+			matches_id.insert({id,rm});
+			return id;
 		}
 	}
 	else{

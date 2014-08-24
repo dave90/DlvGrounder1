@@ -84,7 +84,7 @@ public:
 	/// @param r The rule to be grounded
 	/// @parm isRecursive If the rule is recursive
 	/// @param firstIteraction If it is the first iteration or not (useful for recursive rules)
-	bool groundRule(Rule* r, bool isRecursive, bool firstIteraction);
+	bool groundRule(Rule* r, bool isRecursive, bool firstIteraction,const unordered_set<index_object>* predicateInHead);
 
 	///Printer method
 	void print(){statementDependency->print();};

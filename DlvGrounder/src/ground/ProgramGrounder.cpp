@@ -26,7 +26,8 @@ void ProgramGrounder::ground() {
 	// to the component in its positive body, otherwise it is said to be an exit rule.
 	vector<vector<Rule*>> exitRules;
 	vector<vector<Rule*>> recursiveRules;
-	statementDependency->createComponentGraphAndComputeAnOrdering(exitRules,recursiveRules);
+	vector<unordered_set<index_object>> componentPredicateInHead;
+	statementDependency->createComponentGraphAndComputeAnOrdering(exitRules,recursiveRules,componentPredicateInHead);
 
 	printFact();
 
@@ -44,7 +45,7 @@ void ProgramGrounder::ground() {
 
 		// Ground exit rules
 		for(Rule* r: exitRules[component])
-			groundRule(r,false,false);
+			groundRule(r,false,false,nullptr);
 
 		// Ground recursive rules
 		if(recursiveRules[component].size()>0){
@@ -63,7 +64,7 @@ void ProgramGrounder::ground() {
 #if DEBUG == 1
 					r->print();
 #endif
-					if(groundRule(r,firstIteration,true))
+					if(groundRule(r,firstIteration,true,&componentPredicateInHead[component]))
 						end=false;
 				}
 #if DEBUG == 1
@@ -82,7 +83,7 @@ void ProgramGrounder::ground() {
 	}
 	// Constraints are grounded at the end
 	for(unsigned int i=0;i<statementDependency->getConstraintSize();i++)
-		groundRule(statementDependency->getConstraint(i),false,false);
+		groundRule(statementDependency->getConstraint(i),false,false,nullptr);
 	Timer::getInstance()->end();
 }
 
@@ -94,7 +95,7 @@ void ProgramGrounder::updateDelta(Rule* r){
 	}
 }
 
-bool ProgramGrounder::groundRule(Rule* r, bool firstIteraction, bool isRecursive){
+bool ProgramGrounder::groundRule(Rule* r, bool firstIteraction, bool isRecursive, const unordered_set<index_object>* predicateInHead){
 	//The map of the assignment, map each variables to its assigned value
 	map_index_index var_assign;
 	list<unsigned int> id_match(0);
@@ -126,10 +127,10 @@ bool ProgramGrounder::groundRule(Rule* r, bool firstIteraction, bool isRecursive
 
 	while(!finish){
 		Atom *current_atom=*current_atom_it;
+		index_object current_predicate=current_atom->getPredicate().second;
 		negation=current_atom->isNegative();
 		bool firstMatch;
-		Instances * instance=instancesTable->getInstance(current_atom->getPredicate().second);
-//		instance->print();
+		Instances * instance=instancesTable->getInstance(current_predicate);
 		// If the current atom is a built in or the instance table is null
 		// then firstMatch or nextMatch must not be invoked
 		if(current_atom->isBuiltIn() || instance==nullptr){
@@ -171,8 +172,9 @@ bool ProgramGrounder::groundRule(Rule* r, bool firstIteraction, bool isRecursive
 				unsigned int id=0;
 				// If the rule is recursive, then if it is the iteration the search is performed in the facts and no facts table,
 				// otherwise it is performed just in the delta table.
-				if(isRecursive)
+				if(isRecursive && predicateInHead->count(current_predicate)){
 					id=indexingStrategy->firstMatch(!firstIteraction,templateAtom,var_assign,find);
+				}
 				else
 					// If the rule is an exit rule, then the search is performed in the facts and no facts table
 					id=indexingStrategy->firstMatch(false,templateAtom,var_assign,find);
@@ -324,7 +326,7 @@ bool ProgramGrounder::printGroundRule(Rule *r,map_index_index& var_assign,bool i
 		else headAtom=new GroundAtom(predicate,terms,isTrue);
 
 		//Check if the atom is already grounded, if not it is added to no facts
-		instancesTable->addInstance(predicate,isRecursive);
+		instancesTable->addInstance(predicate);
 		//Update its truth value FIXME in rule duplicate terms
 		if(isRecursive){
 			bool add=false;
@@ -374,10 +376,12 @@ bool ProgramGrounder::printGroundRule(Rule *r,map_index_index& var_assign,bool i
 		}
 	}
 
+
+
 	if((added && groundRule->getSizeHead()==1) // If is a new fact
 			|| (groundRule->getSizeHead()>1 && groundedRule.addRule(groundRule)) // If is a disjunctive rule
 			|| (groundRule->getSizeHead()==0 && groundedRule.addRule(groundRule))) // If is a constraint
-	 	groundRule->print();
+		groundRule->print();
 	return added;
 }
 

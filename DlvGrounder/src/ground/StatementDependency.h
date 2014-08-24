@@ -154,9 +154,11 @@ public:
 	/// It also classifies the rules for each components as exit or recursive.
 	/// An rule occurring in a component is recursive if there is a predicate belonging
 	/// to the component in its positive body, otherwise it is said to be an exit rule.
-	/// @param exitRules A vector containing at the ith position a vector containing the exit rules for the ith components
-	/// @param recursiveRules A vector containing at the ith position a vector containing the recursive rules for the ith components
-	void createComponentGraphAndComputeAnOrdering(vector<vector<Rule*>>& exitRules, vector<vector<Rule*>>& recursiveRules);
+	/// @param exitRules A vector containing at the ith position a vector containing the exit rules for the ith component
+	/// @param recursiveRules A vector containing at the ith position a vector containing the recursive rules for the ith component
+	/// @param componentPredicateInHead A vector containing at the ith position an unordered set containing
+	/// the predicates in the head of the recursive rules of the ith component
+	void createComponentGraphAndComputeAnOrdering(vector<vector<Rule*>>& exitRules, vector<vector<Rule*>>& recursiveRules,vector<unordered_set<index_object>>& componentPredicateInHead);
 
 	/// This method returns the number of rules in the program
 	unsigned int getRulesSize(){return rules.size();}

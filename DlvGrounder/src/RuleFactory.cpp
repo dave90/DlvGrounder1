@@ -27,7 +27,7 @@ void RuleFactory::addFact(Atom *fact) {
 	// Add a Instances in instaces table and then add the fact
 
 	index_object predicate=fact->getPredicate().second;
-	instancesTable->addInstance(predicate,true);
+	instancesTable->addInstance(predicate);
 	instancesTable->getInstance(predicate)->addFact(fact->getTerms());
 	delete fact;
 }

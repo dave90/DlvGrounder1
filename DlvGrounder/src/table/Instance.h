@@ -128,8 +128,6 @@ struct ResultMatch {
 
 class IndexAtom {
 public:
-	//Constructor for all the fields except delta
-	IndexAtom(AtomTable* facts, AtomTable* nofacts, Predicate *p) : facts(facts), nofacts(nofacts), delta(nullptr), predicate(p) {};
 	//Constructor for all the fields
 	IndexAtom(AtomTable* facts, AtomTable* nofacts, AtomTable* delta, Predicate *p) : facts(facts), nofacts(nofacts), delta(delta), predicate(p) {};
 	///This method implementation is demanded to sub-classes.
@@ -187,8 +185,6 @@ class Instances {
 public:
 	///Constructor
 	Instances(index_object predicate,PredicateTable *pt): predicate(predicate),predicateTable(pt),indexAtom(0) {this->configureIndexAtom();}
-
-	Instances(){indexAtom=0;predicate=0;predicateTable=0;};
 
 	bool addFact(const vector<index_object>& terms) {
 		GenericAtom* atomFact=new GenericAtom(terms);
@@ -266,44 +262,6 @@ public:
 	///Getter for the IndexAtom
 	IndexAtom* getIndex() {return indexAtom;};
 
-	///Virtual method @see InstancesDelta
-	virtual bool addDelta(GenericAtom*& atomUndef) {return false;}
-	///Virtual method @see InstancesDelta
-	virtual bool addNextDelta(GenericAtom*& atomUndef){return false;}
-	///Virtual method @see InstancesDelta
-	virtual void moveNextDeltaInDelta(){}
-
-	///Printer method
-	virtual void print(){for(GenericAtom*fact:facts){ClassicalLiteral::print(predicate,fact->terms,false,false); cout<<"."<<endl;}}
-
-	///Destructor
-	virtual ~Instances();
-
-protected:
-	///The predicate
-	index_object predicate;
-	///A pointer to the predicate table
-	PredicateTable* predicateTable;
-	///The IndexAtom to set the indexing strategy
-	IndexAtom* indexAtom;
-	///The set of facts
-	AtomTable facts;
-	//The set of no facts, that are undefined atoms
-	AtomTable nofacts;
-
-	///This method configures the indexing strategy
-	virtual void configureIndexAtom();
-
-};
-
-/*
- * This class extends Instances, adding to it a delta, and next delta table.
- * It is used to manage the instances of a recursive predicate in recursive rules.
- */
-class InstancesDelta : public Instances {
-public:
-	InstancesDelta(index_object predicate,PredicateTable *pt) {this->predicate=predicate;this->predicateTable=pt;this->indexAtom=0;this->configureIndexAtom();}
-
 	///This method adds a no facts to the delta table if it is yet not present in the facts, no facts and delta tables.
 	///Its truth value can be true or undefined, if it false it is not stored at all.
 	bool addDelta(GenericAtom*& atomUndef);
@@ -316,15 +274,31 @@ public:
 	///and then moves the content of the next delta table in the delta table.
 	void moveNextDeltaInDelta();
 
-	virtual ~InstancesDelta();
+	///Printer method
+	void print(){for(GenericAtom*fact:facts){ClassicalLiteral::print(predicate,fact->terms,false,false); cout<<"."<<endl;}}
+
+	///Destructor
+	~Instances();
+
 private:
+	///The predicate
+	index_object predicate;
+	///A pointer to the predicate table
+	PredicateTable* predicateTable;
+	///The IndexAtom to set the indexing strategy
+	IndexAtom* indexAtom;
+	///The set of facts
+	AtomTable facts;
+	//The set of no facts, that are undefined atoms
+	AtomTable nofacts;
 	/// The set of no facts, computed in the previous iteration
 	AtomTable delta;
 	/// The set of no facts, computed in the current iteration
 	AtomTable nextDelta;
 
-	// This method configures the indexing strategy.
-	virtual void configureIndexAtom();
+	///This method configures the indexing strategy
+	void configureIndexAtom();
+
 };
 
 /**
@@ -337,13 +311,9 @@ public:
 	InstancesTable(PredicateTable *pt):predicateTable(pt){}
 
 	///This method adds an Instance for a predicate
-	void addInstance(index_object i, bool recursive) {
+	void addInstance(index_object i) {
 		if(!instanceTable.count(i)){
-			Instances* is;
-			if(recursive)
-				is = new InstancesDelta(i,predicateTable);
-			else
-				is = new Instances(i,predicateTable);
+			Instances* is = new Instances(i,predicateTable);
 			instanceTable.insert({i,is});
 		}
 	};
@@ -376,8 +346,6 @@ private:
  */
 class SimpleIndexAtom: public IndexAtom {
 public:
-	///Constructor
-	SimpleIndexAtom(AtomTable* facts, AtomTable* nofacts,Predicate *p) : IndexAtom(facts,nofacts,p), counter(0), templateAtom(0), currentAssignment(0){};
 	///Constructor
 	SimpleIndexAtom(AtomTable* facts, AtomTable* nofacts, AtomTable* delta, Predicate *p) : IndexAtom(facts,nofacts,delta,p), counter(0), templateAtom(0), currentAssignment(0){};
 	///Virtual method implementation
@@ -426,29 +394,12 @@ public:
 	/**
 	 * Constructor
 	 * @param facts An AtomTable of facts
-	 * @param no facts An AtomTable of no facts
-	 * @param predicate The predicate corresponding to the facts and the no facts.
-	 * Calling this constructor subsumes that the indexing term is not set by the user
-	 */
-	SingleTermIndexAtom(AtomTable* facts, AtomTable* nofacts,Predicate *p) : SimpleIndexAtom(facts,nofacts,p), instantiateIndexMaps(false), positionOfIndexing(0), positionOfIndexingSetByUser(false){};
-	/**
-	 * Constructor
-	 * @param facts An AtomTable of facts
 	 * @param nofacts An AtomTable of no facts
 	 * @param delta An AtomTable of no facts containing the result of the previous grounding iteration
 	 * @param predicate The predicate corresponding to the facts and the no facts.
 	 * Calling this constructor subsumes that the indexing term is not set by the user
 	 */
 	SingleTermIndexAtom(AtomTable* facts, AtomTable* nofacts,AtomTable* delta,Predicate *p) : SimpleIndexAtom(facts,nofacts,delta,p), instantiateIndexMaps(false), positionOfIndexing(0), positionOfIndexingSetByUser(false){};
-	/**
-	 * Constructor
-	 * @param facts An AtomTable of facts
-	 * @param no facts An AtomTable of no facts
-	 * @param i The position for the indexing term
-	 * @param predicate The predicate corresponding to the facts and the no facts.
-	 * Calling this constructor subsumes that the indexing term is set by the user
-	 */
-	SingleTermIndexAtom(AtomTable* facts, AtomTable* nofacts, int i, Predicate *p): SimpleIndexAtom(facts,nofacts,p), instantiateIndexMaps(false), positionOfIndexing(i), positionOfIndexingSetByUser(true){};
 	/**
 	 * Constructor
 	 * @param facts An AtomTable of facts
@@ -509,28 +460,11 @@ public:
 	 * Constructor
 	 * @param facts An AtomTable of facts
 	 * @param no facts An AtomTable of no facts
-	 * @param predicate The predicate corresponding to the facts and the no facts.
-	 * Calling this constructor subsumes that the indexing term is not set by the user
-	 */
-	SingleTermIndexAtomMultiMap(AtomTable* facts, AtomTable* nofacts,Predicate *p) : SimpleIndexAtom(facts,nofacts,p), instantiateIndexMaps(false), positionOfIndexing(0),positionOfIndexingSetByUser(false){};
-	/**
-	 * Constructor
-	 * @param facts An AtomTable of facts
-	 * @param no facts An AtomTable of no facts
 	 * @param delta An AtomTable of no facts containing the result of the previous grounding iteration
 	 * @param predicate The predicate corresponding to the facts and the no facts.
 	 * Calling this constructor subsumes that the indexing term is not set by the user
 	 */
 	SingleTermIndexAtomMultiMap(AtomTable* facts, AtomTable* nofacts,AtomTable* delta,Predicate *p) : SimpleIndexAtom(facts,nofacts,delta,p), instantiateIndexMaps(false), positionOfIndexing(0),positionOfIndexingSetByUser(false){};
-	/**
-	 * Constructor
-	 * @param facts An AtomTable of facts
-	 * @param no facts An AtomTable of no facts
-	 * @param i The position for the indexing term
-	 * @param predicate The predicate corresponding to the facts and the no facts.
-	 * Calling this constructor subsumes that the indexing term is set by the user
-	 */
-	SingleTermIndexAtomMultiMap(AtomTable* facts, AtomTable* nofacts, int i,Predicate *p): SimpleIndexAtom(facts,nofacts,p), instantiateIndexMaps(false), positionOfIndexing(i),positionOfIndexingSetByUser(true){};
 	/**
 	 * Constructor
 	 * @param facts An AtomTable of facts
