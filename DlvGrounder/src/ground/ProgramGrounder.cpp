@@ -344,7 +344,7 @@ bool ProgramGrounder::printGroundRule(Rule *r,map_index_index& var_assign,bool i
 
 	}
 
-	if(r->isAStrongConstraint() || r->getSizeBody()>0){
+	if(r->isAStrongConstraint() || r->getSizeHead()>1){
 
 		//Ground the body if it is a strong constraint, FIXME currently just classical literals are considered
 		for (auto body_it = r->getBeginBody(); body_it != r->getEndBody(); body_it++) {
