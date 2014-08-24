@@ -374,7 +374,9 @@ bool ProgramGrounder::printGroundRule(Rule *r,map_index_index& var_assign,bool i
 		}
 	}
 
-	if((added && groundRule->getSizeHead()==1) || (groundRule->getSizeHead()>1 && groundedRule.addRule(groundRule)))
+	if((added && groundRule->getSizeHead()==1) // If is a new fact
+			|| (groundRule->getSizeHead()>1 && groundedRule.addRule(groundRule)) // If is a disjunctive rule
+			|| (groundRule->getSizeHead()==0 && groundedRule.addRule(groundRule))) // If is a constraint
 	 	groundRule->print();
 	return added;
 }
