@@ -32,7 +32,7 @@ struct GenericAtom{
 	GenericAtom(const vector<index_object>& t): terms(move(t)){}
 
 	virtual bool isFact() {return true;}
-	virtual void setFact(bool isFact){}
+	virtual void setFact(bool isFact){};
 
 	inline bool operator==(const GenericAtom& genericAtom) const{
 		if(terms.size()!=genericAtom.terms.size())
@@ -202,24 +202,40 @@ public:
 	///This method looks for a generic atom in both the facts and no facts tables @see GenericAtom
 	GenericAtom* getGenericAtom(vector<index_object>& terms) {
 		GenericAtom* atomFact=new GenericAtom(terms);
-		auto it=facts.find(atomFact);
-		if(it==facts.end())
-			it=nofacts.find(atomFact);
 
-		delete atomFact;
-		return *it;
+		bool isFact=indexAtom->count(IndexAtom::FACTS,atomFact);
+		if(isFact){
+			indexAtom->find(IndexAtom::FACTS,atomFact);
+			return atomFact;
+		}
+
+		bool isNoFact=indexAtom->count(IndexAtom::NOFACTS,atomFact);
+		if(isNoFact){
+			indexAtom->find(IndexAtom::NOFACTS,atomFact);
+			return atomFact;
+		}
+
+		bool isDelta=indexAtom->count(IndexAtom::DELTA,atomFact);
+		if(isDelta){
+			indexAtom->find(IndexAtom::DELTA,atomFact);
+			return atomFact;
+		}
+
+		return 0;
 	};
 
 	///This method adds a no facts to the no facts table.
 	///Its truth value can be true or undefined, if it false it is not stored at all
-	bool addNoFact(GenericAtom*& atomUndef, bool truth) {
+	bool addNoFact(GenericAtom*& atomUndef) {
 		bool isFact=indexAtom->count(IndexAtom::FACTS,atomUndef);
-		atomUndef->setFact(truth);
-		if( isFact || !nofacts.insert(atomUndef).second){
+		if(isFact){
+			// If the atom is a facts, it is returned. The temporary atom duplicate is deleted within the find method.
+			indexAtom->find(IndexAtom::FACTS,atomUndef);
+			return false;
+		}
+		if(!nofacts.insert(atomUndef).second){
 			// If the atom is not present, it is added. The temporary atom duplicate is deleted and the inserted atom is assigned.
-			GenericAtom* atomToDelete=atomUndef;
-			atomUndef=*nofacts.find(atomToDelete);
-			delete atomToDelete;
+			indexAtom->find(IndexAtom::NOFACTS,atomUndef);
 			return false;
 		}
 		return true;
@@ -251,9 +267,9 @@ public:
 	IndexAtom* getIndex() {return indexAtom;};
 
 	///Virtual method @see InstancesDelta
-	virtual bool addDelta(GenericAtom*& atomUndef, bool truth) {return false;}
+	virtual bool addDelta(GenericAtom*& atomUndef) {return false;}
 	///Virtual method @see InstancesDelta
-	virtual bool addNextDelta(GenericAtom*& atomUndef, bool truth){return false;}
+	virtual bool addNextDelta(GenericAtom*& atomUndef){return false;}
 	///Virtual method @see InstancesDelta
 	virtual void moveNextDeltaInDelta(){}
 
@@ -290,11 +306,11 @@ public:
 
 	///This method adds a no facts to the delta table if it is yet not present in the facts, no facts and delta tables.
 	///Its truth value can be true or undefined, if it false it is not stored at all.
-	bool addDelta(GenericAtom*& atomUndef, bool truth);
+	bool addDelta(GenericAtom*& atomUndef);
 
 	///This method adds a no facts to the next delta table if it is yet not present in the facts, no facts, delta and next delta tables.
 	///Its truth value can be true or undefined, if it false it is not stored at all.
-	bool addNextDelta(GenericAtom*& atomUndef, bool truth);
+	bool addNextDelta(GenericAtom*& atomUndef);
 
 	///This method moves the content of the delta table in the no facts table,
 	///and then moves the content of the next delta table in the delta table.

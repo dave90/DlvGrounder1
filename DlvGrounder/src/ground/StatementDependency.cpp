@@ -519,6 +519,7 @@ void StatementDependency::createComponentGraphAndComputeAnOrdering(vector<vector
 	int i=0;
 
 	unordered_map<index_object, unsigned int> components=compGraph.getComponent();
+	unordered_set<Rule*> addedRules;
 
 	for(auto comp: ordering){
 		exitRules.push_back(vector<Rule*>());
@@ -531,13 +532,14 @@ void StatementDependency::createComponentGraphAndComputeAnOrdering(vector<vector
 				statementAtomMapping.getRuleInHead(predicate,componentsRules);
 				/// For each rule classify it as exit or recursive
 				for(Rule* r: componentsRules){
-					if(checkIfExitRule(comp,r))
-						exitRules[i].push_back(r);
-					else
-						recursiveRules[i].push_back(r);
+					if(addedRules.insert(r).second){
+						if(checkIfExitRule(comp,r))
+							exitRules[i].push_back(r);
+						else
+							recursiveRules[i].push_back(r);
+					}
 				}
 				componentsRules.clear();
-
 			}
 		i++;
 	}

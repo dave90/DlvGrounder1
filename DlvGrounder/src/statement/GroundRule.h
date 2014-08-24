@@ -19,11 +19,15 @@ using namespace std;
 struct GroundAtom{
 
 	index_object predicate;
-	GenericAtom *atom;
+	GenericAtom* atom;
 
 	GroundAtom(index_object predicate,GenericAtom* atom): predicate(predicate), atom(atom){}
 	GroundAtom(index_object predicate,vector<index_object>& terms): predicate(predicate) {
 		atom=new GenericAtom(terms);
+	}
+
+	GroundAtom(index_object predicate,vector<index_object>& terms,bool truth): predicate(predicate) {
+		atom=new AtomUndef(terms,truth);
 	}
 
 	/// @brief Equality of ground atoms

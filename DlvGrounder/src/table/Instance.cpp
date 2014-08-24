@@ -84,7 +84,7 @@ void InstancesDelta::moveNextDeltaInDelta(){
 	}
 }
 
-bool InstancesDelta::addDelta(GenericAtom*& atomUndef, bool truth) {
+bool InstancesDelta::addDelta(GenericAtom*& atomUndef) {
 	// If the atom is not present, it is added. The temporary atom duplicate is deleted and the inserted atom is assigned.
 	bool isInFacts=indexAtom->count(IndexAtom::FACTS,atomUndef);
 	if(isInFacts){
@@ -104,7 +104,7 @@ bool InstancesDelta::addDelta(GenericAtom*& atomUndef, bool truth) {
 	return true;
 }
 
-bool InstancesDelta::addNextDelta(GenericAtom*& atomUndef, bool truth) {
+bool InstancesDelta::addNextDelta(GenericAtom*& atomUndef) {
 		bool isInFacts=indexAtom->count(IndexAtom::FACTS,atomUndef);
 		if(isInFacts){
 			indexAtom->find(IndexAtom::FACTS,atomUndef);

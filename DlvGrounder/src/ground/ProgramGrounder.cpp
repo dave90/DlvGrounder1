@@ -308,7 +308,7 @@ bool ProgramGrounder::printGroundRule(Rule *r,map_index_index& var_assign,bool i
 	bool added=false;
 
 	//If in the head of rule there is no disjunction, then it is added in the no facts as true
-	bool isTrue = r->getSizeHead()==0;
+	bool isTrue = r->getSizeHead()==1;
 
 	//Ground the atom in the head
 	for (auto head_it = r->getBeginHead(); head_it != r->getEndHead(); head_it++) {
@@ -319,18 +319,24 @@ bool ProgramGrounder::printGroundRule(Rule *r,map_index_index& var_assign,bool i
 		vector<index_object> terms=groundAtom->getTerms();
 
 
-		GroundAtom *headAtom=new GroundAtom(predicate,terms);
+		GroundAtom *headAtom;
+		if(isTrue) headAtom=new GroundAtom(predicate,terms);
+		else headAtom=new GroundAtom(predicate,terms,isTrue);
+
 		//Check if the atom is already grounded, if not it is added to no facts
 		instancesTable->addInstance(predicate,isRecursive);
 		//Update its truth value FIXME in rule duplicate terms
 		if(isRecursive){
+			bool add=false;
 			if(firstIteration)
-				added=instancesTable->getInstance(predicate)->addDelta(headAtom->atom,isTrue);
+				add=instancesTable->getInstance(predicate)->addDelta(headAtom->atom);
 			else
-				added=instancesTable->getInstance(predicate)->addNextDelta(headAtom->atom,isTrue);
+				add=instancesTable->getInstance(predicate)->addNextDelta(headAtom->atom);
+			if(add)
+				added=true;
 		}
 		else
-			added=instancesTable->getInstance(predicate)->addNoFact(headAtom->atom,isTrue);
+			added=instancesTable->getInstance(predicate)->addNoFact(headAtom->atom);
 
 		groundRule->addInHead(headAtom);
 
@@ -338,7 +344,7 @@ bool ProgramGrounder::printGroundRule(Rule *r,map_index_index& var_assign,bool i
 
 	}
 
-	if(r->isAStrongConstraint()){
+	if(r->isAStrongConstraint() || r->getSizeBody()>0){
 
 		//Ground the body if it is a strong constraint, FIXME currently just classical literals are considered
 		for (auto body_it = r->getBeginBody(); body_it != r->getEndBody(); body_it++) {
@@ -364,11 +370,11 @@ bool ProgramGrounder::printGroundRule(Rule *r,map_index_index& var_assign,bool i
 
 			GenericAtom *atom=instancesTable->getInstance(predicate)->getGenericAtom(terms);
 
-			groundRule->addInBody(new GroundAtom(predicate,atom));
+			if(atom!=0 && !atom->isFact()) groundRule->addInBody(new GroundAtom(predicate,atom));
 		}
 	}
 
-	if(groundedRule.addRule(groundRule))
+	if((added && groundRule->getSizeHead()==1) || (groundRule->getSizeHead()>1 && groundedRule.addRule(groundRule)))
 	 	groundRule->print();
 	return added;
 }
