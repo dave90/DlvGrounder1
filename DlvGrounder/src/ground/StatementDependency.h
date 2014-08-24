@@ -163,6 +163,11 @@ public:
 	/// Getter for the ith rule
 	Rule* getRule(int i) {return rules[i];};
 
+	/// This method returns the number of constraints in the program
+	unsigned int getConstraintSize(){return constraints.size();}
+	/// Getter for the ith constraint
+	Rule* getConstraint(int i) {return constraints[i];};
+
 	///Printer method
 	void print();
 
@@ -177,6 +182,8 @@ private:
 	StatementAtomMapping statementAtomMapping;
 	/// The vector of rules composing the program
 	vector<Rule*> rules;
+	/// The vector of contraints composing the program
+	vector<Rule*> constraints;
 	/// This method checks if a rule is a recursive rule or an exit rule
 	/// An rule occurring in a component is recursive if there is a predicate belonging
 	/// to the component in its positive body, otherwise it is said to be an exit rule.

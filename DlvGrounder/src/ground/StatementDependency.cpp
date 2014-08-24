@@ -477,9 +477,12 @@ void ComponentGraph::computeAllPossibleOrdering(vector<vector<unsigned int>>& co
  */
 
 void StatementDependency::addRuleMapping(Rule* r) {
-	statementAtomMapping.addRule(r);
-	rules.push_back(r);
-	depGraph.addInDependency(r);
+	if(r->isAStrongConstraint()) constraints.push_back(r);
+	else{
+		statementAtomMapping.addRule(r);
+		rules.push_back(r);
+		depGraph.addInDependency(r);
+	}
 }
 
 void StatementDependency::createDependencyGraph(PredicateTable* pt) {

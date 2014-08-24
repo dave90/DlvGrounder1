@@ -80,6 +80,9 @@ void ProgramGrounder::ground() {
 			}
 		}
 	}
+	// Constraints are grounded at the end
+	for(unsigned int i=0;i<statementDependency->getConstraintSize();i++)
+		groundRule(statementDependency->getConstraint(i),false,false);
 	Timer::getInstance()->end();
 }
 
