@@ -150,17 +150,28 @@ bool IndexAtom::match(GenericAtom *genericAtom,Atom *templateAtom){
 
 /****************************************************** SIMPLE INDEX ATOM ***************************************************/
 
-bool SimpleIndexAtom::findIfExists(AtomTable* collection) {
+bool SimpleIndexAtom::findIfExists(AtomTable* collection,bool& isUndef) {
 	if(collection->size()==0)return false;
 
 	//Compute the hash of the atom
 	GenericAtom *genAtom=new GenericAtom(templateAtom->getTerms());
 
 	//Look for the atom
-	bool find = collection->count(genAtom);
+	bool find=false;
+	auto atomIterator = collection->find(genAtom);
+
+	if(atomIterator!=collection->end()){
+		find=true;
+		isUndef=!(*atomIterator)->isFact();
+	}
 
 	delete genAtom;
 	return find;
+}
+
+bool SimpleIndexAtom::findIfExists(AtomTable* collection) {
+	bool isUndef;
+	return findIfExists(collection,isUndef);
 }
 
 bool SimpleIndexAtom::count(int table,GenericAtom*& atom) {
@@ -304,6 +315,41 @@ void SimpleIndexAtom::nextMatch(unsigned int id,Atom *templateAtom,map_index_ind
 
 	find=true;
 	rm->result.erase(it_last_atom);
+}
+
+void SimpleIndexAtom::findIfExist(bool searchInDelta,Atom *templateAtom,bool& find,bool& isUndef) {
+	this->templateAtom=templateAtom;
+
+	//Search only in delta for match
+	if(searchInDelta){
+		cout<<"FIND FACT"<<endl;
+		//Search in delta for match
+		if(findIfExists(delta,isUndef)){
+			find=true;
+			return ;
+		}
+	}
+	else{
+		//Search in facts for match
+		if(findIfExists(facts,isUndef)){
+			find=true;
+			return ;
+		}
+
+		//If it is EDB and not terms are bound, search also in no facts for match
+		if(!predicate->isEdb()){
+			if(findIfExists(nofacts,isUndef)){
+				find=true;
+				return ;
+			}
+		}
+	}
+
+	find=false;
+
+	return ;
+
+
 }
 
 /****************************************************** SINGLE TERM INDEX ATOM ***************************************************/

@@ -133,7 +133,7 @@ bool ProgramGrounder::groundRule(Rule* r, bool firstIteraction, bool isRecursive
 		Instances * instance=instancesTable->getInstance(current_predicate);
 		// If the current atom is a built in or the instance table is null
 		// then firstMatch or nextMatch must not be invoked
-		if(current_atom->isBuiltIn() || instance==nullptr){
+		if(current_atom->isBuiltIn() || instance==nullptr || negation){
 
 			firstMatch=true;
 			id_match.push_back(0);
@@ -151,7 +151,29 @@ bool ProgramGrounder::groundRule(Rule* r, bool firstIteraction, bool isRecursive
 				if(!negation)
 					return false;
 				else
-					find=false;
+					find=true;
+
+			}else if(negation){
+
+				if(templateAtom!=nullptr)delete templateAtom;
+				templateAtom=setBoundValue(current_atom,var_assign);
+				bool isUndef;
+
+				//FIXME Negative DELTA??????????????????????????????
+				bool searchDelta;
+				// If the rule is recursive, then if it is the iteration the search is performed in the facts and no facts table,
+				// otherwise it is performed just in the delta table.
+				if(isRecursive && predicateInHead->count(current_predicate)){
+					searchDelta=!firstIteraction;
+				}
+				else
+					// If the rule is an exit rule, then the search is performed in the facts and no facts table
+					searchDelta=false;
+
+				instance->getIndex()->findIfExist(searchDelta,templateAtom,find,isUndef);
+				//If exist and is fact then fail the search(find equal false) else if not exist
+				// or is undefined atom then continue
+				find=!(find && !isUndef);
 
 			}
 
@@ -170,23 +192,21 @@ bool ProgramGrounder::groundRule(Rule* r, bool firstIteraction, bool isRecursive
 			// Perform a first match and save the integer identifier returned, useful to perform further next matches
 			if(firstMatch){
 				unsigned int id=0;
+				bool searchDelta;
 				// If the rule is recursive, then if it is the iteration the search is performed in the facts and no facts table,
 				// otherwise it is performed just in the delta table.
-				if(isRecursive && predicateInHead->count(current_predicate)){
-					id=indexingStrategy->firstMatch(!firstIteraction,templateAtom,var_assign,find);
-				}
+				if(isRecursive && predicateInHead->count(current_predicate))
+					searchDelta=!firstIteraction;
 				else
 					// If the rule is an exit rule, then the search is performed in the facts and no facts table
-					id=indexingStrategy->firstMatch(false,templateAtom,var_assign,find);
+					searchDelta=false;
+
+				id=indexingStrategy->firstMatch(searchDelta,templateAtom,var_assign,find);
 				id_match.push_back(id);
 
 			}else{
-				//If the atom is not negated perform a next match
-				if(!negation){
-					unsigned int id=id_match.back();
-					indexingStrategy->nextMatch(id,templateAtom,var_assign,find);
-				}
-
+				unsigned int id=id_match.back();
+				indexingStrategy->nextMatch(id,templateAtom,var_assign,find);
 			}
 
 		}
@@ -200,7 +220,7 @@ bool ProgramGrounder::groundRule(Rule* r, bool firstIteraction, bool isRecursive
 		Atom *literal=current_atom->ground(var_assign);
 		literal->print();
 		delete literal;
-		if( (find && !negation) || (!find && negation && firstMatch))
+		if (find)
 			cout<<" MATCH!"<<endl;
 		else
 			cout<<" NO-MATCH!"<<endl;
@@ -210,7 +230,7 @@ bool ProgramGrounder::groundRule(Rule* r, bool firstIteraction, bool isRecursive
 		// If a match is found and the atom is not negated or
 		// if no match is found, but the atom is negated, so it was performed first match on it
 		// insert the bind variables returned values in the current assignment
-		if( (find && !negation) || (!find && negation && firstMatch)){
+		if( find ){
 
 			//If there is no more atom, a valid assignment is found and it is printed
 			if(index_current_atom+1==r->getSizeBody()){

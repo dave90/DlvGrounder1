@@ -138,6 +138,9 @@ public:
 	///It is used to get the further matching atoms one by one each time it is invoked.
 	virtual void nextMatch(unsigned int id,Atom *templateAtom, map_index_index& currentAssignment, bool& find)=0;
 	///This method implementation is demanded to sub-classes.
+	/// It have to find if exist the templateAtom, that have to be ground
+	virtual void findIfExist(bool searchInDelta,Atom *templateAtom, bool& find,bool& isUndef)=0;
+	///This method implementation is demanded to sub-classes.
 	///It determine whether the given atom is present in the specified table.
 	///@param table An integer that can be one among the constants FACTS, NOFACTS or DELTA
 	///@parm atom The atom to look for
@@ -353,6 +356,8 @@ public:
 	///Virtual method implementation
 	virtual void nextMatch(unsigned int id,Atom *templateAtom,map_index_index& currentAssignment, bool& find);
 	///Virtual method implementation
+	virtual void findIfExist(bool searchInDelta,Atom *templateAtom, bool& find,bool& isUndef);
+	///Virtual method implementation
 	virtual bool count(int table,GenericAtom*& atom);
 	///Virtual method implementation
 	virtual void find(int table,GenericAtom*& atom);
@@ -374,6 +379,8 @@ protected:
 	void computeFirstMatch(AtomTable* collection,ResultMatch* rm);
 	///This method invokes findIfAFactExists method if all the variables are bound, otherwise invokes the computeFirstMatch method
 	bool searchForFirstMatch(AtomTable* table,ResultMatch* rm);
+	///This method builds a ground atom using the bound variables , checks if it is true and return if is undefined or a fact
+	virtual bool findIfExists(AtomTable* collection,bool& isUndef);
 	///This method builds a ground atom using the bound variables and checks if it is true
 	virtual bool findIfExists(AtomTable* collection);
 };
