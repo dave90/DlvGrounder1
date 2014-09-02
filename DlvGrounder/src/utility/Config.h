@@ -11,6 +11,7 @@
 #include <string>
 #include <cstring>
 #include <unordered_map>
+#include "../atom/Predicate.h"
 
 #include "IndexDefinition.h"
 
@@ -101,13 +102,10 @@ public:
 	///Getter for the indexing preferences
 	const string& getIndexingPreferences() const {return indexingPreferences;}
 	///Setter for the indexing preferences
-	void setIndexingPreferences(const string& indexingPreferences) {this->indexingPreferences = indexingPreferences;}
-
-	///This method configures the indexing strategies for each predicate provided by the user
-	void configureIndexingMap();
+	void setIndexingPreferences(const string& indexingPreferences) {this->indexingPreferences = indexingPreferences; this->configureIndexingStrategies();}
 
 	///This method, given a predicate, returns the corresponding position of the indexing term
-	pair<unsigned int,bool> getIndexingTerm(index_object predicate);
+	pair<unsigned int,bool> getIndexingTerm(const string& predicate);
 
 private:
 	///Default Constructor
@@ -134,10 +132,13 @@ private:
 	///Whether the rules have to be printed
 	bool printRules;
 
-	///The string whit the indexing preference
+	///The string whit the indexing preference set
 	string indexingPreferences;
 	///The map containing the mapping between a predicate and the position of its indexing term
-	unordered_map<index_object, unsigned int> indexingMap;
+	unordered_map<string, unsigned int> indexingMap;
+
+	///This method configures the indexing strategies for each predicate provided by the user
+	void configureIndexingStrategies();
 
 	///The name of the output file for the dependency graph
 	string fileGraph;

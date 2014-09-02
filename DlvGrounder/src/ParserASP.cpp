@@ -438,8 +438,6 @@ int main(int argc, char* argv[]) {
 
 		}
 
-		Config::getInstance()->configureIndexingMap();
-
 		delete str;
 		ProgramGrounder grounder(client::builder->getPredicateTable(),
 				client::builder->getInstanceTable(), client::builder->getStatementDependency());

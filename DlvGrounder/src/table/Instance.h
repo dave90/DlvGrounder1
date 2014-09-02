@@ -404,19 +404,8 @@ public:
 	 * @param nofacts An AtomTable of no facts
 	 * @param delta An AtomTable of no facts containing the result of the previous grounding iteration
 	 * @param predicate The predicate corresponding to the facts and the no facts.
-	 * Calling this constructor subsumes that the indexing term is not set by the user
 	 */
 	SingleTermIndexAtom(AtomTable* facts, AtomTable* nofacts,AtomTable* delta,Predicate *p) : SimpleIndexAtom(facts,nofacts,delta,p), instantiateIndexMaps(false), positionOfIndexing(0), positionOfIndexingSetByUser(false){};
-	/**
-	 * Constructor
-	 * @param facts An AtomTable of facts
-	 * @param no facts An AtomTable of no facts
-	 * @param delta An AtomTable of no facts containing the result of the previous grounding iteration
-	 * @param i The position for the indexing term
-	 * @param predicate The predicate corresponding to the facts and the no facts.
-	 * Calling this constructor subsumes that the indexing term is set by the user
-	 */
-	SingleTermIndexAtom(AtomTable* facts, AtomTable* nofacts, AtomTable* delta, int i, Predicate *p): SimpleIndexAtom(facts,nofacts,delta,p), instantiateIndexMaps(false), positionOfIndexing(i), positionOfIndexingSetByUser(true){};
 	///Overload of firstMatch method
 	virtual unsigned int firstMatch(bool searchInDelta, Atom *templateAtom, map_index_index& currentAssignment, bool& find);
 	///Virtual method implementation
@@ -469,19 +458,8 @@ public:
 	 * @param no facts An AtomTable of no facts
 	 * @param delta An AtomTable of no facts containing the result of the previous grounding iteration
 	 * @param predicate The predicate corresponding to the facts and the no facts.
-	 * Calling this constructor subsumes that the indexing term is not set by the user
 	 */
 	SingleTermIndexAtomMultiMap(AtomTable* facts, AtomTable* nofacts,AtomTable* delta,Predicate *p) : SimpleIndexAtom(facts,nofacts,delta,p), instantiateIndexMaps(false), positionOfIndexing(0),positionOfIndexingSetByUser(false){};
-	/**
-	 * Constructor
-	 * @param facts An AtomTable of facts
-	 * @param no facts An AtomTable of no facts
-	 * @param delta An AtomTable of no facts containing the result of the previous grounding iteration
-	 * @param i The position for the indexing term
-	 * @param predicate The predicate corresponding to the facts and the no facts.
-	 * Calling this constructor subsumes that the indexing term is set by the user
-	 */
-	SingleTermIndexAtomMultiMap(AtomTable* facts, AtomTable* nofacts, AtomTable* delta, int i,Predicate *p): SimpleIndexAtom(facts,nofacts,delta,p), instantiateIndexMaps(false), positionOfIndexing(i),positionOfIndexingSetByUser(true){};
 	///Overload of firstMatch method
 	virtual unsigned int firstMatch(bool searchInDelta, Atom *templateAtom, map_index_index& currentAssignment, bool& find);
 	//Virtual method implementation

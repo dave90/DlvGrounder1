@@ -92,8 +92,9 @@ public:
 
 	//Find the Index with the given name
 	pair_long_bool findIndex(string& name){
-		if(hashStringId.left.find(name)!=hashStringId.left.end())
-			return {hashStringId.left.find(name)->second,true};
+		auto it = hashStringId.left.find(name);
+		if(it!=hashStringId.left.end())
+			return {it->second,true};
 		return {0,false};
 	}
 

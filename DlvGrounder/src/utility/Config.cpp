@@ -59,13 +59,13 @@ void Config::setIndexType(string indexType) {
 	}
 }
 
-pair<unsigned int,bool> Config::getIndexingTerm(index_object predicate){
-	if(this->indexingMap.count(predicate))
+pair<unsigned int,bool> Config::getIndexingTerm(const string& predicate){
+	if(indexingMap.count(predicate))
 		return {indexingMap[predicate],true};
 	return {0,false};
 }
 
-void Config::configureIndexingMap(){
+void Config::configureIndexingStrategies(){
 
 	// Split the string indexingPreferences and
 	// fill in the map with the indexing strategies for the specified
@@ -77,10 +77,7 @@ void Config::configureIndexingMap(){
 		{
 			vector<string> pair_pred_term;
 			boost::split(pair_pred_term, segment, boost::is_any_of("="));
-			pair_long_bool predIndex=IdsManager::getLongIndex(IdsManager::PREDICATE_ID_MANAGER,pair_pred_term[0]);
-			if(predIndex.second){
-				indexingMap.insert({predIndex.first,boost::lexical_cast<unsigned int>(pair_pred_term[1])});
-			}
+			indexingMap.insert({pair_pred_term[0],boost::lexical_cast<unsigned int>(pair_pred_term[1])});
 		}
 	}
 

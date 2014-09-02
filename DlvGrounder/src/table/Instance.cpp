@@ -17,16 +17,10 @@ void Instances::configureIndexAtom(){
 	// Properly set the IndexAtom type
 	switch (Config::getInstance()->getIndexType()) {
 	case (IndexType::MAP):
-		if(Config::getInstance()->getIndexingTerm(predicate).second)
-			indexAtom = new SingleTermIndexAtom(&facts,&nofacts,&delta,Config::getInstance()->getIndexingTerm(predicate).first,predicatePointer);
-		else
-			indexAtom = new SingleTermIndexAtom(&facts,&nofacts,&delta,predicatePointer);
+		indexAtom = new SingleTermIndexAtom(&facts,&nofacts,&delta,predicatePointer);
 		break;
 	case (IndexType::MULTIMAP):
-		if(Config::getInstance()->getIndexingTerm(predicate).second)
-				indexAtom = new SingleTermIndexAtomMultiMap(&facts,&nofacts,&delta,Config::getInstance()->getIndexingTerm(predicate).first,predicatePointer);
-		else
-				indexAtom = new SingleTermIndexAtomMultiMap(&facts,&nofacts,&delta,predicatePointer);
+		indexAtom = new SingleTermIndexAtomMultiMap(&facts,&nofacts,&delta,predicatePointer);
 		break;
 	default:
 		indexAtom = new SimpleIndexAtom(&facts,&nofacts,&delta,predicatePointer);
@@ -460,6 +454,11 @@ void SingleTermIndexAtom::updateDelta(AtomTable* nextDelta) {
 pair<bool, index_object> SingleTermIndexAtom::createIndex(vector<unsigned int>& bind) {
 	// Compute the bind variables, determine the indexing term and fill the facts and no facts maps if not yet filled
 	pair<bool, index_object> termBoundIndex( { false, 0 });
+	if(!positionOfIndexingSetByUser){
+		pair<unsigned int,bool> p = Config::getInstance()->getIndexingTerm(this->predicate->getName());
+		positionOfIndexingSetByUser=p.second;
+		positionOfIndexing=p.first;
+	}
 	for(unsigned int i=0;i<templateAtom->getTermsSize();i++){
 		Term* t=TermTable::getInstance()->getTerm(templateAtom->getTerm(i).second);
 		if(t->isVariable())
@@ -469,10 +468,10 @@ pair<bool, index_object> SingleTermIndexAtom::createIndex(vector<unsigned int>& 
 			positionOfIndexingSetByUser = true;
 		}
 		if(positionOfIndexingSetByUser && i == positionOfIndexing && t->isConstant()) {
-				termBoundIndex.first = true;
-				termBoundIndex.second = t->getIndex();
-				if (!instantiateIndexMaps)
-					initializeIndexMaps();
+			termBoundIndex.first = true;
+			termBoundIndex.second = t->getIndex();
+			if (!instantiateIndexMaps)
+				initializeIndexMaps();
 		}
 	}
 	return termBoundIndex;
@@ -600,6 +599,11 @@ void SingleTermIndexAtomMultiMap::updateDelta(AtomTable* nextDelta) {
 pair<bool, index_object> SingleTermIndexAtomMultiMap::createIndex(vector<unsigned int>& bind) {
 	// Compute the bind variables, determine the indexing term and fill the facts and no facts maps if not yet filled
 	pair<bool, index_object> termBoundIndex( { false, 0 });
+	if(!positionOfIndexingSetByUser){
+		pair<unsigned int,bool> p = Config::getInstance()->getIndexingTerm(this->predicate->getName());
+		positionOfIndexingSetByUser=p.second;
+		positionOfIndexing=p.first;
+	}
 	for(unsigned int i=0;i<templateAtom->getTermsSize();i++){
 		Term* t=TermTable::getInstance()->getTerm(templateAtom->getTerm(i).second);
 		if(t->isVariable())
@@ -609,10 +613,10 @@ pair<bool, index_object> SingleTermIndexAtomMultiMap::createIndex(vector<unsigne
 			positionOfIndexingSetByUser = true;
 		}
 		if(positionOfIndexingSetByUser && i == positionOfIndexing && t->isConstant()) {
-				termBoundIndex.first = true;
-				termBoundIndex.second = t->getIndex();
-				if (!instantiateIndexMaps)
-					initializeIndexMaps();
+			termBoundIndex.first = true;
+			termBoundIndex.second = t->getIndex();
+			if (!instantiateIndexMaps)
+				initializeIndexMaps();
 		}
 	}
 	return termBoundIndex;
