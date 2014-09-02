@@ -110,6 +110,7 @@ bool ProgramGrounder::groundRule(Rule* r, bool firstIteraction, bool isRecursive
 	bool find=false;
 	bool negation=false;
 
+
 	// Contain for each atom the set of variables
 	vector<unordered_set<index_object>> variables_atoms;
 	Atom *templateAtom=0;
@@ -131,6 +132,8 @@ bool ProgramGrounder::groundRule(Rule* r, bool firstIteraction, bool isRecursive
 		negation=current_atom->isNegative();
 		bool firstMatch;
 		Instances * instance=instancesTable->getInstance(current_predicate);
+		bool searchDelta=isRecursive && predicateInHead->count(current_predicate) && !firstIteraction;
+
 		// If the current atom is a built in or the instance table is null
 		// then firstMatch or nextMatch must not be invoked
 		if(current_atom->isBuiltIn() || instance==nullptr || negation){
@@ -159,18 +162,6 @@ bool ProgramGrounder::groundRule(Rule* r, bool firstIteraction, bool isRecursive
 				templateAtom=setBoundValue(current_atom,var_assign);
 				bool isUndef;
 
-				//FIXME Negative DELTA??????????????????????????????
-				// searchDelta=isRecursive && predicateInHead->count(current_predicate) && !firstIteraction
-				bool searchDelta;
-				// If the rule is recursive, then if it is the iteration the search is performed in the facts and no facts table,
-				// otherwise it is performed just in the delta table.
-				if(isRecursive && predicateInHead->count(current_predicate)){
-					searchDelta=!firstIteraction;
-				}
-				else
-					// If the rule is an exit rule, then the search is performed in the facts and no facts table
-					searchDelta=false;
-
 				instance->getIndex()->findIfExist(searchDelta,templateAtom,find,isUndef);
 				//If exist and is fact then fail the search(find equal false) else if not exist
 				// or is undefined atom then continue
@@ -193,14 +184,7 @@ bool ProgramGrounder::groundRule(Rule* r, bool firstIteraction, bool isRecursive
 			// Perform a first match and save the integer identifier returned, useful to perform further next matches
 			if(firstMatch){
 				unsigned int id=0;
-				bool searchDelta;
-				// If the rule is recursive, then if it is the iteration the search is performed in the facts and no facts table,
-				// otherwise it is performed just in the delta table.
-				if(isRecursive && predicateInHead->count(current_predicate))
-					searchDelta=!firstIteraction;
-				else
-					// If the rule is an exit rule, then the search is performed in the facts and no facts table
-					searchDelta=false;
+
 
 				id=indexingStrategy->firstMatch(searchDelta,templateAtom,var_assign,find);
 				id_match.push_back(id);
