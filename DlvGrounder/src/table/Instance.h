@@ -220,7 +220,7 @@ public:
 			return atomFact;
 		}
 
-		return 0;
+	return 0;
 	};
 
 	///This method adds a no facts to the no facts table.

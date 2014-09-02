@@ -27,7 +27,8 @@ void ProgramGrounder::ground() {
 	vector<vector<Rule*>> exitRules;
 	vector<vector<Rule*>> recursiveRules;
 	vector<unordered_set<index_object>> componentPredicateInHead;
-	statementDependency->createComponentGraphAndComputeAnOrdering(exitRules,recursiveRules,componentPredicateInHead);
+	unordered_set<index_object> predicateNotStratified;
+	statementDependency->createComponentGraphAndComputeAnOrdering(exitRules,recursiveRules,componentPredicateInHead,predicateNotStratified);
 
 	printFact();
 
@@ -127,7 +128,6 @@ bool ProgramGrounder::groundRule(Rule* r, bool firstIteraction, bool isRecursive
 #endif
 
 	while(!finish){
-		r->print();
 		Atom *current_atom=*current_atom_it;
 		index_object current_predicate=current_atom->getPredicate().second;
 		negation=current_atom->isNegative();
@@ -222,8 +222,7 @@ bool ProgramGrounder::groundRule(Rule* r, bool firstIteraction, bool isRecursive
 			if(index_current_atom+1==r->getSizeBody()){
 				// The method printGroundRule returns true if the ground rule derived from the current assignment was not derived before,
 				// in this case new knowledge is derived.
-				bool added=printGroundRule(r,var_assign,isRecursive,firstIteraction);
-				if(added) newKnowledge=true;
+				if(printGroundRule(r,var_assign,isRecursive,firstIteraction)) newKnowledge=true;
 
 				//If last atom is BuiltIn return to last atom no BuiltIn
 				skipAtom(false,current_atom_it,index_current_atom,id_match,r,finish);

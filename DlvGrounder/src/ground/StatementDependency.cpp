@@ -90,7 +90,19 @@ void DependencyGraph::addInDependency(Rule* r) {
 
 						// Set this predicate as visited
 						body_predicateVisited.insert(pred_body.second);
-						addEdge(pred_body.second, pred_head.second);
+						addEdge(pred_body.second, pred_head.second,1);
+
+					}
+				}
+				else{
+					pair<bool,index_object> pred_body = (*body_it)->getPredicate();
+
+					// Check if the predicate in the head has been visited
+					if (pred_body.first  && !body_predicateVisited.count(pred_body.second)) {
+
+						// Set this predicate as visited
+						body_predicateVisited.insert(pred_body.second);
+						addEdge(pred_body.second, pred_head.second,-1);
 
 					}
 				}
@@ -177,7 +189,7 @@ void DependencyGraph::print() {
 
 }
 
-void DependencyGraph::addEdge(index_object pred_body, index_object pred_head) {
+void DependencyGraph::addEdge(index_object pred_body, index_object pred_head, int weight) {
 	unsigned int index_i, index_j;
 	auto it1 = predicateIndexGMap.find(pred_body);
 	// Check if each predicate is already present in the graph
@@ -195,13 +207,18 @@ void DependencyGraph::addEdge(index_object pred_body, index_object pred_head) {
 		index_j = predicateIndexGMap.size();
 		predicateIndexGMap.insert( { pred_head, index_j });
 	}
-	boost::add_edge(index_i, index_j, depGraph);
-	// Set the predicate in the vertex
-	depGraph[index_i].pred_id = pred_body;
-	depGraph[index_j].pred_id = pred_head;
+	boost::add_edge(index_i, index_j, weight, stratifiedGraph);
+	stratifiedGraph[index_i].pred_id = pred_body;
+	stratifiedGraph[index_j].pred_id = pred_head;
+	if(weight>0){
+		boost::add_edge(index_i, index_j, depGraph);
+		// Set the predicate in the vertex
+		depGraph[index_i].pred_id = pred_body;
+		depGraph[index_j].pred_id = pred_head;
+	}
 }
 
-void DependencyGraph::calculateStrongComponent(unordered_map<index_object, unsigned int> &component) {
+void DependencyGraph::calculateStrongComponent(unordered_map<index_object, unsigned int> &componentDepependency,unordered_map<unsigned int,unordered_set<index_object>>& componentStratified) {
 
 	using namespace boost;
 	typedef graph_traits<Graph>::vertex_descriptor Vertex;
@@ -215,7 +232,39 @@ void DependencyGraph::calculateStrongComponent(unordered_map<index_object, unsig
 							  discover_time_map(make_iterator_property_map(discover_time.begin(), get(vertex_index, depGraph))));
 
 	for (unsigned int i = 0; i < component_indices.size(); i++)
-		component.insert( { depGraph[i].pred_id, component_indices[i] });
+		componentDepependency.insert( { depGraph[i].pred_id, component_indices[i] });
+
+	typedef graph_traits<WeightGraph>::vertex_descriptor VertexWeight;
+
+	std::vector<int> component_indices_weight(num_vertices(stratifiedGraph)), discover_time_weight(num_vertices(stratifiedGraph));
+	std::vector<default_color_type> color_weight(num_vertices(stratifiedGraph));
+	std::vector<Vertex> root_weight(num_vertices(stratifiedGraph));
+	strong_components(stratifiedGraph, make_iterator_property_map(component_indices_weight.begin(), get(vertex_index, stratifiedGraph)),
+							  root_map(make_iterator_property_map(root_weight.begin(), get(vertex_index, stratifiedGraph))).
+							  color_map(make_iterator_property_map(color_weight.begin(), get(vertex_index, stratifiedGraph))).
+							  discover_time_map(make_iterator_property_map(discover_time_weight.begin(), get(vertex_index, stratifiedGraph))));
+
+	typedef property_map<WeightGraph, vertex_index_t>::type IndexMap;
+	property_map<WeightGraph, edge_weight_t>::type weightmap = get(edge_weight, stratifiedGraph);
+	IndexMap index = get(vertex_index, depGraph);
+	graph_traits<WeightGraph>::edge_iterator ei, ei_end;
+
+	for (unsigned int i = 0; i < component_indices_weight.size(); i++){
+		for (tie(ei, ei_end) = edges(stratifiedGraph); ei != ei_end; ++ei) {
+			index_object p1 = index[source(*ei, stratifiedGraph)];
+			index_object p2 = index[target(*ei, stratifiedGraph)];
+			if(weightmap[*ei]<0 && (stratifiedGraph[i].pred_id==p1 || stratifiedGraph[i].pred_id==p2)){
+				if(componentStratified.count(component_indices_weight[i])){
+					componentStratified[component_indices_weight[i]].insert(stratifiedGraph[i].pred_id);
+				}
+				else{
+					std::unordered_set<index_object> set;
+					set.insert(stratifiedGraph[i].pred_id);
+					componentStratified.insert( { component_indices_weight[i], set});
+				}
+			}
+		}
+	}
 
 }
 
@@ -234,17 +283,17 @@ void DependencyGraph::calculateStrongComponent(unordered_map<index_object, unsig
 
 void ComponentGraph::addEdge(index_object pred_body, index_object pred_head, int weight) {
 
-	if (component[pred_body] != component[pred_head])
-		boost::add_edge(component[pred_body], component[pred_head], weight, compGraph);
+	if (componentDependency[pred_body] != componentDependency[pred_head])
+		boost::add_edge(componentDependency[pred_body], componentDependency[pred_head], weight, compGraph);
 }
 
 void ComponentGraph::createComponent(DependencyGraph &depGraph,
 		StatementAtomMapping &statementAtomMapping) {
-	depGraph.calculateStrongComponent(component);
+	depGraph.calculateStrongComponent(componentDependency,componentStratified);
 
 	vector<Rule*> rules;
 
-	for (auto it : component) {
+	for (auto it : componentDependency) {
 
 		index_object pred_head = it.first;
 
@@ -276,6 +325,12 @@ void ComponentGraph::createComponent(DependencyGraph &depGraph,
 
 }
 
+void ComponentGraph::computeNotStratifiedPredicates(unordered_set<index_object>& stratifiedPred){
+	for (auto it : componentStratified)
+		if(it.second.size()>1)
+			stratifiedPred.insert(it.second.begin(),it.second.end());
+}
+
 void ComponentGraph::printFile(string fileGraph) {
 
 	string graphDOT = "digraph Component_Graph {\n";
@@ -304,7 +359,7 @@ void ComponentGraph::printFile(string fileGraph) {
 	for (unsigned int i = 0; i < num_vertices(compGraph); i++) {
 		graphDOT += lexical_cast<string>(i);
 		graphDOT += " [label= \"";
-		for (auto it : component)
+		for (auto it : componentDependency)
 			if (it.second == i) {
 				string predicate = IdsManager::getStringStrip(IdsManager::PREDICATE_ID_MANAGER,
 						it.first);
@@ -329,7 +384,7 @@ void ComponentGraph::print() {
 	for (unsigned int i = 0; i < num_vertices(compGraph); i++) {
 		cout << "{ ";
 		bool first = false;
-		for (auto it : component)
+		for (auto it : componentDependency)
 			if (it.second == i) {
 				string predicate = IdsManager::getStringStrip(IdsManager::PREDICATE_ID_MANAGER,
 						it.first);
@@ -347,9 +402,9 @@ void ComponentGraph::print() {
 void ComponentGraph::computeAnOrdering(list<unsigned int>& componentsOrdering) {
 
 	// If the component graph is not connected, then if there are some components any ordering is valid
-	if(num_vertices(compGraph)==0 && num_edges(compGraph)==0 && component.size()>0){
+	if(num_vertices(compGraph)==0 && num_edges(compGraph)==0 && componentDependency.size()>0){
 		unordered_set<unsigned int> components;
-		for(auto pair:component)
+		for(auto pair:componentDependency)
 			components.insert(pair.second);
 		for(auto it:components)
 			componentsOrdering.push_back(it);
@@ -507,7 +562,7 @@ bool sortRules (Rule* r1,Rule* r2) {
 }
 
 void StatementDependency::createComponentGraphAndComputeAnOrdering(vector<vector<Rule*>>& exitRules, vector<vector<Rule*>>& recursiveRules,
-		vector<unordered_set<index_object>>& componentPredicateInHead) {
+		vector<unordered_set<index_object>>& componentPredicateInHead,unordered_set<index_object>& stratifiedPred) {
 	/// Create the component graph
 	compGraph.createComponent(depGraph, statementAtomMapping);
 
@@ -548,10 +603,14 @@ void StatementDependency::createComponentGraphAndComputeAnOrdering(vector<vector
 		i++;
 	}
 
-
 	for(unsigned int i=0;i<recursiveRules.size();i++)
 		sort(recursiveRules[i].begin(),recursiveRules[i].end(),sortRules);
 
+	compGraph.computeNotStratifiedPredicates(stratifiedPred);
+
+//	for(auto i:stratifiedPred){
+//		cout<<IdsManager::getStringStrip(IdsManager::PREDICATE_ID_MANAGER,i)<<endl;
+//	}
 }
 
 

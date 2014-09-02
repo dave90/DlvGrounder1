@@ -72,10 +72,10 @@ public:
 
 	/// This method computes the strong components of the dependency graph.
 	/// It also put for each predicate the relative component in the map of components.
-	void calculateStrongComponent(unordered_map<index_object,unsigned int> &component);
+	void calculateStrongComponent(unordered_map<index_object, unsigned int> &componentDepependency,unordered_map<unsigned int,unordered_set<index_object>>& componentStratified);
 
 	/// This method adds an edge in the dependency graph between the two predicate given
-	void addEdge(index_object pred_body, index_object pred_head);
+	void addEdge(index_object pred_body, index_object pred_head, int weight);
 
 	// This method deletes the vertex corresponding to the given predicate
 	void deleteVertex(unordered_set<index_object>& delete_pred);
@@ -88,6 +88,8 @@ public:
 private:
 	/// The Dependency Graph
 	Graph depGraph;
+	/// The Stratified Graph
+	WeightGraph stratifiedGraph;
 	/// The map that containing as keys indices of the predicate,
 	/// and as values indices of the vertex in the dependency graph
 	unordered_map<index_object, unsigned int> predicateIndexGMap;
@@ -112,8 +114,10 @@ public:
 	/// This method compute all possible orderings among components
 	void computeAllPossibleOrdering(vector<vector<unsigned int>>& componentsOrderings);
 
+	void computeNotStratifiedPredicates(unordered_set<index_object>& stratifiedPred);
+
 	///Getter for the components mapping
-	const unordered_map<index_object, unsigned int>& getComponent() const {	return component;}
+	const unordered_map<index_object, unsigned int>& getComponent() const {	return componentDependency;}
 
 	/// This method prints the dependency graph in a file using DOT standard format
 	void printFile(string fileGraph);
@@ -125,7 +129,9 @@ private:
 	/// The Component Graph
 	WeightGraph compGraph;
 	///This unordered map maps each predicate to its relative component
-	unordered_map<index_object,unsigned int> component;
+	unordered_map<index_object,unsigned int> componentDependency;
+
+	unordered_map<unsigned int,unordered_set<index_object>> componentStratified;
 
 	///This method computes an ordering among components if the component graph is cyclic
 	void recursive_sort(list<unsigned int>& componentsOrdering);
@@ -157,8 +163,9 @@ public:
 	/// @param exitRules A vector containing at the ith position a vector containing the exit rules for the ith component
 	/// @param recursiveRules A vector containing at the ith position a vector containing the recursive rules for the ith component
 	/// @param componentPredicateInHead A vector containing at the ith position an unordered set containing
+	/// @param stratifiedPred The set of predicate appearing as not statified negated
 	/// the predicates in the head of the recursive rules of the ith component
-	void createComponentGraphAndComputeAnOrdering(vector<vector<Rule*>>& exitRules, vector<vector<Rule*>>& recursiveRules,vector<unordered_set<index_object>>& componentPredicateInHead);
+	void createComponentGraphAndComputeAnOrdering(vector<vector<Rule*>>& exitRules, vector<vector<Rule*>>& recursiveRules,vector<unordered_set<index_object>>& componentPredicateInHead,unordered_set<index_object>& stratifiedPred);
 
 	/// This method returns the number of rules in the program
 	unsigned int getRulesSize(){return rules.size();}

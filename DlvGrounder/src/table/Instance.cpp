@@ -456,8 +456,14 @@ pair<bool, index_object> SingleTermIndexAtom::createIndex(vector<unsigned int>& 
 	pair<bool, index_object> termBoundIndex( { false, 0 });
 	if(!positionOfIndexingSetByUser){
 		pair<unsigned int,bool> p = Config::getInstance()->getIndexingTerm(this->predicate->getName());
-		positionOfIndexingSetByUser=p.second;
-		positionOfIndexing=p.first;
+		if(p.first>=0 && p.first<this->predicate->getArity()){
+			positionOfIndexing=p.first;
+			positionOfIndexingSetByUser=p.second;
+		}
+		else{
+			positionOfIndexing=0;
+			positionOfIndexingSetByUser=false;
+		}
 	}
 	for(unsigned int i=0;i<templateAtom->getTermsSize();i++){
 		Term* t=TermTable::getInstance()->getTerm(templateAtom->getTerm(i).second);
@@ -601,8 +607,14 @@ pair<bool, index_object> SingleTermIndexAtomMultiMap::createIndex(vector<unsigne
 	pair<bool, index_object> termBoundIndex( { false, 0 });
 	if(!positionOfIndexingSetByUser){
 		pair<unsigned int,bool> p = Config::getInstance()->getIndexingTerm(this->predicate->getName());
-		positionOfIndexingSetByUser=p.second;
-		positionOfIndexing=p.first;
+		if(p.first>=0 && p.first<this->predicate->getArity()){
+			positionOfIndexing=p.first;
+			positionOfIndexingSetByUser=p.second;
+		}
+		else{
+			positionOfIndexing=0;
+			positionOfIndexingSetByUser=false;
+		}
 	}
 	for(unsigned int i=0;i<templateAtom->getTermsSize();i++){
 		Term* t=TermTable::getInstance()->getTerm(templateAtom->getTerm(i).second);
