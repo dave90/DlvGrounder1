@@ -357,22 +357,21 @@ bool ProgramGrounder::printGroundRule(Rule *r,map_index_index& var_assign,bool i
 			//If the predicate is EDB skip this atom
 			if(predicateTable->getPredicate(predicate)->isEdb()) continue;
 
-			vector<index_object> terms;
+			GenericAtom *atom;
+			Atom *groundAtom=body->ground(var_assign);
 
-			//FIXME consider the anonymous variable
-			for(unsigned int i=0;i<body->getTermsSize();i++){
+			vector<index_object> terms=groundAtom->getTerms();
 
-				index_object term=body->getTerm(i).second;
-
-				if(termsMap->getTerm(term)->isVariable())
-					terms.push_back(var_assign.find(term)->second);
-				else
-					terms.push_back(term);
-			}
-
-			GenericAtom *atom=instancesTable->getInstance(predicate)->getGenericAtom(terms);
+			// If the atom is not negative then exist in instance
+			// else the atom not exist and have to be created
+			if(!body->isNegative()){
+				atom=instancesTable->getInstance(predicate)->getGenericAtom(terms);
+			}else
+				atom=new GenericAtom(terms);
 
 			if(atom!=0 && !atom->isFact()) groundRule->addInBody(new GroundAtom(predicate,atom));
+
+			delete groundAtom;
 		}
 	}
 
