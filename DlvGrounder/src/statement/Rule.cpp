@@ -21,7 +21,7 @@ void  Rule::print(){
 		unsigned int i=0;
 		for (auto atom:body) {
 			atom->print();
-			if(i!=head.size()-1)
+			if(i!=body.size()-1)
 				cout<<";";
 			i++;
 		}

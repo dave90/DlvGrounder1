@@ -41,19 +41,19 @@ void GroundRule::print() {
 				cout<<";";
 			i++;
 		}
-		if(body.size()==0) cout<<"."<<endl;
+		if(body.size()==0) { cout<<"."<<endl; return; }
 	}
-	if(body.size()>0){
-		cout<<":-";
-		unsigned int i=0;
-		for (auto atom:body) {
-			ClassicalLiteral::print(atom->predicate,atom->atom->terms,false,false);
-			if(i!=head.size()-1)
-				cout<<";";
-			i++;
-		}
-		cout<<"."<<endl;
+	cout<<":-";
+	unsigned int i=0;
+	for (auto atom:body) {
+		ClassicalLiteral::print(atom->predicate,atom->atom->terms,false,false);
+		cout<<i<<endl;
+		cout<<body.size()-1<<endl;
+		if(i<body.size()-1)
+			cout<<";";
+		i++;
 	}
+	cout<<"."<<endl;
 }
 
 GroundRule::~GroundRule() {
