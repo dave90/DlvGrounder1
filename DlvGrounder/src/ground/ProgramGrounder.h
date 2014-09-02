@@ -124,6 +124,15 @@ private:
 	///This method update the delta table according to the last iteration (useful for recursive rules)
 	void updateDelta(Rule* r);
 
+	///Skip the built in and negative atom for the nextMatch
+	///@param firstSkip if true go back
+	///@param current_atom_it the current iterator in the rule
+	///@param index_current_atom the index of the current atom in the rule
+	///@param id_match the list of the id of first match
+	///@param r is the rule
+	///@param finish change in true if the grounding of rule have to finish
+	void skipAtom(bool firstSkip,vector<Atom*>::const_iterator& current_atom_it,unsigned int& index_current_atom,list<unsigned int>& id_match,Rule *r,bool& finish);
+
 	// These are some printer methods used for debug purpose.
 	void printAssignment(map_index_index& var_assign);
 	void printVariables(vector<unordered_set<index_object>> variables_atoms);

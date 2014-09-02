@@ -127,6 +127,7 @@ bool ProgramGrounder::groundRule(Rule* r, bool firstIteraction, bool isRecursive
 #endif
 
 	while(!finish){
+		r->print();
 		Atom *current_atom=*current_atom_it;
 		index_object current_predicate=current_atom->getPredicate().second;
 		negation=current_atom->isNegative();
