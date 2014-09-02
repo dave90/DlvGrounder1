@@ -65,8 +65,9 @@ void ProgramGrounder::ground() {
 #if DEBUG == 1
 					r->print();
 #endif
-					if(groundRule(r,firstIteration,true,&componentPredicateInHead[component]))
-						end=false;
+					if(r->getSizeBody()>0)
+						if(groundRule(r,firstIteration,true,&componentPredicateInHead[component]))
+							end=false;
 				}
 #if DEBUG == 1
 				cout<<"First Iteration: "<<firstIteration<<" Finish: "<<end<<endl;
@@ -84,7 +85,7 @@ void ProgramGrounder::ground() {
 	}
 	// Constraints are grounded at the end
 	for(unsigned int i=0;i<statementDependency->getConstraintSize();i++)
-		groundRule(statementDependency->getConstraint(i),false,false,nullptr);
+		if(statementDependency->getConstraint(i)->getSizeBody()>0) groundRule(statementDependency->getConstraint(i),false,false,nullptr);
 	Timer::getInstance()->end();
 }
 
@@ -98,7 +99,10 @@ void ProgramGrounder::updateDelta(Rule* r){
 
 bool ProgramGrounder::groundRule(Rule* r, bool firstIteraction, bool isRecursive, const unordered_set<index_object>* predicateInHead){
 	//The map of the assignment, map each variables to its assigned value
+
 	map_index_index var_assign;
+	if(r->getSizeBody()==0)
+		printGroundRule(r,var_assign,isRecursive,firstIteraction);
 	list<unsigned int> id_match(0);
 
 	//TODO Sort the atoms in the rule in a smarter way, currently no sorting is performed
@@ -151,7 +155,6 @@ bool ProgramGrounder::groundRule(Rule* r, bool firstIteraction, bool isRecursive
 
 			// If there isn't instances the search fails (find equal false) and if isn't negated then the algorithm have to stop
 			}else if(instance==nullptr){
-
 				if(!negation)
 					return false;
 				else
@@ -321,7 +324,6 @@ void ProgramGrounder::findBindVariablesRule(Rule *r,vector<unordered_set<index_o
 }
 
 bool ProgramGrounder::printGroundRule(Rule *r,map_index_index& var_assign,bool isRecursive,bool firstIteration){
-
 	//Build a ground rule with the given vars assignment
 	GroundRule *groundRule=new GroundRule;
 
@@ -332,6 +334,7 @@ bool ProgramGrounder::printGroundRule(Rule *r,map_index_index& var_assign,bool i
 
 	//Ground the atom in the head
 	for (auto head_it = r->getBeginHead(); head_it != r->getEndHead(); head_it++) {
+
 		Atom *head=(*head_it);
 
 		Atom *groundAtom=head->ground(var_assign);
