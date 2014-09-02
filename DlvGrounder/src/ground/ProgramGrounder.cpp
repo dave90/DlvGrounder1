@@ -366,34 +366,33 @@ bool ProgramGrounder::printGroundRule(Rule *r,map_index_index& var_assign,bool i
 
 	}
 
-	if(r->isAStrongConstraint() || r->getSizeHead()>1){
 
-		//Ground the body if it is a strong constraint, FIXME currently just classical literals are considered
-		for (auto body_it = r->getBeginBody(); body_it != r->getEndBody(); body_it++) {
+	//Ground the body if it is a strong constraint, FIXME currently just classical literals are considered
+	for (auto body_it = r->getBeginBody(); body_it != r->getEndBody(); body_it++) {
 
-			Atom *body=(*body_it);
+		Atom *body=(*body_it);
 
-			index_object predicate=body->getPredicate().second;
-			//If the predicate is EDB skip this atom
-			if(predicateTable->getPredicate(predicate)->isEdb()) continue;
+		index_object predicate=body->getPredicate().second;
+		//If the predicate is EDB skip this atom
+		if(predicateTable->getPredicate(predicate)->isEdb()) continue;
 
-			GenericAtom *atom;
-			Atom *groundAtom=body->ground(var_assign);
+		GenericAtom *atom;
+		Atom *groundAtom=body->ground(var_assign);
 
-			vector<index_object> terms=groundAtom->getTerms();
+		vector<index_object> terms=groundAtom->getTerms();
 
-			// If the atom is not negative then exist in instance
-			// else the atom not exist and have to be created
-			if(!body->isNegative()){
-				atom=instancesTable->getInstance(predicate)->getGenericAtom(terms);
-			}else
-				atom=new GenericAtom(terms);
+		// If the atom is not negative then exist in instance
+		// else the atom not exist and have to be created
+		atom=instancesTable->getInstance(predicate)->getGenericAtom(terms);
 
-			if(atom!=0 && !atom->isFact()) groundRule->addInBody(new GroundAtom(predicate,atom));
+		//TODO ADD the case that there is stratification and negation
+		// Because we have to create a atom
 
-			delete groundAtom;
-		}
+		if(atom!=nullptr && !atom->isFact()) groundRule->addInBody(new GroundAtom(predicate,atom));
+
+		delete groundAtom;
 	}
+
 
 
 
