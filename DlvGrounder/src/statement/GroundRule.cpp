@@ -47,8 +47,6 @@ void GroundRule::print() {
 	unsigned int i=0;
 	for (auto atom:body) {
 		ClassicalLiteral::print(atom->predicate,atom->atom->terms,false,false);
-		cout<<i<<endl;
-		cout<<body.size()-1<<endl;
 		if(i<body.size()-1)
 			cout<<";";
 		i++;
