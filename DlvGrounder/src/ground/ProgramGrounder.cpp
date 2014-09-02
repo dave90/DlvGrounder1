@@ -225,7 +225,7 @@ bool ProgramGrounder::groundRule(Rule* r, bool firstIteraction, bool isRecursive
 				if(added) newKnowledge=true;
 
 				//If last atom is BuiltIn return to last atom no BuiltIn
-				while((*current_atom_it)->isBuiltIn() || (*current_atom_it)->isNegative()){current_atom_it--;index_current_atom--;id_match.pop_back();}
+				skipAtom(false,current_atom_it,index_current_atom,id_match,r,finish);
 
 #if DEBUG == 1
 			//DEBUG PRINT
@@ -249,7 +249,8 @@ bool ProgramGrounder::groundRule(Rule* r, bool firstIteraction, bool isRecursive
 
 				// Otherwise the current assignment is no valid anymore, and the grounding process
 				// comes back to the previous atom skipping the BuiltIn
-				do{current_atom_it--;index_current_atom--;id_match.pop_back();}while((*current_atom_it)->isBuiltIn() || (*current_atom_it)->isNegative());
+				skipAtom(true,current_atom_it,index_current_atom,id_match,r,finish);
+
 
 			}
 		}
@@ -272,6 +273,18 @@ void ProgramGrounder::printAssignment(map_index_index& var_assign){
 	}
 	cout<<endl;
 
+}
+
+void ProgramGrounder::skipAtom(bool firstSkip,vector<Atom*>::const_iterator & current_atom_it,
+		unsigned int &index_current_atom, list<unsigned int> &id_match,Rule *r,bool &finish) {
+	if(firstSkip){current_atom_it--;index_current_atom--;id_match.pop_back();};
+	while((*current_atom_it)->isBuiltIn() || (*current_atom_it)->isNegative()){
+		if(current_atom_it==r->getBeginBody()){
+			finish=true;
+			break;
+		}
+		current_atom_it--;index_current_atom--;id_match.pop_back();
+	}
 }
 
 void ProgramGrounder::printVariables(vector<unordered_set<index_object>> variables_atoms){
