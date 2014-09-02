@@ -160,6 +160,7 @@ bool ProgramGrounder::groundRule(Rule* r, bool firstIteraction, bool isRecursive
 				bool isUndef;
 
 				//FIXME Negative DELTA??????????????????????????????
+				// searchDelta=isRecursive && predicateInHead->count(current_predicate) && !firstIteraction
 				bool searchDelta;
 				// If the rule is recursive, then if it is the iteration the search is performed in the facts and no facts table,
 				// otherwise it is performed just in the delta table.
