@@ -361,14 +361,16 @@ bool ProgramGrounder::printGroundRule(Rule *r,map_index_index& var_assign,bool i
 		//If the predicate is EDB skip this atom
 		if(predicateTable->getPredicate(predicate)->isEdb()) continue;
 
-		GenericAtom *atom;
+		GenericAtom *atom=nullptr;
 		Atom *groundAtom=body->ground(var_assign);
 
 		vector<index_object> terms=groundAtom->getTerms();
 
 		// If the atom is not negative then exist in instance
 		// else the atom not exist and have to be created
-		atom=instancesTable->getInstance(predicate)->getGenericAtom(terms);
+		Instances *instance=instancesTable->getInstance(predicate);
+		if(instance!=nullptr)
+			atom=instance->getGenericAtom(terms);
 
 		//TODO ADD the case that there is stratification and negation
 		// Because we have to create a atom
