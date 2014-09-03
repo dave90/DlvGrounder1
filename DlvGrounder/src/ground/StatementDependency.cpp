@@ -405,7 +405,7 @@ void ComponentGraph::print() {
 void ComponentGraph::computeAnOrdering(list<unsigned int>& componentsOrdering) {
 
 	// If the component graph is not connected, then if there are some components any ordering is valid
-	if(num_vertices(compGraph)==0 && num_edges(compGraph)==0 && componentDependency.size()>0){
+	if(num_vertices(compGraph)>=0 && num_edges(compGraph)==0 && componentDependency.size()>0){
 		unordered_set<unsigned int> components;
 		for(auto pair:componentDependency)
 			components.insert(pair.second);
@@ -572,6 +572,11 @@ void StatementDependency::createComponentGraphAndComputeAnOrdering(vector<vector
 	/// Compute a possible ordering among components
 	list<unsigned int> ordering;
 	compGraph.computeAnOrdering(ordering);
+
+	if(ordering.size()==0){
+		exitRules.push_back(rules);
+		return;
+	}
 
 	/// Declaration of some temporary variables
 	vector<Rule*> componentsRules;
