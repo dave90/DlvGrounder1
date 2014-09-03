@@ -72,7 +72,10 @@ public:
 
 	/// This method computes the strong components of the dependency graph.
 	/// It also put for each predicate the relative component in the map of components.
-	void calculateStrongComponent(unordered_map<index_object, unsigned int> &componentDepependency,unordered_set<index_object>& componentStratified);
+	void calculateStrongComponent(unordered_map<index_object, unsigned int> &componentDepependency);
+
+	// It  calculate the predicate with negation recursive not stratified
+	void calculateUnstritifiedPredicate(unordered_set<index_object>& predicateUnstratified);
 
 	/// This method adds an edge in the dependency graph between the two predicate given
 	void addEdge(index_object pred_body, index_object pred_head, int weight);
@@ -111,6 +114,8 @@ public:
 	void addEdge(index_object pred_body,index_object pred_head,int weight);
 	/// This method compute a single possible ordering among components
 	void computeAnOrdering(list<unsigned int>& componentsOrdering);
+	/// Print the ordering of component
+	void printTheOrderingOfComponent(list<unsigned int>& componentsOrdering);
 	/// This method compute all possible orderings among components
 	void computeAllPossibleOrdering(vector<vector<unsigned int>>& componentsOrderings);
 
@@ -131,7 +136,7 @@ private:
 	///This unordered map maps each predicate to its relative component
 	unordered_map<index_object,unsigned int> componentDependency;
 
-	unordered_set<index_object> componentStratified;
+	unordered_set<index_object> predicateUnstratified;
 
 	///This method computes an ordering among components if the component graph is cyclic
 	void recursive_sort(list<unsigned int>& componentsOrdering);

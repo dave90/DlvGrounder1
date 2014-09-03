@@ -223,7 +223,7 @@ void DependencyGraph::addEdge(index_object pred_body, index_object pred_head, in
 	}
 }
 
-void DependencyGraph::calculateStrongComponent(unordered_map<index_object, unsigned int> &componentDepependency,unordered_set<index_object>& componentStratified) {
+void DependencyGraph::calculateStrongComponent(unordered_map<index_object, unsigned int> &componentDepependency) {
 
 	using namespace boost;
 	typedef graph_traits<Graph>::vertex_descriptor Vertex;
@@ -238,6 +238,17 @@ void DependencyGraph::calculateStrongComponent(unordered_map<index_object, unsig
 
 	for (unsigned int i = 0; i < component_indices.size(); i++)
 		componentDepependency.insert( { depGraph[i].pred_id, component_indices[i] });
+
+
+
+}
+
+
+void DependencyGraph::calculateUnstritifiedPredicate(unordered_set<index_object>& predicateUnstratified){
+	using namespace boost;
+
+	//Calculate the cycle in stratifiedGraph and verify thath not exist recursion and negation, if exist
+	// then all the predicate in that cycle are not stratified
 
 	typedef graph_traits<WeightGraph>::vertex_descriptor VertexWeight;
 
@@ -267,15 +278,14 @@ void DependencyGraph::calculateStrongComponent(unordered_map<index_object, unsig
 						if(stratifiedGraph[i].pred_id==p1 && component_indices_weight[i]==component_indices_weight[i2] && weightmap[*ei]<0){
 							component_processed.insert(component_indices_weight[i]);
 							for (unsigned int k = 0; k < component_indices_weight.size(); k++)
-								if(component_indices_weight[k]==component_indices_weight[i])componentStratified.insert(stratifiedGraph[k].pred_id);
+								if(component_indices_weight[k]==component_indices_weight[i])predicateUnstratified.insert(stratifiedGraph[k].pred_id);
 							next=true;
 						}
 					}
 		}
 	}
-//		for(auto stratPred:componentStratified)
+//		for(auto stratPred:predicateUnstratified)
 //			cout<<"UNDEF "<<IdsManager::getStringStrip(IdsManager::PREDICATE_ID_MANAGER,stratPred)<<endl;
-
 }
 
 /*
@@ -299,7 +309,8 @@ void ComponentGraph::addEdge(index_object pred_body, index_object pred_head, int
 
 void ComponentGraph::createComponent(DependencyGraph &depGraph,
 		StatementAtomMapping &statementAtomMapping) {
-	depGraph.calculateStrongComponent(componentDependency,componentStratified);
+	depGraph.calculateStrongComponent(componentDependency);
+	depGraph.calculateUnstritifiedPredicate(predicateUnstratified);
 
 	vector<Rule*> rules;
 
@@ -336,7 +347,7 @@ void ComponentGraph::createComponent(DependencyGraph &depGraph,
 }
 
 bool ComponentGraph::isPredicateNegativeStratified(index_object predicate){
-	return componentStratified.count(predicate);
+	return predicateUnstratified.count(predicate);
 }
 
 void ComponentGraph::printFile(string fileGraph) {
@@ -427,98 +438,72 @@ void ComponentGraph::computeAnOrdering(list<unsigned int>& componentsOrdering) {
 		this->recursive_sort(componentsOrdering);
 	}
 
-//			//Print the found ordering
-//			boost::property_map<WeightGraph, boost::vertex_index_t>::type vertex_indices = get(
-//						boost::vertex_index, compGraph);
-//			for (auto itL: componentsOrdering) {
-//				bool first = false;
-//				for (auto it : componentDependency)
-//					if (it.second == vertex_indices(itL)) {
-//						string predicate = IdsManager::getStringStrip(IdsManager::PREDICATE_ID_MANAGER,
-//								it.first);
-//						if (!first) {
-//							cout << "{ " << predicate + " ";
-//							first = true;
-//						} else
-//							cout << ", " << predicate;
-//					}
-//				cout << "}  ";
-//			}
-//			cout<<endl;
-
+	printTheOrderingOfComponent(componentsOrdering);
 }
 
-// TODO Try with a DFS visit of the graph for components ordering.
-// This leads to check for paths among vertices and cycles.
-// Weighs have to be take into account as well.
-struct recursive_visitor : public boost::dfs_visitor<>
-{
-	list<unsigned int> order;
-    unordered_set<unsigned int> visited;
-
-    recursive_visitor(){};
-
-    template <class Vertex, class Graph>
-    void discover_vertex(Vertex v, Graph& g){
-
-    }
-
-    template <class Edge, class Graph>
-    void examine_edge(Edge e, Graph& g) {
-
-    }
-
-    template <class Edge, class Graph>
-    void back_edge(Edge e, Graph& g) {
-
-    }
-
-    template <class Edge, class Graph>
-    void tree_edge(Edge e, Graph& g) {
-
-    }
-
-    template <class Edge, class Graph>
-	void forward_or_cross_edge(Edge e, Graph& g) {
-
+void ComponentGraph::printTheOrderingOfComponent(list<unsigned int>& componentsOrdering){
+	cout<<"ORDER:"<<endl;
+	for(auto comp:componentsOrdering){
+		cout<<"Component "<<comp<<" ";
+		for(auto it:componentDependency)
+			if(it.second==comp)
+				cout<<IdsManager::getStringStrip(IdsManager::PREDICATE_ID_MANAGER,it.first);
+		cout<<endl;
 	}
-};
+}
+
 
 void ComponentGraph::recursive_sort(list<unsigned int>& componentsOrdering) {
+	// Recursive method:
+	// If exist a cycle detect the component of each cycle and for each cycle delete one
+	// negative edge that connect two vertices of the same cycle, if topological sort don't report
+	// error then exit else redo all the operation until all the cycle are deleted
 
-	unordered_set<unsigned int> compVisited;
 
+	// Calculate the strong component (the cycle in the graph)
 	using namespace boost;
 	property_map<WeightGraph, edge_weight_t>::type weightmap = get(edge_weight, compGraph);
 	typedef graph_traits<WeightGraph>::edge_iterator edge_iter;
 	std::pair<edge_iter, edge_iter> ep;
 	edge_iter ei, ei_end;
+	vector<edge_iter> edgeToRemove;
+	typedef property_map<WeightGraph, vertex_index_t>::type IndexMap;
+	IndexMap index = get(vertex_index, compGraph);
 
-	// For each edge in the graph, consider its weight
-	for (tie(ei, ei_end) = edges(compGraph); ei != ei_end; ++ei) {
-		unsigned int sourceVertex = source(*ei,compGraph);
-		unsigned int targetVertex = target(*ei,compGraph);
-		//If the source vertex has not been visited yet, mark it has visited
-		if(!compVisited.count(sourceVertex)){
-			compVisited.insert(sourceVertex);
-			// If it has a positive weight, then the source vertex must be evaluated before the target vertex
-			if (weightmap[*ei] > 0)
-				componentsOrdering.push_back(sourceVertex);
-			// If it has a negative weight, then the source vertex should possibly be evaluated before the target vertex
-			else
-				componentsOrdering.push_back(sourceVertex);
-		}
-		//If the target vertex has not been visited yet, mark it has visited
-		if(!compVisited.count(targetVertex)){
-			compVisited.insert(targetVertex);
-			// If it has a positive weight, it is added after the source
-			if (weightmap[*ei] > 0)
-				componentsOrdering.push_back(targetVertex);
-			// If it has a positive weight, it is added after the source
-			else
-				componentsOrdering.push_front(targetVertex);
+
+	typedef graph_traits<WeightGraph>::vertex_descriptor VertexWeight;
+
+	std::vector<int> component_indices_weight(num_vertices(compGraph)), discover_time_weight(num_vertices(compGraph));
+	std::vector<default_color_type> color_weight(num_vertices(compGraph));
+	std::vector<VertexWeight> root_weight(num_vertices(compGraph));
+	strong_components(compGraph, make_iterator_property_map(component_indices_weight.begin(), get(vertex_index, compGraph)),
+							  root_map(make_iterator_property_map(root_weight.begin(), get(vertex_index, compGraph))).
+							  color_map(make_iterator_property_map(color_weight.begin(), get(vertex_index, compGraph))).
+							  discover_time_map(make_iterator_property_map(discover_time_weight.begin(), get(vertex_index, compGraph))));
+
+	// For each element of each component if find a negative edge that start with the element and finish with a vertex with the same
+	// component then delete the edge and process another component
+	std::unordered_set<unsigned int> componentProcessed;
+	for(unsigned int i=0;i<component_indices_weight.size();i++){
+		if(componentProcessed.count(component_indices_weight[i]))continue;
+		for (tie(ei, ei_end) = edges(compGraph); ei != ei_end; ++ei) {
+			if (weightmap[*ei] < 0 && index[source(*ei, compGraph)]==i && component_indices_weight[index[source(*ei, compGraph)]]==component_indices_weight[i]){
+				edgeToRemove.push_back(ei);
+				componentProcessed.insert(component_indices_weight[i]);
+				break;
+			}
 		}
 	}
+
+	for(auto edge:edgeToRemove)
+		remove_edge(*edge,compGraph);
+	try{
+		topological_sort(compGraph, front_inserter(componentsOrdering));
+	} catch (boost::not_a_dag const& e) {
+		componentsOrdering.clear();
+		this->recursive_sort(componentsOrdering);
+	}
+
 
 }
 
