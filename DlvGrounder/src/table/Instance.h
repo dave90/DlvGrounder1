@@ -233,21 +233,22 @@ public:
 	///Its truth value can be true or undefined, if it false it is not stored at all
 	bool addNoFact(GenericAtom*& atomUndef) {
 		bool isFact=indexAtom->count(IndexAtom::FACTS,atomUndef);
-
 		if(isFact){
 			// If the atom is a facts, it is returned. The temporary atom duplicate is deleted within the find method.
 			indexAtom->find(IndexAtom::FACTS,atomUndef);
 			return false;
 		}
-
+		// If the atom is not present, it is added. The temporary atom duplicate is deleted and the inserted atom is assigned.
 		if(!nofacts.insert(atomUndef).second){
-			// If the atom is not present, it is added. The temporary atom duplicate is deleted and the inserted atom is assigned.
-			indexAtom->find(IndexAtom::NOFACTS,atomUndef);
+			bool updated=false;
 			//If the atom in the table is undef and the atom to be insert is true then change only the value
 			if(atomUndef->isFact() && !isTrue(atomUndef->terms)){
 				setValue(atomUndef->terms,true);
-				return true;
+				updated=true;
 			}
+			indexAtom->find(IndexAtom::NOFACTS,atomUndef);
+			if(updated)
+				return true;
 			return false;
 		}
 		return true;

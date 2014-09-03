@@ -74,13 +74,15 @@ bool Instances::addDelta(GenericAtom*& atomUndef) {
 	}
 	bool insertedInDelta=delta.insert(atomUndef).second;
 	if(!insertedInDelta){
-		// If the atom is not present, it is added. The temporary atom duplicate is deleted and the inserted atom is assigned.
-		indexAtom->find(IndexAtom::DELTA,atomUndef);
+		bool updated=false;
 		//If the atom in the table is undef and the atom to be insert is true then change only the value
 		if(atomUndef->isFact() && !isTrue(atomUndef->terms)){
 			setValue(atomUndef->terms,true);
-			return true;
+			updated=true;
 		}
+		indexAtom->find(IndexAtom::DELTA,atomUndef);
+		if(updated)
+			return true;
 		return false;
 	}
 	return true;
@@ -103,19 +105,20 @@ bool Instances::addNextDelta(GenericAtom*& atomUndef) {
 			return false;
 		}
 		bool insertedInNextNoFacts=nextDelta.insert(atomUndef).second;
-
 		if(!insertedInNextNoFacts){
+			bool updated=false;
+			if(atomUndef->isFact() && !isTrue(atomUndef->terms)){
+				setValue(atomUndef->terms,true);
+				updated=true;
+			}
 			GenericAtom* atomFind=*nextDelta.find(atomUndef);
 			delete atomUndef;
 			atomUndef=atomFind;
-			if(atomUndef->isFact() && !isTrue(atomUndef->terms)){
-				setValue(atomUndef->terms,true);
+			if(updated)
 				return true;
-			}
 			return false;
 		}
 		return true;
-
 	}
 
 /****************************************************** INSTANCES TABLE***************************************************/
