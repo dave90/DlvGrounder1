@@ -240,21 +240,17 @@ public:
 			return false;
 		}
 
-		bool inserted=false;
-		if(nofacts.insert(atomUndef).second)
-			inserted=true;
-
-		// If the atom is not present, it is added. The temporary atom duplicate is deleted and the inserted atom is assigned.
-		indexAtom->find(IndexAtom::NOFACTS,atomUndef);
-		//If the atom in the table is undef and the atom to be insert is true then change only the value
-		if(atomUndef->isFact() && !isTrue(atomUndef->terms)){
-			setValue(atomUndef->terms,true);
-			return true;
+		if(!nofacts.insert(atomUndef).second){
+			// If the atom is not present, it is added. The temporary atom duplicate is deleted and the inserted atom is assigned.
+			indexAtom->find(IndexAtom::NOFACTS,atomUndef);
+			//If the atom in the table is undef and the atom to be insert is true then change only the value
+			if(atomUndef->isFact() && !isTrue(atomUndef->terms)){
+				setValue(atomUndef->terms,true);
+				return true;
+			}
+			return false;
 		}
-
-		if(inserted)
-			return true;
-		return false;
+		return true;
 	};
 
 	///This method sets a no facts truth value
