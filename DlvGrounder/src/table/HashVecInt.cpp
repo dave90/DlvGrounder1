@@ -11,12 +11,13 @@
 HashVecInt *HashVecInt::hashInt;
 
 HashVecInt* HashVecInt::getHashVecIntFromConfig() {
-	if (hashInt == nullptr)
+	if (hashInt == nullptr){
 		if(Config::getInstance()->getHashType()==HashType::BOOST_HASH)
 			hashInt = new BoostCombineHashVecInt;
 		else
 			// Default select Java
 			hashInt = new JavaHashVecInt;
+	}
 
 	return hashInt;
 }
