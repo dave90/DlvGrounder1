@@ -329,7 +329,7 @@ bool ProgramGrounder::printGroundRule(Rule *r,map_index_index& var_assign,bool i
 	bool added=false;
 
 	//If in the head of rule there is no disjunction, then it is added in the no facts as true
-	bool isTrue = r->getSizeHead()==1;
+	bool disjunction = r->getSizeHead()==1;
 
 	//Ground the atom in the head
 	for (auto head_it = r->getBeginHead(); head_it != r->getEndHead(); head_it++) {
@@ -342,8 +342,10 @@ bool ProgramGrounder::printGroundRule(Rule *r,map_index_index& var_assign,bool i
 
 
 		GroundAtom *headAtom;
-		if(isTrue) headAtom=new GroundAtom(predicate,terms);
-		else headAtom=new GroundAtom(predicate,terms,isTrue);
+		if(!disjunction && !statementDependency->isPredicateNegativeStratified(predicate))
+			headAtom=new GroundAtom(predicate,terms);
+		else
+			headAtom=new GroundAtom(predicate,terms,false);
 
 		//Check if the atom is already grounded, if not it is added to no facts
 		instancesTable->addInstance(predicate);
@@ -384,13 +386,14 @@ bool ProgramGrounder::printGroundRule(Rule *r,map_index_index& var_assign,bool i
 		// If the atom is not negative then exist in instance
 		// else the atom not exist and have to be created
 		Instances *instance=instancesTable->getInstance(predicate);
-		if(instance!=nullptr)
+
+		if(instance!=nullptr )
 			atom=instance->getGenericAtom(terms);
+		else if(statementDependency->isPredicateNegativeStratified(predicate) && body->isNegative())
+			atom = new AtomUndef(terms,false);
 
-		//TODO ADD the case that there is stratification and negation
-		// Because we have to create a atom
 
-		if(atom!=nullptr && !atom->isFact()) groundRule->addInBody(new GroundAtom(predicate,atom));
+		if(atom!=nullptr && !atom->isFact()) groundRule->addInBody(new GroundAtom(predicate,atom,body->isNegative()));
 
 		delete groundAtom;
 	}

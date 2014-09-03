@@ -20,14 +20,20 @@ struct GroundAtom{
 
 	index_object predicate;
 	GenericAtom* atom;
+	bool negative;
 
-	GroundAtom(index_object predicate,GenericAtom* atom): predicate(predicate), atom(atom){}
+	GroundAtom(index_object predicate,GenericAtom* atom): predicate(predicate), atom(atom){negative=false;}
+	GroundAtom(index_object predicate,GenericAtom* atom,bool negative): predicate(predicate), atom(atom),negative(negative){}
+
 	GroundAtom(index_object predicate,vector<index_object>& terms): predicate(predicate) {
 		atom=new GenericAtom(terms);
+		negative=false;
 	}
+
 
 	GroundAtom(index_object predicate,vector<index_object>& terms,bool truth): predicate(predicate) {
 		atom=new AtomUndef(terms,truth);
+		negative=false;
 	}
 
 	/// @brief Equality of ground atoms
