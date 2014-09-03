@@ -191,11 +191,17 @@ public:
 
 	bool addFact(const vector<index_object>& terms) {
 		GenericAtom* atomFact=new GenericAtom(terms);
-		if(!facts.insert(atomFact).second){
-			delete atomFact;
-			return false;
-		}
-		return true;
+
+		bool inserted=false;
+		if(facts.insert(atomFact).second)
+			inserted=true;
+
+		// If the atom is not present, it is added. The temporary atom duplicate is deleted and the inserted atom is assigned.
+		indexAtom->find(IndexAtom::NOFACTS,atomFact);
+
+		if(inserted)
+			return true;
+		return false;
 	};
 
 	///This method looks for a generic atom in both the facts and no facts tables @see GenericAtom
@@ -227,20 +233,28 @@ public:
 	///Its truth value can be true or undefined, if it false it is not stored at all
 	bool addNoFact(GenericAtom*& atomUndef) {
 		bool isFact=indexAtom->count(IndexAtom::FACTS,atomUndef);
+
 		if(isFact){
 			// If the atom is a facts, it is returned. The temporary atom duplicate is deleted within the find method.
 			indexAtom->find(IndexAtom::FACTS,atomUndef);
 			return false;
 		}
-		if(!nofacts.insert(atomUndef).second){
-			// If the atom is not present, it is added. The temporary atom duplicate is deleted and the inserted atom is assigned.
-			indexAtom->find(IndexAtom::NOFACTS,atomUndef);
-			//If the atom in the table is undef and the atom to be insert is true then change only the value
-			if(atomUndef->isFact() && !isTrue(atomUndef->terms))
-				setValue(atomUndef->terms,true);
-			return false;
+
+		bool inserted=false;
+		if(nofacts.insert(atomUndef).second)
+			inserted=true;
+
+		// If the atom is not present, it is added. The temporary atom duplicate is deleted and the inserted atom is assigned.
+		indexAtom->find(IndexAtom::NOFACTS,atomUndef);
+		//If the atom in the table is undef and the atom to be insert is true then change only the value
+		if(atomUndef->isFact() && !isTrue(atomUndef->terms)){
+			setValue(atomUndef->terms,true);
+			return true;
 		}
-		return true;
+
+		if(inserted)
+			return true;
+		return false;
 	};
 
 	///This method sets a no facts truth value
