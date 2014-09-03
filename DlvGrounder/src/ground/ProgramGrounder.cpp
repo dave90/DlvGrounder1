@@ -395,11 +395,11 @@ bool ProgramGrounder::printGroundRule(Rule *r,map_index_index& var_assign,bool i
 
 	}
 
-	if(added && groundRule->getSizeHead()==1){ // If is a new fact
+	if(groundRule->getSizeHead()==1){ // If is a new fact
+		if(added)
 			groundRule->print();
-			delete groundRule;
-	}
-	else if((groundRule->getSizeHead()>1 && groundedRule.addRule(groundRule)) // If is a disjunctive rule
+		delete groundRule;
+	}else if((groundRule->getSizeHead()>1 && groundedRule.addRule(groundRule)) // If is a disjunctive rule
 			|| (groundRule->getSizeHead()==0 && groundedRule.addRule(groundRule))) // If is a constraint
 		groundRule->print();
 
