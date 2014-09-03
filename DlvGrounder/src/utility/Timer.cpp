@@ -12,11 +12,11 @@ Timer* Timer::timer=0;
 
 Timer* Timer::getInstance() {
 	if(timer==0)
-		timer =new Timer;
+		timer = new Timer;
 	return timer;
 }
 
-void Timer::start(string label) {
+void Timer::start(const string& label) {
 	currentLabel=label;
 	boost_timer.restart();
 }
