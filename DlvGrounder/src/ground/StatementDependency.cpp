@@ -79,6 +79,11 @@ void DependencyGraph::addInDependency(Rule* r) {
 			// Set this predicate as visited
 			head_predicateVisited.insert(pred_head.second);
 
+			// If the rule has no positive predicate in its body, is added a dummy edge in order to not lose this rule
+			// when the components graph is created
+			if(r->getPositivePredicateInBody().size()==0)
+				addEdge(pred_head.second, pred_head.second,1);
+
 			for (auto body_it = r->getBeginBody(); body_it != r->getEndBody(); body_it++) {
 
 				// Check if the predicate is positive, otherwise skip it
@@ -422,24 +427,24 @@ void ComponentGraph::computeAnOrdering(list<unsigned int>& componentsOrdering) {
 		this->recursive_sort(componentsOrdering);
 	}
 
-	//		//Print the found ordering
-	//		boost::property_map<WeightGraph, boost::vertex_index_t>::type vertex_indices = get(
-	//					boost::vertex_index, compGraph);
-	//		for (auto itL: componentsOrdering) {
-	//			bool first = false;
-	//			for (auto it : component)
-	//				if (it.second == vertex_indices(itL)) {
-	//					string predicate = IdsManager::getStringStrip(IdsManager::PREDICATE_ID_MANAGER,
-	//							it.first);
-	//					if (!first) {
-	//						cout << "{ " << predicate + " ";
-	//						first = true;
-	//					} else
-	//						cout << ", " << predicate;
-	//				}
-	//			cout << "}  ";
-	//		}
-	//		cout<<endl;
+//			//Print the found ordering
+//			boost::property_map<WeightGraph, boost::vertex_index_t>::type vertex_indices = get(
+//						boost::vertex_index, compGraph);
+//			for (auto itL: componentsOrdering) {
+//				bool first = false;
+//				for (auto it : componentDependency)
+//					if (it.second == vertex_indices(itL)) {
+//						string predicate = IdsManager::getStringStrip(IdsManager::PREDICATE_ID_MANAGER,
+//								it.first);
+//						if (!first) {
+//							cout << "{ " << predicate + " ";
+//							first = true;
+//						} else
+//							cout << ", " << predicate;
+//					}
+//				cout << "}  ";
+//			}
+//			cout<<endl;
 
 }
 
@@ -572,11 +577,6 @@ void StatementDependency::createComponentGraphAndComputeAnOrdering(vector<vector
 	/// Compute a possible ordering among components
 	list<unsigned int> ordering;
 	compGraph.computeAnOrdering(ordering);
-
-	if(ordering.size()==0){
-		exitRules.push_back(rules);
-		return;
-	}
 
 	/// Declaration of some temporary variables
 	vector<Rule*> componentsRules;
