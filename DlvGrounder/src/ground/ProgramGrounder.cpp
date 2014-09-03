@@ -328,11 +328,37 @@ bool ProgramGrounder::printGroundRule(Rule *r,map_index_index& var_assign,bool i
 	//Build a ground rule with the given vars assignment
 	GroundRule *groundRule=new GroundRule;
 
-	bool added=false;
 
+	//Ground the body
+	for (auto body_it = r->getBeginBody(); body_it != r->getEndBody(); body_it++) {
+
+		Atom *body=(*body_it);
+
+		index_object predicate=body->getPredicate().second;
+		//If the predicate is EDB skip this atom
+		if(predicateTable->getPredicate(predicate)->isEdb()) continue;
+
+		GenericAtom *atom=nullptr;
+		Atom *groundAtom=body->ground(var_assign);
+		vector<index_object> terms=groundAtom->getTerms();
+		delete groundAtom;
+
+		// If the atom is not negative then exist in instance
+		// else the atom not exist and have to be created if is unstratified
+
+		Instances *instance=instancesTable->getInstance(predicate);
+		if(instance!=nullptr )atom=instance->getGenericAtom(terms);
+
+		if(atom==nullptr && statementDependency->isPredicateNegativeStratified(predicate) && body->isNegative())
+			atom = new AtomUndef(terms,false);
+
+		if(atom!=nullptr && !atom->isFact()) groundRule->addInBody(new GroundAtom(predicate,atom,body->isNegative()));
+
+	}
 	//If in the head of rule there is no disjunction, then it is added in the no facts as true
 	bool disjunction = r->getSizeHead()>1;
 
+	bool added=false;
 	//Ground the atom in the head
 	for (auto head_it = r->getBeginHead(); head_it != r->getEndHead(); head_it++) {
 
@@ -341,10 +367,10 @@ bool ProgramGrounder::printGroundRule(Rule *r,map_index_index& var_assign,bool i
 		Atom *groundAtom=head->ground(var_assign);
 		index_object predicate=groundAtom->getPredicate().second;
 		vector<index_object> terms=groundAtom->getTerms();
-
+		delete groundAtom;
 
 		GroundAtom *headAtom;
-		if(!disjunction && !statementDependency->isPredicateNegativeStratified(predicate))
+		if(!disjunction && groundRule->getSizeBody()==0)
 			headAtom=new GroundAtom(predicate,terms);
 		else
 			headAtom=new GroundAtom(predicate,terms,false);
@@ -366,38 +392,10 @@ bool ProgramGrounder::printGroundRule(Rule *r,map_index_index& var_assign,bool i
 
 		groundRule->addInHead(headAtom);
 
-		delete groundAtom;
 
 	}
 
 
-	//Ground the body if it is a strong constraint, FIXME currently just classical literals are considered
-	for (auto body_it = r->getBeginBody(); body_it != r->getEndBody(); body_it++) {
-
-		Atom *body=(*body_it);
-
-		index_object predicate=body->getPredicate().second;
-		//If the predicate is EDB skip this atom
-		if(predicateTable->getPredicate(predicate)->isEdb()) continue;
-
-		GenericAtom *atom=nullptr;
-		Atom *groundAtom=body->ground(var_assign);
-
-		vector<index_object> terms=groundAtom->getTerms();
-
-		// If the atom is not negative then exist in instance
-		// else the atom not exist and have to be created
-		Instances *instance=instancesTable->getInstance(predicate);
-
-		if(instance!=nullptr )
-			atom=instance->getGenericAtom(terms);
-		else if(statementDependency->isPredicateNegativeStratified(predicate) && body->isNegative())
-			atom = new AtomUndef(terms,false);
-
-		if(atom!=nullptr && !atom->isFact()) groundRule->addInBody(new GroundAtom(predicate,atom,body->isNegative()));
-
-		delete groundAtom;
-	}
 
 
 
