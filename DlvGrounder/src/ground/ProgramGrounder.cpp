@@ -101,7 +101,8 @@ bool ProgramGrounder::groundRule(Rule* r, bool firstIteraction, bool isRecursive
 
 	map_index_index var_assign;
 	if(r->getSizeBody()==0)
-		printGroundRule(r,var_assign,isRecursive,firstIteraction);
+		return printGroundRule(r,var_assign,isRecursive,firstIteraction);
+
 	list<unsigned int> id_match(0);
 
 	//TODO Sort the atoms in the rule in a smarter way, currently no sorting is performed
@@ -110,6 +111,7 @@ bool ProgramGrounder::groundRule(Rule* r, bool firstIteraction, bool isRecursive
 
 	bool finish=false;
 	auto current_atom_it=r->getBeginBody();
+
 	unsigned int index_current_atom=0;
 	bool find=false;
 	bool negation=false;
@@ -329,7 +331,7 @@ bool ProgramGrounder::printGroundRule(Rule *r,map_index_index& var_assign,bool i
 	bool added=false;
 
 	//If in the head of rule there is no disjunction, then it is added in the no facts as true
-	bool disjunction = r->getSizeHead()==1;
+	bool disjunction = r->getSizeHead()>1;
 
 	//Ground the atom in the head
 	for (auto head_it = r->getBeginHead(); head_it != r->getEndHead(); head_it++) {
@@ -391,7 +393,6 @@ bool ProgramGrounder::printGroundRule(Rule *r,map_index_index& var_assign,bool i
 			atom=instance->getGenericAtom(terms);
 		else if(statementDependency->isPredicateNegativeStratified(predicate) && body->isNegative())
 			atom = new AtomUndef(terms,false);
-
 
 		if(atom!=nullptr && !atom->isFact()) groundRule->addInBody(new GroundAtom(predicate,atom,body->isNegative()));
 
