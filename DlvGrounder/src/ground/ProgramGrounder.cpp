@@ -27,8 +27,7 @@ void ProgramGrounder::ground() {
 	vector<vector<Rule*>> exitRules;
 	vector<vector<Rule*>> recursiveRules;
 	vector<unordered_set<index_object>> componentPredicateInHead;
-	unordered_set<index_object> predicateNotStratified;
-	statementDependency->createComponentGraphAndComputeAnOrdering(exitRules,recursiveRules,componentPredicateInHead,predicateNotStratified);
+	statementDependency->createComponentGraphAndComputeAnOrdering(exitRules,recursiveRules,componentPredicateInHead);
 
 	printFact();
 

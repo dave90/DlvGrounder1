@@ -72,7 +72,7 @@ public:
 
 	/// This method computes the strong components of the dependency graph.
 	/// It also put for each predicate the relative component in the map of components.
-	void calculateStrongComponent(unordered_map<index_object, unsigned int> &componentDepependency,unordered_map<unsigned int,unordered_set<index_object>>& componentStratified);
+	void calculateStrongComponent(unordered_map<index_object, unsigned int> &componentDepependency,unordered_set<index_object>& componentStratified);
 
 	/// This method adds an edge in the dependency graph between the two predicate given
 	void addEdge(index_object pred_body, index_object pred_head, int weight);
@@ -114,7 +114,7 @@ public:
 	/// This method compute all possible orderings among components
 	void computeAllPossibleOrdering(vector<vector<unsigned int>>& componentsOrderings);
 
-	void computeNotStratifiedPredicates(unordered_set<index_object>& stratifiedPred);
+	bool isPredicateNegativeStratified(index_object predicate);
 
 	///Getter for the components mapping
 	const unordered_map<index_object, unsigned int>& getComponent() const {	return componentDependency;}
@@ -131,7 +131,7 @@ private:
 	///This unordered map maps each predicate to its relative component
 	unordered_map<index_object,unsigned int> componentDependency;
 
-	unordered_map<unsigned int,unordered_set<index_object>> componentStratified;
+	unordered_set<index_object> componentStratified;
 
 	///This method computes an ordering among components if the component graph is cyclic
 	void recursive_sort(list<unsigned int>& componentsOrdering);
@@ -165,7 +165,11 @@ public:
 	/// @param componentPredicateInHead A vector containing at the ith position an unordered set containing
 	/// @param stratifiedPred The set of predicate appearing as not statified negated
 	/// the predicates in the head of the recursive rules of the ith component
-	void createComponentGraphAndComputeAnOrdering(vector<vector<Rule*>>& exitRules, vector<vector<Rule*>>& recursiveRules,vector<unordered_set<index_object>>& componentPredicateInHead,unordered_set<index_object>& stratifiedPred);
+	void createComponentGraphAndComputeAnOrdering(vector<vector<Rule*>>& exitRules, vector<vector<Rule*>>& recursiveRules,vector<unordered_set<index_object>>& componentPredicateInHead);
+
+	/// Return true id the predicate isn't recursive with negation not stratified
+	bool isPredicateNegativeStratified(index_object predicate){return compGraph.isPredicateNegativeStratified(predicate);};
+
 
 	/// This method returns the number of rules in the program
 	unsigned int getRulesSize(){return rules.size();}
