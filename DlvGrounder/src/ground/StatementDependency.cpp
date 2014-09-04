@@ -85,7 +85,6 @@ void DependencyGraph::addInDependency(Rule* r) {
 				addEdge(pred_head.second, pred_head.second,1);
 
 			for (auto body_it = r->getBeginBody(); body_it != r->getEndBody(); body_it++) {
-
 				// Check if the predicate is positive, otherwise skip it
 				if (!(*body_it)->isNegative()) {
 					pair<bool,index_object> pred_body = (*body_it)->getPredicate();
@@ -213,8 +212,10 @@ void DependencyGraph::addEdge(index_object pred_body, index_object pred_head, in
 		predicateIndexGMap.insert( { pred_head, index_j });
 	}
 	boost::add_edge(index_i, index_j, weight, stratifiedGraph);
+
 	stratifiedGraph[index_i].pred_id = pred_body;
 	stratifiedGraph[index_j].pred_id = pred_head;
+
 	if(weight>0){
 		boost::add_edge(index_i, index_j, depGraph);
 		// Set the predicate in the vertex
@@ -265,6 +266,14 @@ void DependencyGraph::calculateUnstritifiedPredicate(unordered_set<index_object>
 	IndexMap index = get(vertex_index, depGraph);
 	graph_traits<WeightGraph>::edge_iterator ei, ei_end;
 
+	// check recursion in the same rule
+	for (tie(ei, ei_end) = edges(stratifiedGraph); ei != ei_end; ++ei) {
+		index_object p1 = stratifiedGraph[index[source(*ei, stratifiedGraph)]].pred_id;
+		index_object p2 = stratifiedGraph[index[target(*ei, stratifiedGraph)]].pred_id;
+
+		if(p1==p2 && weightmap[*ei]<0){predicateUnstratified.insert(p1);}
+	}
+
 	std::unordered_set<unsigned int> component_processed;
 	for (unsigned int i = 0; i < component_indices_weight.size(); i++){
 //		cout<<IdsManager::getStringStrip(IdsManager::PREDICATE_ID_MANAGER,stratifiedGraph[i].pred_id)<<" "<<component_indices_weight[i]<<endl;
@@ -273,6 +282,7 @@ void DependencyGraph::calculateUnstritifiedPredicate(unordered_set<index_object>
 					for (tie(ei, ei_end) = edges(stratifiedGraph); ei != ei_end && !next; ++ei) {
 						index_object p1 = stratifiedGraph[index[source(*ei, stratifiedGraph)]].pred_id;
 						index_object i2 = index[target(*ei, stratifiedGraph)];
+
 						// If in this component not find a negative arc
 						// search if exist a negative arc with an edge in this component
 						if(stratifiedGraph[i].pred_id==p1 && component_indices_weight[i]==component_indices_weight[i2] && weightmap[*ei]<0){
