@@ -35,7 +35,7 @@ void GroundedRules::printAndSimplify(InstancesTable* instancesTable) {
 					atomToRemove.push_back(body);
 			} else {
 				auto it=supportedAtom.find(body);
-				if (it != supportedAtom.end() && it->second == 0) {
+				if (it == supportedAtom.end() || it->second == 0) {
 					if (!body->negative) {
 						decrementSupport(rule);
 						skipRule = true;
