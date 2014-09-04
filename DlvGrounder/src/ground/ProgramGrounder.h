@@ -39,11 +39,12 @@ struct hashRule {
 
 	/// The hash of a ground atom
 	size_t operator()(GroundAtom* atom) const {
-	  return atom->getHash();
+	  return atom->predicate+HashVecInt::getHashVecIntFromConfig()->computeHash(atom->atom->terms);
 	}
 
 	bool operator()( GroundAtom* a1,  GroundAtom* a2)const{
-		return *a1==*a2;
+		if(a1->predicate != a2->predicate)return false;
+		return *a1->atom==*a2->atom;
 	}
 
 };
