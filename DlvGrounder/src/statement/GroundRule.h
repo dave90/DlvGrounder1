@@ -41,13 +41,15 @@ struct GroundAtom{
 	inline bool operator==(const GroundAtom& genericAtom) const{
 		if(predicate != genericAtom.predicate)
 			return false;
+		if(negative!=genericAtom.negative)return false;
+
 		return *atom==*genericAtom.atom;
 	}
 
 	/// @brief Hash function for ground atoms
 	/// @details The hash in computed using the terms
 	inline size_t getHash() const{
-		return HashVecInt::getHashVecIntFromConfig()->computeHash(atom->terms);
+		return predicate+negative+HashVecInt::getHashVecIntFromConfig()->computeHash(atom->terms);
 	}
 
 };
