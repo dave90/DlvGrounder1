@@ -312,11 +312,18 @@ void ComponentGraph::createComponent(DependencyGraph &depGraph,
 	depGraph.calculateStrongComponent(componentDependency);
 	depGraph.calculateUnstritifiedPredicate(predicateUnstratified);
 
-	vector<Rule*> rules;
+	// For each component create a vertex in a graph
+	// because when adding a edge the vertex have to be created and if exist one component
+	// with a body in a rule with all fact are not skipped
 
+	for (auto it : componentDependency)
+		boost::add_vertex(compGraph);
+
+	vector<Rule*> rules;
 	for (auto it : componentDependency) {
 
 		index_object pred_head = it.first;
+
 
 		statementAtomMapping.getRuleInHead(pred_head, rules);
 
@@ -343,6 +350,7 @@ void ComponentGraph::createComponent(DependencyGraph &depGraph,
 		}
 		rules.clear();
 	}
+
 
 }
 

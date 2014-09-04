@@ -26,7 +26,6 @@ void GroundedRules::printAndSimplify(InstancesTable* instancesTable) {
 		for (auto body_it = rule->getBeginBody(); body_it != rule->getEndBody();
 				body_it++) {
 			GroundAtom* body = *body_it;
-			cout<<supportedAtom.count(body)<<endl;
 			if (instancesTable->getInstance(body->predicate)->isTrue(body->atom->terms)) {
 				if (body->negative) {
 					decrementSupport(rule);
@@ -102,7 +101,6 @@ void ProgramGrounder::ground() {
 		cout<<"\tExit rules: "<<exitRules[component].size();
 		cout<<"\tRecursive rules: "<<recursiveRules[component].size()<<endl;
 #endif
-
 		// Ground exit rules
 		for (Rule* r : exitRules[component])
 			groundRule(r, false, false, nullptr);
