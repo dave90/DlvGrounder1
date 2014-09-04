@@ -316,8 +316,11 @@ void ComponentGraph::createComponent(DependencyGraph &depGraph,
 	// because when adding a edge the vertex have to be created and if exist one component
 	// with a body in a rule with all fact are not skipped
 
+	unordered_set<unsigned int> component_insert;
 	for (auto it : componentDependency)
-		boost::add_vertex(compGraph);
+		if(component_insert.insert(it.second).second)
+			boost::add_vertex(compGraph);
+
 
 	vector<Rule*> rules;
 	for (auto it : componentDependency) {
