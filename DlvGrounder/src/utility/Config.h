@@ -107,6 +107,8 @@ public:
 	///This method, given a predicate, returns the corresponding position of the indexing term
 	pair<unsigned int,bool> getIndexingTerm(const string& predicate);
 
+	virtual ~Config(){delete Config::config;}
+
 private:
 	///Default Constructor
 	Config();

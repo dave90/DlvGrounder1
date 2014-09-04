@@ -28,7 +28,7 @@ public:
 	/// Return the instance of the class
 	static Timer* getInstance();
 	/// Start the timer and assign the specified label
-	void start(string label);
+	void start(const string& label);
 	/// End the time
 	void end();
 	/// Print all the time
