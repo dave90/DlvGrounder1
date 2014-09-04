@@ -51,7 +51,37 @@ public:
 	bool addRule(GroundRule* r)
 	{
 		if(!groundedRules.insert(r).second) {delete r;return false;};
+		groundedRulesOrdering.push_back(r);
+		for(auto head_it=r->getBeginHead();head_it!=r->getEndHead();head_it++)incrementSupport(*head_it);
 		return true;
+	}
+
+	//Print the rule and simplify if is possible
+	void printAndSimplify(InstancesTable* instancesTable);
+
+	///Increment the support of atom
+	void incrementSupport(GroundAtom* atom){
+		if(!supportedAtom.count(atom))
+			supportedAtom.insert({atom,1});
+		else{
+			unsigned int support=supportedAtom.find(atom)->second;
+			supportedAtom.find(atom)->second=support+1;
+		}
+	}
+
+	///Decrement the support of atom
+	void decrementSupport(GroundAtom* atom){
+		if(!supportedAtom.count(atom))
+			supportedAtom.insert({atom,0});
+		else{
+			unsigned int support=supportedAtom.find(atom)->second;
+			supportedAtom.find(atom)->second=support-1;
+		}
+	}
+
+	///Decrement the support of all the atom in the head of rule
+	void decrementSupport(GroundRule* rule){
+		for(auto head_it=rule->getBeginHead();head_it!=rule->getEndHead();head_it++)decrementSupport(*head_it);
 	}
 
 	~GroundedRules(){for(auto rule:groundedRules)delete rule;}
@@ -59,6 +89,10 @@ public:
 private:
 	///An unordered set of ground rule @see hashRule
 	unordered_set<GroundRule*,hashRule,hashRule> groundedRules;
+	///Order of the rule when grounding
+	vector<GroundRule*> groundedRulesOrdering;
+	/// Number of supported rule for each atom
+	unordered_map<GroundAtom*,unsigned int> supportedAtom;
 };
 
 

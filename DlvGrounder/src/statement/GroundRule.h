@@ -105,6 +105,11 @@ public:
 	///This method returns an iterator that points to the last atom in the head
 	OrderedAtomSet::const_iterator getEndHead()const{return head.end();};
 
+	/// Remove the atom in the body
+	void removeBody(GroundAtom* atom){body.erase(atom);}
+	/// Remove the atom in the head
+	void removeHead(GroundAtom* atom){head.erase(atom);}
+
 	///Printer method
 	void print();
 
