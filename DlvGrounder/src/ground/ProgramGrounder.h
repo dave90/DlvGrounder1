@@ -37,6 +37,15 @@ struct hashRule {
 	  return *r1==*r2;
 	}
 
+	/// The hash of a ground atom
+	size_t operator()(GroundAtom* atom) const {
+	  return atom->getHash();
+	}
+
+	bool operator()( GroundAtom* a1,  GroundAtom* a2)const{
+		return *a1==*a2;
+	}
+
 };
 
 /**
@@ -75,7 +84,8 @@ public:
 			supportedAtom.insert({atom,0});
 		else{
 			unsigned int support=supportedAtom.find(atom)->second;
-			supportedAtom.find(atom)->second=support-1;
+			if(support>0)
+				supportedAtom.find(atom)->second=support-1;
 		}
 	}
 
@@ -92,7 +102,7 @@ private:
 	///Order of the rule when grounding
 	vector<GroundRule*> groundedRulesOrdering;
 	/// Number of supported rule for each atom
-	unordered_map<GroundAtom*,unsigned int> supportedAtom;
+	unordered_map<GroundAtom*,unsigned int,hashRule,hashRule> supportedAtom;
 };
 
 
