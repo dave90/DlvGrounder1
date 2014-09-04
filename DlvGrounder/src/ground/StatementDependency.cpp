@@ -438,7 +438,7 @@ void ComponentGraph::computeAnOrdering(list<unsigned int>& componentsOrdering) {
 		this->recursive_sort(componentsOrdering);
 	}
 
-	printTheOrderingOfComponent(componentsOrdering);
+//	printTheOrderingOfComponent(componentsOrdering);
 }
 
 void ComponentGraph::printTheOrderingOfComponent(list<unsigned int>& componentsOrdering){
