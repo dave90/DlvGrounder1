@@ -33,13 +33,16 @@ void GroundedRules::printAndSimplify(InstancesTable* instancesTable) {
 					break;
 				} else
 					atomToRemove.push_back(body);
-			} else if (supportedAtom.find(body)->second == 0) {
-				if (!body->negative) {
-					decrementSupport(rule);
-					skipRule = true;
-					break;
-				} else
-					atomToRemove.push_back(body);
+			} else {
+				auto it=supportedAtom.find(body);
+				if (it != supportedAtom.end() && it->second == 0) {
+					if (!body->negative) {
+						decrementSupport(rule);
+						skipRule = true;
+						break;
+					} else
+						atomToRemove.push_back(body);
+				}
 			}
 		}
 

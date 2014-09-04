@@ -266,6 +266,7 @@ public:
 	bool isTrue(vector<index_object>& terms) {
 		GenericAtom *atomUndef=new AtomUndef(terms,0);
 		auto it=nofacts.find( atomUndef);
+		if(it==nofacts.end())return false;
 		bool result = (*it)->isFact();
 		delete atomUndef;
 		return result;
