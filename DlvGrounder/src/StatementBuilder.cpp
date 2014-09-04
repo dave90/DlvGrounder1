@@ -47,7 +47,6 @@ void StatementBuilder::printStats() {
 		cout << "Aggregate: " << aggregate << endl;
 		cout << "Literal encountered: " << literal << endl;
 		cout << "Term encountered: " << term << endl;
-		cout << "Term : " << TermTable::getInstance()->getSize() << endl;
 
 		cout << endl;
 

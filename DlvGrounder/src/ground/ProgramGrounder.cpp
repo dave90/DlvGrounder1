@@ -165,7 +165,6 @@ void ProgramGrounder::updateDelta(Rule* r) {
 bool ProgramGrounder::groundRule(Rule* r, bool firstIteraction,
 		bool isRecursive, const unordered_set<index_object>* predicateInHead) {
 	//The map of the assignment, map each variables to its assigned value
-
 	map_index_index var_assign;
 	if (r->getSizeBody() == 0)
 		return printGroundRule(r, var_assign, isRecursive, firstIteraction);
@@ -213,6 +212,7 @@ bool ProgramGrounder::groundRule(Rule* r, bool firstIteraction,
 		if (current_atom->isBuiltIn() || instance == nullptr || negation) {
 
 			firstMatch = true;
+
 			id_match.push_back(0);
 
 			//  If it is a built in atom, ground it and evaluate it (Built in have not instance table, since they have not a predicate)
@@ -454,7 +454,6 @@ bool ProgramGrounder::printGroundRule(Rule *r, map_index_index& var_assign,
 	bool added = false;
 	//Ground the atom in the head
 	for (auto head_it = r->getBeginHead(); head_it != r->getEndHead();head_it++) {
-
 		Atom *head = (*head_it);
 
 		Atom *groundAtom = head->ground(var_assign);
