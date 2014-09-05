@@ -286,9 +286,8 @@ bool SimpleIndexAtom::searchForFirstMatch(AtomTable* table, ResultMatch* rm){
 	if(templateAtom->isGround()){
 		if(templateAtom->getTermsSize()==0 && table->size()==0)
 				return true;
-		if(findIfExists(table)){
+		if(findIfExists(table))
 			return true;
-		}
 	}
 	else
 		//Compute the first match
