@@ -69,7 +69,12 @@ bool Instances::addDelta(GenericAtom*& atomUndef) {
 	}
 	bool isInNoFacts=indexAtom->count(IndexAtom::NOFACTS,atomUndef);
 	if(isInNoFacts){
+
 		indexAtom->find(IndexAtom::NOFACTS,atomUndef);
+
+		if(atomUndef->isFact() && !isTrue(atomUndef->terms)){
+			setValue(atomUndef->terms,true);
+		}
 		return false;
 	}
 	bool insertedInDelta=delta.insert(atomUndef).second;
@@ -279,6 +284,8 @@ unsigned int SimpleIndexAtom::firstMatch(bool searchInDelta,Atom *templateAtom,m
 bool SimpleIndexAtom::searchForFirstMatch(AtomTable* table, ResultMatch* rm){
 	//Call findIfAFactExist only if all the terms are bound
 	if(templateAtom->isGround()){
+		if(templateAtom->getTermsSize()==0 && table->size()==0)
+				return true;
 		if(findIfExists(table)){
 			return true;
 		}
