@@ -111,6 +111,8 @@ public:
 	void removeBody(GroundAtom* atom){body.erase(atom);}
 	/// Remove the atom in the head
 	void removeHead(GroundAtom* atom){head.erase(atom);}
+	/// Search atom in head
+	bool findHead(GroundAtom* atom){return head.count(atom);};
 
 	///Printer method
 	void print();

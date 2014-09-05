@@ -491,7 +491,10 @@ bool ProgramGrounder::printGroundRule(Rule *r, map_index_index& var_assign,
 			added = instancesTable->getInstance(predicate)->addNoFact(
 					headAtom->atom);
 
-		groundRule->addInHead(headAtom);
+		if(!added && groundRule->findHead(headAtom))
+			added=true;
+		else
+			groundRule->addInHead(headAtom);
 
 	}
 
