@@ -26,7 +26,8 @@ void GroundedRules::printAndSimplify(InstancesTable* instancesTable) {
 		for (auto body_it = rule->getBeginBody(); body_it != rule->getEndBody();
 				body_it++) {
 			GroundAtom* body = *body_it;
-			if (instancesTable->getInstance(body->predicate)->isTrue(body->atom->terms)) {
+			Instances* is= instancesTable->getInstance(body->predicate);
+			if (is!=nullptr && is->isTrue(body->atom->terms)) {
 				if (body->negative) {
 					decrementSupport(rule);
 					skipRule = true;
