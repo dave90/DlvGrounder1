@@ -566,7 +566,6 @@ void StatementDependency::createComponentGraph() {
 
 // An utility function that specifies how to sort the rules of a component
 bool sortRules (Rule* r1,Rule* r2) {
-
 	unordered_set<index_object> headSecondRule=r2->getPredicateInHead();
 	for(auto it=r1->getBeginBody();it!=r1->getEndBody();it++)
 		if(headSecondRule.count((*it)->getPredicate().second))
@@ -617,8 +616,10 @@ void StatementDependency::createComponentGraphAndComputeAnOrdering(vector<vector
 		i++;
 	}
 
-	for(unsigned int i=0;i<recursiveRules.size();i++)
-		sort(recursiveRules[i].begin(),recursiveRules[i].end(),sortRules);
+	for(unsigned int i=0;i<recursiveRules.size();i++){
+		if(recursiveRules[i].size()>=2)
+			stable_sort(recursiveRules[i].begin(),recursiveRules[i].end(),sortRules);
+	}
 
 
 }
