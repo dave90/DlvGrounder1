@@ -115,8 +115,9 @@ public:
 	virtual void setBinop(Binop binop) {};
 	/// Return true if is BuiltInAtom
 	virtual bool isBuiltIn(){return false;};
-	///This method evaluate the truth value of the built-in atom
-	virtual bool evaluate(){return false;};
+	///This method evaluate the truth value of the built-in atom, if there is bind variable
+	/// and equal then assign that value for the bind variable
+	virtual bool evaluate(unordered_map<index_object, index_object>& substitutionTerm){return false;};
 	/*****************************************************/
 
 	/******** Methods useful for AggregateAtom ********/
@@ -147,7 +148,7 @@ public:
 
 	/// Substitute the terms in the atom with the given terms and return the atom with terms sobstitute
 	/// @param substritutionTerm map of index_object. The first index is the ID of term to substitute and second the value
-	virtual Atom* substitute(unordered_map<index_object, index_object>& substritutionTerm){return nullptr;};
+	virtual Atom* substitute(unordered_map<index_object, index_object>& substitutionTerm){return nullptr;};
 	/// Substitute the term with constant term and calculate the arithmetic terms
 	/// The subclasses have to implement the substitute method for create correct type class of Atom
 	virtual Atom* ground(unordered_map<index_object, index_object>& substritutionTerm);

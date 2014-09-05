@@ -54,7 +54,7 @@ public:
 	virtual bool operator==(const Atom& a);
 
 	///This method evaluate the truth value of the built-in atom
-	bool evaluate();
+	bool evaluate(unordered_map<index_object, index_object>& substitutionTerm);
 
 	/// Return true if is BuiltInAtom
 	virtual bool isBuiltIn(){return true;};

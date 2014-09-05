@@ -222,7 +222,7 @@ bool ProgramGrounder::groundRule(Rule* r, bool firstIteraction,
 			if (current_atom->isBuiltIn()) {
 
 				Atom *groundBuiltIn = current_atom->ground(var_assign);
-				find = groundBuiltIn->evaluate();
+				find = groundBuiltIn->evaluate(var_assign);
 				delete groundBuiltIn;
 
 				// If there isn't instances the search fails (find equal false) and if isn't negated then the algorithm have to stop
@@ -426,7 +426,7 @@ bool ProgramGrounder::printGroundRule(Rule *r, map_index_index& var_assign,
 
 		index_object predicate = body->getPredicate().second;
 		//If the predicate is EDB skip this atom
-		if (predicateTable->getPredicate(predicate)->isEdb())
+		if (predicateTable->getPredicate(predicate)->isEdb() || body->isBuiltIn())
 			continue;
 
 		GenericAtom *atom = nullptr;

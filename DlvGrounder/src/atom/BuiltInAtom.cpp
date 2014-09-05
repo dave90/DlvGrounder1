@@ -13,15 +13,33 @@
 #include "../table/TermTable.h"
 #include "../table/HashVecInt.h"
 
-bool BuiltInAtom::evaluate(){
+unsigned int calculateValueTerm(index_object term){
+	return atof(TermTable::getInstance()->getTerm( TermTable::getInstance()->getTerm(term)->calculate() )->getName().c_str());
+}
+
+index_object getIndexOfCalculateValueTerm(index_object term){
+	return TermTable::getInstance()->getTerm(term)->calculate();
+}
+
+bool BuiltInAtom::evaluate(unordered_map<index_object, index_object>& substitutionTerm){
 	index_object firstTerm=terms[0];
 	index_object secondTerm=terms[1];
 
 	TermTable *termTable=TermTable::getInstance();
 
+	// If there is equal and variable assign that value
+	if(binop==Binop::EQUAL && (termTable->getTerm(firstTerm)->isVariableTerm() || termTable->getTerm(secondTerm)->isVariableTerm() )){
+		if(termTable->getTerm(firstTerm)->isVariableTerm())
+			substitutionTerm.insert({firstTerm,getIndexOfCalculateValueTerm(secondTerm)});
+		else
+			substitutionTerm.insert({secondTerm,getIndexOfCalculateValueTerm(firstTerm)});
+
+		return true;
+	}
+
 	// Take the value of firstBinop and SecondBinop
-	unsigned int value1= atof(termTable->getTerm( termTable->getTerm(firstTerm)->calculate() )->getName().c_str());
-	unsigned int value2= atof(termTable->getTerm( termTable->getTerm(secondTerm)->calculate() )->getName().c_str());
+	unsigned int value1= calculateValueTerm(firstTerm);
+	unsigned int value2= calculateValueTerm(secondTerm);
 
 	if(binop==Binop::EQUAL)
 		return value1==value2;
@@ -79,7 +97,8 @@ void BuiltInAtom::print(){
 Atom* BuiltInAtom::substitute(unordered_map<index_object, index_object>& substritutionTerm) {
 	vector<index_object> terms_substitute;
 	TermTable *termTable=TermTable::getInstance();
-	for(index_object term:terms)
+	for(index_object term:terms){
 		terms_substitute.push_back( termTable->getTerm(term)->substitute(substritutionTerm) );
+	}
 	return new BuiltInAtom(binop,negative,terms_substitute);
 }
