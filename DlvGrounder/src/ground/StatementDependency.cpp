@@ -349,6 +349,7 @@ void ComponentGraph::createComponent(DependencyGraph &depGraph,
 
 				bool isPositive = !(*body_it)->isNegative();
 
+				if(!(*body_it)->getPredicate().first)continue;
 				index_object pred_body = (*body_it)->getPredicate().second;
 
 				// Check if the predicate appear in the head also
