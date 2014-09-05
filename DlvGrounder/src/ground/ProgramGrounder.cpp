@@ -37,6 +37,7 @@ void GroundedRules::printAndSimplify(InstancesTable* instancesTable) {
 			} else {
 				auto it=supportedAtom.find(body);
 				if (it == supportedAtom.end() || it->second == 0) {
+
 					if (!body->negative) {
 						decrementSupport(rule);
 						skipRule = true;
@@ -491,6 +492,7 @@ bool ProgramGrounder::printGroundRule(Rule *r, map_index_index& var_assign,
 			added = instancesTable->getInstance(predicate)->addNoFact(
 					headAtom->atom);
 
+		// Duplication in head of rule
 		if(!added && groundRule->findHead(headAtom))
 			added=true;
 		else
@@ -499,6 +501,11 @@ bool ProgramGrounder::printGroundRule(Rule *r, map_index_index& var_assign,
 	}
 
 	if (groundRule->getSizeHead() == 1 && groundRule->getSizeBody() == 0) { // If is a new fact
+		// Duplication in head with disjunction and is fact
+		if(disjunction){
+			GroundAtom* atom=*groundRule->getBeginHead();
+			instancesTable->getInstance(atom->predicate)->setValue(atom->atom->terms,true);
+		}
 		if (added) {
 			groundRule->print();
 		}
