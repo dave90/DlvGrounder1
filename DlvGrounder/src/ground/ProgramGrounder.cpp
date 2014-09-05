@@ -161,7 +161,7 @@ void ProgramGrounder::updateDelta(Rule* r) {
 	for (auto it = r->getBeginHead(); it != r->getEndHead(); it++) {
 		index_object predicate = (*it)->getPredicate().second;
 		Instances* is = instancesTable->getInstance(predicate);
-		is->moveNextDeltaInDelta();
+		if(is!=nullptr) is->moveNextDeltaInDelta();
 	}
 }
 
