@@ -42,9 +42,9 @@ bool BuiltInAtom::evaluate(unordered_map<index_object, index_object>& substituti
 	unsigned int value2= calculateValueTerm(secondTerm);
 
 	if(binop==Binop::EQUAL)
-		return value1==value2;
+		return firstTerm==secondTerm;
 	if(binop==Binop::UNEQUAL)
-		return value1!=value2;
+		return firstTerm!=secondTerm;
 	if(binop==Binop::LESS)
 		return value1<value2;
 	if(binop==Binop::LESS_OR_EQ)
