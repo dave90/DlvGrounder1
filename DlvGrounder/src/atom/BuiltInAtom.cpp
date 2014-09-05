@@ -13,8 +13,8 @@
 #include "../table/TermTable.h"
 #include "../table/HashVecInt.h"
 
-unsigned int calculateValueTerm(index_object term){
-	return atof(TermTable::getInstance()->getTerm( TermTable::getInstance()->getTerm(term)->calculate() )->getName().c_str());
+string calculateValueTerm(index_object term){
+	return TermTable::getInstance()->getTerm( TermTable::getInstance()->getTerm(term)->calculate() )->getName();
 }
 
 index_object getIndexOfCalculateValueTerm(index_object term){
@@ -38,21 +38,21 @@ bool BuiltInAtom::evaluate(unordered_map<index_object, index_object>& substituti
 	}
 
 	// Take the value of firstBinop and SecondBinop
-	unsigned int value1= calculateValueTerm(firstTerm);
-	unsigned int value2= calculateValueTerm(secondTerm);
+	string value1= calculateValueTerm(firstTerm);
+	string value2= calculateValueTerm(secondTerm);
 
 	if(binop==Binop::EQUAL)
 		return firstTerm==secondTerm;
 	if(binop==Binop::UNEQUAL)
 		return firstTerm!=secondTerm;
 	if(binop==Binop::LESS)
-		return value1<value2;
+		return strverscmp(value1.c_str(),value2.c_str())<0;
 	if(binop==Binop::LESS_OR_EQ)
-		return value1<=value2;
+		return strverscmp(value1.c_str(),value2.c_str())<=0;
 	if(binop==Binop::GREATER)
-		return value1>value2;
+		return strverscmp(value1.c_str(),value2.c_str())>0;
 	if(binop==Binop::GREATER_OR_EQ)
-		return value1>=value2;
+		return strverscmp(value1.c_str(),value2.c_str())>=0;
 
 	return false;
 }
