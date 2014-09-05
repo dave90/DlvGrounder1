@@ -211,11 +211,14 @@ void DependencyGraph::addEdge(index_object pred_body, index_object pred_head, in
 		index_j = predicateIndexGMap.size();
 		predicateIndexGMap.insert( { pred_head, index_j });
 	}
-	boost::add_edge(index_i, index_j, weight, stratifiedGraph);
 
-	stratifiedGraph[index_i].pred_id = pred_body;
-	stratifiedGraph[index_j].pred_id = pred_head;
-
+	// If add an edge positive with the same predicate not add in stratified
+	// because is only for component, to add rule with not positive atom in body
+	if(!(index_i==index_j && weight>0)){
+		boost::add_edge(index_i, index_j, weight, stratifiedGraph);
+		stratifiedGraph[index_i].pred_id = pred_body;
+		stratifiedGraph[index_j].pred_id = pred_head;
+	}
 	if(weight>0){
 		boost::add_edge(index_i, index_j, depGraph);
 		// Set the predicate in the vertex
