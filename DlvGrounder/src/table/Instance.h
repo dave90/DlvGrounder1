@@ -259,18 +259,23 @@ public:
 	void setValue(vector<index_object>& terms, bool truth) {
 		GenericAtom *atomUndef=new AtomUndef(terms,truth);
 		auto it=nofacts.find( atomUndef);
-		(*it)->setFact(truth);
+		if(it!=nofacts.end()) (*it)->setFact(truth);
 		delete atomUndef;
 	};
 
 	///This method determines whether a no fact is true
 	bool isTrue(vector<index_object>& terms) {
 		GenericAtom *atomUndef=new AtomUndef(terms,0);
-		auto it=nofacts.find( atomUndef);
-		if(it==nofacts.end())return false;
-		bool result = (*it)->isFact();
-		delete atomUndef;
-		return result;
+		auto it=nofacts.find(atomUndef);
+		if(it!=nofacts.end()){
+			bool result = (*it)->isFact();
+			delete atomUndef;
+			return result;
+		}
+		else{
+			delete atomUndef;
+			return false;
+		}
 	};
 
 	///Getter for the predicate
