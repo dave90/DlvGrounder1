@@ -190,18 +190,13 @@ public:
 	Instances(index_object predicate,PredicateTable *pt): predicate(predicate),predicateTable(pt),indexAtom(0) {this->configureIndexAtom();}
 
 	bool addFact(const vector<index_object>& terms) {
+		// If the atom is not present as fact, it is added. The temporary atom duplicate is deleted and the inserted atom is assigned.
 		GenericAtom* atomFact=new GenericAtom(terms);
-
-		bool inserted=false;
-		if(facts.insert(atomFact).second)
-			inserted=true;
-
-		// If the atom is not present, it is added. The temporary atom duplicate is deleted and the inserted atom is assigned.
-		indexAtom->find(IndexAtom::NOFACTS,atomFact);
-
-		if(inserted)
-			return true;
-		return false;
+		if(!facts.insert(atomFact).second){
+			indexAtom->find(IndexAtom::NOFACTS,atomFact);
+			return false;
+		}
+		return true;
 	};
 
 	///This method looks for a generic atom in both the facts and no facts tables @see GenericAtom
@@ -232,24 +227,17 @@ public:
 	///This method adds a no facts to the no facts table.
 	///Its truth value can be true or undefined, if it false it is not stored at all
 	bool addNoFact(GenericAtom*& atomUndef) {
+		// If the atom is not present as fact, it is added in nofacts. The temporary atom duplicate is deleted and the inserted atom is assigned.
+		// If the atom is present but undefined and the atom to be insert is true then its truth value is changed
 		bool isFact=indexAtom->count(IndexAtom::FACTS,atomUndef);
 		if(isFact){
-			// If the atom is a facts, it is returned. The temporary atom duplicate is deleted within the find method.
 			indexAtom->find(IndexAtom::FACTS,atomUndef);
 			return false;
 		}
-		// If the atom is not present, it is added. The temporary atom duplicate is deleted and the inserted atom is assigned.
 		if(!nofacts.insert(atomUndef).second){
-
-			bool updated=false;
-			//If the atom in the table is undef and the atom to be insert is true then change only the value
-			if(atomUndef->isFact() && !isTrue(atomUndef->terms)){
+			if(atomUndef->isFact() && !isTrue(atomUndef->terms))
 				setValue(atomUndef->terms,true);
-				updated=true;
-			}
 			indexAtom->find(IndexAtom::NOFACTS,atomUndef);
-			if(updated)
-				return true;
 			return false;
 		}
 		return true;
