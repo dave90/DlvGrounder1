@@ -226,7 +226,7 @@ public:
 
 	///This method adds a no facts to the no facts table.
 	///Its truth value can be true or undefined, if it false it is not stored at all
-	bool addNoFact(GenericAtom*& atomUndef) {
+	bool addNoFact(GenericAtom*& atomUndef,bool& updated) {
 		// If the atom is not present as fact, it is added in nofacts. The temporary atom duplicate is deleted and the inserted atom is assigned.
 		// If the atom is present but undefined and the atom to be insert is true then its truth value is changed
 		bool isFact=indexAtom->count(IndexAtom::FACTS,atomUndef);
@@ -235,14 +235,11 @@ public:
 			return false;
 		}
 		if(!nofacts.insert(atomUndef).second){
-			bool update=false;
 			if(atomUndef->isFact() && !isTrue(atomUndef->terms)){
 				setValue(atomUndef->terms,true);
-				update=true;
+				updated=true;
 			}
 			indexAtom->find(IndexAtom::NOFACTS,atomUndef);
-			if(update)
-				return true;
 			return false;
 		}
 		return true;
@@ -281,11 +278,11 @@ public:
 
 	///This method adds a no facts to the delta table if it is yet not present in the facts, no facts and delta tables.
 	///Its truth value can be true or undefined, if it false it is not stored at all.
-	bool addDelta(GenericAtom*& atomUndef);
+	bool addDelta(GenericAtom*& atomUndef,bool& updated);
 
 	///This method adds a no facts to the next delta table if it is yet not present in the facts, no facts, delta and next delta tables.
 	///Its truth value can be true or undefined, if it false it is not stored at all.
-	bool addNextDelta(GenericAtom*& atomUndef);
+	bool addNextDelta(GenericAtom*& atomUndef,bool& updated);
 
 	///This method moves the content of the delta table in the no facts table,
 	///and then moves the content of the next delta table in the delta table.

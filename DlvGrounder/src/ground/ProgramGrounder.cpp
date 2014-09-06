@@ -457,6 +457,7 @@ bool ProgramGrounder::printGroundRule(Rule *r, map_index_index& var_assign,
 	bool disjunction = r->getSizeHead() > 1;
 
 	bool added = false;
+	bool updated = false;
 	//Ground the atom in the head
 	for (auto head_it = r->getBeginHead(); head_it != r->getEndHead();head_it++) {
 		Atom *head = (*head_it);
@@ -482,15 +483,15 @@ bool ProgramGrounder::printGroundRule(Rule *r, map_index_index& var_assign,
 			bool add = false;
 			if (firstIteration)
 				add = instancesTable->getInstance(predicate)->addDelta(
-						headAtom->atom);
+						headAtom->atom,updated);
 			else
 				add = instancesTable->getInstance(predicate)->addNextDelta(
-						headAtom->atom);
+						headAtom->atom,updated);
 			if (add)
 				added = true;
 		} else
 			added = instancesTable->getInstance(predicate)->addNoFact(
-					headAtom->atom);
+					headAtom->atom,updated);
 
 		// Duplication in head of rule
 		if(!added && groundRule->findHead(headAtom))
@@ -502,16 +503,17 @@ bool ProgramGrounder::printGroundRule(Rule *r, map_index_index& var_assign,
 
 	if (groundRule->getSizeHead() == 1 && groundRule->getSizeBody() == 0) { // If is a new fact
 		// Duplication in head with disjunction and is fact
+		GroundAtom* atom=*groundRule->getBeginHead();
 		if(disjunction){
-			GroundAtom* atom=*groundRule->getBeginHead();
 			instancesTable->getInstance(atom->predicate)->setValue(atom->atom->terms,true);
 		}
-		if (added) {
+		if ((added && atom->atom->isFact()) || (!added && updated)) {
 			groundRule->print();
 		}
 		delete groundRule;
-	} else
+	} else{
 		groundedRule.addRule(groundRule);
+	}
 
 	return added;
 

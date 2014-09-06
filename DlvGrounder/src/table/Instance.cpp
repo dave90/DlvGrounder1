@@ -48,7 +48,10 @@ Instances::~Instances() {
 void Instances::moveNextDeltaInDelta(){
 	if(delta.size()>0){
 		for(GenericAtom* atom: delta)
-			nofacts.insert(atom);
+			if(atom->isFact() && !isTrue(atom->terms))
+				setValue(atom->terms,true);
+			else
+				nofacts.insert(atom);
 		delta.clear();
 	}
 	if(nextDelta.size()>0){
@@ -60,7 +63,7 @@ void Instances::moveNextDeltaInDelta(){
 	}
 }
 
-bool Instances::addDelta(GenericAtom*& atomUndef) {
+bool Instances::addDelta(GenericAtom*& atomUndef,bool& updated) {
 	// If the atom is not present anywhere, it is added in delta. The temporary atom duplicate is deleted and the inserted atom is assigned.
 	// If the atom is present but undefined and the atom to be insert is true then its truth value is changed
 	bool isInFacts=indexAtom->count(IndexAtom::FACTS,atomUndef);
@@ -70,22 +73,30 @@ bool Instances::addDelta(GenericAtom*& atomUndef) {
 	}
 	bool isInNoFacts=indexAtom->count(IndexAtom::NOFACTS,atomUndef);
 	if(isInNoFacts){
-		if(atomUndef->isFact() && !isTrue(atomUndef->terms))
-			setValue(atomUndef->terms,true);
+		if(atomUndef->isFact() && !isTrue(atomUndef->terms)){
+				setValue(atomUndef->terms,true);
+				updated=true;
+		}
 		indexAtom->find(IndexAtom::NOFACTS,atomUndef);
 		return false;
 	}
 	bool insertedInDelta=delta.insert(atomUndef).second;
 	if(!insertedInDelta){
-		if(atomUndef->isFact() && !isTrue(atomUndef->terms))
-			setValue(atomUndef->terms,true);
+		if(atomUndef->isFact()){
+			indexAtom->find(IndexAtom::DELTA,atomUndef);
+			if(!atomUndef->isFact()){
+				setValue(atomUndef->terms,true);
+				updated=true;
+			}
+			return false;
+		}
 		indexAtom->find(IndexAtom::DELTA,atomUndef);
 		return false;
 	}
 	return true;
 }
 
-bool Instances::addNextDelta(GenericAtom*& atomUndef) {
+bool Instances::addNextDelta(GenericAtom*& atomUndef,bool& updated) {
 	// If the atom is not present anywhere, it is added in nextDelta. The temporary atom duplicate is deleted and the inserted atom is assigned.
 	// If the atom is present but undefined and the atom to be insert is true then its truth value is changed
 	bool isInFacts=indexAtom->count(IndexAtom::FACTS,atomUndef);
@@ -102,15 +113,29 @@ bool Instances::addNextDelta(GenericAtom*& atomUndef) {
 	}
 	bool isInDelta=indexAtom->count(IndexAtom::DELTA,atomUndef);
 	if(isInDelta){
-		if(atomUndef->isFact() && !isTrue(atomUndef->terms))
+		if(atomUndef->isFact()){
+			indexAtom->find(IndexAtom::DELTA,atomUndef);
+			if(!atomUndef->isFact()){
 				setValue(atomUndef->terms,true);
+				updated=true;
+			}
+			return false;
+		}
 		indexAtom->find(IndexAtom::DELTA,atomUndef);
 		return false;
 	}
 	bool insertedInNextNoFacts=nextDelta.insert(atomUndef).second;
 	if(!insertedInNextNoFacts){
-		if(atomUndef->isFact() && !isTrue(atomUndef->terms))
-			setValue(atomUndef->terms,true);
+		if(atomUndef->isFact()){
+			GenericAtom* atomFind=*nextDelta.find(atomUndef);
+			if(!atomUndef->isFact()){
+				setValue(atomUndef->terms,true);
+				updated=true;
+			}
+			delete atomUndef;
+			atomUndef=atomFind;
+			return false;
+		}
 		GenericAtom* atomFind=*nextDelta.find(atomUndef);
 		delete atomUndef;
 		atomUndef=atomFind;
