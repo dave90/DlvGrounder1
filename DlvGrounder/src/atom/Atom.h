@@ -79,6 +79,13 @@ public:
 		return true;
 	}
 
+	/// Return true if all the terms contains od are variable
+	virtual bool isAllVariable(){
+		for(index_object term:terms)
+			if(TermTable::getInstance()->getTerm(term)->isConstant())return false;
+		return true;
+	}
+
 	/******** Methods useful for ClassicalLiteral ********/
 	/** Getter method for the predicate
 	 * @retval <true,id> if the atom has a predicate whose index is id

@@ -287,9 +287,14 @@ bool SimpleIndexAtom::searchForFirstMatch(AtomTable* table, ResultMatch* rm){
 }
 
 void SimpleIndexAtom::computeFirstMatch(AtomTable* collection,ResultMatch* rm){
+
+	bool jumpMatch=false;
+	if(templateAtom->isAllVariable())
+		jumpMatch=true;
+
 	for (GenericAtom *genericAtom : *collection) {
 
-		if (match(genericAtom,templateAtom)) {
+		if (jumpMatch || match(genericAtom,templateAtom)) {
 			rm->result.insert(genericAtom);
 
 			//If there are no more bind variables stop.
