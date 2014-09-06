@@ -235,9 +235,14 @@ public:
 			return false;
 		}
 		if(!nofacts.insert(atomUndef).second){
-			if(atomUndef->isFact() && !isTrue(atomUndef->terms))
+			bool update=false;
+			if(atomUndef->isFact() && !isTrue(atomUndef->terms)){
 				setValue(atomUndef->terms,true);
+				update=true;
+			}
 			indexAtom->find(IndexAtom::NOFACTS,atomUndef);
+			if(update)
+				return true;
 			return false;
 		}
 		return true;

@@ -277,8 +277,6 @@ unsigned int SimpleIndexAtom::firstMatch(bool searchInDelta,Atom *templateAtom,m
 bool SimpleIndexAtom::searchForFirstMatch(AtomTable* table, ResultMatch* rm){
 	//Call findIfAFactExist only if all the terms are bound
 	if(templateAtom->isGround()){
-		if(templateAtom->getTermsSize()==0 && table->size()==0)
-				return true;
 		if(findIfExists(table))
 			return true;
 	}
@@ -330,7 +328,6 @@ void SimpleIndexAtom::findIfExist(bool searchInDelta,Atom *templateAtom,bool& fi
 
 	//Search only in delta for match
 	if(searchInDelta){
-		cout<<"FIND FACT"<<endl;
 		//Search in delta for match
 		if(findIfExists(delta,isUndef)){
 			find=true;
