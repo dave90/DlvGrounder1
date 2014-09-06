@@ -28,7 +28,6 @@ void Instances::configureIndexAtom(){
 	}
 }
 
-
 Instances::~Instances() {
 	for (auto it = facts.begin(); it != facts.end(); it++){
 		delete *it;
@@ -57,7 +56,13 @@ void Instances::moveNextDeltaInDelta(){
 	if(nextDelta.size()>0){
 		indexAtom->updateDelta(&nextDelta);
 		for(GenericAtom* atom: nextDelta){
-			delta.insert(atom);
+			if(indexAtom->count(IndexAtom::DELTA,atom) && atom->isFact()){
+				indexAtom->find(IndexAtom::DELTA,atom);
+				if(!atom->isFact())
+					setValue(atom->terms,true);
+			}
+			else
+				delta.insert(atom);
 		}
 		nextDelta.clear();
 	}
@@ -144,7 +149,7 @@ bool Instances::addNextDelta(GenericAtom*& atomUndef,bool& updated) {
 	return true;
 }
 
-/****************************************************** INSTANCES TABLE***************************************************/
+/****************************************************** INSTANCES TABLE ***************************************************/
 
 InstancesTable::~InstancesTable() {
 	for (auto i : instanceTable) {
