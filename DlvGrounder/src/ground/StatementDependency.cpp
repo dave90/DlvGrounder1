@@ -167,7 +167,7 @@ void DependencyGraph::printFile(string fileGraph) {
 	myfile.open(fileGraph);
 	myfile << graphDOT;
 	myfile.close();
-	string COMMAND = "dot -Tpng " + fileGraph + " -O";
+	string COMMAND = "dot -Tsvg " + fileGraph + " -O";
 	system(COMMAND.c_str());
 	remove(fileGraph.c_str());
 
@@ -418,7 +418,7 @@ void ComponentGraph::printFile(string fileGraph) {
 	myfile.open(fileGraph);
 	myfile << graphDOT;
 	myfile.close();
-	string COMMAND = "dot -Tpng " + fileGraph + " -O";
+	string COMMAND = "dot -Tsvg " + fileGraph + " -O";
 	system(COMMAND.c_str());
 	remove(fileGraph.c_str());
 
