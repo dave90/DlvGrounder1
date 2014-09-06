@@ -222,29 +222,25 @@ public:
 		return true;
 	};
 
-	///This method looks for a generic atom in both the facts and no facts tables @see GenericAtom
+	///This method looks for a generic atom in both the facts and no facts and delta tables @see GenericAtom
 	GenericAtom* getGenericAtom(vector<index_object>& terms) {
 		GenericAtom* atomFact=new GenericAtom(terms);
-
 		bool isFact=indexAtom->count(IndexAtom::FACTS,atomFact);
 		if(isFact){
 			indexAtom->find(IndexAtom::FACTS,atomFact);
 			return atomFact;
 		}
-
 		bool isNoFact=indexAtom->count(IndexAtom::NOFACTS,atomFact);
 		if(isNoFact){
 			indexAtom->find(IndexAtom::NOFACTS,atomFact);
 			return atomFact;
 		}
-
 		bool isDelta=indexAtom->count(IndexAtom::DELTA,atomFact);
 		if(isDelta){
 			indexAtom->find(IndexAtom::DELTA,atomFact);
 			return atomFact;
 		}
-
-	return 0;
+		return 0;
 	};
 
 	///This method adds a no facts to the no facts table.
@@ -258,9 +254,13 @@ public:
 			return false;
 		}
 		if(!nofacts.insert(atomUndef).second){
-			if(atomUndef->isFact() && !isTrue(atomUndef->terms)){
-				setValue(atomUndef->terms,true);
-				updated=true;
+			if(atomUndef->isFact()){
+				indexAtom->find(IndexAtom::NOFACTS,atomUndef);
+				if(!atomUndef->isFact()){
+					atomUndef->setFact(true);
+					updated=true;
+				}
+				return false;
 			}
 			indexAtom->find(IndexAtom::NOFACTS,atomUndef);
 			return false;

@@ -56,10 +56,12 @@ void Instances::moveNextDeltaInDelta(){
 	if(nextDelta.size()>0){
 		indexAtom->updateDelta(&nextDelta);
 		for(GenericAtom* atom: nextDelta){
-			if(indexAtom->count(IndexAtom::DELTA,atom) && atom->isFact()){
-				indexAtom->find(IndexAtom::DELTA,atom);
-				if(!atom->isFact())
-					setValue(atom->terms,true);
+			if(indexAtom->count(IndexAtom::DELTA,atom)){
+				if(atom->isFact()){
+					indexAtom->find(IndexAtom::DELTA,atom);
+					if(!atom->isFact())
+						atom->setFact(true);
+				}
 			}
 			else
 				delta.insert(atom);
@@ -78,9 +80,13 @@ bool Instances::addDelta(GenericAtom*& atomUndef,bool& updated) {
 	}
 	bool isInNoFacts=indexAtom->count(IndexAtom::NOFACTS,atomUndef);
 	if(isInNoFacts){
-		if(atomUndef->isFact() && !isTrue(atomUndef->terms)){
-				setValue(atomUndef->terms,true);
+		if(atomUndef->isFact()){
+			indexAtom->find(IndexAtom::NOFACTS,atomUndef);
+			if(!atomUndef->isFact()){
+				atomUndef->setFact(true);
 				updated=true;
+			}
+			return false;
 		}
 		indexAtom->find(IndexAtom::NOFACTS,atomUndef);
 		return false;
@@ -90,7 +96,7 @@ bool Instances::addDelta(GenericAtom*& atomUndef,bool& updated) {
 		if(atomUndef->isFact()){
 			indexAtom->find(IndexAtom::DELTA,atomUndef);
 			if(!atomUndef->isFact()){
-				setValue(atomUndef->terms,true);
+				atomUndef->setFact(true);
 				updated=true;
 			}
 			return false;
@@ -111,8 +117,14 @@ bool Instances::addNextDelta(GenericAtom*& atomUndef,bool& updated) {
 	}
 	bool isInNoFacts=indexAtom->count(IndexAtom::NOFACTS,atomUndef);
 	if(isInNoFacts){
-		if(atomUndef->isFact() && !isTrue(atomUndef->terms))
-				setValue(atomUndef->terms,true);
+		if(atomUndef->isFact()){
+			indexAtom->find(IndexAtom::NOFACTS,atomUndef);
+			if(!atomUndef->isFact()){
+				atomUndef->setFact(true);
+				updated=true;
+			}
+			return false;
+		}
 		indexAtom->find(IndexAtom::NOFACTS,atomUndef);
 		return false;
 	}
@@ -121,7 +133,7 @@ bool Instances::addNextDelta(GenericAtom*& atomUndef,bool& updated) {
 		if(atomUndef->isFact()){
 			indexAtom->find(IndexAtom::DELTA,atomUndef);
 			if(!atomUndef->isFact()){
-				setValue(atomUndef->terms,true);
+				atomUndef->setFact(true);
 				updated=true;
 			}
 			return false;
@@ -134,7 +146,7 @@ bool Instances::addNextDelta(GenericAtom*& atomUndef,bool& updated) {
 		if(atomUndef->isFact()){
 			GenericAtom* atomFind=*nextDelta.find(atomUndef);
 			if(!atomUndef->isFact()){
-				setValue(atomUndef->terms,true);
+				atomUndef->setFact(true);
 				updated=true;
 			}
 			delete atomUndef;
