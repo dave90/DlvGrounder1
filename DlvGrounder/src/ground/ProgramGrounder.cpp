@@ -191,6 +191,7 @@ bool ProgramGrounder::groundRule(Rule* r, bool firstIteraction,
 	vector<unordered_set<index_object>> variables_atoms;
 	Atom *templateAtom = 0;
 
+
 	//Determine bind variables for each atoms
 	findBindVariablesRule(r, variables_atoms);
 
@@ -256,9 +257,6 @@ bool ProgramGrounder::groundRule(Rule* r, bool firstIteraction,
 			// Determine if it is needed to perform a first or next match
 			firstMatch = index_current_atom != id_match.size() - 1;
 
-			// Remove bind value in assignment (from the previous assignment)
-			removeBindValueInAssignment(variables_atoms[index_current_atom],
-					var_assign);
 			if (templateAtom != nullptr)
 				delete templateAtom;
 			templateAtom = setBoundValue(current_atom, var_assign);
@@ -272,8 +270,10 @@ bool ProgramGrounder::groundRule(Rule* r, bool firstIteraction,
 				id_match.push_back(id);
 
 			} else {
+				removeBindValueInAssignment(variables_atoms[index_current_atom],var_assign );
+
 				unsigned int id = id_match.back();
-				indexingStrategy->nextMatch(id, templateAtom, var_assign, find);
+				indexingStrategy->nextMatch(id, var_assign, find);
 			}
 
 		}

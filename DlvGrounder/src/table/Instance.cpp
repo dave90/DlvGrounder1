@@ -152,30 +152,17 @@ InstancesTable::~InstancesTable() {
 	}
 }
 
-/******************************************************* INDEX ATOM ***************************************************/
+/******************************************************* RESULT MATCH ***************************************************/
 
-bool IndexAtom::match(GenericAtom *genericAtom,Atom *templateAtom,map_index_index& currentAssignment){
+bool ResultMatch::match(GenericAtom *genericAtom,Atom *templateAtom,map_index_index& currentAssignment,map_index_index& nextAssignment){
 	// Call match for each term and if all term result true put the assignment in the current assignment
 	TermTable *table=TermTable::getInstance();
-	unordered_map<index_object, index_object> assignInTerm(currentAssignment);
+	map_index_index assignInTerm(currentAssignment);
 
 	for(unsigned int i=0;i<genericAtom->terms.size();i++)
 		if(!table->getTerm(genericAtom->terms[i])->match(templateAtom->getTerm(i).second,assignInTerm))
 			return false;
-
-	for(auto assignment:assignInTerm)currentAssignment.insert(assignment);
-	return true;
-}
-
-bool IndexAtom::match(GenericAtom *genericAtom,Atom *templateAtom){
-	// Call match for each term and if all term result true put the assignment in the current assignment
-	TermTable *table=TermTable::getInstance();
-	map_index_index assignInTerm;
-
-	for(unsigned int i=0;i<genericAtom->terms.size();i++)
-		if(!table->getTerm(genericAtom->terms[i])->match(templateAtom->getTerm(i).second,assignInTerm))
-			return false;
-
+	for(auto assignment:assignInTerm)if(!currentAssignment.count(assignment.first))nextAssignment.insert(assignment);
 	return true;
 }
 
@@ -293,7 +280,7 @@ unsigned int SimpleIndexAtom::firstMatch(bool searchInDelta,Atom *templateAtom,m
 		}
 	}
 	matches_id.insert({id,rm});
-	nextMatch(id,templateAtom,currentAssignment,find);
+	nextMatch(id,currentAssignment,find);
 	return id;
 
 
@@ -312,46 +299,36 @@ bool SimpleIndexAtom::searchForFirstMatch(AtomTable* table, ResultMatch* rm){
 }
 
 void SimpleIndexAtom::computeFirstMatch(AtomTable* collection,ResultMatch* rm){
-
-	bool jumpMatch=false;
-	if(templateAtom->isAllVariable())
-		jumpMatch=true;
-
+	// If not contains variable (then there is anonymus but the other is ground)
+	bool isNotVariable=templateAtom->getVariable().size()==0;
 	for (GenericAtom *genericAtom : *collection) {
-
-		if (jumpMatch || match(genericAtom,templateAtom)) {
-			rm->result.insert(genericAtom);
-
+		if (rm->insert(genericAtom,templateAtom,*currentAssignment)) {
+			cout<<"COMPUTE";templateAtom->print();cout<<endl;
 			//If there are no more bind variables stop.
 			//Notice that the size of the bind variables vector is not always equal to the arity of the predicate.
 			//Indeed, there can be anonymous variables that are not considered to be bind.
 			//The same holds for bound variables.
-			if(templateAtom->isGround())break;
+			if(isNotVariable)break;
 
 		}
 	}
 }
 
 
-void SimpleIndexAtom::nextMatch(unsigned int id,Atom *templateAtom,map_index_index& currentAssignment,bool& find) {
+void SimpleIndexAtom::nextMatch(unsigned int id,map_index_index& currentAssignment,bool& find) {
 	ResultMatch *rm=matches_id.find(id)->second;
-	unsigned int size=rm->result.size();
 
 	///Return the next matching facts or no facts retrieved from the integer identifier assigned by the firstMatch method
-	if(size==0){
+	if(!rm->pop(currentAssignment)){
 		delete rm;
 		matches_id.erase(id);
 		find=false;
 		return ;
 	}
 
-	auto it_last_atom=rm->result.begin();
-	//Insert the value of variable in assignment
-	match(*it_last_atom,templateAtom,currentAssignment);
-
 	find=true;
-	rm->result.erase(it_last_atom);
 }
+
 
 void SimpleIndexAtom::findIfExist(bool searchInDelta,Atom *templateAtom,bool& find,bool& isUndef) {
 	this->templateAtom=templateAtom;
@@ -587,7 +564,7 @@ unsigned int SingleTermIndexAtom::firstMatch(bool searchInDelta, Atom *templateA
 	}
 
 	matches_id.insert({id,rm});
-	nextMatch(id,templateAtom,currentAssignment,find);
+	nextMatch(id,currentAssignment,find);
 	return id;
 
 }
@@ -692,7 +669,7 @@ unsigned int SingleTermIndexAtomMultiMap::firstMatch(bool searchInDelta, Atom *t
 				return id;
 			}
 			matches_id.insert({id,rm});
-			nextMatch(id,templateAtom,currentAssignment,find);
+			nextMatch(id,currentAssignment,find);
 			return id;
 		}
 		else{
@@ -712,7 +689,7 @@ unsigned int SingleTermIndexAtomMultiMap::firstMatch(bool searchInDelta, Atom *t
 				//Search in facts for match
 				computeFirstMatch(delta,rm);
 				matches_id.insert({id,rm});
-				nextMatch(id,templateAtom,currentAssignment,find);
+				nextMatch(id,currentAssignment,find);
 				return id;
 		}
 	}
@@ -727,7 +704,7 @@ unsigned int SingleTermIndexAtomMultiMap::firstMatch(bool searchInDelta, Atom *t
 				return id;
 			}
 			matches_id.insert({id,rm});
-			nextMatch(id,templateAtom,currentAssignment,find);
+			nextMatch(id,currentAssignment,find);
 			return id;
 		}
 		else{
@@ -764,7 +741,7 @@ unsigned int SingleTermIndexAtomMultiMap::firstMatch(bool searchInDelta, Atom *t
 			}
 
 			matches_id.insert({id,rm});
-			nextMatch(id,templateAtom,currentAssignment,find);
+			nextMatch(id,currentAssignment,find);
 			return id;
 		}
 	}

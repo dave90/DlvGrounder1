@@ -28,7 +28,7 @@ public:
 	virtual bool isVariable(){if(!isAnonymous())return true;return false;};
 	virtual bool isVariableTerm(){return true;};
 
-	virtual void getVariable(unordered_set<index_object>& variables){variables.insert(getIndex());};
+	virtual void getVariable(unordered_set<index_object>& variables){if(!isAnonymous())variables.insert(getIndex());};
 	virtual string getNameToHash(){	return getName();};
 	virtual index_object substitute(unordered_map<index_object, index_object>& substritutionTerm){
 		for(auto term_value:substritutionTerm)

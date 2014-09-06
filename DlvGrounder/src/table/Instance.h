@@ -23,6 +23,7 @@
 using namespace std;
 
 typedef unordered_map<index_object,index_object> map_index_index;
+class IndexAtom;
 
 ///This struct implements a generic atom composed by just its terms
 struct GenericAtom{
@@ -110,14 +111,44 @@ struct hashAtomResult {
 
 ///An unordered set of generic atoms by hashAtom @see hashAtom
 typedef unordered_set<GenericAtom*, hashAtom, hashAtom> AtomTable;
-///An unordered set of generic atoms defined by hashResultAtom @see hashResultAtom
-typedef unordered_set<GenericAtom*, hashAtomResult, hashAtomResult> AtomResultTable;
+///An unordered map of generic atoms defined by hashResultAtom @see hashResultAtom
+/// A map contain the ground atom that match anda vector contains the corrispective variable bind and the value
+typedef unordered_map<GenericAtom*,map_index_index, hashAtomResult, hashAtomResult> AtomResultTable;
 
 
 ///This struct implements an AtomResultTable (@see AtomResultTable) that represents a set of possible assignments for bind variables
 struct ResultMatch {
 	mutable AtomResultTable result;
 	ResultMatch(vector<unsigned int> &bind): result(AtomResultTable(0,hashAtomResult(bind),hashAtomResult(bind))){};
+	/// Insert the current atom in the table if match with the template
+	/// If insert the atom return true else false
+	bool insert(GenericAtom* atom,Atom* templateAtom,map_index_index& currentAssignment){
+		// Check if the match atom with template, if match put in result table
+		map_index_index variableBindFinded;
+		if (match(atom,templateAtom,currentAssignment,variableBindFinded)){
+			result.insert({atom,variableBindFinded});
+			return true;
+
+		}
+		return false;
+	}
+
+	/// Pop last atom in the table and put the assignment in the current assignment
+	/// If the table is empty return false, else true
+	bool pop(map_index_index& currentAssignment){
+		if(result.size()==0)return false;
+		auto it_last_atom=result.begin();
+		for(auto resultValue:it_last_atom->second)currentAssignment.insert(resultValue);
+		result.erase(it_last_atom);
+		return true;
+	}
+
+	/// Return true if the genericAtom match with the template atom and insert in assignment the value of variable
+	/// Two atom match if a constant term are equal.
+	/// @param varAssignment map of assignment of the variable. If templateAtom have variable term put in
+	/// varAssignment the ID of variable with the relative constant term of the genericAtom
+	/// nextAssignment contains the new value of variable derived
+	bool match(GenericAtom *genericAtom,Atom *templateAtom,map_index_index& currentAssignment,map_index_index& nextAssignment);
 };
 
 
@@ -136,7 +167,7 @@ public:
 	virtual unsigned int firstMatch(bool searchInDelta, Atom *templateAtom, map_index_index& currentAssignment, bool& find)=0;
 	///This method implementation is demanded to sub-classes.
 	///It is used to get the further matching atoms one by one each time it is invoked.
-	virtual void nextMatch(unsigned int id,Atom *templateAtom, map_index_index& currentAssignment, bool& find)=0;
+	virtual void nextMatch(unsigned int id, map_index_index& currentAssignment, bool& find)=0;
 	///This method implementation is demanded to sub-classes.
 	/// It have to find if exist the templateAtom, that have to be ground
 	virtual void findIfExist(bool searchInDelta,Atom *templateAtom, bool& find,bool& isUndef)=0;
@@ -170,14 +201,6 @@ protected:
 	///The predicate
 	Predicate* predicate;
 
-	/// Return true if the genericAtom match with the template atom and insert in assignment the value of variable
-	/// Two atom match if a constant term are equal.
-	/// @param varAssignment map of assignment of the variable. If templateAtom have variable term put in
-	/// varAssignment the ID of variable with the relative constant term of the genericAtom
-	virtual bool match(GenericAtom *genericAtom,Atom *templateAtom,map_index_index& currentAssignment);
-	/// Return true if the genericAtom match with the template atom
-	/// Two atom match if a constant term are equal.
-	virtual bool match(GenericAtom *genericAtom,Atom *templateAtom);
 };
 
 /**
@@ -365,7 +388,7 @@ public:
 	///Virtual method implementation
 	virtual unsigned int firstMatch(bool searchInDelta, Atom *templateAtom, map_index_index& currentAssignment, bool& find);
 	///Virtual method implementation
-	virtual void nextMatch(unsigned int id,Atom *templateAtom,map_index_index& currentAssignment, bool& find);
+	virtual void nextMatch(unsigned int id,map_index_index& currentAssignment, bool& find);
 	///Virtual method implementation
 	virtual void findIfExist(bool searchInDelta,Atom *templateAtom, bool& find,bool& isUndef);
 	///Virtual method implementation
