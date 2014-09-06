@@ -303,7 +303,7 @@ void SimpleIndexAtom::computeFirstMatch(AtomTable* collection,ResultMatch* rm){
 	bool isNotVariable=templateAtom->getVariable().size()==0;
 	for (GenericAtom *genericAtom : *collection) {
 		if (rm->insert(genericAtom,templateAtom,*currentAssignment)) {
-			cout<<"COMPUTE";templateAtom->print();cout<<endl;
+
 			//If there are no more bind variables stop.
 			//Notice that the size of the bind variables vector is not always equal to the arity of the predicate.
 			//Indeed, there can be anonymous variables that are not considered to be bind.
