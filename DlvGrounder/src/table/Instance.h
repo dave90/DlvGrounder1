@@ -268,13 +268,16 @@ public:
 		return true;
 	};
 
-	///This method sets a no facts truth value
+	///This method sets a no facts truth value just in the no-facts table
 	void setValue(vector<index_object>& terms, bool truth) {
 		GenericAtom *atomUndef=new AtomUndef(terms,truth);
 		auto it=nofacts.find( atomUndef);
 		if(it!=nofacts.end()) (*it)->setFact(truth);
 		delete atomUndef;
 	};
+
+	///This method updates a no facts truth value in no-facts, delta and nextDelta table
+	void updateValue(vector<index_object>& terms, bool truth);
 
 	///This method determines whether a no fact is true
 	bool isTrue(vector<index_object>& terms) {

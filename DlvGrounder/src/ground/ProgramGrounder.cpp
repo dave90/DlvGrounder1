@@ -504,12 +504,10 @@ bool ProgramGrounder::printGroundRule(Rule *r, map_index_index& var_assign,
 	if (groundRule->getSizeHead() == 1 && groundRule->getSizeBody() == 0) { // If is a new fact
 		// Duplication in head with disjunction and is fact
 		GroundAtom* atom=*groundRule->getBeginHead();
-		if(disjunction){
-			instancesTable->getInstance(atom->predicate)->setValue(atom->atom->terms,true);
-		}
-		if ((added && atom->atom->isFact()) || (!added && updated)) {
+		if(disjunction)
+			instancesTable->getInstance(atom->predicate)->updateValue(atom->atom->terms,true);
+		if ((added && atom->atom->isFact()) || (!added && updated))
 			groundRule->print();
-		}
 		delete groundRule;
 	} else{
 		groundedRule.addRule(groundRule);

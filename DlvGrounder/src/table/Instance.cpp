@@ -58,6 +58,42 @@ void Instances::moveNextDeltaInDelta(){
 	}
 }
 
+///This method updates a no facts truth value
+void Instances::updateValue(vector<index_object>& terms, bool truth) {
+	GenericAtom *atomUndef=new AtomUndef(terms,truth);
+	bool isInNoFacts=indexAtom->count(IndexAtom::NOFACTS,atomUndef);
+	if(isInNoFacts){
+		if(atomUndef->isFact()){
+			indexAtom->find(IndexAtom::NOFACTS,atomUndef);
+			if(!atomUndef->isFact())
+				atomUndef->setFact(true);
+		}
+		else delete atomUndef;
+		return;
+	}
+	bool isInDelta=indexAtom->count(IndexAtom::DELTA,atomUndef);
+	if(isInDelta){
+		if(atomUndef->isFact()){
+			indexAtom->find(IndexAtom::DELTA,atomUndef);
+			if(!atomUndef->isFact())
+				atomUndef->setFact(true);
+		}
+		else delete atomUndef;
+		return;
+	}
+	bool isInNextDelta=nextDelta.count(atomUndef);
+	if(isInNextDelta){
+		if(atomUndef->isFact()){
+			GenericAtom* atomFind=*nextDelta.find(atomUndef);
+			if(!atomFind->isFact())
+				atomFind->setFact(true);
+			delete atomUndef;
+		}
+		else delete atomUndef;
+	}
+}
+
+
 bool Instances::addDelta(GenericAtom*& atomUndef,bool& updated) {
 	// If the atom is not present anywhere, it is added in delta. The temporary atom duplicate is deleted and the inserted atom is assigned.
 	// If the atom is present but undefined and the atom to be insert is true then its truth value is changed
