@@ -99,6 +99,11 @@ public:
 	///This method sets if the rules composing the program have to be printed
 	void setPrintRules(bool pr) {this->printRules = pr;}
 
+	///This method returns if the disable of semplification is true
+	bool isDisableSimplification() const {return disableSimplification;}
+	///This method sets if the simplifiation is disabled
+	void setDisableSimplification(bool disable) {this->disableSimplification = disable;}
+
 	///Getter for the indexing preferences
 	const string& getIndexingPreferences() const {return indexingPreferences;}
 	///Setter for the indexing preferences
@@ -133,6 +138,8 @@ private:
 	bool statistic;
 	///Whether the rules have to be printed
 	bool printRules;
+	///Whether disable the simplification of program
+	bool disableSimplification;
 
 	///The string whit the indexing preference set
 	string indexingPreferences;

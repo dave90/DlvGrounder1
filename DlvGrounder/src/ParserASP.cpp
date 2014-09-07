@@ -355,6 +355,10 @@ bool parseArgs(int argc, char* argv[], string& filename) {
 		ValueArg<string> indexingPreferencesArg("i", "index", "Set on which term predicates have to be indexed", false, "", "string");
 		cmd.add(&indexingPreferencesArg);
 
+		SwitchArg disabeSimpleArgs("m", "noSImpli", "Disable the simplifiation", false);
+		cmd.add(&disabeSimpleArgs);
+
+
 		//MUST be last
 		UnlabeledValueArg<string> fileArg("fileName", "program file", false, "", "file");
 		cmd.add(fileArg);
@@ -373,6 +377,7 @@ bool parseArgs(int argc, char* argv[], string& filename) {
 		string fileGraph = fileGraphArg.getValue();
 		bool printRule=printRulesArgs.getValue();
 		string indexing=indexingPreferencesArg.getValue();
+		bool disableSimplification=disabeSimpleArgs.getValue();
 		filename = fileArg.getValue();
 		if (stdInArgs.getValue())
 			filename = "";
@@ -387,6 +392,7 @@ bool parseArgs(int argc, char* argv[], string& filename) {
 		Config::getInstance()->setFileGraph(fileGraph);
 		Config::getInstance()->setPrintRules(printRule);
 		Config::getInstance()->setIndexingPreferences(indexing);
+		Config::getInstance()->setDisableSimplification(disableSimplification);
 
 	} catch (ArgException &e)  // catch any exceptions
 	{

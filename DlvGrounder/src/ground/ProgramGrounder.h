@@ -8,8 +8,9 @@
 #ifndef PROGRAMGROUNDER_H_
 #define PROGRAMGROUNDER_H_
 
-#include<vector>
+#include <vector>
 
+#include "ProgramEvaluator.h"
 #include "../table/PredicateTable.h"
 #include "../table/Instance.h"
 #include "../table/TermTable.h"
@@ -17,95 +18,6 @@
 #include "../statement/GroundRule.h"
 
 using namespace std;
-
-///This struct implements an hash function and an equality comparator for ground rules @see GroundRule
-struct hashRule {
-
-	/// The hash of a ground rule is made combining the hash of the ground atoms in the rule
-	size_t operator()(GroundRule* rule) const {
-	  HashVecInt *hash=HashVecInt::getHashVecIntFromConfig();
-	  vector<size_t> atomHash;
-	  for(auto it=rule->getBeginHead();it!=rule->getEndHead();it++){
-		  atomHash.push_back((*it)->getHash());
-	  }
-	  for(auto it=rule->getBeginBody();it!=rule->getEndBody();it++)
-		  atomHash.push_back((*it)->getHash());
-	  return hash->computeHashSize_T(atomHash);
-	}
-
-	bool operator()( GroundRule* r1,  GroundRule* r2)const{
-	  return *r1==*r2;
-	}
-
-	/// The hash of a ground atom
-	size_t operator()(GroundAtom* atom) const {
-	  return atom->predicate+HashVecInt::getHashVecIntFromConfig()->computeHash(atom->atom->terms);
-	}
-
-	bool operator()( GroundAtom* a1,  GroundAtom* a2)const{
-		if(a1->predicate != a2->predicate)return false;
-		return *a1->atom==*a2->atom;
-	}
-
-};
-
-/**
- * 	This class contains the set of the grounded rules
- */
-class GroundedRules{
-public:
-
-	GroundedRules(){}
-
-	///This method adds a ground rule if is not already present in the set, otherwise it is deleted
-	bool addRule(GroundRule* r)
-	{
-		if(!groundedRules.insert(r).second) {delete r;return false;};
-		groundedRulesOrdering.push_back(r);
-		for(auto head_it=r->getBeginHead();head_it!=r->getEndHead();head_it++)incrementSupport(*head_it);
-		return true;
-	}
-
-	//Print the rule and simplify if is possible
-	void printAndSimplify(InstancesTable* instancesTable);
-
-	///Increment the support of atom
-	void incrementSupport(GroundAtom* atom){
-		if(!supportedAtom.count(atom))
-			supportedAtom.insert({atom,1});
-		else{
-			unsigned int support=supportedAtom.find(atom)->second;
-			supportedAtom.find(atom)->second=support+1;
-		}
-	}
-
-	///Decrement the support of atom
-	void decrementSupport(GroundAtom* atom){
-		if(!supportedAtom.count(atom))
-			supportedAtom.insert({atom,0});
-		else{
-			unsigned int support=supportedAtom.find(atom)->second;
-			if(support>0)
-				supportedAtom.find(atom)->second=support-1;
-		}
-	}
-
-	///Decrement the support of all the atom in the head of rule
-	void decrementSupport(GroundRule* rule){
-		for(auto head_it=rule->getBeginHead();head_it!=rule->getEndHead();head_it++)decrementSupport(*head_it);
-	}
-
-	~GroundedRules(){for(auto rule:groundedRules)delete rule;}
-
-private:
-	///An unordered set of ground rule @see hashRule
-	unordered_set<GroundRule*,hashRule,hashRule> groundedRules;
-	///Order of the rule when grounding
-	vector<GroundRule*> groundedRulesOrdering;
-	/// Number of supported rule for each atom
-	unordered_map<GroundAtom*,unsigned int,hashRule,hashRule> supportedAtom;
-};
-
 
 /**
  * @brief This class manages and executes the grounding process.
@@ -137,6 +49,13 @@ public:
 	//Printer method for facts
 	void printFact(){instancesTable->print();};
 
+	/// Return the InstanceTable
+	InstancesTable* getInstanceTable(){return instancesTable;};
+	/// Return the StatementDependency
+	StatementDependency* getStatementDependency(){return statementDependency;};
+	/// Return the PredicateTable
+	PredicateTable* getPredicateTable(){return predicateTable;};
+
 	///Destructor
 	virtual ~ProgramGrounder();
 
@@ -151,14 +70,13 @@ private:
 	TermTable* termsMap;
 	///The set of grounder rules
 	GroundedRules groundedRule;
+	/// Manage the output and simplification
+	ProgramEvaluator evaluator;
 
 	/// This method determines the variables for each atom in the body of a rule.
 	/// @param r The rule
 	///	@param variables The vector that will be filled in with variables for each atom.
 	void findBindVariablesRule(Rule *r,vector<unordered_set<index_object> >& variables);
-
-	/// Printer method for the grounded rules according to the given assignment
-	bool printGroundRule(Rule *r,map_index_index& var_assign,bool isRecursive,bool firstIteration);
 
 	///This method given an assignment for the variables return a partial ground atom of current_atom
 	Atom* setBoundValue(Atom *current_atom,map_index_index& var_assign);
