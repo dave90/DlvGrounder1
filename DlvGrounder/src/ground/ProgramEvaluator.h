@@ -36,16 +36,16 @@ struct hashRule {
 	  return hash->computeHashSize_T(atomHash);
 	}
 
-	bool operator()( GroundRule* r1,  GroundRule* r2)const{
+	inline bool operator()( GroundRule* r1,  GroundRule* r2)const{
 	  return *r1==*r2;
 	}
 
 	/// The hash of a ground atom
-	size_t operator()(GroundAtom* atom) const {
+	inline size_t operator()(GroundAtom* atom) const {
 	  return atom->predicate+HashVecInt::getHashVecIntFromConfig()->computeHash(atom->atom->terms);
 	}
 
-	bool operator()( GroundAtom* a1,  GroundAtom* a2)const{
+	inline bool operator()( GroundAtom* a1,  GroundAtom* a2)const{
 		if(a1->predicate != a2->predicate)return false;
 		return *a1->atom==*a2->atom;
 	}
@@ -134,7 +134,7 @@ public:
 	void printAndSimplify(InstancesTable* instancesTable);
 
 	/// Printer method for the grounded rules according to the given assignment
-	bool printGroundRule(InstancesTable* instancesTable,PredicateTable *predicateTable,StatementDependency * statementDep,Rule *r, map_index_index& var_assign, bool isRecursive, bool firstIteration);
+	bool printGroundRule(InstancesTable* instancesTable,PredicateTable * predicateTable,StatementDependency * statementDep,Rule *r, map_index_index& var_assign, bool isRecursive, bool firstIteration);
 
 	virtual ~ProgramEvaluator(){};
 private:

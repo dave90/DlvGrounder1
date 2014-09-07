@@ -62,11 +62,11 @@ typedef unordered_multimap<unsigned int,unsigned int> map_int_int;
 
 ///This struct implements an hash function and an equality comparator for generic atoms @see GenericAtom
 struct hashAtom {
-	size_t operator()(GenericAtom* atomFact) const {
+	inline size_t operator()(GenericAtom* atomFact) const {
 		return HashVecInt::getHashVecIntFromConfig()->computeHash(atomFact->terms);
 	}
 
-	bool operator()(GenericAtom* a1, GenericAtom* a2) const {
+	inline bool operator()(GenericAtom* a1, GenericAtom* a2) const {
 		return *a1==*a2;
 	}
 };

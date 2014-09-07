@@ -38,7 +38,7 @@ struct GroundAtom{
 
 	/// @brief Equality of ground atoms
 	/// @details Two ground atoms are equal if they have the same predicate and their atoms are equal
-	inline bool operator==(const GroundAtom& genericAtom) const{
+	bool operator==(const GroundAtom& genericAtom) const{
 		if(predicate != genericAtom.predicate)
 			return false;
 		if(negative!=genericAtom.negative)return false;
