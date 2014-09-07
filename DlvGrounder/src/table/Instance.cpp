@@ -47,25 +47,13 @@ Instances::~Instances() {
 void Instances::moveNextDeltaInDelta(){
 	if(delta.size()>0){
 		for(GenericAtom* atom: delta)
-			if(atom->isFact() && !isTrue(atom->terms))
-				setValue(atom->terms,true);
-			else
 				nofacts.insert(atom);
 		delta.clear();
 	}
 	if(nextDelta.size()>0){
 		indexAtom->updateDelta(&nextDelta);
-		for(GenericAtom* atom: nextDelta){
-			if(indexAtom->count(IndexAtom::DELTA,atom)){
-				if(atom->isFact()){
-					indexAtom->find(IndexAtom::DELTA,atom);
-					if(!atom->isFact())
-						atom->setFact(true);
-				}
-			}
-			else
-				delta.insert(atom);
-		}
+		for(GenericAtom* atom: nextDelta)
+			delta.insert(atom);
 		nextDelta.clear();
 	}
 }
