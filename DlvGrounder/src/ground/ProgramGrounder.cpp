@@ -159,6 +159,7 @@ bool ProgramGrounder::groundRule(Rule* r, bool firstIteraction,
 			//  If it is a built in atom, ground it and evaluate it (Built in have not instance table, since they have not a predicate)
 			if (current_atom->isBuiltIn()) {
 
+				removeBindValueInAssignment(variables_atoms[index_current_atom],var_assign );
 				Atom *groundBuiltIn = current_atom->ground(var_assign);
 				find = groundBuiltIn->evaluate(var_assign);
 				delete groundBuiltIn;
