@@ -282,16 +282,17 @@ public:
 	///This method determines whether a no fact is true
 	bool isTrue(vector<index_object>& terms) {
 		GenericAtom *atomUndef=new AtomUndef(terms,0);
-		auto it=nofacts.find(atomUndef);
-		if(it!=nofacts.end()){
-			bool result = (*it)->isFact();
-			delete atomUndef;
-			return result;
+		bool isNoFact=indexAtom->count(IndexAtom::NOFACTS,atomUndef);
+		if(isNoFact){
+			indexAtom->find(IndexAtom::NOFACTS,atomUndef);
+			return atomUndef->isFact();
 		}
-		else{
-			delete atomUndef;
-			return false;
+		bool isDelta=indexAtom->count(IndexAtom::DELTA,atomUndef);
+		if(isDelta){
+			indexAtom->find(IndexAtom::DELTA,atomUndef);
+			return atomUndef->isFact();
 		}
+		return false;
 	};
 
 	///Getter for the predicate

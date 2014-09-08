@@ -55,14 +55,13 @@ void ProgramEvaluator::printAndSimplify(InstancesTable* instancesTable) {
 		// else if is a fact then skip the rule and decrement support
 		if (rule->getSizeHead() == 1 && rule->getSizeBody() == 0) {
 			GroundAtom* head = *rule->getBeginHead();
-			instancesTable->getInstance(head->predicate)->setValue(
+			instancesTable->getInstance(head->predicate)->updateValue(
 					head->atom->terms, true);
 			rule->print();
 			continue;
 		}
 		for (auto head_it = rule->getBeginHead(); head_it != rule->getEndHead();head_it++) {
 			GroundAtom* head = *head_it;
-
 			if (instancesTable->getInstance(head->predicate)->isTrue(head->atom->terms)) {
 				decrementSupport(rule);
 				skipRule = true;
