@@ -182,7 +182,7 @@ bool ProgramEvaluator::printGroundRule(InstancesTable* instancesTable,PredicateT
 	} else{
 
 		if(simplification)
-			rules.addRule(groundRule);
+			addRule(groundRule);
 		else
 			groundRule->print();
 
