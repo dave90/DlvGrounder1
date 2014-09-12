@@ -114,7 +114,7 @@ bool ProgramGrounder::groundBoundAtom(bool &find, bool negation, bool searchDelt
 			return false;
 		else
 			find = true;
-	} else if (negation) {
+	} else {
 		if (templateAtom != nullptr)
 			delete templateAtom;
 
@@ -123,7 +123,8 @@ bool ProgramGrounder::groundBoundAtom(bool &find, bool negation, bool searchDelt
 		instance->getIndex()->findIfExist(searchDelta, templateAtom, find, isUndef);
 		//If exist and is fact then fail the search(find equal false) else if not exist
 		// or is undefined atom then continue
-		find = !(find && !isUndef);
+		if(negation)
+			find = !(find && !isUndef);
 	}
 
 	return true;
@@ -195,7 +196,7 @@ bool ProgramGrounder::groundRule(Rule* r, bool firstIteraction, bool isRecursive
 
 		// If the current atom is a built in or the instance table is null
 		// then firstMatch or nextMatch must not be invoked
-		if (current_atom->isBuiltIn() || instance == nullptr || negation) {
+		if (current_atom->isBuiltIn() || instance == nullptr || negation || current_variables_atoms[index_current_atom].size()==0) {
 
 			if (!groundBoundAtom( find, negation, searchDelta, instance, templateAtom))
 				return false;
@@ -239,7 +240,7 @@ bool ProgramGrounder::groundRule(Rule* r, bool firstIteraction, bool isRecursive
 #if DEBUG == 1
 				//DEBUG PRINT
 				cout<<" --> ";
-				printAssignment(var_assign);
+				printAssignment();
 				// END DEBUG PRINT
 #endif
 
@@ -289,7 +290,7 @@ void ProgramGrounder::skipAtom(bool firstSkip, bool &finish) {
 		index_current_atom--;
 		current_id_match.pop_back();
 	};
-	while ((*current_atom_it)->isBuiltIn() || (*current_atom_it)->isNegative()) {
+	while ((*current_atom_it)->isBuiltIn() || (*current_atom_it)->isNegative() || current_variables_atoms[index_current_atom].size()==0) {
 		if (current_atom_it == currentRule->getBeginBody()) {
 			finish = true;
 			break;
