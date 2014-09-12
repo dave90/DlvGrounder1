@@ -55,7 +55,7 @@ void ProgramEvaluator::printAndSimplify(InstancesTable* instancesTable) {
 		// else if is a fact then skip the rule and decrement support
 		if (rule->getSizeHead() == 1 && rule->getSizeBody() == 0) {
 			GroundAtom* head = *rule->getBeginHead();
-			instancesTable->getInstance(head->predicate)->updateValue(
+			instancesTable->getInstance(head->predicate)->setValue(
 					head->atom->terms, true);
 			rule->print();
 			continue;
@@ -174,7 +174,7 @@ bool ProgramEvaluator::printGroundRule(InstancesTable* instancesTable,PredicateT
 		// Duplication in head with disjunction and is fact
 		GroundAtom* atom=*groundRule->getBeginHead();
 		if(disjunction)
-			instancesTable->getInstance(atom->predicate)->updateValue(atom->atom->terms,true);
+			instancesTable->getInstance(atom->predicate)->setValue(atom->atom->terms,true);
 		if ((added && atom->atom->isFact()) || (!added && updated))
 			groundRule->print();
 		delete groundRule;
