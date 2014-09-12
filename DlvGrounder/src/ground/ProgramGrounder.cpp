@@ -24,8 +24,7 @@ void ProgramGrounder::ground() {
 	vector<vector<Rule*>> exitRules;
 	vector<vector<Rule*>> recursiveRules;
 	vector<unordered_set<index_object>> componentPredicateInHead;
-	statementDependency->createComponentGraphAndComputeAnOrdering(exitRules,
-			recursiveRules, componentPredicateInHead);
+	statementDependency->createComponentGraphAndComputeAnOrdering(exitRules, recursiveRules, componentPredicateInHead);
 
 	printFact();
 
@@ -33,8 +32,7 @@ void ProgramGrounder::ground() {
 	// Ground each module according to the ordering:
 	// For each component, each rule is either recursive or exit,
 	// Exit rules are grounded just once, while recursive rules are grounded until no more knowledge is derived
-	for (unsigned int component = 0; component < exitRules.size();
-			component++) {
+	for (unsigned int component = 0; component < exitRules.size(); component++) {
 
 #if DEBUG == 1
 		cout<<"Component: "<<component;
@@ -63,8 +61,7 @@ void ProgramGrounder::ground() {
 					r->print();
 #endif
 					if (r->getSizeBody() > 0)
-						if (groundRule(r, firstIteration, true,
-								&componentPredicateInHead[component]))
+						if (groundRule(r, firstIteration, true, &componentPredicateInHead[component]))
 							end = false;
 				}
 #if DEBUG == 1
@@ -85,8 +82,7 @@ void ProgramGrounder::ground() {
 	// Constraints are grounded at the end
 	for (unsigned int i = 0; i < statementDependency->getConstraintSize(); i++)
 		if (statementDependency->getConstraint(i)->getSizeBody() > 0)
-			groundRule(statementDependency->getConstraint(i), false, false,
-					nullptr);
+			groundRule(statementDependency->getConstraint(i), false, false, nullptr);
 
 	//Print and simplify the rule
 	evaluator.printAndSimplify(instancesTable);
@@ -98,120 +94,116 @@ void ProgramGrounder::updateDelta(Rule* r) {
 	for (auto it = r->getBeginHead(); it != r->getEndHead(); it++) {
 		index_object predicate = (*it)->getPredicate().second;
 		Instances* is = instancesTable->getInstance(predicate);
-		if(is!=nullptr) is->moveNextDeltaInDelta();
+		if (is != nullptr)
+			is->moveNextDeltaInDelta();
 	}
 }
 
-bool ProgramGrounder::groundRule(Rule* r, bool firstIteraction,
-		bool isRecursive, const unordered_set<index_object>* predicateInHead) {
-	//The map of the assignment, map each variables to its assigned value
-	map_index_index var_assign;
-	if (r->getSizeBody() == 0)
-		return evaluator.printGroundRule(instancesTable,predicateTable,statementDependency,r, var_assign, isRecursive, firstIteraction);
+bool ProgramGrounder::groundBoundAtom(bool &find, bool negation, bool searchDelta, Instances* instance, Atom*& templateAtom) {
 
-	list<unsigned int> id_match(0);
+	current_id_match.push_back(0);
+	//  If it is a built in atom, ground it and evaluate it (Built in have not instance table, since they have not a predicate)
+	if (current_atom->isBuiltIn()) {
+		removeBindValueInAssignment(current_variables_atoms[index_current_atom]);
+		Atom* groundBuiltIn = current_atom->ground(current_var_assign);
+		find = groundBuiltIn->evaluate(current_var_assign);
+		delete groundBuiltIn;
+		// If there isn't instances the search fails (find equal false) and if isn't negated then the algorithm have to stop
+	} else if (instance == nullptr) {
+		if (!negation)
+			return false;
+		else
+			find = true;
+	} else if (negation) {
+		if (templateAtom != nullptr)
+			delete templateAtom;
+
+		templateAtom = setBoundValue();
+		bool isUndef;
+		instance->getIndex()->findIfExist(searchDelta, templateAtom, find, isUndef);
+		//If exist and is fact then fail the search(find equal false) else if not exist
+		// or is undefined atom then continue
+		find = !(find && !isUndef);
+	}
+
+	return true;
+}
+
+IndexAtom* ProgramGrounder::firstNextMatch( bool searchDelta, Instances* instance, bool& firstMatch,Atom*& templateAtom, bool& find) {
+	// Otherwise a search is made in instance in order to provide bind variables with a value
+	IndexAtom* indexingStrategy = instance->getIndex();
+	// Determine if it is needed to perform a first or next match
+	firstMatch = index_current_atom != current_id_match.size() - 1;
+	if (templateAtom != nullptr)
+		delete templateAtom;
+
+	templateAtom = setBoundValue();
+	// Perform a first match and save the integer identifier returned, useful to perform further next matches
+	if (firstMatch) {
+		unsigned int id = 0;
+		id = indexingStrategy->firstMatch(searchDelta, templateAtom, current_var_assign, find);
+		current_id_match.push_back(id);
+	} else {
+		removeBindValueInAssignment(current_variables_atoms[index_current_atom]);
+		unsigned int id = current_id_match.back();
+		indexingStrategy->nextMatch(id, current_var_assign, find);
+	}
+	return indexingStrategy;
+}
+
+bool ProgramGrounder::groundRule(Rule* r, bool firstIteraction, bool isRecursive, const unordered_set<index_object>* predicateInHead) {
+	//The map of the assignment, map each variables to its assigned value
+	currentRule=r;
+	current_var_assign.clear();
+	current_id_match.clear();
+
+
+	if (r->getSizeBody() == 0)
+		return evaluator.printGroundRule(instancesTable, predicateTable, statementDependency, r, current_var_assign, isRecursive, firstIteraction);
+
 
 	//TODO Sort the atoms in the rule in a smarter way, currently no sorting is performed
 
 	bool newKnowledge = false;
-
 	bool finish = false;
-	auto current_atom_it = r->getBeginBody();
-
-	unsigned int index_current_atom = 0;
+	current_atom_it = currentRule->getBeginBody();
+	index_current_atom = 0;
 	bool find = false;
 	bool negation = false;
 
 	// Contain for each atom the set of variables
-	vector<unordered_set<index_object>> variables_atoms;
 	Atom *templateAtom = 0;
 
-
 	//Determine bind variables for each atoms
-	findBindVariablesRule(r, variables_atoms);
+	findBindVariablesRule();
 
 #if DEBUG == 1
 	//DEBUG PRINT
 	cout<<"--- INIZIALIZATION ---"<<endl;
-	printVariables(variables_atoms);
+	printVariables();
 	cout<<"--- END INIZIALIZATION ---"<<endl;
 	// END DEBUG PRINT
 #endif
 
 	while (!finish) {
-		Atom *current_atom = *current_atom_it;
+		current_atom = *current_atom_it;
 		index_object current_predicate = current_atom->getPredicate().second;
 		negation = current_atom->isNegative();
 		bool firstMatch;
 		Instances * instance = instancesTable->getInstance(current_predicate);
-		bool searchDelta = isRecursive
-				&& predicateInHead->count(current_predicate)
-				&& !firstIteraction;
+		bool searchDelta = isRecursive && predicateInHead->count(current_predicate) && !firstIteraction;
 
 		// If the current atom is a built in or the instance table is null
 		// then firstMatch or nextMatch must not be invoked
 		if (current_atom->isBuiltIn() || instance == nullptr || negation) {
 
-			firstMatch = true;
-
-			id_match.push_back(0);
-
-			//  If it is a built in atom, ground it and evaluate it (Built in have not instance table, since they have not a predicate)
-			if (current_atom->isBuiltIn()) {
-
-				removeBindValueInAssignment(variables_atoms[index_current_atom],var_assign );
-				Atom *groundBuiltIn = current_atom->ground(var_assign);
-				find = groundBuiltIn->evaluate(var_assign);
-				delete groundBuiltIn;
-
-				// If there isn't instances the search fails (find equal false) and if isn't negated then the algorithm have to stop
-			} else if (instance == nullptr) {
-				if (!negation)
-					return false;
-				else
-					find = true;
-
-			} else if (negation) {
-
-				if (templateAtom != nullptr)
-					delete templateAtom;
-				templateAtom = setBoundValue(current_atom, var_assign);
-				bool isUndef;
-
-				instance->getIndex()->findIfExist(searchDelta, templateAtom,
-						find, isUndef);
-				//If exist and is fact then fail the search(find equal false) else if not exist
-				// or is undefined atom then continue
-				find = !(find && !isUndef);
-
-			}
+			if (!groundBoundAtom( find, negation, searchDelta, instance, templateAtom))
+				return false;
 
 		} else {
 			// Otherwise a search is made in instance in order to provide bind variables with a value
-			IndexAtom* indexingStrategy = instance->getIndex();
 
-			// Determine if it is needed to perform a first or next match
-			firstMatch = index_current_atom != id_match.size() - 1;
-
-			if (templateAtom != nullptr)
-				delete templateAtom;
-			templateAtom = setBoundValue(current_atom, var_assign);
-
-			// Perform a first match and save the integer identifier returned, useful to perform further next matches
-			if (firstMatch) {
-				unsigned int id = 0;
-
-				id = indexingStrategy->firstMatch(searchDelta, templateAtom,
-						var_assign, find);
-				id_match.push_back(id);
-
-			} else {
-				removeBindValueInAssignment(variables_atoms[index_current_atom],var_assign );
-
-				unsigned int id = id_match.back();
-				indexingStrategy->nextMatch(id, var_assign, find);
-			}
-
+			firstNextMatch( searchDelta,  instance, firstMatch,  templateAtom, find);
 		}
 
 #if DEBUG == 1
@@ -219,7 +211,7 @@ bool ProgramGrounder::groundRule(Rule* r, bool firstIteraction,
 		cout<<"ATOM "<<index_current_atom<<" ";
 		current_atom->print();
 		cout<<" --> ";
-		Atom *literal=current_atom->ground(var_assign);
+		Atom *literal=current_atom->ground(current_var_assign);
 		literal->print();
 		delete literal;
 		if (find)
@@ -235,15 +227,14 @@ bool ProgramGrounder::groundRule(Rule* r, bool firstIteraction,
 		if (find) {
 
 			//If there is no more atom, a valid assignment is found and it is printed
-			if (index_current_atom + 1 == r->getSizeBody()) {
+			if (index_current_atom + 1 == currentRule->getSizeBody()) {
 				// The method printGroundRule returns true if the ground rule derived from the current assignment was not derived before,
 				// in this case new knowledge is derived.
-				if (evaluator.printGroundRule(instancesTable,predicateTable,statementDependency,r, var_assign, isRecursive,firstIteraction))
+				if (evaluator.printGroundRule(instancesTable, predicateTable, statementDependency, currentRule, current_var_assign, isRecursive, firstIteraction))
 					newKnowledge = true;
 
 				//If last atom is BuiltIn return to last atom no BuiltIn
-				skipAtom(false, current_atom_it, index_current_atom, id_match,
-						r, finish);
+				skipAtom(false, finish);
 
 #if DEBUG == 1
 				//DEBUG PRINT
@@ -262,14 +253,13 @@ bool ProgramGrounder::groundRule(Rule* r, bool firstIteraction,
 		} else {
 
 			// If the process is come back to the first atom the grounding process is finished
-			if (current_atom_it == r->getBeginBody())
+			if (current_atom_it == currentRule->getBeginBody())
 				finish = true;
 			else {
 
 				// Otherwise the current assignment is no valid anymore, and the grounding process
 				// comes back to the previous atom skipping the BuiltIn
-				skipAtom(true, current_atom_it, index_current_atom, id_match, r,
-						finish);
+				skipAtom(true,  finish);
 
 			}
 		}
@@ -279,10 +269,10 @@ bool ProgramGrounder::groundRule(Rule* r, bool firstIteraction,
 	return newKnowledge;
 }
 
-void ProgramGrounder::printAssignment(map_index_index& var_assign) {
+void ProgramGrounder::printAssignment() {
 
 	cout << "ASSIGNMENT ";
-	for (auto i : var_assign) {
+	for (auto i : current_var_assign) {
 		cout << "[ ";
 		termsMap->getTerm(i.first)->print();
 		cout << ",";
@@ -293,30 +283,26 @@ void ProgramGrounder::printAssignment(map_index_index& var_assign) {
 
 }
 
-void ProgramGrounder::skipAtom(bool firstSkip,
-		vector<Atom*>::const_iterator & current_atom_it,
-		unsigned int &index_current_atom, list<unsigned int> &id_match, Rule *r,
-		bool &finish) {
+void ProgramGrounder::skipAtom(bool firstSkip, bool &finish) {
 	if (firstSkip) {
 		current_atom_it--;
 		index_current_atom--;
-		id_match.pop_back();
+		current_id_match.pop_back();
 	};
 	while ((*current_atom_it)->isBuiltIn() || (*current_atom_it)->isNegative()) {
-		if (current_atom_it == r->getBeginBody()) {
+		if (current_atom_it == currentRule->getBeginBody()) {
 			finish = true;
 			break;
 		}
 		current_atom_it--;
 		index_current_atom--;
-		id_match.pop_back();
+		current_id_match.pop_back();
 	}
 }
 
-void ProgramGrounder::printVariables(
-		vector<unordered_set<index_object>> variables_atoms) {
+void ProgramGrounder::printVariables() {
 	unsigned int counter_atom_debug = 0;
-	for (auto vec : variables_atoms) {
+	for (auto vec : current_variables_atoms) {
 		cout << "Atom " << counter_atom_debug << " ";
 		for (auto variable : vec)
 			termsMap->getTerm(variable)->print();
@@ -326,22 +312,20 @@ void ProgramGrounder::printVariables(
 	}
 }
 
-void ProgramGrounder::findBindVariablesRule(Rule *r,
-		vector<unordered_set<index_object> >& variables) {
+void ProgramGrounder::findBindVariablesRule() {
 	unordered_set<index_object> total_variable;
 	unsigned int index_current_atom = 0;
+	current_variables_atoms.clear();
 
 	//For each atom determines the bound and the bind variables
-	for (auto current_atom_it = r->getBeginBody();
-			current_atom_it != r->getEndBody(); current_atom_it++) {
+	for (auto current_atom_it = currentRule->getBeginBody(); current_atom_it != currentRule->getEndBody(); current_atom_it++) {
 		Atom *current_atom = *current_atom_it;
-		unordered_set<index_object> variablesInAtom =
-				current_atom->getVariable();
-		variables.push_back(unordered_set<index_object>());
+		unordered_set<index_object> variablesInAtom = current_atom->getVariable();
+		current_variables_atoms.push_back(unordered_set<index_object>());
 
 		for (auto variable : variablesInAtom) {
 			if (!total_variable.count(variable))
-				variables[index_current_atom].insert(variable);
+				current_variables_atoms[index_current_atom].insert(variable);
 		}
 
 		for (auto variable : variablesInAtom)
@@ -351,17 +335,14 @@ void ProgramGrounder::findBindVariablesRule(Rule *r,
 	}
 }
 
-Atom* ProgramGrounder::setBoundValue(Atom *current_atom,
-		map_index_index& var_assign) {
-	return current_atom->ground(var_assign);
+Atom* ProgramGrounder::setBoundValue() {
+	return current_atom->ground(current_var_assign);
 }
 
-void ProgramGrounder::removeBindValueInAssignment(
-		unordered_set<index_object> bind_variables,
-		map_index_index& var_assign) {
+void ProgramGrounder::removeBindValueInAssignment(unordered_set<index_object> bind_variables) {
 
 	for (index_object variable : bind_variables)
-		var_assign.erase(variable);
+		current_var_assign.erase(variable);
 
 }
 
@@ -370,6 +351,8 @@ ProgramGrounder::~ProgramGrounder() {
 	delete instancesTable;
 	delete statementDependency;
 	delete termsMap;
+	delete currentRule;
+	delete current_atom;
 
 }
 

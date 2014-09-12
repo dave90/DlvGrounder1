@@ -57,6 +57,7 @@ public:
 	unsigned int getSizeBody() const {return body.size();}
 
 	///This method returns an iterator that points to the first atom in the body
+	vector<Atom*>::iterator getBeginBody(){return body.begin();};
 	vector<Atom*>::const_iterator getBeginBody()const{return body.begin();};
 	///This method returns an iterator that points to the last atom in the body
 	vector<Atom*>::const_iterator getEndBody()const{return body.end();};
