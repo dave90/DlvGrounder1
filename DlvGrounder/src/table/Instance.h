@@ -186,11 +186,6 @@ public:
 	virtual void updateDelta(AtomTable* nextDelta)=0;
 	///Destructor
 	virtual ~IndexAtom() {};
-
-	static const int FACTS=0;
-	static const int NOFACTS=1;
-	static const int DELTA=2;
-
 protected:
 	//A pointer to the set of facts
 	AtomTable* facts;
@@ -210,98 +205,42 @@ protected:
 class Instances {
 public:
 	///Constructor
-	Instances(index_object predicate,PredicateTable *pt): predicate(predicate),predicateTable(pt),indexAtom(0) {this->configureIndexAtom();}
-
-	bool addFact(const vector<index_object>& terms) {
-		// If the atom is not present as fact, it is added. The temporary atom duplicate is deleted and the inserted atom is assigned.
-		GenericAtom* atomFact=new GenericAtom(terms);
-		if(!facts.insert(atomFact).second){
-			indexAtom->find(IndexAtom::NOFACTS,atomFact);
-			return false;
-		}
-		return true;
-	};
-
-	///This method looks for a generic atom in both the facts and no facts and delta tables @see GenericAtom
-	GenericAtom* getGenericAtom(vector<index_object>& terms) {
-		GenericAtom* atomFact=new GenericAtom(terms);
-		bool isFact=indexAtom->count(IndexAtom::FACTS,atomFact);
-		if(isFact){
-			indexAtom->find(IndexAtom::FACTS,atomFact);
-			return atomFact;
-		}
-		bool isNoFact=indexAtom->count(IndexAtom::NOFACTS,atomFact);
-		if(isNoFact){
-			indexAtom->find(IndexAtom::NOFACTS,atomFact);
-			return atomFact;
-		}
-		bool isDelta=indexAtom->count(IndexAtom::DELTA,atomFact);
-		if(isDelta){
-			indexAtom->find(IndexAtom::DELTA,atomFact);
-			return atomFact;
-		}
-		return 0;
-	};
-
-	///This method adds a no facts to the no facts table.
-	///Its truth value can be true or undefined, if it false it is not stored at all
-	bool addNoFact(GenericAtom*& atomUndef,bool& updated) {
-		// If the atom is not present as fact, it is added in nofacts. The temporary atom duplicate is deleted and the inserted atom is assigned.
-		// If the atom is present but undefined and the atom to be insert is true then its truth value is changed
-		bool isFact=indexAtom->count(IndexAtom::FACTS,atomUndef);
-		if(isFact){
-			indexAtom->find(IndexAtom::FACTS,atomUndef);
-			return false;
-		}
-		if(!nofacts.insert(atomUndef).second){
-			if(atomUndef->isFact()){
-				indexAtom->find(IndexAtom::NOFACTS,atomUndef);
-				if(!atomUndef->isFact()){
-					atomUndef->setFact(true);
-					updated=true;
-				}
-				return false;
-			}
-			indexAtom->find(IndexAtom::NOFACTS,atomUndef);
-			return false;
-		}
-		return true;
-	};
-
-	///This method sets a no facts truth value just in the no-facts table
-	void setValue(vector<index_object>& terms, bool truth) {
-		GenericAtom *atomUndef=new AtomUndef(terms,truth);
-		auto it=nofacts.find( atomUndef);
-		if(it!=nofacts.end()) (*it)->setFact(truth);
-		delete atomUndef;
-	};
-
-	///This method updates a no facts truth value in no-facts, delta and nextDelta table
-	void updateValue(vector<index_object>& terms, bool truth);
-
-	///This method determines whether a no fact is true
-	bool isTrue(vector<index_object>& terms) {
-		GenericAtom *atomUndef=new AtomUndef(terms,0);
-		bool isNoFact=indexAtom->count(IndexAtom::NOFACTS,atomUndef);
-		if(isNoFact){
-			indexAtom->find(IndexAtom::NOFACTS,atomUndef);
-			return atomUndef->isFact();
-		}
-		bool isDelta=indexAtom->count(IndexAtom::DELTA,atomUndef);
-		if(isDelta){
-			indexAtom->find(IndexAtom::DELTA,atomUndef);
-			return atomUndef->isFact();
-		}
-		return false;
-	};
+	Instances(index_object predicate,PredicateTable *pt): predicate(predicate),predicateTable(pt),indexAtom(0) {
+		for(unsigned int i=0;i<4;i++)
+			tables.push_back(AtomTable());
+		this->setIndexAtom();
+	}
 
 	///Getter for the predicate
 	index_object getPredicate() const {return predicate;}
 	///Setter for the predicate
-	void setPredicate(index_object predicate) {this->predicate = predicate;};
+	void setPredicate(index_object predicate) {this->predicate = predicate;}
 
 	///Getter for the IndexAtom
-	IndexAtom* getIndex() {return indexAtom;};
+	IndexAtom* getIndex() {return indexAtom;}
+
+	GenericAtom* getGenericAtom(vector<index_object>& terms);
+
+	///This method updates a no facts truth value in no-facts, delta and nextDelta table
+	void setValue(vector<index_object>& terms, bool truth);
+
+	///This method determines whether a no fact is true
+	bool isTrue(vector<index_object>& terms);
+
+	inline bool addFact(const vector<index_object>& terms) {
+		// If the atom is not present as fact, it is added.
+		// The temporary atom duplicate is deleted and the inserted atom is assigned.
+		GenericAtom* atomFact=new GenericAtom(terms);
+		if(!tables[Instances::FACTS].insert(atomFact).second){
+			indexAtom->find(Instances::FACTS,atomFact);
+			return false;
+		}
+		return true;
+	}
+
+	///This method adds a no facts to the no facts table.
+	///Its truth value can be true or undefined, if it false it is not stored at all
+	bool addNoFact(GenericAtom*& atomUndef,bool& updated);
 
 	///This method adds a no facts to the delta table if it is yet not present in the facts, no facts and delta tables.
 	///Its truth value can be true or undefined, if it false it is not stored at all.
@@ -315,11 +254,18 @@ public:
 	///and then moves the content of the next delta table in the delta table.
 	void moveNextDeltaInDelta();
 
+	bool findIn(unsigned int table, GenericAtom*& atomUndef, bool& updated);
+
 	///Printer method
-	void print(){for(GenericAtom*fact:facts){ClassicalLiteral::print(predicate,fact->terms,false,false); cout<<"."<<endl;}}
+	inline void print(){for(GenericAtom*fact:tables[0]){ClassicalLiteral::print(predicate,fact->terms,false,false); cout<<"."<<endl;}}
 
 	///Destructor
 	~Instances();
+
+	static const unsigned int FACTS=0;
+	static const unsigned int NOFACTS=1;
+	static const unsigned int DELTA=2;
+	static const unsigned int NEXTDELTA=3;
 
 private:
 	///The predicate
@@ -328,17 +274,11 @@ private:
 	PredicateTable* predicateTable;
 	///The IndexAtom to set the indexing strategy
 	IndexAtom* indexAtom;
-	///The set of facts
-	AtomTable facts;
-	//The set of no facts, that are undefined atoms
-	AtomTable nofacts;
-	/// The set of no facts, computed in the previous iteration
-	AtomTable delta;
-	/// The set of no facts, computed in the current iteration
-	AtomTable nextDelta;
+	///The vector of tables: Facts, No-Facts, Delta, NextDelta
+	vector<AtomTable> tables;
 
 	///This method configures the indexing strategy
-	void configureIndexAtom();
+	void setIndexAtom();
 
 };
 
