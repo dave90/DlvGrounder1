@@ -353,7 +353,5 @@ ProgramGrounder::~ProgramGrounder() {
 	delete statementDependency;
 	delete termsMap;
 	delete currentRule;
-	delete current_atom;
-
 }
 

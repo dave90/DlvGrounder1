@@ -118,7 +118,7 @@ typedef unordered_map<GenericAtom*,map_index_index, hashAtomResult, hashAtomResu
 
 ///This struct implements an AtomResultTable (@see AtomResultTable) that represents a set of possible assignments for bind variables
 struct ResultMatch {
-	mutable AtomResultTable result;
+	AtomResultTable result;
 	ResultMatch(vector<unsigned int> &bind): result(AtomResultTable(0,hashAtomResult(bind),hashAtomResult(bind))){};
 	/// Insert the current atom in the table if match with the template
 	/// If insert the atom return true else false
