@@ -30,8 +30,8 @@ void Instances::setIndexAtom(){
 
 Instances::~Instances() {
 	for(unsigned int i=0;i<tables.size();i++){
-		AtomTable table=tables[i];
-		for (auto it = table.begin(); it != table.end(); it++){
+		AtomTable* table=&tables[i];
+		for (auto it = table->begin(); it != table->end(); it++){
 			delete *it;
 		}
 	}
@@ -39,19 +39,19 @@ Instances::~Instances() {
 }
 
 void Instances::moveNextDeltaInDelta(){
-	AtomTable nofacts=tables[Instances::NOFACTS];
-	AtomTable delta=tables[Instances::DELTA];
-	AtomTable nextDelta=tables[Instances::NEXTDELTA];
-	if(delta.size()>0){
-		for(GenericAtom* atom: delta)
-				nofacts.insert(atom);
-		delta.clear();
+	AtomTable* nofacts=&tables[Instances::NOFACTS];
+	AtomTable* delta=&tables[Instances::DELTA];
+	AtomTable* nextDelta=&tables[Instances::NEXTDELTA];
+	if(delta->size()>0){
+		for(GenericAtom* atom: *delta)
+				nofacts->insert(atom);
+		delta->clear();
 	}
-	if(nextDelta.size()>0){
-		indexAtom->updateDelta(&nextDelta);
-		for(GenericAtom* atom: nextDelta)
-			delta.insert(atom);
-		nextDelta.clear();
+	if(nextDelta->size()>0){
+		indexAtom->updateDelta(nextDelta);
+		for(GenericAtom* atom: *nextDelta)
+			delta->insert(atom);
+		nextDelta->clear();
 	}
 }
 
@@ -87,9 +87,9 @@ void Instances::setValue(vector<index_object>& terms, bool truth) {
 
 GenericAtom* Instances::getGenericAtom(vector<index_object>& terms) {
 	GenericAtom* atom=new GenericAtom(terms);
-	for(unsigned int i=Instances::FACTS;i<=Instances::DELTA;i++){
-		bool isFact=indexAtom->count(i,atom);
-		if(isFact){
+	for(unsigned int i=Instances::FACTS;i<Instances::NEXTDELTA;i++){
+		bool isPresent=indexAtom->count(i,atom);
+		if(isPresent){
 			indexAtom->find(i,atom);
 			return atom;
 		}
@@ -103,8 +103,9 @@ bool Instances::addNoFact(GenericAtom*& atomUndef,bool& updated) {
 	// If the atom is present but undefined and the atom to be insert is true then its truth value is changed
 	if(this->findIn(Instances::FACTS,atomUndef,updated))
 		return false;
-	AtomTable nofacts=tables[1];
-	if(!nofacts.insert(atomUndef).second){
+
+	AtomTable* nofacts=&tables[Instances::NOFACTS];
+	if(!nofacts->insert(atomUndef).second){
 		if(atomUndef->isFact()){
 			indexAtom->find(Instances::NOFACTS,atomUndef);
 			if(!atomUndef->isFact()){
@@ -117,6 +118,7 @@ bool Instances::addNoFact(GenericAtom*& atomUndef,bool& updated) {
 		return false;
 	}
 	return true;
+
 }
 
 bool Instances::findIn(unsigned int table, GenericAtom*& atomUndef, bool& updated){
@@ -146,8 +148,8 @@ bool Instances::addDelta(GenericAtom*& atomUndef,bool& updated) {
 	for(unsigned int i=Instances::FACTS;i<Instances::DELTA;i++)
 		if(this->findIn(i,atomUndef,updated))
 			return false;
-	AtomTable delta=tables[Instances::DELTA];
-	bool insertedInDelta=delta.insert(atomUndef).second;
+	AtomTable* delta=&tables[Instances::DELTA];
+	bool insertedInDelta=delta->insert(atomUndef).second;
 	if(!insertedInDelta){
 		if(atomUndef->isFact()){
 			indexAtom->find(Instances::DELTA,atomUndef);
@@ -169,11 +171,11 @@ bool Instances::addNextDelta(GenericAtom*& atomUndef,bool& updated) {
 	for(unsigned int i=Instances::FACTS;i<Instances::NEXTDELTA;i++)
 		if(this->findIn(i,atomUndef,updated))
 			return false;
-	AtomTable nextDelta=tables[Instances::NEXTDELTA];
-	bool insertedInNextNoFacts=nextDelta.insert(atomUndef).second;
+	AtomTable* nextDelta=&tables[Instances::NEXTDELTA];
+	bool insertedInNextNoFacts=nextDelta->insert(atomUndef).second;
 	if(!insertedInNextNoFacts){
 		if(atomUndef->isFact()){
-			GenericAtom* atomFind=*nextDelta.find(atomUndef);
+			GenericAtom* atomFind=*nextDelta->find(atomUndef);
 			if(!atomUndef->isFact()){
 				atomUndef->setFact(true);
 				updated=true;
@@ -182,7 +184,7 @@ bool Instances::addNextDelta(GenericAtom*& atomUndef,bool& updated) {
 			atomUndef=atomFind;
 			return false;
 		}
-		GenericAtom* atomFind=*nextDelta.find(atomUndef);
+		GenericAtom* atomFind=*nextDelta->find(atomUndef);
 		delete atomUndef;
 		atomUndef=atomFind;
 		return false;
