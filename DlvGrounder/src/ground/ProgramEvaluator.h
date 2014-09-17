@@ -155,6 +155,9 @@ private:
 	void groundHead(Rule* r, PredicateTable* predicateTable,
 			map_index_index& var_assign, InstancesTable* instancesTable,
 			StatementDependency* statementDep, GroundRule* groundRule);
+
+	///Ground the constraint with no simplification
+	void groundConstraint(Rule* r, PredicateTable* predicateTable, map_index_index& var_assign);
 };
 
 #endif /* PROGRAMEVALUATOR_H_ */

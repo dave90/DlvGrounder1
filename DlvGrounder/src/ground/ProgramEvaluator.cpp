@@ -153,8 +153,33 @@ void ProgramEvaluator::groundHead(Rule* r, PredicateTable* predicateTable,
 	}
 }
 
+void ProgramEvaluator::groundConstraint(Rule* r, PredicateTable* predicateTable, map_index_index& var_assign) {
+	bool first=true;
+	for (auto body_it = r->getBeginBody(); body_it != r->getEndBody(); body_it++) {
+		Atom* body = (*body_it);
+		index_object predicate = body->getPredicate().second;
+		//If the predicate is EDB skip this atom
+		if (predicateTable->getPredicate(predicate)->isEdb() || body->isBuiltIn())
+			continue;
+
+		Atom* groundAtom = body->ground(var_assign);
+		if(first)
+			{cout<<":-";first=false;}
+		else
+			cout<<";";
+		groundAtom->print();
+		delete groundAtom;
+	}
+	cout <<"."<< endl;
+}
+
 bool ProgramEvaluator::printGroundRule(InstancesTable* instancesTable,PredicateTable *predicateTable,StatementDependency * statementDep,
 			Rule *r, map_index_index& var_assign, bool isRecursive, bool firstIteration) {
+	if(r->isAStrongConstraint() && !simplification){
+		groundConstraint(r, predicateTable, var_assign);
+		return false;
+	}
+
 	//Build a ground rule with the given vars assignment
 	GroundRule *groundRule = new GroundRule;
 
