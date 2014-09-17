@@ -17,16 +17,35 @@ Timer* Timer::getInstance() {
 }
 
 void Timer::start(const string& label) {
-	currentLabel=label;
-	boost_timer.restart();
+	TimerStamp *t=new TimerStamp(label);
+	t->startTime();
+	stamps.push_back(t);
 }
 
 void Timer::end() {
-	TimerStamp ts(currentLabel,boost_timer.elapsed());
-	stamps.push_back(ts);
+	TimerStamp *lastTimerStamp=stamps[stamps.size()-1];
+	lastTimerStamp->setTime();
+	stamps.pop_back();
+	stampsFinished.push_back(lastTimerStamp);
 }
 
 void Timer::print() {
-	for(unsigned int i=0;i<stamps.size();i++)
-		stamps[i].print();
+	for(unsigned int i=0;i<stampsFinished.size();i++)
+		stampsFinished[i]->print();
+}
+
+void Timer::endAndSum(const string& label) {
+	TimerStamp *lastTimerStamp=stamps[stamps.size()-1];
+	lastTimerStamp->setTime();
+	stamps.pop_back();
+	bool find=false;
+	for(auto timer:stampsFinished)
+		if(timer->getLabel().compare(label.c_str())==0){
+			timer->addTime(lastTimerStamp->getTime());
+			find=true;
+		}
+	if(!find)
+		stampsFinished.push_back(lastTimerStamp);
+	else
+		delete lastTimerStamp;
 }
