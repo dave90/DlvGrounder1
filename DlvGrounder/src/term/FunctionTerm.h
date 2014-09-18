@@ -54,6 +54,13 @@ public:
 		return false;
 	};
 
+	virtual bool containsAnonymous(){
+		for(index_object term:terms)
+			if(TermTable::getInstance()->getTerm(term)->containsAnonymous())return true;
+		return false;
+	};
+
+
 	virtual index_object calculate();
 	virtual index_object substitute(unordered_map<index_object, index_object>& substritutionTerm);
 	/// Return the name of the function concatenated with '*' and the id of the composites term

@@ -196,7 +196,7 @@ bool ProgramGrounder::groundRule(Rule* r, bool firstIteraction, bool isRecursive
 
 		// If the current atom is a built in or the instance table is null
 		// then firstMatch or nextMatch must not be invoked
-		if (current_atom->isBuiltIn() || instance == nullptr || negation || current_variables_atoms[index_current_atom].size()==0) {
+		if (current_atom->isBuiltIn() || instance == nullptr || negation || ( current_variables_atoms[index_current_atom].size()==0 && !current_atom->containsAnonymous() )) {
 
 			if (!groundBoundAtom( find, negation, searchDelta, instance, templateAtom))
 				return false;

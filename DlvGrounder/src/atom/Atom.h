@@ -86,6 +86,13 @@ public:
 		return true;
 	}
 
+	/// Return true if contains an anonymus term
+	virtual bool containsAnonymous(){
+		for(index_object term:terms)
+			if(TermTable::getInstance()->getTerm(term)->containsAnonymous())return true;
+		return false;
+	};
+
 	/******** Methods useful for ClassicalLiteral ********/
 	/** Getter method for the predicate
 	 * @retval <true,id> if the atom has a predicate whose index is id

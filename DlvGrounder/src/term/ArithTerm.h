@@ -49,7 +49,11 @@ public:
 		return true;
 	};
 
-
+	virtual bool containsAnonymous(){
+		for(index_object term:terms)
+			if(TermTable::getInstance()->getTerm(term)->containsAnonymous())return true;
+		return false;
+	};
 
 	/// Return the string composed by the concatenation of terms and operators
 	virtual string getNameToHash();

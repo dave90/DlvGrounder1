@@ -54,6 +54,8 @@ public:
 	virtual void setName(string& name){};
 	/// Return true if is anonymous variable
 	virtual bool isAnonymous(){return false;};
+	/// Return true if is anonymous variable or contains anonymus variable
+	virtual bool containsAnonymous(){return false;};
 	/// Return true if is a variable term of contain variables terms
 	virtual bool isVariable(){return false;};
 	/// Return true if is a constant term or contain only constant terms

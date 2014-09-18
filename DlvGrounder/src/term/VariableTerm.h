@@ -24,6 +24,7 @@ public:
 	VariableTerm(bool negative):Term(negative){};
 	virtual string getName(){return IdsManager::getString(IdsManager::TERM_ID_MANAGER,getIndex());};
 	virtual bool isAnonymous(){return getName().compare("_")==0;};
+	virtual bool containsAnonymous(){return isAnonymous();};
 	/// If isn't anonymus return true else false
 	virtual bool isVariable(){if(!isAnonymous())return true;return false;};
 	virtual bool isVariableTerm(){return true;};
