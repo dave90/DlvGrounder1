@@ -352,6 +352,5 @@ ProgramGrounder::~ProgramGrounder() {
 	delete instancesTable;
 	delete statementDependency;
 	delete termsMap;
-	delete currentRule;
 }
 
