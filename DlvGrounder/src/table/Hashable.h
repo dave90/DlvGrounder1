@@ -78,6 +78,7 @@ private:
 	unordered_set<T*,HashForTable<T>,HashForTable<T>> flyweight_set;
 };
 
+
 template<typename T>
 class FlyweightIndexFactory{
 public:
