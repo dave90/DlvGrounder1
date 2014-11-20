@@ -15,7 +15,6 @@
 #include <boost/unordered_set.hpp>
 #include <unordered_set>
 
-
 using namespace std;
 
 /**
