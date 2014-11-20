@@ -22,53 +22,50 @@ using namespace std;
 class FunctionTerm: public Term {
 public:
 	FunctionTerm(string& name,bool negative):Term(negative),name(name){};
+	FunctionTerm(string v,bool negative,vector<Term*>& terms):FunctionTerm(v,negative),terms(terms){};
 	FunctionTerm(string v,index_object index):name(v){setIndex(index);};
+	FunctionTerm(string v,index_object index,vector<Term*>& terms):name(v),terms(terms){setIndex(index);};
+
 	virtual string getName(){return name;};
 	virtual void setName(string& name){this->name=name;};
-	virtual void addTerm(index_object termIndex){terms.push_back(termIndex);};
-	virtual void popTerm(){terms.pop_back();};
-	virtual bool isFunctionalTerm(){return true;};
-	virtual vector<index_object> getTerms(){return terms;};
 
-	/// If one term are variable then return false, else true
-	virtual bool isVariable(){
-		for(index_object term:terms)
-			if(TermTable::getInstance()->getTerm(term)->isVariable())return true;
+	virtual unsigned getTermsSize(){return terms.size();}
+	virtual Term* getTerm(unsigned i){return terms[i];}
+
+	virtual void addTerm(Term* term){terms.push_back(term);};
+	virtual void popTerm(){terms.pop_back();};
+
+
+	virtual TermType getType(){return TermType::FUNCTION;};
+	virtual bool contain(TermType type){
+		for(auto term:terms)
+			if(term->contain(type))
+				return true;
 		return false;
 	}
-
-	virtual bool isConstant(){
-		for(index_object term:terms)
-			if(!TermTable::getInstance()->getTerm(term)->isConstant())return false;
+	virtual bool isGround(){
+		for(auto term:terms)
+			if(!term->isGround())
+				return false;
 		return true;
-	};
+	}
 
-	virtual void getVariable(unordered_set<index_object>& variables){
-		for(index_object term:terms)
-			TermTable::getInstance()->getTerm(term)->getVariable(variables);
-	};
 
-	virtual bool isArith(){
-		for(index_object term:terms)
-			if(TermTable::getInstance()->getTerm(term)->isArith())return true;
-		return false;
-	};
-
-	virtual bool containsAnonymous(){
-		for(index_object term:terms)
-			if(TermTable::getInstance()->getTerm(term)->containsAnonymous())return true;
-		return false;
+	virtual void getVariable(set_term& variables){
+		for(auto term:terms)
+			term->getVariable(variables);
 	};
 
 
-	virtual index_object calculate();
-	virtual index_object substitute(unordered_map<index_object, index_object>& substritutionTerm);
+
+	virtual Term* calculate();
+	virtual Term* substitute(map_term_term& substritutionTerm);
 	/// Return the name of the function concatenated with '*' and the id of the composites term
-	virtual string getNameToHash();
+	virtual size_t hash();
 	/// Match a function with given id of term, compare the constant term and put in binds
 	/// a value of the variable term present in termToMatch
 	/// Return true if constant term are equal, else false
-	virtual bool match(index_object termToMatch,unordered_map<index_object, index_object>& varAssignment);
+	virtual bool match(Term* termToMatch,map_term_term& varAssignment);
 	virtual void print();
 private:
 	/**
@@ -79,7 +76,7 @@ private:
 	/**
 	 *  All the index of the terms inside the function
 	*/
-	vector<index_object> terms;
+	vector<Term*> terms;
 };
 
 #endif /* FUNCTIONTERM_H_ */

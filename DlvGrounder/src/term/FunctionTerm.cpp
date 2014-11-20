@@ -12,83 +12,81 @@
 
 
 
-string FunctionTerm::getNameToHash() {
-	string hashString=name+"*";
+size_t FunctionTerm::hash() {
+	vector<size_t> hashVec(terms.size()+1);
+	hashVec[0]=HashString::getHashStringFromConfig()->computeHash(name);
+	for(unsigned int i=0;i<terms.size();i++)
+		hashVec[i+1]=terms[i]->getIndex();
 
-	string number;
-	for(unsigned int i=0;i<terms.size();i++){
-		hashString+=boost::lexical_cast<string>(terms[i])+"*";
-	}
+	return HashVecInt::getHashVecIntFromConfig()->computeHashSize_T(hashVec);
 
-	return hashString;
 }
 
 void FunctionTerm::print() {
-	cout<<IdsManager::getStringStrip(IdsManager::TERM_ID_MANAGER,getIndex())<<"(";
+	cout<<name<<"(";
 	for(unsigned int i=0;i<terms.size();i++){
 		if(i!=0)
 			cout<<",";
-		TermTable::getInstance()->getTerm(terms[i])->print();
+		terms[i]->print();
 	}
 	cout<<")";
 }
 
-index_object FunctionTerm::substitute(unordered_map<index_object, index_object>& substritutionTerm) {
+Term* FunctionTerm::substitute(map_term_term& substritutionTerm) {
 	// Create a new function replacing the term in a vector
 	// Recursively call substitute for nested function
 	// At the end add a new function in a table and return index
 
-	Term *subTerm=new FunctionTerm(name,negative);
-
 	TermTable *termTable=TermTable::getInstance();
-	for(auto term:terms){
-		index_object sub_index=termTable->getTerm(term)->substitute(substritutionTerm);
-		subTerm->addTerm(sub_index);
+	vector<Term*> subTerms(terms.size());
+	for(unsigned int i=0;i<terms.size();i++){
+		Term* sub_term=terms[i]->substitute(substritutionTerm);
+		subTerms[i]=sub_term;
 	}
-	return termTable->addTerm(subTerm);
+
+	Term *newTerm=new FunctionTerm(name,terms);
+	return TermTable::getInstance()->addTerm(newTerm);
 }
 
-index_object FunctionTerm::calculate() {
+Term* FunctionTerm::calculate() {
 	// Create a new function replacing the term in a vector
 	// Recursively call calculate for nested function
 	// At the end add a new function in a table and return index
-	if(!isArith()) return getIndex();
+	if(!contain(TermType::ARITH)) return this;
 
-	Term *subTerm=new FunctionTerm(name,negative);
+	vector<Term*> sub_terms(terms.size());
 
 	TermTable *termTable=TermTable::getInstance();
-	index_object sub_index=0;
 
-	for(auto term:terms){
-		if(termTable->getTerm(term)->isArith()){
-			sub_index=termTable->getTerm(term)->calculate();
+	for(unsigned int i=0;i<terms.size();i++){
+		if(terms[i]->contain(TermType::ARITH)){
+			sub_terms[i]=terms[i]->calculate();
 		}else
-			sub_index=term;
-		subTerm->addTerm(sub_index);
+			sub_terms[i]=terms[i];
 	}
+
+	Term *subTerm=new FunctionTerm(name,negative,sub_terms);
 	return termTable->addTerm(subTerm);
 }
 
-bool FunctionTerm::match(index_object termToMatch, unordered_map<index_object, index_object>& varAssignment) {
+bool FunctionTerm::match(Term* termToMatch, map_term_term& varAssignment) {
 	// If is anonymus return true, if have same name and same arity continue and
 	// recursivley check match, if one fail return true
 
 	TermTable *termTable=TermTable::getInstance();
 
-	Term * term=termTable->getTerm(termToMatch);
+	if(termToMatch->getType()==TermType::ANONYMOUS) return true;
+	if(termToMatch->getType()==TermType::VARIABLE){ varAssignment.insert({termToMatch,this});return true;}
+	if(termToMatch->getType()!=TermType::FUNCTION) return false;
+	if(termToMatch->getName().compare(getName()) != 0)return false;
+	if(termToMatch->getTermsSize() != terms.size())return false;
 
-	if(term->isAnonymous()) return true;
-	if(term->isVariableTerm()){ varAssignment.insert({termToMatch,getIndex()});return true;}
-	if(!term->isFunctionalTerm()) return false;
-	if(term->getName().compare(getName()) != 0)return false;
-	if(term->getTerms().size() != terms.size())return false;
-
-	unordered_map<index_object, index_object> assignInTerm(varAssignment);
+	map_term_term assignInTerm(varAssignment);
 	for(unsigned int i=0;i<terms.size();i++)
-		if(!termTable->getTerm(terms[i])->match(term->getTerms()[i],assignInTerm))
+		if(!terms[i]->match(termToMatch->getTerm(i),assignInTerm))
 			return false;
 
-	for(auto assignment:assignInTerm)varAssignment.insert(assignment);
+	varAssignment.insert(assignInTerm.begin(),assignInTerm.empty());
 
 	return true;
 }

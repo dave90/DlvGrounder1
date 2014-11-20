@@ -11,32 +11,23 @@
 #include "../table/TermTable.h"
 
 
-Atom* Atom::ground(unordered_map<index_object, index_object>& substritutionTerm){
+Atom* Atom::ground(map_term_term& substritutionTerm){
 	Atom *substitute_atom=substitute(substritutionTerm);
-	TermTable *termTable=TermTable::getInstance();
-	vector<index_object> terms_arith_calculated;
-	index_object index;
 
 	for(unsigned int i=0;i<substitute_atom->getTermsSize();i++){
-		index_object term=substitute_atom->getTerm(i).second;
-		if(termTable->getTerm(term)->isArith()){
+		Term* term=substitute_atom->getTerm(i);
+		if(term->contain(TermType::ARITH))
 			/// Calculate the value of arithmetic term and add in terms table
-			index=termTable->getTerm(term)->calculate();
-
-		}else
-			index=term;
-
-		terms_arith_calculated.push_back(index);
+			substitute_atom->setTerm(i,term->calculate());
 	}
 
-	substitute_atom->setTerms(terms_arith_calculated);
 	return substitute_atom;
 };
 
-unordered_set<index_object> Atom::getVariable(){
-	unordered_set<index_object> variables;
-	for(index_object term:terms)
-		TermTable::getInstance()->getTerm(term)->getVariable(variables);
+set_term Atom::getVariable(){
+	set_term variables;
+	for(auto term:terms)
+		term->getVariable(variables);
 	return variables;
 }
 

@@ -12,11 +12,11 @@
 
 #include <sstream>
 
-index_object ArithTerm::calculate() {
+Term* ArithTerm::calculate() {
 	TermTable *termTable=TermTable::getInstance();
-	unsigned int result = atof(termTable->getTerm(terms[0])->getName().c_str());
+	unsigned int result = terms[0]->getConstantValue();
 	for (unsigned int i = 1; i < terms.size(); i++) {
-		unsigned int value=atof(termTable->getTerm(terms[i])->getName().c_str());
+		unsigned int value=terms[i]->getConstantValue();
 		if (operators[i-1] == Operator::PLUS)
 			result += value;
 		else if (operators[i-1] == Operator::MINUS)
@@ -31,26 +31,26 @@ index_object ArithTerm::calculate() {
 			result *= value;
 	}
 
-	Term *constantTerm=new ConstantTerm;
-	return TermTable::getInstance()->addTerm(constantTerm,result);
+	Term *constantTerm=new NumericConstantTerm(negative,result);
+	return TermTable::getInstance()->addTerm(constantTerm);
 }
 
-string ArithTerm::getNameToHash() {
-	string name = "";
-	for (unsigned int i = 0; i < terms.size() - 1; i++) {
-		name += boost::lexical_cast<string>(terms[i]) + getNameOperator(operators[i]);
+size_t ArithTerm::hash() {
+	vector<size_t> hashVec(terms.size()+operators.size());
+	hashVec[0]=terms[0]->getIndex();
+	for(unsigned int i=0;i<operators.size();i++){
+		hashVec[i*2+1]=operators[i];
+		hashVec[i*2+2]=terms[i+1]->getIndex();
 	}
-	name += boost::lexical_cast<string>(terms[terms.size() - 1]);
-	return name;
+	return HashVecInt::getHashVecIntFromConfig()->computeHashSize_T(hashVec);
 }
 
 void ArithTerm::print() {
-	TermTable *tb=TermTable::getInstance();
 	for (unsigned int i = 0; i < terms.size() - 1; i++) {
-		tb->getTerm(terms[i])->print();
+		terms[i]->print();
 		cout  << getNameOperator(operators[i]);
 	}
-	tb->getTerm(terms[terms.size() - 1])->print();
+	terms[terms.size() - 1]->print();
 }
 
 string ArithTerm::getNameOperator(Operator op) {
@@ -65,16 +65,18 @@ string ArithTerm::getNameOperator(Operator op) {
 	return "";
 }
 
-index_object ArithTerm::substitute(unordered_map<index_object, index_object>& substritutionTerm) {
+Term* ArithTerm::substitute(map_term_term& substritutionTerm) {
 	// Create a new arithmetic term replacing the term in a vector
 	// Recursively call substitute for nested function
 	// At the end add a new term in a table and return index
 
-	Term *subTerm=new ArithTerm(operators);
 	TermTable *termTable=TermTable::getInstance();
-	for(index_object term:terms){
-		index_object sub_index=termTable->getTerm(term)->substitute(substritutionTerm);
-		subTerm->addTerm(sub_index);
+	vector<Term*> subTerms(terms.size());
+	for(unsigned int i=0;i<terms.size();i++){
+		Term* sub_term=terms[i]->substitute(substritutionTerm);
+		subTerms[i]=sub_term;
 	}
-	return termTable->addTerm(subTerm);
+
+	Term *newTerm=new ArithTerm(negative,operators,subTerms);
+	return termTable->addTerm(newTerm);
 }

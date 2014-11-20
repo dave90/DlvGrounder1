@@ -24,39 +24,35 @@
 
 class ArithTerm: public Term {
 public:
-	ArithTerm():Term(0){};
-	ArithTerm(vector<Operator> operators):operators(operators){};
-	///Ad an operator in the vector
-	virtual void setOperator(Operator op){operators.push_back(op);};
-	/// Calculate the value based on the operators and terms
-	virtual index_object calculate();
-	virtual void addTerm(index_object termIndex){terms.push_back(termIndex);};
-	virtual void popTerm(){terms.pop_back();};
-	virtual index_object substitute(unordered_map<index_object, index_object>& substritutionTerm);
-	virtual bool isArithTerm(){return true;};
-	virtual bool isArith(){return true;};
+	ArithTerm():Term(){};
+	ArithTerm(vector<Operator>& operators):operators(operators){};
+	ArithTerm(bool negative,vector<Operator>& operators,vector<Term*>& terms):negative(negative),operators(operators),terms(terms){};
 
-	/// If one term are variable then return false, else true
-	virtual bool isVariable(){
-		for(index_object term:terms)
-			if(TermTable::getInstance()->getTerm(term)->isVariable())return true;
+	///Add an operator in the vector
+	virtual void setOperator(Operator op){operators.push_back(op);};
+	virtual void addTerm(Term* term){terms.push_back(term);};
+
+	/// Calculate the value based on the operators and terms
+	virtual Term* calculate();
+	virtual void popTerm(){terms.pop_back();};
+	virtual Term* substitute(map_term_term& substritutionTerm);
+
+	virtual TermType getType(){return TermType::ARITH;};
+	virtual bool contain(TermType type){
+		for(auto term:terms)
+			if(term->contain(type))
+				return true;
 		return false;
 	}
-
-	virtual bool isConstant(){
-		for(index_object term:terms)
-			if(!TermTable::getInstance()->getTerm(term)->isConstant())return false;
+	virtual bool isGround(){
+		for(auto term:terms)
+			if(!term->isGround())
+				return false;
 		return true;
-	};
-
-	virtual bool containsAnonymous(){
-		for(index_object term:terms)
-			if(TermTable::getInstance()->getTerm(term)->containsAnonymous())return true;
-		return false;
-	};
+	}
 
 	/// Return the string composed by the concatenation of terms and operators
-	virtual string getNameToHash();
+	virtual size_t hash();
 	virtual void print();
 	/// Return the string of enum operator
 	static string getNameOperator(Operator op);
@@ -64,7 +60,7 @@ private:
 	/**
 	 *  All the index of the terms to calculate the operation
 	 */
-	vector<index_object> terms;
+	vector<Term*> terms;
 	/*
 	 * The operators
 	 */

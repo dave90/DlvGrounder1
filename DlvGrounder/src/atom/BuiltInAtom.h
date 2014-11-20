@@ -27,14 +27,14 @@ public:
 	 * @param firstTerm set the first term
 	 * @param secondTerm set the second term
 	 */
-	BuiltInAtom(Binop binOperation, bool isNegative, index_object firstTerm, index_object secondTerm): binop(binOperation), negative(isNegative) {terms.push_back(firstTerm);terms.push_back(secondTerm);};
+	BuiltInAtom(Binop binOperation, bool isNegative, Term* firstTerm, Term* secondTerm): binop(binOperation), negative(isNegative),terms(2) { terms[0]=firstTerm;terms[1]=secondTerm;};
 
 	/** Constructor
 	 * @param binop set the binary operation @see Binop
 	 * @param negative set whether the atom is negated with negation as failure
 	 * @param termsVec set the terms
 	 */
-	BuiltInAtom(Binop binOperation, bool isNegative, vector<index_object>& termsVec): Atom(termsVec), binop(binOperation), negative(isNegative) {};
+	BuiltInAtom(Binop binOperation, bool isNegative, vector<Term*>& termsVec): Atom(termsVec), binop(binOperation), negative(isNegative) {};
 
 	///Getter method for the binary operation
 	Binop getBinop() const {return binop;};
@@ -46,7 +46,7 @@ public:
 	void setNegative(bool negative) {this->negative = negative;};
 
 	///This method compute the resulting hash a built-in atom using its terms
-	size_t getHash() const;
+	size_t hash();
 
 	/** @brief Equal-to operator for built-in atom
 	 * 	@details {Two built-in atoms are compared by the binary operation and the terms}
@@ -54,7 +54,7 @@ public:
 	virtual bool operator==(const Atom& a);
 
 	///This method evaluate the truth value of the built-in atom
-	bool evaluate(unordered_map<index_object, index_object>& substitutionTerm);
+	bool evaluate(map_term_term& substitutionTerm);
 
 	/// Return true if is BuiltInAtom
 	virtual bool isBuiltIn(){return true;};
@@ -63,7 +63,7 @@ public:
 	void print();
 
 	/// Substitute the term and return a new Atom with term substituted
-	virtual Atom* substitute(unordered_map<index_object, index_object>& substritutionTerm);
+	virtual Atom* substitute(map_term_term& substritutionTerm);
 
 	///Destructor
 	~BuiltInAtom() {};

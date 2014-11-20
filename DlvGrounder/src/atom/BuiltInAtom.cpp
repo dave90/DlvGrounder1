@@ -13,33 +13,25 @@
 #include "../table/TermTable.h"
 #include "../table/HashVecInt.h"
 
-string calculateValueTerm(index_object term){
-	return TermTable::getInstance()->getTerm( TermTable::getInstance()->getTerm(term)->calculate() )->getName();
-}
 
-index_object getIndexOfCalculateValueTerm(index_object term){
-	return TermTable::getInstance()->getTerm(term)->calculate();
-}
-
-bool BuiltInAtom::evaluate(unordered_map<index_object, index_object>& substitutionTerm){
-	index_object firstTerm=terms[0];
-	index_object secondTerm=terms[1];
-
-	TermTable *termTable=TermTable::getInstance();
+bool BuiltInAtom::evaluate(map_term_term& substitutionTerm){
+	Term* firstTerm=terms[0];
+	Term* secondTerm=terms[1];
 
 	// If there is equal and variable assign that value
-	if(binop==Binop::EQUAL && (termTable->getTerm(firstTerm)->isVariableTerm() || termTable->getTerm(secondTerm)->isVariableTerm() )){
-		if(termTable->getTerm(firstTerm)->isVariableTerm())
-			substitutionTerm.insert({firstTerm,getIndexOfCalculateValueTerm(secondTerm)});
-		else
-			substitutionTerm.insert({secondTerm,getIndexOfCalculateValueTerm(firstTerm)});
-
-		return true;
+	if(binop==Binop::EQUAL){
+		if(firstTerm->getType()==TermType::VARIABLE || secondTerm->getType()!=TermType::VARIABLE ){
+			substitutionTerm.insert({firstTerm,secondTerm->calculate()});
+			return true;
+		}if(firstTerm->getType()!=TermType::VARIABLE || secondTerm->getType()==TermType::VARIABLE ){
+			substitutionTerm.insert({secondTerm,firstTerm->calculate()});
+			return true;
+	    }
 	}
 
 	// Take the value of firstBinop and SecondBinop
-	string value1= calculateValueTerm(firstTerm);
-	string value2= calculateValueTerm(secondTerm);
+	string value1= firstTerm->getName();
+	string value2= secondTerm->getName();
 
 	if(binop==Binop::EQUAL)
 		return firstTerm==secondTerm;
@@ -57,28 +49,24 @@ bool BuiltInAtom::evaluate(unordered_map<index_object, index_object>& substituti
 	return false;
 }
 
-size_t BuiltInAtom::getHash() const{
-	return HashVecInt::getHashVecIntFromConfig()->computeHash(terms);
+size_t BuiltInAtom::hash(){
+	return HashVecInt::getHashVecIntFromConfig()->computeHash(getTermIndex());
 }
 
 bool BuiltInAtom::operator==(const Atom& a) {
-	index_object firstTerm=terms[0];
-	index_object secondTerm=terms[1];
-	TermTable *termTable=TermTable::getInstance();
 
-	if(!(*(termTable->getTerm(firstTerm)) == *(termTable->getTerm(a.getTerm(0).second)))) return false;
-	if(!(*(termTable->getTerm(secondTerm)) == *(termTable->getTerm(a.getTerm(1).second)))) return false;
 	if(binop != a.getBinop()) return false;
+	if(terms[0]->getIndex() != a.getTerm(0)->getIndex()) return false;
+	if(terms[1]->getIndex() != a.getTerm(1)->getIndex()) return false;
 
 	return true;
 }
 
 void BuiltInAtom::print(){
-	TermTable*tb=TermTable::getInstance();
-	index_object firstTerm=terms[0];
-	index_object secondTerm=terms[1];
+	Term* firstTerm=terms[0];
+	Term* secondTerm=terms[1];
 
-	tb->getTerm(firstTerm)->print();
+	firstTerm->print();
 	if(binop==Binop::EQUAL)
 		cout<<"=";
 	if(binop==Binop::UNEQUAL)
@@ -91,14 +79,13 @@ void BuiltInAtom::print(){
 		cout<<">";
 	if(binop==Binop::GREATER_OR_EQ)
 		cout<<">=";
-	tb->getTerm(secondTerm)->print();
+	secondTerm->print();
 }
 
-Atom* BuiltInAtom::substitute(unordered_map<index_object, index_object>& substritutionTerm) {
-	vector<index_object> terms_substitute;
-	TermTable *termTable=TermTable::getInstance();
-	for(index_object term:terms){
-		terms_substitute.push_back( termTable->getTerm(term)->substitute(substritutionTerm) );
+Atom* BuiltInAtom::substitute(map_term_term& substritutionTerm) {
+	vector<Term*> terms_substitute(terms.size());
+	for(unsigned int i=0;i<terms.size();i++){
+		terms_substitute[i]=terms[i]->substitute(substritutionTerm) ;
 	}
 	return new BuiltInAtom(binop,negative,terms_substitute);
 }

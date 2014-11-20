@@ -20,24 +20,58 @@ using namespace std;
  */
 class VariableTerm: public Term {
 public:
-	VariableTerm():Term(0){};
-	VariableTerm(bool negative):Term(negative){};
-	virtual string getName(){return IdsManager::getString(IdsManager::TERM_ID_MANAGER,getIndex());};
-	virtual bool isAnonymous(){return getName().compare("_")==0;};
-	virtual bool containsAnonymous(){return isAnonymous();};
-	/// If isn't anonymus return true else false
-	virtual bool isVariable(){if(!isAnonymous())return true;return false;};
-	virtual bool isVariableTerm(){return true;};
-
-	virtual void getVariable(unordered_set<index_object>& variables){if(!isAnonymous())variables.insert(getIndex());};
-	virtual string getNameToHash(){	return getName();};
-	virtual index_object substitute(unordered_map<index_object, index_object>& substritutionTerm){
-		for(auto term_value:substritutionTerm)
-			if(term_value.first == getIndex()){
-				return term_value.second;
-			}
-		return getIndex();
+	VariableTerm():Term(),isAnonymous(0){};
+	VariableTerm(bool negative):Term(negative),isAnonymous(0){};
+	VariableTerm(bool negative,index_object index,string& name):VariableTerm(negative,name),index(index){};
+	VariableTerm(bool negative,string& name):Term(negative){
+		if(name.compare("_")==0)
+			isAnonymous=true;
+		else
+			isAnonymous=false;
 	};
+
+	virtual string getName(){return name;};
+	virtual void setName(const string& name){
+		this->name=name;
+		if(name.compare("_")==0)
+			isAnonymous=true;
+		else
+			isAnonymous=false;
+	};
+
+	//Return the type of term
+	virtual TermType getType(){if(isAnonymous)return TermType::ANONYMOUS;return TermType::VARIABLE;};
+	//Return true if contain a term of the given type
+	virtual bool contain(TermType type){
+		if(TermType::VARIABLE==type || (TermType::ANONYMOUS==type && isAnonymous))
+			return true;
+		return false;
+	};
+
+
+	virtual void getVariable(set_term& variables){if(!isAnonymous)variables.insert(this);};
+	virtual size_t hash(){	return HashString::getHashStringFromConfig()->computeHash(name);};
+	virtual Term* substitute(map_term_term& substritutionTerm){
+		auto find_it=substritutionTerm.find(this);
+		if(find_it!=substritutionTerm.end())
+			return (*find_it).second;
+		return this;
+	};
+
+	virtual void print(){
+		cout<<name;
+	}
+
+private:
+	/**
+	 *   The name of a variable
+	 */
+	string name;
+	/*
+	 *  True if is an anonymous variable ''_''
+	 */
+	bool isAnonymous;
+
 };
 
 #endif /* VARIABLETERM_H_ */

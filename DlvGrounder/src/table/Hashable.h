@@ -30,8 +30,19 @@ public:
 	unsigned getIndex() const {	return index;};
 	void setIndex(unsigned index) {	this->index = index;};
 
-private:
+protected:
 	unsigned index;
+};
+
+template<typename T>
+struct IndexForTable{
+	inline size_t operator()(T* obj) const {
+		return obj->getIndex();
+	}
+
+	inline bool operator()(T* obj1, T* obj2) const {
+		return obj1->getIndex()==obj2->getIndex();
+	}
 };
 
 template<typename T>
@@ -44,6 +55,7 @@ struct HashForTable{
 		return *obj1==*obj2;
 	}
 };
+
 
 template<typename T>
 struct ConstHashForTable{
@@ -69,12 +81,19 @@ public:
 		return *result.first;
 	}
 
+	T* get(T* obj){
+		auto result=flyweight_set.find(obj);
+		if(result!=flyweight_set.end())
+			return nullptr;
+		return *result;
+	}
+
+
 	void print(){
 		for(auto obj:flyweight_set)
 			obj->print();
 	}
 
-private:
 	unordered_set<T*,HashForTable<T>,HashForTable<T>> flyweight_set;
 };
 
@@ -95,12 +114,18 @@ public:
 		return *result.first;
 	}
 
+	T* get(T* obj){
+		auto result=flyweight_set.find(obj);
+		if(result!=flyweight_set.end())
+			return nullptr;
+		return *result;
+	}
+
 	void print(){
 		for(auto obj:flyweight_set)
 			obj->print();
 	}
 
-private:
 	unordered_set<T*,HashForTable<T>,HashForTable<T>> flyweight_set;
 	unsigned int index_counter;
 };

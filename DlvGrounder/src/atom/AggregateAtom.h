@@ -31,7 +31,7 @@ public:
 		 * @param aE set the vector of aggregate elements
 		 * @param negative set whether the atom is negated with negation as failure
 		 */
-	AggregateAtom(index_object f, Binop fB, index_object s, Binop sB, AggregateFunction aF, vector<AggregateElement> aE, bool n):
+	AggregateAtom(Term* f, Binop fB,Term* s, Binop sB, AggregateFunction aF, vector<AggregateElement> aE, bool n):
 		firstBinop(fB), secondBinop(sB), aggregateFunction(aF), aggregateElements(move(aE)), negative(n) {terms.push_back(f);terms.push_back(s);};
 
 	///Getter method for the aggregate elements

@@ -36,7 +36,7 @@ enum Binop {NONE_OP=0,EQUAL,UNEQUAL,LESS,GREATER,LESS_OR_EQ,GREATER_OR_EQ};
 *	Atom acts like an interface for its subclasses.
 */
 
-class Atom {
+class Atom: public Hashable {
 public:
 
 	///Default constructor
@@ -45,7 +45,7 @@ public:
 	/** Constructor
 	 * @param termsVec set the terms vector
 	 */
-	Atom(vector<index_object> termsVec) : terms(move(termsVec)) {};
+	Atom(vector<Term*> termsVec) : terms(move(termsVec)) {};
 
 	/** Constructor
 	 * @param negative set whether the atom is negated with negation as failure
@@ -66,30 +66,30 @@ public:
 	///Equal-to operator for atoms
 	virtual bool operator==(const Atom& a)=0;
 
-	///This method compute the resulting hash for an atom using its fields
-	virtual size_t getHash() const = 0 ;
 
-	///Return the ID of variable present in the Atom
-	virtual unordered_set<index_object> getVariable();
+	///Return the vector of index of terms
+	virtual vector<index_object> getTermIndex()const {
+		vector<index_object> termIndex(terms.size());
+		for(unsigned int i=0;i<terms.size();i++)
+			termIndex[i]=terms[i]->getIndex();
+		return termIndex;
+	}
+
+	///Return the term of variable present in the Atom
+	virtual set_term getVariable();
 
 	/// Return true if is ground, each term is constant term
 	virtual bool isGround(){
-		for(index_object term:terms)
-			if(!TermTable::getInstance()->getTerm(term)->isConstant())return false;
+		for(auto term:terms)
+			if(!term->isGround())return false;
 		return true;
 	}
 
-	/// Return true if all the terms contains od are variable
-	virtual bool isAllVariable(){
-		for(index_object term:terms)
-			if(TermTable::getInstance()->getTerm(term)->isConstant())return false;
-		return true;
-	}
 
 	/// Return true if contains an anonymus term
 	virtual bool containsAnonymous(){
-		for(index_object term:terms)
-			if(TermTable::getInstance()->getTerm(term)->containsAnonymous())return true;
+		for(auto term:terms)
+			if(term->contain(TermType::ANONYMOUS))return true;
 		return false;
 	};
 
@@ -101,17 +101,14 @@ public:
 	virtual pair<bool,index_object> getPredicate() const {return {false,0};};
 	///Setter method for the predicate
 	virtual void setPredicate(index_object predicate) {};
-	///Getter method for the terms
-	const vector<index_object>& getTerms() const {return terms;};
 	///This method returns the size of the terms' vector
 	const unsigned int getTermsSize() const {return terms.size();};
-	/** This method returns the term in the position i
-	 * @retval <true,t> if the position i is valid, and t is the term in that position
-	 * @retval <false,0> if the position i is not valid
+	/**
+	 * This method returns the term in the position i
 	 */
-	pair<bool,index_object> getTerm(unsigned int i) const {if(i<terms.size()) return {true,terms[i]}; return {false,0};};
-	///Setter method for the terms
-	void setTerms(const vector<index_object>& terms) {this->terms = terms;};
+	Term* getTerm(unsigned int i) const {return terms[i];};
+	///Push the term in terms at position i
+	void setTerm(unsigned int i,Term* term) {terms[i]=term;};
 	///Returns true if the atom is negated with true negation
 	virtual bool isHasMinus() const {return 0;};
 	///Set whether the atom is negated with true negation
@@ -131,7 +128,7 @@ public:
 	virtual bool isBuiltIn(){return false;};
 	///This method evaluate the truth value of the built-in atom, if there is bind variable
 	/// and equal then assign that value for the bind variable
-	virtual bool evaluate(unordered_map<index_object, index_object>& substitutionTerm){return false;};
+	virtual bool evaluate(map_term_term& substitutionTerm){return false;};
 	/*****************************************************/
 
 	/******** Methods useful for AggregateAtom ********/
@@ -162,17 +159,17 @@ public:
 
 	/// Substitute the terms in the atom with the given terms and return the atom with terms sobstitute
 	/// @param substritutionTerm map of index_object. The first index is the ID of term to substitute and second the value
-	virtual Atom* substitute(unordered_map<index_object, index_object>& substitutionTerm){return nullptr;};
+	virtual Atom* substitute(map_term_term& substitutionTerm){return nullptr;};
 	/// Substitute the term with constant term and calculate the arithmetic terms
 	/// The subclasses have to implement the substitute method for create correct type class of Atom
-	virtual Atom* ground(unordered_map<index_object, index_object>& substritutionTerm);
+	virtual Atom* ground(map_term_term& substritutionTerm);
 	///Printer method
 	virtual void print() = 0;
 	///Destructor
 	virtual ~Atom() {};
 
 protected:
-	vector<index_object> terms;
+	vector<Term*> terms;
 };
 
 #endif /* ATOM_H_ */

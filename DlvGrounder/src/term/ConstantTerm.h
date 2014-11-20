@@ -13,33 +13,54 @@
 #include "Term.h"
 
 
-
 /*
  *  Represent a constant term (string,number...)
  *
  *  The constant is in IdsManager for avoiding duplication
  */
+
 class ConstantTerm: public Term {
 public:
-	ConstantTerm():Term(0){};
-	ConstantTerm(bool negative):Term(negative){};
-	virtual string getName(){return IdsManager::getString(IdsManager::TERM_ID_MANAGER,getIndex());};
-	virtual string getNameToHash(){return getName();};
-	virtual bool isConstant(){return true;};
-	virtual bool isConstantTerm(){return true;};
-	//FIXME we can optimize adding the method in IdsManager for returning the integer value
+	ConstantTerm():Term(){};
+	ConstantTerm(bool negative,index_object index):Term(negative,index){};
+
+	virtual TermType getType(){return TermType::CONSTANT;};
+	virtual bool contain(TermType type){if(TermType::CONSTANT==type)return true;return false;};
+	virtual bool isGround(){return true;}
+
 	/// Return the value of the constant
-	virtual index_object substitute(unordered_map<index_object, index_object>& substritutionTerm){
-		for(auto term_value:substritutionTerm)
-			if(term_value.first == getIndex()){
-				return term_value.second;
-			}
-		return getIndex();
+	virtual Term* substitute(map_term_term& substritutionTerm){
+		auto find_it=substritutionTerm.find(this);
+		if(find_it!=substritutionTerm.end())
+			return (*find_it).second;
+		return this;
 	};
 
-	virtual bool match(index_object termToMatch,unordered_map<index_object, index_object>& varAssignment);
+	virtual bool match(Term* termToMatch,map_term_term& varAssignment);
 
+	virtual void print(){
+		cout<<getName();
+	}
 
 };
+
+class NumericConstantTerm: public ConstantTerm{
+public:
+	NumericConstantTerm(bool negative,int n):Term(negative),numeric_constant(n){};
+	virtual string getName(){return boost::lexical_cast<string>(numeric_constant);};
+	virtual int getConstantValue(){return numeric_constant;};
+private:
+	int numeric_constant;
+};
+
+class StringConstantTerm: public ConstantTerm{
+public:
+	StringConstantTerm(bool negative,string n):Term(negative),string_constant(n){};
+	virtual string getName(){return string_constant;};
+private:
+	string string_constant;
+};
+
+
 
 #endif /* CONSTANTTERM_H_ */
