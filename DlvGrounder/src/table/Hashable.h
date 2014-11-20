@@ -21,6 +21,19 @@ public:
 	virtual size_t hash()=0;
 };
 
+class Indexable{
+public:
+	Indexable():index(0){};
+	Indexable(unsigned i):index(i){};
+	virtual ~Indexable() {};
+
+	unsigned getIndex() const {	return index;};
+	void setIndex(unsigned index) {	this->index = index;};
+
+private:
+	unsigned index;
+};
+
 template<typename T>
 struct HashForTable{
 	inline size_t operator()(T* obj) const {
