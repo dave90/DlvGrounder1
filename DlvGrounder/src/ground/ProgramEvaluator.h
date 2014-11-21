@@ -42,7 +42,7 @@ struct hashRule {
 
 	/// The hash of a ground atom
 	inline size_t operator()(GroundAtom* atom) const {
-	  return atom->predicate+HashVecInt::getHashVecIntFromConfig()->computeHash(atom->atom->terms);
+	  return atom->predicate->getIndex()+HashVecInt::getHashVecIntFromConfig()->computeHashTerm(atom->atom->terms);
 	}
 
 	inline bool operator()( GroundAtom* a1,  GroundAtom* a2)const{
@@ -134,7 +134,7 @@ public:
 	void printAndSimplify(InstancesTable* instancesTable);
 
 	/// Printer method for the grounded rules according to the given assignment
-	bool printGroundRule(InstancesTable* instancesTable,PredicateTable * predicateTable,StatementDependency * statementDep,Rule *r, map_index_index& var_assign, bool isRecursive, bool firstIteration);
+	bool printGroundRule(InstancesTable* instancesTable,PredicateTable * predicateTable,StatementDependency * statementDep,Rule *r, map_term_term& var_assign, bool isRecursive, bool firstIteration);
 
 	virtual ~ProgramEvaluator(){};
 private:
@@ -147,17 +147,17 @@ private:
 
 	/// Ground the body of the rule
 	bool groundBody(bool disjunction, bool isRecursive, bool firstIteration,
-			bool updated, Rule* r, map_index_index& var_assign,
+			bool updated, Rule* r, map_term_term& var_assign,
 			InstancesTable* instancesTable, GroundRule* groundRule,
 			bool& added);
 
 	/// Ground the head of the rule
 	void groundHead(Rule* r, PredicateTable* predicateTable,
-			map_index_index& var_assign, InstancesTable* instancesTable,
+			map_term_term& var_assign, InstancesTable* instancesTable,
 			StatementDependency* statementDep, GroundRule* groundRule);
 
 	///Ground the constraint with no simplification
-	void groundConstraint(Rule* r, PredicateTable* predicateTable, map_index_index& var_assign);
+	void groundConstraint(Rule* r, PredicateTable* predicateTable, map_term_term& var_assign);
 };
 
 #endif /* PROGRAMEVALUATOR_H_ */

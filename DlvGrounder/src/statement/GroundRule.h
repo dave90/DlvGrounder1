@@ -18,20 +18,20 @@ using namespace std;
 /// This struct represents a ground atom, composed by a predicate and a generic atom @see GenericAtom
 struct GroundAtom{
 
-	index_object predicate;
+	Predicate* predicate;
 	GenericAtom* atom;
 	bool negative;
 
-	GroundAtom(index_object predicate,GenericAtom* atom): predicate(predicate), atom(atom){negative=false;}
-	GroundAtom(index_object predicate,GenericAtom* atom,bool negative): predicate(predicate), atom(atom),negative(negative){}
+	GroundAtom(Predicate* predicate,GenericAtom* atom): predicate(predicate), atom(atom){negative=false;}
+	GroundAtom(Predicate* predicate,GenericAtom* atom,bool negative): predicate(predicate), atom(atom),negative(negative){}
 
-	GroundAtom(index_object predicate,vector<index_object>& terms): predicate(predicate) {
+	GroundAtom(Predicate* predicate,vector<Term*>& terms): predicate(predicate) {
 		atom=new GenericAtom(terms);
 		negative=false;
 	}
 
 
-	GroundAtom(index_object predicate,vector<index_object>& terms,bool truth): predicate(predicate) {
+	GroundAtom(Predicate* predicate,vector<Term*>& terms,bool truth): predicate(predicate) {
 		atom=new AtomUndef(terms,truth);
 		negative=false;
 	}
@@ -49,7 +49,7 @@ struct GroundAtom{
 	/// @brief Hash function for ground atoms
 	/// @details The hash in computed using the terms
 	inline size_t getHash() const{
-		return predicate+negative+HashVecInt::getHashVecIntFromConfig()->computeHash(atom->terms);
+		return predicate->getIndex()+negative+HashVecInt::getHashVecIntFromConfig()->computeHashTerm(atom->terms);
 	}
 
 };
@@ -60,8 +60,8 @@ struct atomCompare {
   bool operator() (const GroundAtom* a1, const GroundAtom* a2) const
   {
 
-	  index_object p1=a1->predicate;
-	  index_object p2=a2->predicate;
+	  index_object p1=a1->predicate->getIndex();
+	  index_object p2=a2->predicate->getIndex();
 	  if(p1!=p2)
 		  return p1<p2;
 

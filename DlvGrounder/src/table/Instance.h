@@ -302,6 +302,13 @@ public:
 		return result->second;
 	};
 
+	///Getter for the instances of a predicate index
+	Instances* getInstanceIndex(index_object p) {
+		auto result= instanceTable.find(p);
+		if(result==instanceTable.end()) return nullptr;
+		return result->second;
+	};
+
 	///This method return the size of the map of instances
 	unsigned int getSize() {return instanceTable.size();};
 

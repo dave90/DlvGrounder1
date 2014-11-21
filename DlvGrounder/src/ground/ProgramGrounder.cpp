@@ -23,7 +23,7 @@ void ProgramGrounder::ground() {
 	// to the component in its positive body, otherwise it is said to be an exit rule.
 	vector<vector<Rule*>> exitRules;
 	vector<vector<Rule*>> recursiveRules;
-	vector<set_predicate> componentPredicateInHead;
+	vector<unordered_set<index_object>> componentPredicateInHead;
 	statementDependency->createComponentGraphAndComputeAnOrdering(exitRules, recursiveRules, componentPredicateInHead);
 
 	printFact();
@@ -151,7 +151,7 @@ IndexAtom* ProgramGrounder::firstNextMatch( bool searchDelta, Instances* instanc
 	return indexingStrategy;
 }
 
-bool ProgramGrounder::groundRule(Rule* r, bool firstIteraction, bool isRecursive, const set_predicate* predicateInHead) {
+bool ProgramGrounder::groundRule(Rule* r, bool firstIteraction, bool isRecursive, const unordered_set<index_object>* predicateInHead) {
 	//The map of the assignment, map each variables to its assigned value
 	currentRule=r;
 	current_var_assign.clear();
@@ -191,7 +191,7 @@ bool ProgramGrounder::groundRule(Rule* r, bool firstIteraction, bool isRecursive
 		negation = current_atom->isNegative();
 		bool firstMatch;
 		Instances * instance = instancesTable->getInstance(current_predicate);
-		bool searchDelta = isRecursive && predicateInHead->count(current_predicate) && !firstIteraction;
+		bool searchDelta = isRecursive && predicateInHead->count(current_predicate->getIndex()) && !firstIteraction;
 
 		// If the current atom is a built in or the instance table is null
 		// then firstMatch or nextMatch must not be invoked

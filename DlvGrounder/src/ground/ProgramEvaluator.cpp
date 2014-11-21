@@ -76,14 +76,14 @@ void ProgramEvaluator::printAndSimplify(InstancesTable* instancesTable) {
 }
 
 bool ProgramEvaluator::groundBody(bool disjunction, bool isRecursive,
-		bool firstIteration, bool updated, Rule* r, map_index_index& var_assign,
+		bool firstIteration, bool updated, Rule* r, map_term_term& var_assign,
 		InstancesTable* instancesTable, GroundRule* groundRule, bool& added) {
 	for (auto head_it = r->getBeginHead(); head_it != r->getEndHead();
 			head_it++) {
 		Atom* head = (*head_it);
 		Atom* groundAtom = head->ground(var_assign);
-		index_object predicate = groundAtom->getPredicate().second;
-		vector<index_object> terms = groundAtom->getTerms();
+		Predicate* predicate = groundAtom->getPredicate();
+		vector<Term*> terms = groundAtom->getTerms();
 		delete groundAtom;
 		//Check if the atom is already grounded, if not it is added to no facts
 		// If the atom in the head is grounded and is a fact the rule is not grounded
@@ -120,21 +120,21 @@ bool ProgramEvaluator::groundBody(bool disjunction, bool isRecursive,
 }
 
 void ProgramEvaluator::groundHead(Rule* r, PredicateTable* predicateTable,
-		map_index_index& var_assign, InstancesTable* instancesTable,
+		map_term_term& var_assign, InstancesTable* instancesTable,
 		StatementDependency* statementDep, GroundRule* groundRule) {
 	//*********   Ground the body   *********
 	for (auto body_it = r->getBeginBody(); body_it != r->getEndBody();
 			body_it++) {
 		Atom* body = (*body_it);
-		index_object predicate = body->getPredicate().second;
+		Predicate* predicate = body->getPredicate();
 		//If the predicate is EDB skip this atom
-		if (predicateTable->getPredicate(predicate)->isEdb()
+		if (predicate->isEdb()
 				|| body->isBuiltIn())
 			continue;
 
 		GenericAtom* atom = nullptr;
 		Atom* groundAtom = body->ground(var_assign);
-		vector<index_object> terms = groundAtom->getTerms();
+		vector<Term*> terms = groundAtom->getTerms();
 		delete groundAtom;
 		// If the atom is not negative then exist in instance
 		// else the atom not exist and have to be created if is unstratified
@@ -143,7 +143,7 @@ void ProgramEvaluator::groundHead(Rule* r, PredicateTable* predicateTable,
 			atom = instance->getGenericAtom(terms);
 
 		if (atom == nullptr
-				&& statementDep->isPredicateNegativeStratified(predicate)
+				&& statementDep->isPredicateNegativeStratified(predicate->getIndex())
 				&& body->isNegative())
 			atom = new AtomUndef(terms, false);
 
@@ -153,13 +153,13 @@ void ProgramEvaluator::groundHead(Rule* r, PredicateTable* predicateTable,
 	}
 }
 
-void ProgramEvaluator::groundConstraint(Rule* r, PredicateTable* predicateTable, map_index_index& var_assign) {
+void ProgramEvaluator::groundConstraint(Rule* r, PredicateTable* predicateTable, map_term_term& var_assign) {
 	bool first=true;
 	for (auto body_it = r->getBeginBody(); body_it != r->getEndBody(); body_it++) {
 		Atom* body = (*body_it);
-		index_object predicate = body->getPredicate().second;
+		Predicate* predicate = body->getPredicate();
 		//If the predicate is EDB skip this atom
-		if (predicateTable->getPredicate(predicate)->isEdb() || body->isBuiltIn())
+		if (predicate->isEdb() || body->isBuiltIn())
 			continue;
 
 		Atom* groundAtom = body->ground(var_assign);
@@ -174,7 +174,7 @@ void ProgramEvaluator::groundConstraint(Rule* r, PredicateTable* predicateTable,
 }
 
 bool ProgramEvaluator::printGroundRule(InstancesTable* instancesTable,PredicateTable *predicateTable,StatementDependency * statementDep,
-			Rule *r, map_index_index& var_assign, bool isRecursive, bool firstIteration) {
+			Rule *r, map_term_term& var_assign, bool isRecursive, bool firstIteration) {
 	if(r->isAStrongConstraint() && !simplification){
 		groundConstraint(r, predicateTable, var_assign);
 		return false;

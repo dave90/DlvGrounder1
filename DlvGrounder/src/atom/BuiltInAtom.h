@@ -27,7 +27,7 @@ public:
 	 * @param firstTerm set the first term
 	 * @param secondTerm set the second term
 	 */
-	BuiltInAtom(Binop binOperation, bool isNegative, Term* firstTerm, Term* secondTerm): binop(binOperation), negative(isNegative),terms(2) { terms[0]=firstTerm;terms[1]=secondTerm;};
+	BuiltInAtom(Binop binOperation, bool isNegative, Term* firstTerm, Term* secondTerm): binop(binOperation), negative(isNegative) { terms.push_back(firstTerm);terms.push_back(secondTerm);};
 
 	/** Constructor
 	 * @param binop set the binary operation @see Binop
