@@ -22,11 +22,13 @@
 class ConstantTerm: public Term {
 public:
 	ConstantTerm():Term(){};
+	ConstantTerm(bool negative):Term(negative){};
 	ConstantTerm(bool negative,index_object index):Term(negative,index){};
 
-	virtual TermType getType(){return TermType::CONSTANT;};
+	virtual TermType getType()const{return TermType::CONSTANT;};
 	virtual bool contain(TermType type){if(TermType::CONSTANT==type)return true;return false;};
 	virtual bool isGround(){return true;}
+
 
 	/// Return the value of the constant
 	virtual Term* substitute(map_term_term& substritutionTerm){
@@ -46,17 +48,20 @@ public:
 
 class NumericConstantTerm: public ConstantTerm{
 public:
-	NumericConstantTerm(bool negative,int n):Term(negative),numeric_constant(n){};
-	virtual string getName(){return boost::lexical_cast<string>(numeric_constant);};
+	NumericConstantTerm(bool negative,int n):ConstantTerm(negative),numeric_constant(n){};
+	virtual string getName()const{return boost::lexical_cast<string>(numeric_constant);};
 	virtual int getConstantValue(){return numeric_constant;};
+
+
 private:
 	int numeric_constant;
 };
 
 class StringConstantTerm: public ConstantTerm{
 public:
-	StringConstantTerm(bool negative,string n):Term(negative),string_constant(n){};
-	virtual string getName(){return string_constant;};
+	StringConstantTerm(bool negative,string n):ConstantTerm(negative),string_constant(n){};
+	virtual string getName()const{return string_constant;};
+
 private:
 	string string_constant;
 };

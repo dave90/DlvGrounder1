@@ -15,8 +15,8 @@
 
 using namespace std;
 
-size_t ClassicalLiteral::getHash() const{
-	return HashVecInt::getHashVecIntFromConfig()->computeHash(terms);
+size_t ClassicalLiteral::hash(){
+	return HashVecInt::getHashVecIntFromConfig()->computeHash(getTermIndex());
 }
 
 
@@ -24,18 +24,16 @@ void ClassicalLiteral::print(){
 	print(predicate,terms,negative,hasMinus);
 }
 
-void ClassicalLiteral::print(index_object predicate,const vector<index_object>& terms,bool negative,bool hasMinus){
-	TermTable*tb=TermTable::getInstance();
-
+void ClassicalLiteral::print(Predicate* predicate,const vector<Term*>& terms,bool negative,bool hasMinus){
 	if(negative)
 		cout<<"not ";
 	if(hasMinus)
 		cout<<"- ";
-	cout<<IdsManager::getStringStrip(IdsManager::PREDICATE_ID_MANAGER,predicate);
+	cout<<predicate->getName();
 	for (unsigned int i = 0; i < terms.size(); ++i){
 		if(i==0)
 			cout<<"(";
-		tb->getTerm(terms[i])->print();
+		terms[i]->print();
 		if(i!=terms.size()-1)
 			cout<<",";
 		else
@@ -46,22 +44,22 @@ void ClassicalLiteral::print(index_object predicate,const vector<index_object>& 
 
 bool ClassicalLiteral::operator==(const Atom& a) {
 
-	if(predicate!=a.getPredicate().second)return false;
+	if(a.getPredicate()==nullptr) return false;
+	if(*predicate==*a.getPredicate())return false;
 	if(terms.size()!=a.getTermsSize())return false;
 	for(unsigned int i=0;i<terms.size();i++)
-		if(terms[i]!=a.getTerm(i).second)
+		if(terms[i]->getIndex()!=a.getTerm(i)->getIndex())
 			return false;
 
 	return true;
-
 }
 
-Atom* ClassicalLiteral::substitute(unordered_map<index_object, index_object>& substritutionTerm){
-		vector<index_object> terms_substitute;
-		TermTable *termTable=TermTable::getInstance();
-		for(index_object term:terms)
-			terms_substitute.push_back( termTable->getTerm(term)->substitute(substritutionTerm) );
-		return new ClassicalLiteral(predicate,terms_substitute,hasMinus,negative);
+Atom* ClassicalLiteral::substitute(map_term_term& substritutionTerm){
+	vector<Term*> terms_substitute(terms.size());
+	for(unsigned int i=0;i<terms.size();i++){
+		terms_substitute[i]=terms[i]->substitute(substritutionTerm) ;
+	}
+	return new ClassicalLiteral(predicate,terms_substitute,hasMinus,negative);
 };
 
 

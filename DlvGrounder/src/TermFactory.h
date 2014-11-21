@@ -53,7 +53,7 @@ public:
 
 	/// If a functional term or arith term hash encontered all the
 	/// the terms are added in terms else added in termsInAtom
-	void addTermsDependency(index_object index);
+	void addTermsDependency(Term* index);
 
 	/// Return the terms in atom
 	vector<index_object>& getTermsInAtom(){return termsInAtom;};
@@ -71,7 +71,7 @@ private:
 	/*
 	 * Terms in atom
 	 */
-	vector<index_object> termsInAtom;
+	vector<Term*> termsInAtom;
 
 
 	/*

@@ -22,21 +22,21 @@ using namespace std;
 class FunctionTerm: public Term {
 public:
 	FunctionTerm(string& name,bool negative):Term(negative),name(name){};
-	FunctionTerm(string v,bool negative,vector<Term*>& terms):FunctionTerm(v,negative),terms(terms){};
-	FunctionTerm(string v,index_object index):name(v){setIndex(index);};
-	FunctionTerm(string v,index_object index,vector<Term*>& terms):name(v),terms(terms){setIndex(index);};
+	FunctionTerm(string& v,bool negative,vector<Term*>& terms):Term(negative),name(v),terms(terms){};
+	FunctionTerm(string& v,index_object index):name(v){setIndex(index);};
+	FunctionTerm(string& v,index_object index,vector<Term*>& terms):name(v),terms(terms){setIndex(index);};
 
-	virtual string getName(){return name;};
+	virtual string getName()const{return name;};
 	virtual void setName(string& name){this->name=name;};
 
-	virtual unsigned getTermsSize(){return terms.size();}
-	virtual Term* getTerm(unsigned i){return terms[i];}
+	virtual unsigned getTermsSize()const{return terms.size();}
+	virtual Term* getTerm(unsigned i)const{return terms[i];}
 
 	virtual void addTerm(Term* term){terms.push_back(term);};
 	virtual void popTerm(){terms.pop_back();};
 
 
-	virtual TermType getType(){return TermType::FUNCTION;};
+	virtual TermType getType()const{return TermType::FUNCTION;};
 	virtual bool contain(TermType type){
 		for(auto term:terms)
 			if(term->contain(type))
@@ -56,6 +56,8 @@ public:
 			term->getVariable(variables);
 	};
 
+
+	virtual bool operator==(const Term& term);
 
 
 	virtual Term* calculate();

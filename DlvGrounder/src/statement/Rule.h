@@ -19,6 +19,8 @@ using namespace std;
  * @brief This class represents a rule with its body and head atoms
  */
 
+
+
 class Rule {
 public:
 	///Default constructor
@@ -44,13 +46,13 @@ public:
 	void addInBody(Atom* a){body.push_back(a);};
 
 	///This method returns the set of predicate in the head
-	unordered_set<index_object> getPredicateInHead();
+	set_predicate getPredicateInHead(){return calculatePredicate(head,0,0);};
 	///This method returns the set of predicate in the body
-	unordered_set<index_object> getPredicateInBody();
+	set_predicate getPredicateInBody(){return calculatePredicate(body,0,0);};
 	///This method returns the set of predicate of just the positive atoms in the body
-	unordered_set<index_object> getPositivePredicateInBody();
+	set_predicate getPositivePredicateInBody(){return calculatePredicate(body,1,0);};
 	///This method returns the set of predicate of just the negative atoms in the body
-	unordered_set<index_object> getNegativePredicateInBody();
+	set_predicate getNegativePredicateInBody(){return calculatePredicate(body,1,1);};
 	///This method returns the size of the head
 	unsigned int getSizeHead() const {return head.size();}
 	///This method return the size of the body
@@ -81,6 +83,11 @@ public:
 	~Rule();
 
 private:
+
+	/// Return the predicate in atoms vector, if checkNegative is true compare the negative of atom with the parameter
+	/// else insert the predicate
+	set_predicate calculatePredicate(vector<Atom*>& atoms,bool checkNegative,bool negative);
+
 	///Vector of the atoms in head
 	vector<Atom*> head;
 	///Vector of the atoms in body

@@ -52,17 +52,6 @@ public:
 	 */
 	Atom(bool negative) {this->setNegative(negative);};
 
-	/* Constructor
-	 * @param predicate set the predicate index if any
-	 */
-	Atom(index_object predicate) {this->setPredicate(predicate);};
-
-	/** Constructor
-	 * @param negative set whether the atom is negated with negation as failure
-	 * @param predicate set the predicate index if any
-	 */
-	Atom(bool negative, index_object predicate) {this->setNegative(negative); this->setPredicate(predicate);};
-
 	///Equal-to operator for atoms
 	virtual bool operator==(const Atom& a)=0;
 
@@ -94,13 +83,12 @@ public:
 	};
 
 	/******** Methods useful for ClassicalLiteral ********/
-	/** Getter method for the predicate
-	 * @retval <true,id> if the atom has a predicate whose index is id
-	 * @retval <false,0> if the atom has not a predicate
+	/**
+	 * Getter method for the predicate
 	 */
-	virtual pair<bool,index_object> getPredicate() const {return {false,0};};
+	virtual Predicate* getPredicate() const {return nullptr;};
 	///Setter method for the predicate
-	virtual void setPredicate(index_object predicate) {};
+	virtual void setPredicate(Predicate* predicate) {};
 	///This method returns the size of the terms' vector
 	const unsigned int getTermsSize() const {return terms.size();};
 	/**

@@ -9,11 +9,12 @@
 #include "../term/ConstantTerm.h"
 
 #include<boost/lexical_cast.hpp>
+#include "../table/HashString.h"
+#include "../table/HashVecInt.h"
 
 #include <sstream>
 
 Term* ArithTerm::calculate() {
-	TermTable *termTable=TermTable::getInstance();
 	unsigned int result = terms[0]->getConstantValue();
 	for (unsigned int i = 1; i < terms.size(); i++) {
 		unsigned int value=terms[i]->getConstantValue();
@@ -63,6 +64,20 @@ string ArithTerm::getNameOperator(Operator op) {
 	if (op == Operator::DIV)
 		return "/";
 	return "";
+}
+
+ bool ArithTerm::operator==(const Term& term){
+	if(getType()!=term.getType())return false;
+	if(operators.size()!=term.getSizeOperator())return false;
+	if(terms.size()!=term.getTermsSize())return false;
+	for(unsigned int i=0;i<operators.size();i++)
+		if(operators[i]!=term.getOperator(i))
+			return false;
+	for(unsigned int i=0;i<terms.size();i++)
+		if(terms[i]->getIndex()!=term.getTerm(i)->getIndex())
+			return false;
+
+	return true;
 }
 
 Term* ArithTerm::substitute(map_term_term& substritutionTerm) {

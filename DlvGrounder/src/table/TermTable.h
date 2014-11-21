@@ -13,9 +13,6 @@
 #include "../utility/Config.h"
 #include "Hashable.h"
 
-#include <boost/unordered_set.hpp>
-#include <unordered_set>
-
 
 using namespace std;
 
@@ -28,15 +25,15 @@ using namespace std;
  */
 class TermTable {
 public:
-	TermTable(){};
 	///Add term in the table and return the index
-	virtual Term* addTerm(Term *t);
+	virtual void addTerm(Term *&t){	terms.insert(t);}
 	/// Get term
-	virtual Term* getTerm(Term* t);
+	virtual void getTerm(Term*& t){	terms.get(t);}
 	/// Get size of the table
-	virtual unsigned int getSize();
+	virtual unsigned int getSize(){	return terms.flyweight_set.size();}
 	/// Get the number of collision of the IdManager
-	virtual int getCollision();
+	//TODO
+	virtual int getCollision(){return 0;};
 	virtual ~TermTable();
 
 	// Method for fetch the instance of singleton
@@ -45,7 +42,8 @@ public:
 protected:
 	// Instance of the singleton
 	static TermTable* termTable;
-
+private:
+	TermTable(){};
 	/*
 	 *  Flyweight Factory of terms
 	 */

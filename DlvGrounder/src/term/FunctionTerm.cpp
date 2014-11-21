@@ -9,6 +9,8 @@
 
 #include <sstream>
 #include <boost/lexical_cast.hpp>
+#include "../table/HashVecInt.h"
+#include "../table/HashString.h"
 
 
 
@@ -44,7 +46,7 @@ Term* FunctionTerm::substitute(map_term_term& substritutionTerm) {
 		subTerms[i]=sub_term;
 	}
 
-	Term *newTerm=new FunctionTerm(name,terms);
+	Term *newTerm=new FunctionTerm(name,negative,terms);
 	return TermTable::getInstance()->addTerm(newTerm);
 }
 
@@ -69,6 +71,17 @@ Term* FunctionTerm::calculate() {
 	return termTable->addTerm(subTerm);
 }
 
+ bool FunctionTerm::operator==(const Term& term){
+	if(getType()!=term.getType())return false;
+	if(getName().compare(term.getName())!=0)return false;
+	if(terms.size()!=term.getTermsSize())return false;
+	for(unsigned int i=0;i<terms.size();i++)
+		if(terms[i]->getIndex()!=term.getTerm(i)->getIndex())
+			return false;
+
+	return true;
+}
+
 bool FunctionTerm::match(Term* termToMatch, map_term_term& varAssignment) {
 	// If is anonymus return true, if have same name and same arity continue and
 	// recursivley check match, if one fail return true
@@ -86,7 +99,7 @@ bool FunctionTerm::match(Term* termToMatch, map_term_term& varAssignment) {
 		if(!terms[i]->match(termToMatch->getTerm(i),assignInTerm))
 			return false;
 
-	varAssignment.insert(assignInTerm.begin(),assignInTerm.empty());
+	varAssignment.insert(assignInTerm.begin(),assignInTerm.end());
 
 	return true;
 }

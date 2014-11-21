@@ -74,18 +74,20 @@ public:
 	FlyweightFactory(){};
 	~FlyweightFactory(){for(auto obj:flyweight_set)delete obj;};
 
-	T* insert(T* obj){
+	void insert(T*& obj){
 		auto result=flyweight_set.insert(obj);
 		if(!result.second)
 			delete obj;
-		return *result.first;
+		obj = *result.first;
 	}
 
-	T* get(T* obj){
+	void get(T*& obj){
 		auto result=flyweight_set.find(obj);
-		if(result!=flyweight_set.end())
-			return nullptr;
-		return *result;
+		delete obj;
+		if(result==flyweight_set.end())
+			obj = nullptr;
+		else
+			obj = *result;
 	}
 
 
@@ -104,21 +106,23 @@ public:
 	FlyweightIndexFactory():index_counter(0){};
 	~FlyweightIndexFactory(){for(auto obj:flyweight_set)delete obj;};
 
-	T* insert(T* obj){
+	void insert(T*& obj){
 		auto result=flyweight_set.insert(obj);
 		if(!result.second)
 			delete obj;
 		else{
 			obj->setIndex(++index_counter);
 		}
-		return *result.first;
+		obj= *result.first;
 	}
 
-	T* get(T* obj){
+	void get(T*& obj){
 		auto result=flyweight_set.find(obj);
-		if(result!=flyweight_set.end())
-			return nullptr;
-		return *result;
+		delete obj;
+		if(result==flyweight_set.end())
+			obj=nullptr;
+		else
+			obj = *result;
 	}
 
 	void print(){

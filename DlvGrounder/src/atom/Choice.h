@@ -23,7 +23,7 @@ public:
 	 * @param t set the terms vector
 	 * @param cE set the choice elements vectors
 	 */
-	Choice(Binop fB, Binop sB, vector<index_object> t, vector<ChoiceElement> cE)
+	Choice(Binop fB, Binop sB, vector<Term*> t, vector<ChoiceElement> cE)
 		: Atom(t), firstBinop(fB), secondBinop(sB), choiceElements(move(cE)) {};
 
 	///Getter method for the first binary operation

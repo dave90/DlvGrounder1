@@ -8,6 +8,18 @@
 #include "Rule.h"
 #include "iostream"
 
+set_predicate Rule::calculatePredicate(vector<Atom*>& atoms,bool checkNegative,bool negative){
+	set_predicate predicates;
+	for (auto atom:atoms) {
+		Predicate* predicate=atom->getPredicate();
+		if(predicate!=nullptr)
+			if(!checkNegative || (atom->isNegative() == negative))
+				predicates.insert(predicate);
+	}
+	return predicates;
+}
+
+
 void  Rule::print(){
 	unsigned int i=0;
 	for (auto atom:head) {
@@ -29,45 +41,6 @@ void  Rule::print(){
 	cout<<"."<<endl;
 }
 
-unordered_set<index_object> Rule::getPredicateInHead() {
-	unordered_set<index_object> predicates;
-	for (auto atom:head) {
-		pair<bool,index_object> predicate=atom->getPredicate();
-		if(predicate.first)
-			predicates.insert(predicate.second); //TODO Con gli aggregati/choice??
-	}
-	return predicates;
-}
-
-unordered_set<index_object> Rule::getPredicateInBody() {
-	unordered_set<index_object> predicates;
-	for (auto atom:body) {
-		pair<bool,index_object> predicate=atom->getPredicate();
-		if(predicate.first)
-			predicates.insert(predicate.second); //TODO Con gli aggregati/choice??
-	}
-	return predicates;
-}
-
-unordered_set<index_object> Rule::getPositivePredicateInBody() {
-	unordered_set<index_object> predicates;
-	for (auto atom:body) {
-		pair<bool,index_object> predicate=atom->getPredicate();
-		if(predicate.first && !atom->isNegative())
-			predicates.insert(predicate.second); //TODO Con gli aggregati/choice??
-	}
-	return predicates;
-}
-
-unordered_set<index_object> Rule::getNegativePredicateInBody() {
-	unordered_set<index_object> predicates;
-	for (auto atom:body) {
-		pair<bool,index_object> predicate=atom->getPredicate();
-		if(predicate.first && atom->isNegative())
-			predicates.insert(predicate.second); //TODO Con gli aggregati/choice??
-	}
-	return predicates;
-}
 
 bool Rule::operator ==(const Rule& r) {
 	  if(getSizeBody()!=r.getSizeBody())return false;

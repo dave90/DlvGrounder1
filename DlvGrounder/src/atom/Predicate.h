@@ -10,9 +10,16 @@
 
 #include "../utility/IndexDefinition.h"
 #include <string>
+#include <cstring>
+#include "../table/Hashable.h"
+#include <boost/lexical_cast.hpp>
+#include "../table/HashVecInt.h"
+#include "../table/HashString.h"
+
 using namespace std;
 
-class Predicate {
+
+class Predicate : Hashable,Indexable{
 public:
 
 	///Default constructor
@@ -52,10 +59,15 @@ public:
 
 	/// @brief Equal-to operator for predicates
 	/// @details Two predicates are equal if they have the same name and the same arity
-	bool operator==(Predicate &p);
+	bool operator==(Predicate &p){return p.getArity()==this->getArity() && strcmp(p.getName().c_str(),this->getName().c_str())==0;}
 
-	///This method compute an hash for the predicate using its name and its arity
-	string getNameToHash();
+	size_t hash(){
+		vector<size_t> hash_vec(2);
+		hash_vec[0]=HashString::getHashStringFromConfig()->computeHash(name);
+		hash_vec[1]=arity;
+		return HashVecInt::getHashVecIntFromConfig()->computeHashSize_T(hash_vec);
+	}
+
 
 private:
 	///Index of the predicate (assigned by the predicates' IdManager)
@@ -67,5 +79,7 @@ private:
 	///Whether it is EDB or IDB
 	bool edb;
 };
+
+typedef unordered_set<Predicate*,IndexForTable<Predicate>,IndexForTable<Predicate>> set_predicate;
 
 #endif /* PREDICATE_H_ */

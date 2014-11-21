@@ -30,7 +30,7 @@ public:
 			isAnonymous=false;
 	};
 
-	virtual string getName(){return name;};
+	virtual string getName()const{return name;};
 	virtual void setName(const string& name){
 		this->name=name;
 		if(name.compare("_")==0)
@@ -40,7 +40,7 @@ public:
 	};
 
 	//Return the type of term
-	virtual TermType getType(){if(isAnonymous)return TermType::ANONYMOUS;return TermType::VARIABLE;};
+	virtual TermType getType()const{if(isAnonymous)return TermType::ANONYMOUS;return TermType::VARIABLE;};
 	//Return true if contain a term of the given type
 	virtual bool contain(TermType type){
 		if(TermType::VARIABLE==type || (TermType::ANONYMOUS==type && isAnonymous))

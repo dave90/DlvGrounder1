@@ -29,6 +29,8 @@ enum TermType{
 	CONSTANT=0,VARIABLE,ARITH,FUNCTION,ANONYMOUS
 };
 
+class Term;
+
 typedef unordered_map<Term*, Term*,IndexForTable<Term>,IndexForTable<Term>> map_term_term;
 typedef unordered_set<Term*,IndexForTable<Term>,IndexForTable<Term>> set_term;
 
@@ -38,7 +40,7 @@ typedef unordered_set<Term*,IndexForTable<Term>,IndexForTable<Term>> set_term;
  *
  *  The structure of a Term is based on the Composite pattern
  */
-class Term: Hashable,Indexable {
+class Term: public Hashable,public Indexable {
 public:
 	/// Empty constructor
 	Term():Indexable(),negative(0){};
@@ -62,24 +64,30 @@ public:
 	///Return the numeric term constant
 	virtual int getConstantValue();
 	///Return the name of the term
-	virtual string getName(){return "";};
+	virtual string getName()const{return "";};
 	///Set the name of the term
 	virtual void setName(string& name){};
 	/// Return the size of the terms (Function and Arith)
-	virtual unsigned getTermsSize(){return 0;}
+	virtual unsigned getTermsSize()const{return 0;}
 	///Return the term in terms
-	virtual Term* getTerm(unsigned i){return void(0);}
+	virtual Term* getTerm(unsigned i)const{return nullptr;}
+	///Return the size of the operators in arith term
+	virtual unsigned int getSizeOperator()const{return 0;}
+	///Return the operator with index i
+	virtual Operator getOperator(int i)const{return Operator::PLUS;}
 
 	///Return the type of term
-	virtual TermType getType(){return 0;};
+	virtual TermType getType()const{return TermType::CONSTANT;};
 	///Return true if contain a term of the given type
 	virtual bool contain(TermType type){return false;};
 	///Return true if is ground
 	virtual bool isGround(){return false;}
 
-	//TODO
-	virtual bool operator==(const Term& term){return true;};
-
+	virtual bool operator==(const Term& term){
+		if(getType()!=term.getType())return false;
+		if(getName().compare(term.getName())!=0)return false;
+		return true;
+	}
 	///Add the index of a composite term
 	virtual void addTerm(Term* termIndex){};
 	///Remove last index of a term
@@ -92,7 +100,7 @@ public:
 	virtual void getVariable(set_term& variables){void(0);};
 	/// Substitute the term with the given terms and return the term of substitute term
 	/// @param substritutionTerm map of index_object. The first index is the ID of term to substitute and second the value
-	virtual Term* substitute(map_term_term& substritutionTerm){return void(0);};
+	virtual Term* substitute(map_term_term& substritutionTerm){return nullptr;};
 	/// Print with the cout the term
 	virtual void print(){};
 	/// Match a function with given id of term, compare the constant term and put in binds

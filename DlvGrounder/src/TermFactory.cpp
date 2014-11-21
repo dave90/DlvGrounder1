@@ -13,30 +13,30 @@
 
 
  void TermFactory::createVariable(string& variable,bool negative) {
-	Term *v=new VariableTerm(negative);
+	Term *v=new VariableTerm(variable,negative);
 
-	index_object index=termsMap->addTerm(v,variable);
+	termsMap->addTerm(v);
 
-	addTermsDependency(index);
+	addTermsDependency(v);
 }
 
 
 
  void TermFactory::createConstant(string& constant,bool negative) {
-	Term *c=new ConstantTerm(negative);
+	Term *c=new StringConstantTerm(constant,negative);
 
-	index_object index=termsMap->addTerm(c,constant);
+	termsMap->addTerm(c);
 
-	addTermsDependency(index);
+	addTermsDependency(c);
 
 }
 
  void TermFactory::createConstant(unsigned& constant,bool negative) {
-	Term *c=new ConstantTerm(negative);
+	Term *c=new NumericConstantTerm(constant,negative);
 
-	index_object index=termsMap->addTerm(c,constant);
+	termsMap->addTerm(c);
 
-	addTermsDependency(index);
+	addTermsDependency(c);
 
 }
 
@@ -45,14 +45,14 @@
 	Term *ft=terms[terms.size()-1];
 	terms.pop_back();
 
-	index_object index=termsMap->addTerm(ft);
+	termsMap->addTerm(ft);
 
 
-	addTermsDependency(index);
+	addTermsDependency(ft);
 
 }
 
- void TermFactory::addTermsDependency(index_object index) {
+ void TermFactory::addTermsDependency(Term* index) {
 	if(terms.size()>0)
 		terms[terms.size()-1]->addTerm(index);
 	else
@@ -76,10 +76,10 @@ void TermFactory::endArithTerm(){
 	Term *at=terms[terms.size()-1];
 	terms.pop_back();
 
-	index_object index=termsMap->addTerm(at);
+	termsMap->addTerm(at);
 
 
-	addTermsDependency(index);
+	addTermsDependency(at);
 }
 
 void TermFactory::removeLastTerm(){
