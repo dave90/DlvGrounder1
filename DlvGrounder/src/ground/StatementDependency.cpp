@@ -19,13 +19,13 @@
 
 
 void StatementAtomMapping::addRule(Rule* r) {
-	unordered_set<index_object> head = r->getPredicateInHead();
-	unordered_set<index_object> body = r->getPredicateInBody();
-	for (index_object i : head) {
-		headMap.insert( { i, r });
+	set_predicate head = r->getPredicateInHead();
+	set_predicate body = r->getPredicateInBody();
+	for (auto i : head) {
+		headMap.insert( { i->getIndex(), r });
 	}
-	for (index_object i : body) {
-		bodyMap.insert( { i, r });
+	for (auto i : body) {
+		bodyMap.insert( { i->getIndex(), r });
 	}
 }
 
@@ -71,42 +71,42 @@ void DependencyGraph::addInDependency(Rule* r) {
 	unordered_set<index_object> body_predicateVisited;
 
 	for (auto head_it = r->getBeginHead(); head_it != r->getEndHead(); head_it++) {
-		pair<bool, index_object> pred_head = (*head_it)->getPredicate();
+		Predicate* pred_head = (*head_it)->getPredicate();
 
 		// Check if the predicate in the head has been visited
-		if (pred_head.first && !head_predicateVisited.count(pred_head.second)) {
+		if (pred_head!=nullptr && !head_predicateVisited.count(pred_head->getIndex())) {
 
 			// Set this predicate as visited
-			head_predicateVisited.insert(pred_head.second);
+			head_predicateVisited.insert(pred_head->getIndex());
 
 			// If the rule has no positive predicate in its body, is added a dummy edge in order to not lose this rule
 			// when the components graph is created
 			if(r->getPositivePredicateInBody().size()==0)
-				addEdge(pred_head.second, pred_head.second,1);
+				addEdge(pred_head->getIndex(), pred_head->getIndex(),1);
 
 			for (auto body_it = r->getBeginBody(); body_it != r->getEndBody(); body_it++) {
 				// Check if the predicate is positive, otherwise skip it
 				if (!(*body_it)->isNegative()) {
-					pair<bool,index_object> pred_body = (*body_it)->getPredicate();
+					Predicate* pred_body = (*body_it)->getPredicate();
 
 					// Check if the predicate in the head has been visited
-					if (pred_body.first  && !body_predicateVisited.count(pred_body.second)) {
+					if (pred_body!=nullptr  && !body_predicateVisited.count(pred_body->getIndex())) {
 
 						// Set this predicate as visited
-						body_predicateVisited.insert(pred_body.second);
-						addEdge(pred_body.second, pred_head.second,1);
+						body_predicateVisited.insert(pred_body->getIndex());
+						addEdge(pred_body->getIndex(), pred_head->getIndex(),1);
 
 					}
 				}
 				else{
-					pair<bool,index_object> pred_body = (*body_it)->getPredicate();
+					Predicate* pred_body = (*body_it)->getPredicate();
 
 					// Check if the predicate in the head has been visited
-					if (pred_body.first  && !body_predicateVisited.count(pred_body.second)) {
+					if (pred_body!=nullptr  && !body_predicateVisited.count(pred_body->getIndex())) {
 
 						// Set this predicate as visited
-						body_predicateVisited.insert(pred_body.second);
-						addEdge(pred_body.second, pred_head.second,-1);
+						body_predicateVisited.insert(pred_body->getIndex());
+						addEdge(pred_body->getIndex(), pred_head->getIndex(),-1);
 
 					}
 				}
@@ -349,8 +349,8 @@ void ComponentGraph::createComponent(DependencyGraph &depGraph,
 
 				bool isPositive = !(*body_it)->isNegative();
 
-				if(!(*body_it)->getPredicate().first)continue;
-				index_object pred_body = (*body_it)->getPredicate().second;
+				if((*body_it)->getPredicate()==nullptr)continue;
+				index_object pred_body = (*body_it)->getPredicate()->getIndex();
 
 				// Check if the predicate appear in the head also
 				if (statementAtomMapping.isInHead(pred_body)) {
@@ -570,9 +570,9 @@ void StatementDependency::createComponentGraph() {
 
 // An utility function that specifies how to sort the rules of a component
 bool sortRules (Rule* r1,Rule* r2) {
-	unordered_set<index_object> headSecondRule=r2->getPredicateInHead();
+	set_predicate headSecondRule=r2->getPredicateInHead();
 	for(auto it=r1->getBeginBody();it!=r1->getEndBody();it++)
-		if(headSecondRule.count((*it)->getPredicate().second))
+		if(headSecondRule.count((*it)->getPredicate()))
 			return false;
 	return true;
 
@@ -630,12 +630,14 @@ void StatementDependency::createComponentGraphAndComputeAnOrdering(vector<vector
 
 
 bool StatementDependency::checkIfExitRule(unsigned int component, Rule* rule){
-	unordered_set<index_object> positivePredicates=rule->getPositivePredicateInBody();
+	set_predicate positivePredicates=rule->getPositivePredicateInBody();
 	unordered_map<index_object, unsigned int> components=compGraph.getComponent();
 
-	for (auto pair: components)
-		if(pair.second==component && positivePredicates.count(pair.first))
+	for (auto pair: components){
+		Predicate temp_p("",pair.first);
+		if(pair.second==component && positivePredicates.count(&temp_p))
 			return false;
+	}
 	return true;
 }
 

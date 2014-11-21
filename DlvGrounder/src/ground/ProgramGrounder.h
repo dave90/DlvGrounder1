@@ -43,7 +43,7 @@ public:
 	/// @param r The rule to be grounded
 	/// @parm isRecursive If the rule is recursive
 	/// @param firstIteraction If it is the first iteration or not (useful for recursive rules)
-	bool groundRule(Rule* r, bool isRecursive, bool firstIteraction, const unordered_set<index_object>* predicateInHead);
+	bool groundRule(Rule* r, bool isRecursive, bool firstIteraction, const set_predicate* predicateInHead);
 
 	///Printer method
 	void print() {
@@ -92,11 +92,11 @@ private:
 
 	/// Current assignment for grounding rule
 	/// The map of the assignment, map each variables to its assigned value
-	map_index_index current_var_assign;
+	map_term_term current_var_assign;
 	/// Current id of first match for grounding rule
 	list<unsigned int> current_id_match;
 	/// Current variables for each atom for grounding rule
-	vector<unordered_set<index_object>> current_variables_atoms;
+	vector<set_term> current_variables_atoms;
 	/// Current rule
 	Rule* currentRule;
 	/// Current atom for grounding rule
@@ -117,7 +117,7 @@ private:
 	Atom* setBoundValue();
 
 	///This method removes the assigned values to bind variables from the given assignment
-	void removeBindValueInAssignment(unordered_set<index_object> bind_variables);
+	void removeBindValueInAssignment(set_term bind_variables);
 
 	///This method update the delta table according to the last iteration (useful for recursive rules)
 	void updateDelta(Rule* r);

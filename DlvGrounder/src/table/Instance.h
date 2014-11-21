@@ -23,7 +23,6 @@
 
 using namespace std;
 
-typedef unordered_map<index_object,index_object> map_index_index;
 class IndexAtom;
 
 ///This struct implements a generic atom composed by just its terms

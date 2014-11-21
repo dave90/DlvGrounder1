@@ -23,7 +23,7 @@ void ProgramGrounder::ground() {
 	// to the component in its positive body, otherwise it is said to be an exit rule.
 	vector<vector<Rule*>> exitRules;
 	vector<vector<Rule*>> recursiveRules;
-	vector<unordered_set<index_object>> componentPredicateInHead;
+	vector<set_predicate> componentPredicateInHead;
 	statementDependency->createComponentGraphAndComputeAnOrdering(exitRules, recursiveRules, componentPredicateInHead);
 
 	printFact();
@@ -92,8 +92,7 @@ void ProgramGrounder::ground() {
 
 void ProgramGrounder::updateDelta(Rule* r) {
 	for (auto it = r->getBeginHead(); it != r->getEndHead(); it++) {
-		index_object predicate = (*it)->getPredicate().second;
-		Instances* is = instancesTable->getInstance(predicate);
+		Instances* is = instancesTable->getInstance((*it)->getPredicate());
 		if (is != nullptr)
 			is->moveNextDeltaInDelta();
 	}
@@ -152,7 +151,7 @@ IndexAtom* ProgramGrounder::firstNextMatch( bool searchDelta, Instances* instanc
 	return indexingStrategy;
 }
 
-bool ProgramGrounder::groundRule(Rule* r, bool firstIteraction, bool isRecursive, const unordered_set<index_object>* predicateInHead) {
+bool ProgramGrounder::groundRule(Rule* r, bool firstIteraction, bool isRecursive, const set_predicate* predicateInHead) {
 	//The map of the assignment, map each variables to its assigned value
 	currentRule=r;
 	current_var_assign.clear();
@@ -188,7 +187,7 @@ bool ProgramGrounder::groundRule(Rule* r, bool firstIteraction, bool isRecursive
 
 	while (!finish) {
 		current_atom = *current_atom_it;
-		index_object current_predicate = current_atom->getPredicate().second;
+		Predicate* current_predicate = current_atom->getPredicate();
 		negation = current_atom->isNegative();
 		bool firstMatch;
 		Instances * instance = instancesTable->getInstance(current_predicate);
@@ -275,9 +274,9 @@ void ProgramGrounder::printAssignment() {
 	cout << "ASSIGNMENT ";
 	for (auto i : current_var_assign) {
 		cout << "[ ";
-		termsMap->getTerm(i.first)->print();
+		i.first->print();
 		cout << ",";
-		termsMap->getTerm(i.second)->print();
+		i.second->print();
 		cout << " ]";
 	}
 	cout << endl;
@@ -306,7 +305,7 @@ void ProgramGrounder::printVariables() {
 	for (auto vec : current_variables_atoms) {
 		cout << "Atom " << counter_atom_debug << " ";
 		for (auto variable : vec)
-			termsMap->getTerm(variable)->print();
+			variable->print();
 		cout << " ";
 		cout << endl;
 		counter_atom_debug++;
@@ -314,15 +313,15 @@ void ProgramGrounder::printVariables() {
 }
 
 void ProgramGrounder::findBindVariablesRule() {
-	unordered_set<index_object> total_variable;
+	set_term total_variable;
 	unsigned int index_current_atom = 0;
 	current_variables_atoms.clear();
 
 	//For each atom determines the bound and the bind variables
 	for (auto current_atom_it = currentRule->getBeginBody(); current_atom_it != currentRule->getEndBody(); current_atom_it++) {
 		Atom *current_atom = *current_atom_it;
-		unordered_set<index_object> variablesInAtom = current_atom->getVariable();
-		current_variables_atoms.push_back(unordered_set<index_object>());
+		set_term variablesInAtom = current_atom->getVariable();
+		current_variables_atoms.push_back(set_term());
 
 		for (auto variable : variablesInAtom) {
 			if (!total_variable.count(variable))
@@ -340,9 +339,9 @@ Atom* ProgramGrounder::setBoundValue() {
 	return current_atom->ground(current_var_assign);
 }
 
-void ProgramGrounder::removeBindValueInAssignment(unordered_set<index_object> bind_variables) {
+void ProgramGrounder::removeBindValueInAssignment(set_term bind_variables) {
 
-	for (index_object variable : bind_variables)
+	for (auto variable : bind_variables)
 		current_var_assign.erase(variable);
 
 }
