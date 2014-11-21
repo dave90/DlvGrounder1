@@ -40,7 +40,7 @@ typedef unordered_set<Term*,IndexForTable<Term>,IndexForTable<Term>> set_term;
  *
  *  The structure of a Term is based on the Composite pattern
  */
-class Term: public Hashable,public Indexable {
+class Term: public Indexable,public Hashable {
 public:
 	/// Empty constructor
 	Term():Indexable(),negative(0){};
@@ -50,7 +50,7 @@ public:
 	Term(bool negative,index_object index):Indexable(index),negative(negative){};
 
 	///Get the index of the term
-	index_object getIndex(){return index;};
+	index_object getIndex() const {return index;};
 	/// Set the index of the term
 	void setIndex(index_object index){	this->index=index;};
 	/// Return the string used to hash the term

@@ -22,22 +22,11 @@ class VariableTerm: public Term {
 public:
 	VariableTerm():Term(),isAnonymous(0){};
 	VariableTerm(bool negative):Term(negative),isAnonymous(0){};
-	VariableTerm(bool negative,index_object index,string& name):VariableTerm(negative,name),index(index){};
-	VariableTerm(bool negative,string& name):Term(negative){
-		if(name.compare("_")==0)
-			isAnonymous=true;
-		else
-			isAnonymous=false;
-	};
+	VariableTerm(bool negative,index_object index,string& name):Term(negative,index),name(name){setAnonymous();};
+	VariableTerm(bool negative,string& name):Term(negative){setAnonymous();};
 
 	virtual string getName()const{return name;};
-	virtual void setName(const string& name){
-		this->name=name;
-		if(name.compare("_")==0)
-			isAnonymous=true;
-		else
-			isAnonymous=false;
-	};
+	virtual void setName(const string& name){setAnonymous();};
 
 	//Return the type of term
 	virtual TermType getType()const{if(isAnonymous)return TermType::ANONYMOUS;return TermType::VARIABLE;};
@@ -63,6 +52,13 @@ public:
 	}
 
 private:
+	void setAnonymous(){
+		if(name.compare("_")==0)
+			isAnonymous=true;
+		else
+			isAnonymous=false;
+	}
+
 	/**
 	 *   The name of a variable
 	 */

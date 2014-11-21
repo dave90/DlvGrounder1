@@ -47,7 +47,8 @@ Term* FunctionTerm::substitute(map_term_term& substritutionTerm) {
 	}
 
 	Term *newTerm=new FunctionTerm(name,negative,terms);
-	return TermTable::getInstance()->addTerm(newTerm);
+	TermTable::getInstance()->addTerm(newTerm);
+	return newTerm;
 }
 
 Term* FunctionTerm::calculate() {
@@ -68,7 +69,8 @@ Term* FunctionTerm::calculate() {
 	}
 
 	Term *subTerm=new FunctionTerm(name,negative,sub_terms);
-	return termTable->addTerm(subTerm);
+	termTable->addTerm(subTerm);
+	return subTerm;
 }
 
  bool FunctionTerm::operator==(const Term& term){

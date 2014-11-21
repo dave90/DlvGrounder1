@@ -27,8 +27,8 @@ public:
 	Indexable(unsigned i):index(i){};
 	virtual ~Indexable() {};
 
-	unsigned getIndex() const {	return index;};
-	void setIndex(unsigned index) {	this->index = index;};
+	virtual unsigned getIndex() const {	return index;};
+	virtual void setIndex(unsigned index) {	this->index = index;};
 
 protected:
 	unsigned index;

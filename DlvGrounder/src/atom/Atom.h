@@ -56,14 +56,6 @@ public:
 	virtual bool operator==(const Atom& a)=0;
 
 
-	///Return the vector of index of terms
-	virtual vector<index_object> getTermIndex()const {
-		vector<index_object> termIndex(terms.size());
-		for(unsigned int i=0;i<terms.size();i++)
-			termIndex[i]=terms[i]->getIndex();
-		return termIndex;
-	}
-
 	///Return the term of variable present in the Atom
 	virtual set_term getVariable();
 
@@ -94,6 +86,7 @@ public:
 	/**
 	 * This method returns the term in the position i
 	 */
+	vector<Term*>& getTerms(){return terms;};
 	Term* getTerm(unsigned int i) const {return terms[i];};
 	///Push the term in terms at position i
 	void setTerm(unsigned int i,Term* term) {terms[i]=term;};

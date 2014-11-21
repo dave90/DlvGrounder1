@@ -16,7 +16,7 @@
 using namespace std;
 
 size_t ClassicalLiteral::hash(){
-	return HashVecInt::getHashVecIntFromConfig()->computeHash(getTermIndex());
+	return HashVecInt::getHashVecIntFromConfig()->computeHashTerm(terms);
 }
 
 
@@ -40,6 +40,7 @@ void ClassicalLiteral::print(Predicate* predicate,const vector<Term*>& terms,boo
 			cout<<")";
 	}
 }
+
 
 
 bool ClassicalLiteral::operator==(const Atom& a) {

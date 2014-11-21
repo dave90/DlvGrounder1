@@ -20,25 +20,33 @@
 #include "../atom/ClassicalLiteral.h"
 #include "PredicateTable.h"
 
+
 using namespace std;
 
 typedef unordered_map<index_object,index_object> map_index_index;
 class IndexAtom;
 
 ///This struct implements a generic atom composed by just its terms
-struct GenericAtom{
-	vector<index_object> terms;
+struct GenericAtom : Hashable{
+	vector<Term*> terms;
 
 	GenericAtom(){}
-	GenericAtom(const vector<index_object>& t): terms(move(t)){}
+	GenericAtom(const vector<Term*>& t): terms(move(t)){}
 
 	virtual bool isFact() {return true;}
 	virtual void setFact(bool isFact){};
 
+	virtual size_t hash(){
+		return HashVecInt::getHashVecIntFromConfig()->computeHashTerm(terms);
+	}
+
 	inline bool operator==(const GenericAtom& genericAtom) const{
 		if(terms.size()!=genericAtom.terms.size())
 			return false;
-		return equal(terms.begin(),terms.end(),genericAtom.terms.begin());
+		for(unsigned i=0;i<terms.size();i++)
+			if(terms[i]->getIndex()!=genericAtom.terms[i]->getIndex())
+				return false;
+		return true;
 	}
 
 	virtual ~GenericAtom(){}
@@ -46,10 +54,10 @@ struct GenericAtom{
 
 ///This struct implements an undefined atom extending GenericAtom (@see GenericAtom) adding a boolean value to determine whether it is true or not.
 ///An undefined atoms is an atom derived during the grounding process.
-struct AtomUndef : GenericAtom{
+struct AtomUndef : public GenericAtom{
 	bool fact;
 
-	AtomUndef(vector<index_object>& t,bool f): GenericAtom(t), fact(f) {}
+	AtomUndef(vector<Term*>& t,bool f): GenericAtom(t), fact(f) {}
 
 	bool isFact(){return fact;}
 	void setFact(bool fact){this->fact=fact;};
@@ -59,17 +67,6 @@ struct AtomUndef : GenericAtom{
 typedef vector<pair<unsigned int,index_object>> vec_pair_index_object;
 ///An unordered map with unsigned integers as keys and values
 typedef unordered_multimap<unsigned int,unsigned int> map_int_int;
-
-///This struct implements an hash function and an equality comparator for generic atoms @see GenericAtom
-struct hashAtom {
-	inline size_t operator()(GenericAtom* atomFact) const {
-		return HashVecInt::getHashVecIntFromConfig()->computeHash(atomFact->terms);
-	}
-
-	inline bool operator()(GenericAtom* a1, GenericAtom* a2) const {
-		return *a1==*a2;
-	}
-};
 
 
 /* @brief This struct contains the bind variables of an atom.
@@ -88,32 +85,36 @@ struct hashAtomResult {
 
 	///Hash function built over bind variables
 	size_t operator()(GenericAtom* atom) const {
-		vector<index_object> terms;
+		vector<Term*> terms;
 		getTermsBind(atom,terms);
-		return HashVecInt::getHashVecIntFromConfig()->computeHash(terms);
+		return HashVecInt::getHashVecIntFromConfig()->computeHashTerm(terms);
 	}
 
 	///Equality comparison of two generic atoms over their bind variables
 	bool operator()(GenericAtom* atom1,  GenericAtom* atom2) const {
-		vector<index_object> terms1;
+		if(atom1->terms.size()!=atom2->terms.size())return false;
+		vector<Term*> terms1;
 		getTermsBind(atom1,terms1);
-		vector<index_object> terms2;
+		vector<Term*> terms2;
 		getTermsBind(atom2,terms2);
-		return equal(terms1.begin(),terms1.end(),terms2.begin());
+		for(unsigned i=0;i<atom1->terms.size();i++)
+			if(atom1->terms[i]->getIndex()!=atom2->terms[i]->getIndex())
+				return false;
+		return true;
 	}
 
 	///This method filters the bind variables of a generic atoms and puts them in the vector given as parameters
-	void getTermsBind( GenericAtom* atom, vector<index_object>& terms) const{
+	void getTermsBind( GenericAtom* atom, vector<Term*>& terms) const{
 		for(auto t:bind)
 			terms.push_back(atom->terms[t]);
 	}
 };
 
 ///An unordered set of generic atoms by hashAtom @see hashAtom
-typedef unordered_set<GenericAtom*, hashAtom, hashAtom> AtomTable;
+typedef unordered_set<GenericAtom*, HashForTable<GenericAtom>, HashForTable<GenericAtom>> AtomTable;
 ///An unordered map of generic atoms defined by hashResultAtom @see hashResultAtom
 /// A map contain the ground atom that match anda vector contains the corrispective variable bind and the value
-typedef unordered_map<GenericAtom*,map_index_index, hashAtomResult, hashAtomResult> AtomResultTable;
+typedef unordered_map<GenericAtom*,map_term_term, hashAtomResult, hashAtomResult> AtomResultTable;
 
 
 ///This struct implements an AtomResultTable (@see AtomResultTable) that represents a set of possible assignments for bind variables
@@ -122,9 +123,9 @@ struct ResultMatch {
 	ResultMatch(vector<unsigned int> &bind): result(AtomResultTable(0,hashAtomResult(bind),hashAtomResult(bind))){};
 	/// Insert the current atom in the table if match with the template
 	/// If insert the atom return true else false
-	bool insert(GenericAtom* atom,Atom* templateAtom,map_index_index& currentAssignment){
+	bool insert(GenericAtom* atom,Atom* templateAtom,map_term_term& currentAssignment){
 		// Check if the match atom with template, if match put in result table
-		map_index_index variableBindFinded;
+		map_term_term variableBindFinded;
 		if (match(atom,templateAtom,currentAssignment,variableBindFinded)){
 			result.insert({atom,variableBindFinded});
 			return true;
@@ -135,7 +136,7 @@ struct ResultMatch {
 
 	/// Pop last atom in the table and put the assignment in the current assignment
 	/// If the table is empty return false, else true
-	bool pop(map_index_index& currentAssignment){
+	bool pop(map_term_term& currentAssignment){
 		if(result.size()==0)return false;
 		auto it_last_atom=result.begin();
 		for(auto resultValue:it_last_atom->second)currentAssignment.insert(resultValue);
@@ -148,7 +149,7 @@ struct ResultMatch {
 	/// @param varAssignment map of assignment of the variable. If templateAtom have variable term put in
 	/// varAssignment the ID of variable with the relative constant term of the genericAtom
 	/// nextAssignment contains the new value of variable derived
-	bool match(GenericAtom *genericAtom,Atom *templateAtom,map_index_index& currentAssignment,map_index_index& nextAssignment);
+	bool match(GenericAtom *genericAtom,Atom *templateAtom,map_term_term& currentAssignment,map_term_term& nextAssignment);
 };
 
 
@@ -164,10 +165,10 @@ public:
 	///This method implementation is demanded to sub-classes.
 	///It have to find all the matching atoms and return just the first of those.
 	///The returned integer will be used to get the other ones through nextMatch method @see nextMatch
-	virtual unsigned int firstMatch(bool searchInDelta, Atom *templateAtom, map_index_index& currentAssignment, bool& find)=0;
+	virtual unsigned int firstMatch(bool searchInDelta, Atom *templateAtom, map_term_term& currentAssignment, bool& find)=0;
 	///This method implementation is demanded to sub-classes.
 	///It is used to get the further matching atoms one by one each time it is invoked.
-	virtual void nextMatch(unsigned int id, map_index_index& currentAssignment, bool& find)=0;
+	virtual void nextMatch(unsigned int id, map_term_term& currentAssignment, bool& find)=0;
 	///This method implementation is demanded to sub-classes.
 	/// It have to find if exist the templateAtom, that have to be ground
 	virtual void findIfExist(bool searchInDelta,Atom *templateAtom, bool& find,bool& isUndef)=0;
@@ -205,29 +206,27 @@ protected:
 class Instances {
 public:
 	///Constructor
-	Instances(index_object predicate,PredicateTable *pt): predicate(predicate),predicateTable(pt),indexAtom(0) {
+	Instances(Predicate* predicate): predicate(predicate),indexAtom(0) {
 		for(unsigned int i=0;i<4;i++)
 			tables.push_back(AtomTable());
 		this->setIndexAtom();
 	}
 
 	///Getter for the predicate
-	index_object getPredicate() const {return predicate;}
-	///Setter for the predicate
-	void setPredicate(index_object predicate) {this->predicate = predicate;}
+	Predicate* getPredicate() const {return predicate;}
 
 	///Getter for the IndexAtom
 	IndexAtom* getIndex() {return indexAtom;}
 
-	GenericAtom* getGenericAtom(vector<index_object>& terms);
+	GenericAtom* getGenericAtom(vector<Term*>& terms);
 
 	///This method updates a no facts truth value in no-facts, delta and nextDelta table
-	void setValue(vector<index_object>& terms, bool truth);
+	void setValue(vector<Term*>& terms, bool truth);
 
 	///This method determines whether a no fact is true
-	bool isTrue(vector<index_object>& terms);
+	bool isTrue(vector<Term*>& terms);
 
-	inline bool addFact(const vector<index_object>& terms) {
+	inline bool addFact(vector<Term*>& terms) {
 		// If the atom is not present as fact, it is added.
 		// The temporary atom duplicate is deleted and the inserted atom is assigned.
 		GenericAtom* atomFact=new GenericAtom(terms);
@@ -269,9 +268,7 @@ public:
 
 private:
 	///The predicate
-	index_object predicate;
-	///A pointer to the predicate table
-	PredicateTable* predicateTable;
+	Predicate* predicate;
 	///The IndexAtom to set the indexing strategy
 	IndexAtom* indexAtom;
 	///The vector of tables: Facts, No-Facts, Delta, NextDelta
@@ -289,19 +286,19 @@ private:
 class InstancesTable {
 public:
 	///Constructor
-	InstancesTable(PredicateTable *pt):predicateTable(pt){}
+	InstancesTable(){}
 
 	///This method adds an Instance for a predicate
-	void addInstance(index_object i) {
-		if(!instanceTable.count(i)){
-			Instances* is = new Instances(i,predicateTable);
-			instanceTable.insert({i,is});
+	void addInstance(Predicate* p) {
+		if(!instanceTable.count(p->getIndex())){
+			Instances* is = new Instances(p);
+			instanceTable.insert({p->getIndex(),is});
 		}
 	};
 
 	///Getter for the instances of a predicate
-	Instances* getInstance(index_object i) {
-		auto result= instanceTable.find(i);
+	Instances* getInstance(Predicate* p) {
+		auto result= instanceTable.find(p->getIndex());
 		if(result==instanceTable.end()) return nullptr;
 		return result->second;
 	};
@@ -315,8 +312,7 @@ public:
 	///Destructor
 	~InstancesTable();
 private:
-	///A pointer to the predicate table
-	PredicateTable* predicateTable;
+
 	///The map that stores all the Instances
 	unordered_map<index_object,Instances*> instanceTable;
 };
@@ -330,9 +326,9 @@ public:
 	///Constructor
 	SimpleIndexAtom(AtomTable* facts, AtomTable* nofacts, AtomTable* delta, Predicate *p) : IndexAtom(facts,nofacts,delta,p), counter(0), templateAtom(0), currentAssignment(0){};
 	///Virtual method implementation
-	virtual unsigned int firstMatch(bool searchInDelta, Atom *templateAtom, map_index_index& currentAssignment, bool& find);
+	virtual unsigned int firstMatch(bool searchInDelta, Atom *templateAtom, map_term_term& currentAssignment, bool& find);
 	///Virtual method implementation
-	virtual void nextMatch(unsigned int id,map_index_index& currentAssignment, bool& find);
+	virtual void nextMatch(unsigned int id,map_term_term& currentAssignment, bool& find);
 	///Virtual method implementation
 	virtual void findIfExist(bool searchInDelta,Atom *templateAtom, bool& find,bool& isUndef);
 	///Virtual method implementation
@@ -351,7 +347,7 @@ protected:
 	///Current templateAtom passed in firstMatch
 	Atom *templateAtom;
 	///Current assignment passed in firstMatch
-	map_index_index* currentAssignment;
+	map_term_term* currentAssignment;
 
 	///This method given an AtomTable computes the matching facts and nofacts and returns the first one of those
 	void computeFirstMatch(AtomTable* collection,ResultMatch* rm);
@@ -385,7 +381,7 @@ public:
 	 */
 	SingleTermIndexAtom(AtomTable* facts, AtomTable* nofacts,AtomTable* delta,Predicate *p) : SimpleIndexAtom(facts,nofacts,delta,p), instantiateIndexMaps(false), positionOfIndexing(0), positionOfIndexingSetByUser(false){};
 	///Overload of firstMatch method
-	virtual unsigned int firstMatch(bool searchInDelta, Atom *templateAtom, map_index_index& currentAssignment, bool& find);
+	virtual unsigned int firstMatch(bool searchInDelta, Atom *templateAtom, map_term_term& currentAssignment, bool& find);
 	///Virtual method implementation
 	virtual void updateDelta(AtomTable* nextDelta);
 	///Virtual method implementation
@@ -439,7 +435,7 @@ public:
 	 */
 	SingleTermIndexAtomMultiMap(AtomTable* facts, AtomTable* nofacts,AtomTable* delta,Predicate *p) : SimpleIndexAtom(facts,nofacts,delta,p), instantiateIndexMaps(false), positionOfIndexing(0),positionOfIndexingSetByUser(false){};
 	///Overload of firstMatch method
-	virtual unsigned int firstMatch(bool searchInDelta, Atom *templateAtom, map_index_index& currentAssignment, bool& find);
+	virtual unsigned int firstMatch(bool searchInDelta, Atom *templateAtom, map_term_term& currentAssignment, bool& find);
 	//Virtual method implementation
 	virtual void updateDelta(AtomTable* nextDelta);
 	///Destructor

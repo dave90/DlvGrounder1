@@ -56,7 +56,7 @@ public:
 	void addTermsDependency(Term* index);
 
 	/// Return the terms in atom
-	vector<index_object>& getTermsInAtom(){return termsInAtom;};
+	vector<Term*>& getTermsInAtom(){return termsInAtom;};
 	/// Remove Terms in atom
 	void clearTermsInAtom(){termsInAtom.clear();};
 

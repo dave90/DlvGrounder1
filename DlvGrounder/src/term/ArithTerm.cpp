@@ -33,7 +33,8 @@ Term* ArithTerm::calculate() {
 	}
 
 	Term *constantTerm=new NumericConstantTerm(negative,result);
-	return TermTable::getInstance()->addTerm(constantTerm);
+	TermTable::getInstance()->addTerm(constantTerm);
+	return constantTerm;
 }
 
 size_t ArithTerm::hash() {
@@ -93,5 +94,6 @@ Term* ArithTerm::substitute(map_term_term& substritutionTerm) {
 	}
 
 	Term *newTerm=new ArithTerm(negative,operators,subTerms);
-	return termTable->addTerm(newTerm);
+	termTable->addTerm(newTerm);
+	return  newTerm;
 }

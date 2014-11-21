@@ -24,11 +24,11 @@ public:
 	/// Add predicate of the atom
 	void addPredicate(string& name){lastPredicate=name;};
 	/// Add classical atom in rule
-	void addClassicalAtom(vector<index_object> &terms,bool hashMinus,bool negative);
+	void addClassicalAtom(vector<Term*> &terms,bool hashMinus,bool negative);
 	/// Set binop in builtin
 	void setBinop(string& binop);
 	/// Add builtin atom in rule
-	void addBuiltinAtom(vector<index_object> &terms);
+	void addBuiltinAtom(vector<Term*> &terms);
 	/// Add Fact in Instances
 	void addFact(Atom *fact);
 	/// Set head false and put the next atoms in the body

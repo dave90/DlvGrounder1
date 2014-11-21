@@ -13,6 +13,8 @@
 #include <boost/functional/hash.hpp>
 
 #include "../utility/IndexDefinition.h"
+#include "Hashable.h"
+#include "../term/Term.h"
 
 using namespace std;
 
@@ -26,6 +28,9 @@ public:
 	virtual size_t computeHash(const vector<index_object>& values)=0;
 	/// Calculate the hash of a vector of size_t
 	virtual size_t computeHashSize_T(const vector<size_t>& values)=0;
+	/// Calculate the hash of a vector of size_t
+	virtual size_t computeHashTerm(const vector<Term*>& values)=0 ;
+
 
 	virtual ~HashVecInt(){delete hashInt;};
 	/// Return an HashVecInt according the configuration
@@ -59,6 +64,16 @@ public:
 		return hash;
 	}
 
+	inline size_t computeHashTerm(const vector<Term*> &values){
+		int length=values.size();
+		size_t hash=0;
+		for (int i = 0; i < length; i++) {
+			hash+=values[i]->getIndex()*pow(31.0,length-(i));
+		}
+
+		return hash;
+	}
+
 };
 
 /**
@@ -71,6 +86,13 @@ public:
 	}
 	inline size_t computeHashSize_T(const vector<size_t> & values){
 		return boost::hash_range(values.begin(),values.end());
+	}
+
+	inline size_t computeHashTerm(const vector<Term*> & values){
+		vector<size_t> size_t_values(values.size());
+		for(unsigned i=0;i<values.size();i++)
+			size_t_values[i]=values[i]->getIndex();
+		return computeHashSize_T(size_t_values);
 	}
 
 };

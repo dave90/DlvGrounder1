@@ -13,7 +13,7 @@
 
 
  void TermFactory::createVariable(string& variable,bool negative) {
-	Term *v=new VariableTerm(variable,negative);
+	Term *v=new VariableTerm(negative,variable);
 
 	termsMap->addTerm(v);
 
@@ -23,7 +23,7 @@
 
 
  void TermFactory::createConstant(string& constant,bool negative) {
-	Term *c=new StringConstantTerm(constant,negative);
+	Term *c=new StringConstantTerm(negative,constant);
 
 	termsMap->addTerm(c);
 
@@ -32,7 +32,7 @@
 }
 
  void TermFactory::createConstant(unsigned& constant,bool negative) {
-	Term *c=new NumericConstantTerm(constant,negative);
+	Term *c=new NumericConstantTerm(negative,constant);
 
 	termsMap->addTerm(c);
 

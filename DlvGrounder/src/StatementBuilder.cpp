@@ -58,7 +58,7 @@ void StatementBuilder::printStats() {
 
 
 void StatementBuilder::addClassicalAtom() {
-	vector<index_object> terms=move(termsFactory.getTermsInAtom());
+	vector<Term*> terms=move(termsFactory.getTermsInAtom());
 	ruleFactory.addClassicalAtom(terms, hashMinusAtom, negativeAtom);
 
 	termsFactory.clearTermsInAtom();
@@ -69,7 +69,7 @@ void StatementBuilder::addClassicalAtom() {
 
 
 void StatementBuilder::addBuiltinAtom() {
-	vector<index_object> terms=termsFactory.getTermsInAtom();
+	vector<Term*> terms=termsFactory.getTermsInAtom();
 	ruleFactory.addBuiltinAtom(terms);
 
 	termsFactory.clearTermsInAtom();
