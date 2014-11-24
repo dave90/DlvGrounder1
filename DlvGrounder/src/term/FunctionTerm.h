@@ -38,6 +38,7 @@ public:
 
 	virtual TermType getType()const{return TermType::FUNCTION;};
 	virtual bool contain(TermType type){
+		if(type==TermType::FUNCTION) return true;
 		for(auto term:terms)
 			if(term->contain(type))
 				return true;

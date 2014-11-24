@@ -190,9 +190,12 @@ bool ProgramGrounder::groundRule(Rule* r, bool firstIteraction, bool isRecursive
 		Predicate* current_predicate = current_atom->getPredicate();
 		negation = current_atom->isNegative();
 		bool firstMatch;
-		Instances * instance = instancesTable->getInstance(current_predicate);
-		bool searchDelta = isRecursive && predicateInHead->count(current_predicate->getIndex()) && !firstIteraction;
-
+		Instances * instance;
+		bool searchDelta;
+		if(current_predicate!=nullptr){
+			instance = instancesTable->getInstance(current_predicate);
+			searchDelta = isRecursive && predicateInHead->count(current_predicate->getIndex()) && !firstIteraction;
+		}
 		// If the current atom is a built in or the instance table is null
 		// then firstMatch or nextMatch must not be invoked
 		if (current_atom->isBuiltIn() || instance == nullptr || negation || ( current_variables_atoms[index_current_atom].size()==0 && !current_atom->containsAnonymous() )) {
@@ -347,9 +350,9 @@ void ProgramGrounder::removeBindValueInAssignment(set_term bind_variables) {
 }
 
 ProgramGrounder::~ProgramGrounder() {
-	delete predicateTable;
 	delete instancesTable;
 	delete statementDependency;
 	delete termsMap;
+	delete predicateTable;
 }
 

@@ -19,24 +19,24 @@
 using namespace std;
 
 
-class Predicate : Hashable,Indexable{
+class Predicate : public Hashable,public Indexable{
 public:
 
 	///Default constructor
-	Predicate() : index(0), arity(0), edb(true) {};
+	Predicate() : Indexable(), arity(0), edb(true) {};
 
 	/** Constructor
 	 * @param name set the name of the predicate
 	 * @param arity set the arity of the predicate
 	 */
-	Predicate(string name, unsigned int arity) : index(0), arity(arity), name(name), edb(true) {};
+	Predicate(string name, unsigned int arity) : Indexable(), arity(arity), name(name), edb(true) {};
 
 	/** Constructor
 	 * @param name set the name of the predicate
 	 * @param arity set the arity of the predicate
 	 * @param edbIdb set whether the the predicate is an EDB or not
 	 */
-	Predicate(string name, unsigned int arity, bool edbIdb) : index(0), arity(arity), name(name), edb(edbIdb) {};
+	Predicate(string name, unsigned int arity, bool edbIdb) : Indexable(), arity(arity), name(name), edb(edbIdb) {};
 
 	///Getter method for the arity
 	unsigned int getArity() const {return arity;}
@@ -48,18 +48,14 @@ public:
 	void setIdb() {this->edb=false;};
 
 	void setEdb() {this->edb=true;};
-	///Getter method for the index
-	index_object getIndex() const {return index;}
-	///Setter method for the index
-	void setIndex(index_object index) {this->index = index;}
 	///Getter method for the name
-	const string& getName() const {return name;}
+	const string getName() const {return name;}
 	///Setter method for the name
 	void setName(const string& name) {this->name = name;}
 
 	/// @brief Equal-to operator for predicates
 	/// @details Two predicates are equal if they have the same name and the same arity
-	bool operator==(Predicate &p){return p.getArity()==this->getArity() && strcmp(p.getName().c_str(),this->getName().c_str())==0;}
+	bool operator==(Predicate &p)const{return p.getArity()==this->getArity() && strcmp(p.getName().c_str(),this->getName().c_str())==0;}
 
 	size_t hash(){
 		vector<size_t> hash_vec(2);
@@ -69,9 +65,8 @@ public:
 	}
 
 
+	~Predicate(){};
 private:
-	///Index of the predicate (assigned by the predicates' IdManager)
-	index_object index;
 	///Arity
 	unsigned int arity;
 	///Name
@@ -80,6 +75,9 @@ private:
 	bool edb;
 };
 
+
 typedef unordered_set<Predicate*,IndexForTable<Predicate>,IndexForTable<Predicate>> set_predicate;
+
+
 
 #endif /* PREDICATE_H_ */

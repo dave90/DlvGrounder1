@@ -10,6 +10,7 @@
 
 #include <functional>
 #include <unordered_set>
+#include <iostream>
 
 using namespace std;
 
@@ -104,7 +105,7 @@ template<typename T>
 class FlyweightIndexFactory{
 public:
 	FlyweightIndexFactory():index_counter(0){};
-	~FlyweightIndexFactory(){for(auto obj:flyweight_set)delete obj;};
+	~FlyweightIndexFactory(){for(auto obj:flyweight_set){delete obj;}};
 
 	void insert(T*& obj){
 		auto result=flyweight_set.insert(obj);
@@ -118,10 +119,10 @@ public:
 
 	void get(T*& obj){
 		auto result=flyweight_set.find(obj);
-		delete obj;
-		if(result==flyweight_set.end())
+		if(result==flyweight_set.end()){
+			delete obj;
 			obj=nullptr;
-		else
+	  }else
 			obj = *result;
 	}
 

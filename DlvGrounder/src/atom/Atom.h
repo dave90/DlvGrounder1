@@ -45,7 +45,7 @@ public:
 	/** Constructor
 	 * @param termsVec set the terms vector
 	 */
-	Atom(vector<Term*> termsVec) : terms(move(termsVec)) {};
+	Atom(vector<Term*>& termsVec) : terms(move(termsVec)) {};
 
 	/** Constructor
 	 * @param negative set whether the atom is negated with negation as failure

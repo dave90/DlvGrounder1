@@ -255,7 +255,7 @@ public:
 	bool findIn(unsigned int table, GenericAtom*& atomUndef, bool& updated);
 
 	///Printer method
-	inline void print(){for(GenericAtom*fact:tables[0]){ClassicalLiteral::print(predicate,fact->terms,false,false); cout<<"."<<endl;}}
+	inline void print(){for(GenericAtom*fact:tables[Instances::FACTS]){ClassicalLiteral::print(predicate,fact->terms,false,false); cout<<"."<<endl;}}
 
 	///Destructor
 	~Instances();

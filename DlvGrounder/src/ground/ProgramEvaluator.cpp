@@ -128,8 +128,7 @@ void ProgramEvaluator::groundHead(Rule* r, PredicateTable* predicateTable,
 		Atom* body = (*body_it);
 		Predicate* predicate = body->getPredicate();
 		//If the predicate is EDB skip this atom
-		if (predicate->isEdb()
-				|| body->isBuiltIn())
+		if (body->isBuiltIn() || predicate->isEdb())
 			continue;
 
 		GenericAtom* atom = nullptr;

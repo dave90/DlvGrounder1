@@ -10,6 +10,7 @@
 
 
 #include "Term.h"
+#include "../table/HashString.h"
 
 using namespace std;
 
@@ -23,7 +24,7 @@ public:
 	VariableTerm():Term(),isAnonymous(0){};
 	VariableTerm(bool negative):Term(negative),isAnonymous(0){};
 	VariableTerm(bool negative,index_object index,string& name):Term(negative,index),name(name){setAnonymous();};
-	VariableTerm(bool negative,string& name):Term(negative){setAnonymous();};
+	VariableTerm(bool negative,string& name):Term(negative),name(name){setAnonymous();};
 
 	virtual string getName()const{return name;};
 	virtual void setName(const string& name){setAnonymous();};

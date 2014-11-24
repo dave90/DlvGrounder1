@@ -16,7 +16,7 @@
 #include <unordered_set>
 
 #include "../table/Hashable.h"
-#include "../table/IdsManager.h"
+#include "../utility/IndexDefinition.h"
 
 using namespace std;
 
@@ -49,10 +49,6 @@ public:
 	//Constructor with negation and index
 	Term(bool negative,index_object index):Indexable(index),negative(negative){};
 
-	///Get the index of the term
-	index_object getIndex() const {return index;};
-	/// Set the index of the term
-	void setIndex(index_object index){	this->index=index;};
 	/// Return the string used to hash the term
 	virtual size_t hash(){return 0;};
 

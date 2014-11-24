@@ -34,6 +34,7 @@ void RuleFactory::addFact(Atom *fact) {
 
 void RuleFactory::addClassicalAtom(vector<Term*> &terms, bool hashMinus,
 		bool negative) {
+
 	/// Create classical literal adding the predicate in the predicate table and after add it in the rule
 
 	Predicate *p=new Predicate(lastPredicate,terms.size());
@@ -85,7 +86,7 @@ void RuleFactory::addRule() {
 	}else{
 		// Set predicate in head IDB
 		set_predicate pred_head=currentRule->getPredicateInHead();
-		for(auto p:pred_head)predicateTable->setIdb(p);
+		for(auto p:pred_head)p->setIdb();
 
 		statementDependency->addRuleMapping(currentRule);
 

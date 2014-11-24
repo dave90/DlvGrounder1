@@ -26,15 +26,11 @@ public:
 	void insertPredicate(Predicate *&p){predicate_set.insert(p);};
 	/// Get the predicate
 	void getPredicate(Predicate*& p){predicate_set.get(p);};
-	/// Set Edb the predicate with the specified index
-	void setEdb(Predicate* p){predicate_set.get(p);p->setEdb();};
-	/// Set Idb the predicate with the specified index
-	void setIdb(Predicate* p){predicate_set.get(p);p->setIdb();};
 	/// Get all the Edb predicate
 	void getEdbPredicate(set_predicate& edb_pred);
 	/// Get all the Edb predicate index
 	void getEdbPredicate(unordered_set<index_object>& edb_pred);
-	~PredicateTable(){}
+	~PredicateTable(){};
 private:
 	FlyweightIndexFactory<Predicate> predicate_set;
 };

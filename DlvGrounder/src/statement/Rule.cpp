@@ -15,6 +15,19 @@ set_predicate Rule::calculatePredicate(vector<Atom*>& atoms,bool checkNegative,b
 		if(predicate!=nullptr)
 			if(!checkNegative || (atom->isNegative() == negative))
 				predicates.insert(predicate);
+
+	}
+	return predicates;
+}
+
+unordered_set<index_object> Rule::calculatePredicateIndex(vector<Atom*>& atoms,bool checkNegative,bool negative){
+	unordered_set<index_object> predicates;
+	for (auto atom:atoms) {
+		Predicate* predicate=atom->getPredicate();
+		if(predicate!=nullptr)
+			if(!checkNegative || (atom->isNegative() == negative))
+				predicates.insert(predicate->getIndex());
+
 	}
 	return predicates;
 }

@@ -46,6 +46,7 @@ public:
 
 	virtual TermType getType()const{return TermType::ARITH;};
 	virtual bool contain(TermType type){
+		if(type==TermType::ARITH) return true;
 		for(auto term:terms)
 			if(term->contain(type))
 				return true;

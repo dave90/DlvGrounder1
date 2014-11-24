@@ -11,6 +11,7 @@
 #include <stdlib.h>
 
 #include "Term.h"
+#include <boost/lexical_cast.hpp>
 
 
 /*

@@ -19,6 +19,7 @@ Atom* Atom::ground(map_term_term& substritutionTerm){
 		if(term->contain(TermType::ARITH))
 			/// Calculate the value of arithmetic term and add in terms table
 			substitute_atom->setTerm(i,term->calculate());
+
 	}
 
 	return substitute_atom;

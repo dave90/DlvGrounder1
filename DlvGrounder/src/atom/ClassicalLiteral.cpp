@@ -9,7 +9,6 @@
 
 #include <iostream>
 
-#include "../table/IdsManager.h"
 #include "../table/HashVecInt.h"
 #include "../table/TermTable.h"
 

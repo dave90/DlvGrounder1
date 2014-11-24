@@ -7,7 +7,6 @@
 
 #include "StatementDependency.h"
 #include "../utility/Config.h"
-#include "../table/IdsManager.h"
 
 #include <algorithm>
 
@@ -35,13 +34,6 @@ void StatementAtomMapping::getRuleInHead(index_object p, vector<Rule*>& rules) {
 		rules.push_back(pair1.first->second);
 }
 
-const vector<Rule*> StatementAtomMapping::getRuleInBody(index_object p) {
-	vector<Rule*> rules;
-	auto pair1 = bodyMap.equal_range(p);
-	for (; pair1.first != pair1.second; ++pair1.first)
-		rules.push_back(pair1.first->second);
-	return rules;
-}
 
 bool StatementAtomMapping::isInHead(index_object p) {
 	if (headMap.find(p) != headMap.end())
@@ -157,8 +149,7 @@ void DependencyGraph::printFile(string fileGraph) {
 	//Print labels  (the name of the predicate)
 	for (unsigned int i = 0; i < num_vertices(depGraph); i++) {
 		graphDOT += lexical_cast<string>(i) + " [label= \"";
-		string predicate = IdsManager::getStringStrip(IdsManager::PREDICATE_ID_MANAGER,
-				depGraph[i].pred_id);
+		string predicate = boost::lexical_cast<string>( depGraph[i].pred_id);
 		graphDOT += predicate + "  " + "\"];\n";
 	}
 	graphDOT += "}\n";
@@ -185,10 +176,8 @@ void DependencyGraph::print() {
 		index_object p1 = index[source(*ei, depGraph)];
 		index_object p2 = index[target(*ei, depGraph)];
 		cout << "("
-				<< IdsManager::getStringStrip(IdsManager::PREDICATE_ID_MANAGER,
-						depGraph[p1].pred_id) << ","
-				<< IdsManager::getStringStrip(IdsManager::PREDICATE_ID_MANAGER,
-						depGraph[p2].pred_id) << ")" << " ";
+				<< depGraph[p1].pred_id << ","
+				<< depGraph[p2].pred_id << ")" << " ";
 	}
 
 }
@@ -405,8 +394,7 @@ void ComponentGraph::printFile(string fileGraph) {
 		graphDOT += " [label= \"";
 		for (auto it : componentDependency)
 			if (it.second == i) {
-				string predicate = IdsManager::getStringStrip(IdsManager::PREDICATE_ID_MANAGER,
-						it.first);
+				string predicate = boost::lexical_cast<string>( it.first);
 				graphDOT += predicate + "  ";
 			}
 		graphDOT += "\"];\n";
@@ -430,8 +418,7 @@ void ComponentGraph::print() {
 		bool first = false;
 		for (auto it : componentDependency)
 			if (it.second == i) {
-				string predicate = IdsManager::getStringStrip(IdsManager::PREDICATE_ID_MANAGER,
-						it.first);
+				string predicate = boost::lexical_cast<string>( it.first);
 				if (!first) {
 					cout << predicate + " ";
 					first = true;
@@ -472,7 +459,7 @@ void ComponentGraph::printTheOrderingOfComponent(list<unsigned int>& componentsO
 		cout<<"Component "<<comp<<" ";
 		for(auto it:componentDependency)
 			if(it.second==comp)
-				cout<<IdsManager::getStringStrip(IdsManager::PREDICATE_ID_MANAGER,it.first);
+				cout<<it.first;
 		cout<<endl;
 	}
 }
@@ -554,6 +541,7 @@ void StatementDependency::addRuleMapping(Rule* r) {
 	else{
 		statementAtomMapping.addRule(r);
 		rules.push_back(r);
+		r->setIndex(rules.size()-1);
 		depGraph.addInDependency(r);
 	}
 }
@@ -592,7 +580,7 @@ void StatementDependency::createComponentGraphAndComputeAnOrdering(vector<vector
 	int i=0;
 
 	unordered_map<index_object, unsigned int> components=compGraph.getComponent();
-	unordered_set<Rule*> addedRules;
+	unordered_set<unsigned> addedRules;
 
 	for(auto comp: ordering){
 		exitRules.push_back(vector<Rule*>());
@@ -606,7 +594,7 @@ void StatementDependency::createComponentGraphAndComputeAnOrdering(vector<vector
 				statementAtomMapping.getRuleInHead(predicate,componentsRules);
 				/// For each rule classify it as exit or recursive
 				for(Rule* r: componentsRules){
-					if(addedRules.insert(r).second){
+					if(addedRules.insert(r->getIndex()).second){
 						if(checkIfExitRule(comp,r))
 							exitRules[i].push_back(r);
 						else{
@@ -631,12 +619,11 @@ void StatementDependency::createComponentGraphAndComputeAnOrdering(vector<vector
 
 
 bool StatementDependency::checkIfExitRule(unsigned int component, Rule* rule){
-	set_predicate positivePredicates=rule->getPositivePredicateInBody();
+	unordered_set<index_object> positivePredicates=rule->getPositivePredicateIndexInBody();
 	unordered_map<index_object, unsigned int> components=compGraph.getComponent();
 
 	for (auto pair: components){
-		Predicate temp_p("",pair.first);
-		if(pair.second==component && positivePredicates.count(&temp_p))
+		if(pair.second==component && positivePredicates.count(pair.first))
 			return false;
 	}
 	return true;

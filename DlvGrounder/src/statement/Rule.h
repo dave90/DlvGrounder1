@@ -21,10 +21,10 @@ using namespace std;
 
 
 
-class Rule {
+class Rule : public Indexable{
 public:
 	///Default constructor
-	Rule(){};
+	Rule():Indexable(){};
 
 	///Getter method for body atoms
 	const vector<Atom*>& getBody() const {return body;}
@@ -51,6 +51,8 @@ public:
 	set_predicate getPredicateInBody(){return calculatePredicate(body,0,0);};
 	///This method returns the set of predicate of just the positive atoms in the body
 	set_predicate getPositivePredicateInBody(){return calculatePredicate(body,1,0);};
+	///This method returns the set of predicate index of just the positive atoms in the body
+	unordered_set<index_object> getPositivePredicateIndexInBody(){return calculatePredicateIndex(body,1,0);};
 	///This method returns the set of predicate of just the negative atoms in the body
 	set_predicate getNegativePredicateInBody(){return calculatePredicate(body,1,1);};
 	///This method returns the size of the head
@@ -87,6 +89,10 @@ private:
 	/// Return the predicate in atoms vector, if checkNegative is true compare the negative of atom with the parameter
 	/// else insert the predicate
 	set_predicate calculatePredicate(vector<Atom*>& atoms,bool checkNegative,bool negative);
+	/// Return the predicate index in atoms vector, if checkNegative is true compare the negative of atom with the parameter
+	/// else insert the predicate
+	unordered_set<index_object> calculatePredicateIndex(vector<Atom*>& atoms,bool checkNegative,bool negative);
+
 
 	///Vector of the atoms in head
 	vector<Atom*> head;

@@ -39,14 +39,12 @@ Term* FunctionTerm::substitute(map_term_term& substritutionTerm) {
 	// Recursively call substitute for nested function
 	// At the end add a new function in a table and return index
 
-	TermTable *termTable=TermTable::getInstance();
 	vector<Term*> subTerms(terms.size());
 	for(unsigned int i=0;i<terms.size();i++){
 		Term* sub_term=terms[i]->substitute(substritutionTerm);
 		subTerms[i]=sub_term;
 	}
-
-	Term *newTerm=new FunctionTerm(name,negative,terms);
+	Term *newTerm=new FunctionTerm(name,negative,subTerms);
 	TermTable::getInstance()->addTerm(newTerm);
 	return newTerm;
 }

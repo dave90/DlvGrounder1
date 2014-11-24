@@ -33,10 +33,6 @@ public:
 	/// @param p The index of predicate
 	/// @param rules The vector that will be filled in with the rules in which p appear in the head
 	void getRuleInHead(index_object p,vector<Rule*> & rules);
-	/// Getter for the rule in which the predicate appear in the body
-	/// @param p The index of predicate
-	/// @param rules The vector that will be filled in with the rules in which p appear in the body
-	const vector<Rule*> getRuleInBody(index_object p);
 	/// Return true if the predicate p appear in the head of at least one rule
 	/// @param p The index of predicate
 	bool isInHead(index_object p);
