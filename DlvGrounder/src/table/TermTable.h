@@ -34,11 +34,11 @@ public:
 	/// Get the number of collision of the IdManager
 	//TODO
 	virtual int getCollision(){return 0;};
-	virtual ~TermTable();
 
 	// Method for fetch the instance of singleton
     // If termTable is null instance the table based on parameter in the configuration
 	static TermTable* getInstance();
+	virtual ~TermTable(){};
 protected:
 	// Instance of the singleton
 	static TermTable* termTable;

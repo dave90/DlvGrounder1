@@ -62,7 +62,7 @@ public:
 	///Set the negation of the term
 	void setNegative(bool n){negative=n;};
 	///Return the numeric term constant
-	virtual int getConstantValue();
+	virtual int getConstantValue(){return 0;};
 	///Return the name of the term
 	virtual string getName()const{return "";};
 	///Set the name of the term

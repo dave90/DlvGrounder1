@@ -611,7 +611,8 @@ void StatementDependency::createComponentGraphAndComputeAnOrdering(vector<vector
 							exitRules[i].push_back(r);
 						else{
 							recursiveRules[i].push_back(r);
-							componentPredicateInHead[i].insert(r->getPredicateInHead().begin(),r->getPredicateInHead().end());
+							for(auto p:r->getPredicateInHead())
+								componentPredicateInHead[i].insert(p->getIndex());
 						}
 					}
 				}

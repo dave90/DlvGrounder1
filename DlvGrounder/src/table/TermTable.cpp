@@ -7,6 +7,8 @@
 
 #include "TermTable.h"
 
+TermTable *TermTable::termTable;
+
 TermTable* TermTable::getInstance() {
 
 	if (termTable == nullptr)
