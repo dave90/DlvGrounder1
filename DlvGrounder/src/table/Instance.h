@@ -172,16 +172,6 @@ public:
 	/// It have to find if exist the templateAtom, that have to be ground
 	virtual void findIfExist(bool searchInDelta,Atom *templateAtom, bool& find,bool& isUndef)=0;
 	///This method implementation is demanded to sub-classes.
-	///It determine whether the given atom is present in the specified table.
-	///@param table An integer that can be one among the constants FACTS, NOFACTS or DELTA
-	///@parm atom The atom to look for
-	virtual bool count(int table, GenericAtom*& atom)=0;
-	///This method implementation is demanded to sub-classes.
-	///It present, it finds the given atom in the specified table.
-	///@param table An integer that can be one among the constants FACTS, NOFACTS or DELTA
-	///@parm atom The atom to look for
-	virtual void find(int table, GenericAtom*& atom)=0;
-	///This method implementation is demanded to sub-classes.
 	///It is used to update the delta table for recursive predicates.
 	virtual void updateDelta(AtomTable* nextDelta)=0;
 	///Destructor
@@ -217,36 +207,16 @@ public:
 	///Getter for the IndexAtom
 	IndexAtom* getIndex() {return indexAtom;}
 
-	GenericAtom* getGenericAtom(vector<Term*>& terms);
+	GenericAtom* getGenericAtom(unsigned int table, vector<Term*>& terms,bool truth);
+	GenericAtom* getGenericAtom(vector<Term*>& terms,bool truth);
 
-	///This method updates a no facts truth value in no-facts, delta and nextDelta table
-	void setValue(vector<Term*>& terms, bool truth);
+	///This method updates a no facts truth value
+	void setTruth(vector<Term*>& terms, bool truth);
 
 	///This method determines whether a no fact is true
 	bool isTrue(vector<Term*>& terms);
 
-	inline bool addFact(vector<Term*>& terms) {
-		// If the atom is not present as fact, it is added.
-		// The temporary atom duplicate is deleted and the inserted atom is assigned.
-		GenericAtom* atomFact=new GenericAtom(terms);
-		if(!tables[Instances::FACTS].insert(atomFact).second){
-			indexAtom->find(Instances::FACTS,atomFact);
-			return false;
-		}
-		return true;
-	}
-
-	///This method adds a no facts to the no facts table.
-	///Its truth value can be true or undefined, if it false it is not stored at all
-	bool addNoFact(GenericAtom*& atomUndef,bool& updated);
-
-	///This method adds a no facts to the delta table if it is yet not present in the facts, no facts and delta tables.
-	///Its truth value can be true or undefined, if it false it is not stored at all.
-	bool addDelta(GenericAtom*& atomUndef,bool& updated);
-
-	///This method adds a no facts to the next delta table if it is yet not present in the facts, no facts, delta and next delta tables.
-	///Its truth value can be true or undefined, if it false it is not stored at all.
-	bool addNextDelta(GenericAtom*& atomUndef,bool& updated);
+	bool add(unsigned int table, GenericAtom*& atomUndef, bool& updated);
 
 	///This method moves the content of the delta table in the no facts table,
 	///and then moves the content of the next delta table in the delta table.
@@ -338,10 +308,6 @@ public:
 	///Virtual method implementation
 	virtual void findIfExist(bool searchInDelta,Atom *templateAtom, bool& find,bool& isUndef);
 	///Virtual method implementation
-	virtual bool count(int table,GenericAtom*& atom);
-	///Virtual method implementation
-	virtual void find(int table,GenericAtom*& atom);
-	///Virtual method implementation
 	virtual void updateDelta(AtomTable* nextDelta){};
 	///Destructor
 	virtual ~SimpleIndexAtom() {};
@@ -361,7 +327,6 @@ protected:
 	bool searchForFirstMatch(AtomTable* table,ResultMatch* rm);
 	///This method builds a ground atom using the bound variables , checks if it is true and return if is undefined or a fact
 	virtual bool findIfExists(AtomTable* collection,bool& isUndef);
-	///This method builds a ground atom using the bound variables and checks if it is true
 	virtual bool findIfExists(AtomTable* collection);
 };
 
@@ -390,10 +355,6 @@ public:
 	virtual unsigned int firstMatch(bool searchInDelta, Atom *templateAtom, map_term_term& currentAssignment, bool& find);
 	///Virtual method implementation
 	virtual void updateDelta(AtomTable* nextDelta);
-	///Virtual method implementation
-	virtual bool count(int table,GenericAtom*& atom);
-	///Virtual method implementation
-	virtual void find(int table,GenericAtom*& atom);
 	///Destructor
 	~SingleTermIndexAtom(){};
 

@@ -28,7 +28,9 @@ void RuleFactory::addFact(Atom *fact) {
 
 	Predicate* predicate=fact->getPredicate();
 	instancesTable->addInstance(predicate);
-	instancesTable->getInstance(predicate)->addFact(fact->getTerms());
+	GenericAtom* atomFact=new GenericAtom(fact->getTerms());
+	bool up=false;
+	instancesTable->getInstance(predicate)->add(Instances::FACTS,atomFact,up);
 	delete fact;
 }
 

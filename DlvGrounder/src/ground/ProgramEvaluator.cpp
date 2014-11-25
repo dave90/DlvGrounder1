@@ -55,7 +55,7 @@ void ProgramEvaluator::printAndSimplify(InstancesTable* instancesTable) {
 		// else if is a fact then skip the rule and decrement support
 		if (rule->getSizeHead() == 1 && rule->getSizeBody() == 0) {
 			GroundAtom* head = *rule->getBeginHead();
-			instancesTable->getInstance(head->predicate)->setValue(
+			instancesTable->getInstance(head->predicate)->setTruth(
 					head->atom->terms, true);
 			rule->print();
 			continue;
@@ -98,16 +98,16 @@ bool ProgramEvaluator::groundBody(bool disjunction, bool isRecursive,
 		if (isRecursive) {
 			bool add = false;
 			if (firstIteration)
-				add = instancesTable->getInstance(predicate)->addDelta(
+				add = instancesTable->getInstance(predicate)->add(Instances::DELTA,
 						headAtom->atom, updated);
 			else
-				add = instancesTable->getInstance(predicate)->addNextDelta(
+				add = instancesTable->getInstance(predicate)->add(Instances::NEXTDELTA,
 						headAtom->atom, updated);
 
 			if (add)
 				added = true;
 		} else
-			added = instancesTable->getInstance(predicate)->addNoFact(
+			added = instancesTable->getInstance(predicate)->add(Instances::NOFACTS,
 					headAtom->atom, updated);
 
 		// Duplication in head of rule
@@ -139,7 +139,7 @@ void ProgramEvaluator::groundHead(Rule* r, PredicateTable* predicateTable,
 		// else the atom not exist and have to be created if is unstratified
 		Instances* instance = instancesTable->getInstance(predicate);
 		if (instance != nullptr)
-			atom = instance->getGenericAtom(terms);
+			atom = instance->getGenericAtom(terms,0);
 
 		if (atom == nullptr
 				&& statementDep->isPredicateNegativeStratified(predicate->getIndex())
@@ -198,7 +198,7 @@ bool ProgramEvaluator::printGroundRule(InstancesTable* instancesTable,PredicateT
 		// Duplication in head with disjunction and is fact
 		GroundAtom* atom=*groundRule->getBeginHead();
 		if(disjunction)
-			instancesTable->getInstance(atom->predicate)->setValue(atom->atom->terms,true);
+			instancesTable->getInstance(atom->predicate)->setTruth(atom->atom->terms,true);
 		if ((added && atom->atom->isFact()) || (!added && updated))
 			groundRule->print();
 		delete groundRule;

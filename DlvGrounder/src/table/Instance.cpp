@@ -54,41 +54,23 @@ void Instances::moveNextDeltaInDelta(){
 }
 
 bool Instances::isTrue(vector<Term*>& terms) {
-	GenericAtom *atomUndef=new AtomUndef(terms,0);
-	for(unsigned int i=Instances::NOFACTS;i<=Instances::DELTA;i++){
-		bool isPresent=indexAtom->count(i,atomUndef);
-		if(isPresent){
-			indexAtom->find(i,atomUndef);
-			return atomUndef->isFact();
-		}
-	}
-	delete atomUndef;
-	return false;
+	GenericAtom* atom=getGenericAtom(Instances::NEXTDELTA,terms,0);
+	return atom->isFact();
 }
 
-void Instances::setValue(vector<Term*>& terms, bool truth) {
-	GenericAtom *atom=new AtomUndef(terms,truth);
-	for(unsigned int i=Instances::NOFACTS;i<=Instances::DELTA;i++){
-		bool isPresent=indexAtom->count(i,atom);
-		if(isPresent){
-			if(atom->isFact()){
-				indexAtom->find(i,atom);
-				if(!atom->isFact())
-					atom->setFact(true);
-			}
-			else delete atom;
-			return;
-		}
-	}
-	delete atom;
+void Instances::setTruth(vector<Term*>& terms, bool truth) {
+	GenericAtom* atom=getGenericAtom(Instances::NEXTDELTA,terms,truth);
+	atom->setFact(truth);
 }
 
-GenericAtom* Instances::getGenericAtom(vector<Term*>& terms) {
-	GenericAtom* atom=new GenericAtom(terms);
-	for(unsigned int i=Instances::FACTS;i<Instances::NEXTDELTA;i++){
-		bool isPresent=indexAtom->count(i,atom);
-		if(isPresent){
-			indexAtom->find(i,atom);
+GenericAtom* Instances::getGenericAtom(unsigned int table,vector<Term*>& terms,bool truth) {
+	GenericAtom* atom=new AtomUndef(terms,truth);
+	for(unsigned int i=Instances::FACTS;i<table;i++){
+		auto it=tables[i].find(atom);
+		if(it!=tables[i].end()){
+			GenericAtom* tmp=atom;
+			atom = (*it);
+			delete tmp;
 			return atom;
 		}
 	}
@@ -96,106 +78,29 @@ GenericAtom* Instances::getGenericAtom(vector<Term*>& terms) {
 	return 0;
 }
 
-bool Instances::addNoFact(GenericAtom*& atomUndef,bool& updated) {
-	// If the atom is not present as fact, it is added in nofacts. The temporary atom duplicate is deleted and the inserted atom is assigned.
-	// If the atom is present but undefined and the atom to be insert is true then its truth value is changed
-	if(this->findIn(Instances::FACTS,atomUndef,updated))
-		return false;
-
-	AtomTable* nofacts=&tables[Instances::NOFACTS];
-	if(!nofacts->insert(atomUndef).second){
-		if(atomUndef->isFact()){
-			indexAtom->find(Instances::NOFACTS,atomUndef);
-			if(!atomUndef->isFact()){
-				atomUndef->setFact(true);
-				updated=true;
-			}
-			return false;
-		}
-		indexAtom->find(Instances::NOFACTS,atomUndef);
-		return false;
-	}
-	return true;
-
+GenericAtom* Instances::getGenericAtom(vector<Term*>& terms,bool truth) {
+	return getGenericAtom(Instances::NEXTDELTA,terms,truth);
 }
 
-bool Instances::findIn(unsigned int table, GenericAtom*& atomUndef, bool& updated){
-	if(table==Instances::FACTS){
-		bool isInFacts=indexAtom->count(Instances::FACTS,atomUndef);
-		if(isInFacts)
-			indexAtom->find(Instances::FACTS,atomUndef);
-		return isInFacts;
+bool Instances::add(unsigned int table, GenericAtom*& atomUndef, bool& updated) {
+	GenericAtom* atom=getGenericAtom(table,atomUndef->terms,atomUndef->isFact());
+	if(atom==0){
+		tables[table].insert(atomUndef);
+		return true;
 	}
-	bool isPresent=indexAtom->count(table,atomUndef);
-	if(isPresent){
-		if(atomUndef->isFact()){
-			indexAtom->find(table,atomUndef);
-			if(!atomUndef->isFact()){
-				atomUndef->setFact(true);
-				updated=true;
-			}
-		}
-		else indexAtom->find(table,atomUndef);
-	}
-	return isPresent;
-}
-
-bool Instances::addDelta(GenericAtom*& atomUndef,bool& updated) {
-	// If the atom is not present anywhere, it is added in delta. The temporary atom duplicate is deleted and the inserted atom is assigned.
-	// If the atom is present but undefined and the atom to be insert is true then its truth value is changed
-	for(unsigned int i=Instances::FACTS;i<Instances::DELTA;i++)
-		if(this->findIn(i,atomUndef,updated))
-			return false;
-	AtomTable* delta=&tables[Instances::DELTA];
-	bool insertedInDelta=delta->insert(atomUndef).second;
-	if(!insertedInDelta){
-		if(atomUndef->isFact()){
-			indexAtom->find(Instances::DELTA,atomUndef);
-			if(!atomUndef->isFact()){
-				atomUndef->setFact(true);
-				updated=true;
-			}
-			return false;
-		}
-		indexAtom->find(Instances::DELTA,atomUndef);
+	if(atomUndef->isFact() && !atom->isFact()){
+		atom->setFact(true);
+		updated=true;
 		return false;
 	}
-	return true;
-}
-
-bool Instances::addNextDelta(GenericAtom*& atomUndef,bool& updated) {
-	// If the atom is not present anywhere, it is added in nextDelta. The temporary atom duplicate is deleted and the inserted atom is assigned.
-	// If the atom is present but undefined and the atom to be insert is true then its truth value is changed
-	for(unsigned int i=Instances::FACTS;i<Instances::NEXTDELTA;i++)
-		if(this->findIn(i,atomUndef,updated))
-			return false;
-	AtomTable* nextDelta=&tables[Instances::NEXTDELTA];
-	bool insertedInNextNoFacts=nextDelta->insert(atomUndef).second;
-	if(!insertedInNextNoFacts){
-		if(atomUndef->isFact()){
-			GenericAtom* atomFind=*nextDelta->find(atomUndef);
-			if(!atomUndef->isFact()){
-				atomUndef->setFact(true);
-				updated=true;
-			}
-			delete atomUndef;
-			atomUndef=atomFind;
-			return false;
-		}
-		GenericAtom* atomFind=*nextDelta->find(atomUndef);
-		delete atomUndef;
-		atomUndef=atomFind;
-		return false;
-	}
-	return true;
+	return false;
 }
 
 /****************************************************** INSTANCES TABLE ***************************************************/
 
 InstancesTable::~InstancesTable() {
-	for (auto i : instanceTable) {
+	for (auto i : instanceTable)
 		delete (i.second);
-	}
 }
 
 /******************************************************* RESULT MATCH ***************************************************/
@@ -237,54 +142,6 @@ bool SimpleIndexAtom::findIfExists(AtomTable* collection) {
 	bool isUndef;
 	return findIfExists(collection,isUndef);
 }
-
-bool SimpleIndexAtom::count(int table,GenericAtom*& atom) {
-	AtomTable* collection;
-	switch (table) {
-		case Instances::FACTS:
-			collection=facts;
-			break;
-		case Instances::NOFACTS:
-			collection=nofacts;
-			break;
-		case Instances::DELTA:
-			collection=delta;
-			break;
-		default:
-			return false;
-	}
-	if(collection->size()==0)return false;
-
-	//Look for the atom
-	bool find = collection->count(atom);
-
-	return find;
-}
-
-void SimpleIndexAtom::find(int table,GenericAtom*& atom) {
-	AtomTable* collection;
-	switch (table) {
-		case Instances::FACTS:
-			collection=facts;
-			break;
-		case Instances::NOFACTS:
-			collection=nofacts;
-			break;
-		case Instances::DELTA:
-			collection=delta;
-			break;
-		default:
-			atom=nullptr;
-			return;
-	}
-	if(collection->size()==0) {atom=nullptr; return;}
-
-	//Find the atom
-	GenericAtom* tmp=(*collection->find(atom));
-	delete atom;
-	atom = tmp;
-}
-
 
 unsigned int SimpleIndexAtom::firstMatch(bool searchInDelta,Atom *templateAtom,map_term_term& currentAssignment, bool& find) {
 	unsigned int id = counter;counter++;
@@ -410,80 +267,6 @@ void SimpleIndexAtom::findIfExist(bool searchInDelta,Atom *templateAtom,bool& fi
 }
 
 /****************************************************** SINGLE TERM INDEX ATOM ***************************************************/
-
-bool SingleTermIndexAtom::count(int table,GenericAtom*& atom) {
-	AtomTable* collection;
-	pair<bool, index_object> termBoundIndex( { false, 0 });
-	if(instantiateIndexMaps){
-		for(unsigned int i=0;i<atom->terms.size();i++){
-			Term* t=atom->terms[i];
-			if(positionOfIndexingSetByUser && i == positionOfIndexing && t->isGround()) {
-					termBoundIndex.first = true;
-					termBoundIndex.second = t->getIndex();
-					break;
-			}
-		}
-	}
-	switch (table) {
-		case Instances::FACTS:
-			if(instantiateIndexMaps) collection=&factsIndexMap[termBoundIndex.second];
-			else collection=facts;
-			break;
-		case Instances::NOFACTS:
-			if(instantiateIndexMaps) collection=&nofactsIndexMap[termBoundIndex.second];
-			else collection=nofacts;
-			break;
-		case Instances::DELTA:
-			if(instantiateIndexMaps) collection=&deltaIndexMap[termBoundIndex.second];
-			else collection=delta;
-			break;
-		default:
-			return false;
-	}
-	if(collection->size()==0)return false;
-
-	//Look for the atom
-	bool find = collection->count(atom);
-
-	return find;
-}
-
-void SingleTermIndexAtom::find(int table,GenericAtom*& atom) {
-	AtomTable* collection;
-	pair<bool, index_object> termBoundIndex( { false, 0 });
-	if(instantiateIndexMaps){
-		for(unsigned int i=0;i<atom->terms.size();i++){
-			Term* t=atom->terms[i];
-			if(positionOfIndexingSetByUser && i == positionOfIndexing && t->isGround()) {
-					termBoundIndex.first = true;
-					termBoundIndex.second = t->getIndex();
-					break;
-			}
-		}
-	}
-	switch (table) {
-		case Instances::FACTS:
-			if(instantiateIndexMaps) collection=&factsIndexMap[termBoundIndex.second];
-			else collection=facts;
-			break;
-		case Instances::NOFACTS:
-			if(instantiateIndexMaps) collection=&nofactsIndexMap[termBoundIndex.second];
-			else collection=nofacts;
-			break;
-		case Instances::DELTA:
-			if(instantiateIndexMaps) collection=&deltaIndexMap[termBoundIndex.second];
-			else collection=delta;
-			break;
-		default:
-			atom=nullptr; return;
-	}
-	if(collection->size()==0) {atom=nullptr; return;}
-
-	//Find the atom
-	GenericAtom* tmp=atom;
-	atom = (*collection->find(tmp));
-	delete tmp;
-}
 
 void SingleTermIndexAtom::updateDelta(AtomTable* nextDelta) {
 	if(instantiateIndexMaps){
