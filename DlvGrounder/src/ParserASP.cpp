@@ -352,7 +352,7 @@ bool parseArgs(int argc, char* argv[], string& filename) {
 				false);
 		cmd.add(&printRulesArgs);
 
-		ValueArg<string> indexingPreferencesArg("i", "index", "Set on which term predicates have to be indexed", false, "", "string");
+		ValueArg<string> indexingPreferencesArg("i", "index", "Set on which term predicates have to be indexed. Example: -i p=1,a=0 ", false, "", "string");
 		cmd.add(&indexingPreferencesArg);
 
 		SwitchArg disabeSimpleArgs("m", "noSImpli", "Disable the simplification", false);
