@@ -244,28 +244,35 @@ void SimpleIndexAtom::nextMatch(unsigned int id,map_term_term& currentAssignment
 void SimpleIndexAtom::findIfExist(bool searchInDelta,Atom *templateAtom,bool& find,bool& isUndef) {
 	this->templateAtom=templateAtom;
 
-	//Search only in delta for match
-	if(searchInDelta){
-		//Search in delta for match
-		if(findIfExists(delta,isUndef)){
-			find=true;
-			return ;
-		}
-	}
-	else{
-		//Search in facts for match
-		if(findIfExists(facts,isUndef)){
-			find=true;
-			return ;
-		}
-
-		//If it is EDB and not terms are bound, search also in no facts for match
-		if(!predicate->isEdb()){
-			if(findIfExists(nofacts,isUndef)){
-				find=true;
-				return ;
-			}
-		}
+//	//Search only in delta for match
+//	if(searchInDelta){
+//		//Search in delta for match
+//		if(findIfExists(delta,isUndef)){
+//			find=true;
+//			return ;
+//		}
+//	}
+//	else{
+//		//Search in facts for match
+//		if(findIfExists(facts,isUndef)){
+//			find=true;
+//			return ;
+//		}
+//
+//		//If it is EDB and not terms are bound, search also in no facts for match
+//		if(!predicate->isEdb()){
+//			if(findIfExists(nofacts,isUndef)){
+//				find=true;
+//				return ;
+//			}
+//		}
+//	}
+	if((searchInDelta && findIfExists(delta,isUndef) ) ||
+	  (!searchInDelta &&
+			  (findIfExists(facts,isUndef) ||
+			   (!predicate->isEdb() && findIfExists(nofacts,isUndef))))){
+		find=true;
+		return ;
 	}
 
 	find=false;
