@@ -345,6 +345,14 @@ pair<bool, index_object> SingleTermIndexAtom::createIndex(vector<unsigned int>& 
 	return termBoundIndex;
 }
 
+void SingleTermIndexAtom::getMatchingTable(AtomTable*& matchingTable,unordered_map<index_object,AtomTable>& index_table,AtomTable*& table,pair<bool, index_object>& termBoundIndex){
+	if(termBoundIndex.first)
+		matchingTable=&index_table[termBoundIndex.second];
+	else
+		matchingTable=table;
+}
+
+
 unsigned int SingleTermIndexAtom::firstMatch(bool searchInDelta, Atom *templateAtom, map_term_term& currentAssignment, bool& find){
 
 	unsigned int id = counter;counter++;
@@ -358,54 +366,67 @@ unsigned int SingleTermIndexAtom::firstMatch(bool searchInDelta, Atom *templateA
 	pair<bool, index_object> termBoundIndex = createIndex(bind);
 
 	ResultMatch *rm = new ResultMatch(bind);
+	AtomTable* matchingTable;
+//
+//
+//	//Search only in delta
+//	if(searchInDelta){
+//		AtomTable* matchingTable;
+//
+//		if(termBoundIndex.first)
+//			matchingTable=&deltaIndexMap[termBoundIndex.second];
+//		else
+//			matchingTable=delta;
+//		if(delta!=nullptr){
+//			if(searchForFirstMatch(matchingTable,rm)){
+//				find=true;
+//				matches_id.insert({id,rm});
+//				return id;
+//			}
+//		}
+//	}
+//	//Search in facts and no facts
+//	else{
+//
+//		AtomTable* matchingTable;
+//
+//		if(termBoundIndex.first)
+//			matchingTable=&factsIndexMap[termBoundIndex.second];
+//		else
+//			matchingTable=facts;
+//
+//		//Search in facts for match
+//		if(searchForFirstMatch(matchingTable,rm)){
+//			find=true;
+//			matches_id.insert({id,rm});
+//			return id;
+//		}
+//
+//		//If it is EDB and it is not all bound, search also in no facts for match
+//		if(!predicate->isEdb() && nofacts->size()>0){
+//			if(termBoundIndex.first)
+//				matchingTable=&nofactsIndexMap[termBoundIndex.second];
+//			else
+//				matchingTable=nofacts;
+//
+//			if(searchForFirstMatch(matchingTable,rm)){
+//				find=true;
+//				matches_id.insert({id,rm});
+//				return id;
+//			}
+//		}
+//	}
 
-	//Search only in delta
-	if(searchInDelta){
-		AtomTable* matchingTable;
-
-		if(termBoundIndex.first)
-			matchingTable=&deltaIndexMap[termBoundIndex.second];
-		else
-			matchingTable=delta;
-		if(delta!=nullptr){
-			if(searchForFirstMatch(matchingTable,rm)){
-				find=true;
-				matches_id.insert({id,rm});
-				return id;
-			}
-		}
+	if(( searchInDelta && getMatchingTable(matchingTable,deltaIndexMap,delta,termBoundIndex) && searchForFirstMatch(matchingTable,rm) ) ||
+	   (!searchInDelta &&
+					   ( (getMatchingTable(matchingTable,factsIndexMap,facts,termBoundIndex) && searchForFirstMatch(matchingTable,rm) )  ||
+					   (!predicate->isEdb() && nofacts->size()>0 && getMatchingTable(matchingTable,nofactsIndexMap,nofacts,termBoundIndex) && searchForFirstMatch(matchingTable,rm))))){
+		find=true;
+		matches_id.insert({id,rm});
+		return id;
 	}
-	//Search in facts and no facts
-	else{
 
-		AtomTable* matchingTable;
 
-		if(termBoundIndex.first)
-			matchingTable=&factsIndexMap[termBoundIndex.second];
-		else
-			matchingTable=facts;
-
-		//Search in facts for match
-		if(searchForFirstMatch(matchingTable,rm)){
-			find=true;
-			matches_id.insert({id,rm});
-			return id;
-		}
-
-		//If it is EDB and it is not all bound, search also in no facts for match
-		if(!predicate->isEdb() && nofacts->size()>0){
-			if(termBoundIndex.first)
-				matchingTable=&nofactsIndexMap[termBoundIndex.second];
-			else
-				matchingTable=nofacts;
-
-			if(searchForFirstMatch(matchingTable,rm)){
-				find=true;
-				matches_id.insert({id,rm});
-				return id;
-			}
-		}
-	}
 
 	matches_id.insert({id,rm});
 	nextMatch(id,currentAssignment,find);

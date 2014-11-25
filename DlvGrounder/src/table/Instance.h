@@ -375,6 +375,9 @@ private:
 	///This method fills in the indexing data structures
 	void initializeIndexMaps();
 
+	// Set the matchingTable with the index_table if there is index else table
+	void getMatchingTable(AtomTable*& matchingTable,unordered_map<index_object,AtomTable>& index_table,AtomTable*& table, pair<bool, index_object>& termBoundIndex);
+
 	/// This method carry out the indexing strategy, determining the indexing term with which is the actual term
 	/// corresponding to position given by the user or if no position is given it is used the first admissible term as indexing term.
 	/// Then filling the data structures invoking the initializeIndexMaps method.
