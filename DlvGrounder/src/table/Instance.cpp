@@ -156,31 +156,40 @@ unsigned int SimpleIndexAtom::firstMatch(bool searchInDelta,Atom *templateAtom,m
 	ResultMatch *rm = new ResultMatch(bind);
 
 	//Search only in delta for match
-	if(searchInDelta){
-		//Search in delta for match
-		if(searchForFirstMatch(delta,rm)){
-			find=true;
-			matches_id.insert({id,rm});
-			return id;
-		}
+//	if(searchInDelta){
+//		//Search in delta for match
+//		if(searchForFirstMatch(delta,rm)){
+//			find=true;
+//			matches_id.insert({id,rm});
+//			return id;
+//		}
+//	}
+//	else{
+//		//Search in facts for match
+//		if(searchForFirstMatch(facts,rm)){
+//			find=true;
+//			matches_id.insert({id,rm});
+//			return id;
+//		}
+//
+//		//If it is EDB and not terms are bound, search also in no facts for match
+//		if(!predicate->isEdb()){
+//			if(searchForFirstMatch(nofacts,rm)){
+//				find=true;
+//				matches_id.insert({id,rm});
+//				return id;
+//			}
+//		}
+//	}
+	if(( searchInDelta && searchForFirstMatch(delta,rm) ) ||
+	   (!searchInDelta &&
+					   (searchForFirstMatch(facts,rm) ||
+					   (!predicate->isEdb() && searchForFirstMatch(nofacts,rm))))){
+		find=true;
+		matches_id.insert({id,rm});
+		return id;
 	}
-	else{
-		//Search in facts for match
-		if(searchForFirstMatch(facts,rm)){
-			find=true;
-			matches_id.insert({id,rm});
-			return id;
-		}
 
-		//If it is EDB and not terms are bound, search also in no facts for match
-		if(!predicate->isEdb()){
-			if(searchForFirstMatch(nofacts,rm)){
-				find=true;
-				matches_id.insert({id,rm});
-				return id;
-			}
-		}
-	}
 	matches_id.insert({id,rm});
 	nextMatch(id,currentAssignment,find);
 	return id;
