@@ -31,6 +31,7 @@ Config::Config() {
 	dependency=false;
 	statistic=false;
 	printRules=false;
+	disableSimplification=false;
 
 	numberTermTableTypes = TermTableType::STL+1;
 	numberHashType = HashType::PERL_B+1;

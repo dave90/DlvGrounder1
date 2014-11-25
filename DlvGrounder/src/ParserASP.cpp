@@ -319,32 +319,32 @@ bool parseArgs(int argc, char* argv[], string& filename) {
 		// Define the command line object.
 		CmdLine cmd("Command description message", ' ', "0.9");
 
-		ValueArg<string> termTableArg("t", "termTable", "Term Table Type", false, "STL", "string");
-		cmd.add(&termTableArg);
+//		ValueArg<string> termTableArg("t", "termTable", "Term Table Type", false, "STL", "string");
+//		cmd.add(&termTableArg);
 
-		ValueArg<string> hashArg("a", "hash", "Hash type", false, "STL_HASH", "string");
+		ValueArg<string> hashArg("a", "hash", "Possible values: STL_HASH, BOOST_HASH, JAVA_HASH, MUR_HASH, PERL_DJ, PERL_B", false, "STL_HASH", "string");
 		cmd.add(&hashArg);
 
-		ValueArg<string> indexingTypeArg("z", "indexType", "Index type", false, "DEFAULT", "string");
+		ValueArg<string> indexingTypeArg("z", "indexType", "Possible values: MAP, MULTIMAP", false, "DEFAULT", "string");
 		cmd.add(&indexingTypeArg);
 
-		SwitchArg parseArgs("p", "print", "Print parser result", false);
+		SwitchArg parseArgs("p", "print", "Print Parser Result", false);
 		cmd.add(&parseArgs);
 
-		SwitchArg dependencyArgs("d", "dependency", "Print dependency graph", false);
+		SwitchArg dependencyArgs("d", "dependency", "Print Dependency Graph", false);
 		cmd.add(&dependencyArgs);
 
-		SwitchArg componentArgs("c", "component", "Print component graph", false);
+		SwitchArg componentArgs("c", "component", "Print Component Graph", false);
 		cmd.add(&componentArgs);
 
-		SwitchArg statisticArgs("s", "statistic", "Print statistic", false);
+		SwitchArg statisticArgs("s", "statistic", "Print Statistics", false);
 		cmd.add(&statisticArgs);
 
-		ValueArg<string> fileGraphArg("f", "fileGraph", "File to print graphs", false, "",
+		ValueArg<string> fileGraphArg("f", "fileGraph", "Name of the file where the graphs are printed in DOT format", false, "",
 				"string");
 		cmd.add(&fileGraphArg);
 
-		SwitchArg stdInArgs("1", "stdin", "Read input from stdin (if file not specified true)",
+		SwitchArg stdInArgs("1", "stdin", "Read input from stdin (if input file is not specified)",
 				false);
 		cmd.add(&stdInArgs);
 
@@ -355,19 +355,18 @@ bool parseArgs(int argc, char* argv[], string& filename) {
 		ValueArg<string> indexingPreferencesArg("i", "index", "Set on which term predicates have to be indexed", false, "", "string");
 		cmd.add(&indexingPreferencesArg);
 
-		SwitchArg disabeSimpleArgs("m", "noSImpli", "Disable the simplifiation", false);
+		SwitchArg disabeSimpleArgs("m", "noSImpli", "Disable the simplification", false);
 		cmd.add(&disabeSimpleArgs);
 
-
-		//MUST be last
-		UnlabeledValueArg<string> fileArg("fileName", "program file", false, "", "file");
+		//MUST be the last
+		UnlabeledValueArg<string> fileArg("fileName", "Input file", false, "", "file");
 		cmd.add(fileArg);
 
 		// Parse the args.
 		cmd.parse(argc, argv);
 
 		// Get the value parsed by each arg.
-		string termTable = termTableArg.getValue();
+//		string termTable = termTableArg.getValue();
 		string hash = hashArg.getValue();
 		string indexType=indexingTypeArg.getValue();
 		bool parser = parseArgs.getValue();
@@ -382,7 +381,7 @@ bool parseArgs(int argc, char* argv[], string& filename) {
 		if (stdInArgs.getValue())
 			filename = "";
 
-		Config::getInstance()->setTermTableType(termTable);
+//		Config::getInstance()->setTermTableType(termTable);
 		Config::getInstance()->setHashType(hash);
 		Config::getInstance()->setIndexType(indexType);
 		Config::getInstance()->setParser(parser);
