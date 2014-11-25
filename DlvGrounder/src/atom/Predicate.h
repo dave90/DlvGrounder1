@@ -11,10 +11,10 @@
 #include "../utility/IndexDefinition.h"
 #include <string>
 #include <cstring>
-#include "../table/Hashable.h"
+#include "../hash/Hashable.h"
 #include <boost/lexical_cast.hpp>
-#include "../table/HashVecInt.h"
-#include "../table/HashString.h"
+#include "../hash/HashVecInt.h"
+#include "../hash/HashString.h"
 
 using namespace std;
 

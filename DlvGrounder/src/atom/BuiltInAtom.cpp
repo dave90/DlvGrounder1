@@ -10,7 +10,7 @@
 #include <iostream>
 
 #include "../table/TermTable.h"
-#include "../table/HashVecInt.h"
+#include "../hash/HashVecInt.h"
 
 
 bool BuiltInAtom::evaluate(map_term_term& substitutionTerm){

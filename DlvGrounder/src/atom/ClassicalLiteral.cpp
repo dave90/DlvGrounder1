@@ -9,7 +9,7 @@
 
 #include <iostream>
 
-#include "../table/HashVecInt.h"
+#include "../hash/HashVecInt.h"
 #include "../table/TermTable.h"
 
 using namespace std;

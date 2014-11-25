@@ -9,10 +9,8 @@
 #include "../term/ConstantTerm.h"
 
 #include<boost/lexical_cast.hpp>
-#include "../table/HashString.h"
-#include "../table/HashVecInt.h"
-
-#include <sstream>
+#include "../hash/HashString.h"
+#include "../hash/HashVecInt.h"
 
 Term* ArithTerm::calculate() {
 	unsigned int result = terms[0]->getConstantValue();

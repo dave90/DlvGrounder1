@@ -6,10 +6,6 @@
  */
 
 #include "AggregateAtom.h"
-#include <sstream>
 using namespace std;
 
-void AggregateAtom::print() {
-
-
-}
+void AggregateAtom::print() {}

@@ -11,7 +11,7 @@
 
 #include "../term/Term.h"
 #include "../utility/Config.h"
-#include "Hashable.h"
+#include "../hash/Hashable.h"
 
 
 using namespace std;

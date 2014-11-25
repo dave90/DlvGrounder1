@@ -11,7 +11,7 @@
 #include <vector>
 #include <unordered_set>
 #include "../atom/Atom.h"
-#include "../table/HashVecInt.h"
+#include "../hash/HashVecInt.h"
 
 using namespace std;
 

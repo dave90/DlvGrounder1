@@ -15,7 +15,7 @@
 #include <unordered_map>
 #include <unordered_set>
 
-#include "../table/Hashable.h"
+#include "../hash/Hashable.h"
 #include "../utility/IndexDefinition.h"
 
 using namespace std;

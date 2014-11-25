@@ -10,7 +10,7 @@
 
 #include <algorithm>
 
-#include "HashVecInt.h"
+#include "../hash/HashVecInt.h"
 #include "../atom/ClassicalLiteral.h"
 #include "PredicateTable.h"
 

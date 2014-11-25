@@ -7,10 +7,9 @@
 
 #include "FunctionTerm.h"
 
-#include <sstream>
 #include <boost/lexical_cast.hpp>
-#include "../table/HashVecInt.h"
-#include "../table/HashString.h"
+#include "../hash/HashVecInt.h"
+#include "../hash/HashString.h"
 
 
 
@@ -85,8 +84,6 @@ Term* FunctionTerm::calculate() {
 bool FunctionTerm::match(Term* termToMatch, map_term_term& varAssignment) {
 	// If is anonymus return true, if have same name and same arity continue and
 	// recursivley check match, if one fail return true
-
-	TermTable *termTable=TermTable::getInstance();
 
 	if(termToMatch->getType()==TermType::ANONYMOUS) return true;
 	if(termToMatch->getType()==TermType::VARIABLE){ varAssignment.insert({termToMatch,this});return true;}

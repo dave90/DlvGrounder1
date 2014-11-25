@@ -10,7 +10,7 @@
 
 
 #include "Term.h"
-#include "../table/HashString.h"
+#include "../hash/HashString.h"
 
 using namespace std;
 
