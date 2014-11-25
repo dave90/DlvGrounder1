@@ -423,6 +423,7 @@ int main(int argc, char* argv[]) {
 		end = str->end();
 	} else {
 		ifstream ifs(nameFile);
+		if(!ifs.is_open()){cout<<"File "<<nameFile<<" not exist"<<endl; return 0;}
 		str=new string((std::istreambuf_iterator<char>(ifs)), (std::istreambuf_iterator<char>()));
 		// Add end line for a comment
 		*str+='\n';
