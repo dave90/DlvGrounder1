@@ -31,10 +31,9 @@ public:
 	 *	@param st A pointer to the statement dependency table
 	 *	Since the term table is a singleton, it is not needed to give it as a parameter.
 	 */
-	ProgramGrounder(PredicateTable* pt, InstancesTable* it, StatementDependency* st) :
-			predicateTable(pt), instancesTable(it), statementDependency(st), termsMap(TermTable::getInstance()){
-	}
-	;
+	ProgramGrounder(PredicateTable* pt, InstanceTable* it, StatementDependency* st) :
+			predicateTable(pt), instancesTable(it), statementDependency(st), termsMap(TermTable::getInstance()),
+			currentRule(0), current_atom(0),index_current_atom(0){};
 
 	///This method executes the overall grounding process
 	void ground();
@@ -58,7 +57,7 @@ public:
 	;
 
 	/// Return the InstanceTable
-	InstancesTable* getInstanceTable() {
+	InstanceTable* getInstanceTable() {
 		return instancesTable;
 	}
 	;
@@ -80,7 +79,7 @@ private:
 	///A pointer to the predicate table
 	PredicateTable* predicateTable;
 	///A pointer to the instances table
-	InstancesTable* instancesTable;
+	InstanceTable* instancesTable;
 	///A pointer to the statement table
 	StatementDependency* statementDependency;
 	///A pointer to the terms table
@@ -123,10 +122,10 @@ private:
 	void updateDelta(Rule* r);
 
 	// Ground atom like builtIn and negative that have only buond atom
-	bool groundBoundAtom( bool &find, bool negation, bool searchDelta, Instances* instance, Atom*& templateAtom);
+	bool groundBoundAtom( bool &find, bool negation, bool searchDelta, Instance* instance, Atom*& templateAtom);
 
 	/// Call first match or next match for the current atom
-	IndexAtom* firstNextMatch( bool searchDelta, Instances* instance, bool& firstMatch, Atom*& templateAtom, bool& find);
+	void firstNextMatch( bool searchDelta, Instance* instance, bool& firstMatch, Atom*& templateAtom, bool& find);
 
 	///Skip the built in and negative atom for the nextMatch
 	///@param firstSkip if true go back

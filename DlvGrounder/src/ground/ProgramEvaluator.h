@@ -131,10 +131,10 @@ public:
 	}
 
 	/// Print the rule and simplify if is possible
-	void printAndSimplify(InstancesTable* instancesTable);
+	void printAndSimplify(InstanceTable* instancesTable);
 
 	/// Printer method for the grounded rules according to the given assignment
-	bool printGroundRule(InstancesTable* instancesTable,PredicateTable * predicateTable,StatementDependency * statementDep,Rule *r, map_term_term& var_assign, bool isRecursive, bool firstIteration);
+	bool printGroundRule(InstanceTable* instancesTable,PredicateTable * predicateTable,StatementDependency * statementDep,Rule *r, map_term_term& var_assign, bool isRecursive, bool firstIteration);
 
 	virtual ~ProgramEvaluator(){};
 private:
@@ -148,12 +148,12 @@ private:
 	/// Ground the body of the rule
 	bool groundBody(bool disjunction, bool isRecursive, bool firstIteration,
 			bool updated, Rule* r, map_term_term& var_assign,
-			InstancesTable* instancesTable, GroundRule* groundRule,
+			InstanceTable* instancesTable, GroundRule* groundRule,
 			bool& added);
 
 	/// Ground the head of the rule
 	void groundHead(Rule* r, PredicateTable* predicateTable,
-			map_term_term& var_assign, InstancesTable* instancesTable,
+			map_term_term& var_assign, InstanceTable* instancesTable,
 			StatementDependency* statementDep, GroundRule* groundRule);
 
 	///Ground the constraint with no simplification

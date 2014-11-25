@@ -37,7 +37,7 @@ public:
 	void addRule();
 
 	/// Return the InstanceTable
-	InstancesTable* getInstancesTable() {return instancesTable;}
+	InstanceTable* getInstancesTable() {return instancesTable;}
 
 	/// Return PredicateTable
 	PredicateTable* getPredicateTable() {return predicateTable;}
@@ -56,7 +56,7 @@ private:
 	/**
 	 *  Table of all the instances
 	 */
-	InstancesTable* instancesTable;
+	InstanceTable* instancesTable;
 
 	/**
 	 *  Dipendency of the atoms and rules

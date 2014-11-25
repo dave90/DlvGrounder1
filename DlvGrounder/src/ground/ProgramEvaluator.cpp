@@ -7,7 +7,7 @@
 
 #include "ProgramEvaluator.h"
 
-void ProgramEvaluator::printAndSimplify(InstancesTable* instancesTable) {
+void ProgramEvaluator::printAndSimplify(InstanceTable* instancesTable) {
 	if(!simplification)return ;
 
 	bool skipRule = false;
@@ -24,7 +24,7 @@ void ProgramEvaluator::printAndSimplify(InstancesTable* instancesTable) {
 		for (auto body_it = rule->getBeginBody(); body_it != rule->getEndBody();
 				body_it++) {
 			GroundAtom* body = *body_it;
-			Instances* is= instancesTable->getInstance(body->predicate);
+			Instance* is= instancesTable->getInstance(body->predicate);
 			if (is!=nullptr && is->isTrue(body->atom->terms)) {
 				if (body->negative) {
 					decrementSupport(rule);
@@ -77,7 +77,7 @@ void ProgramEvaluator::printAndSimplify(InstancesTable* instancesTable) {
 
 bool ProgramEvaluator::groundBody(bool disjunction, bool isRecursive,
 		bool firstIteration, bool updated, Rule* r, map_term_term& var_assign,
-		InstancesTable* instancesTable, GroundRule* groundRule, bool& added) {
+		InstanceTable* instancesTable, GroundRule* groundRule, bool& added) {
 	for (auto head_it = r->getBeginHead(); head_it != r->getEndHead();
 			head_it++) {
 		Atom* head = (*head_it);
@@ -98,16 +98,16 @@ bool ProgramEvaluator::groundBody(bool disjunction, bool isRecursive,
 		if (isRecursive) {
 			bool add = false;
 			if (firstIteration)
-				add = instancesTable->getInstance(predicate)->add(Instances::DELTA,
+				add = instancesTable->getInstance(predicate)->add(Instance::DELTA,
 						headAtom->atom, updated);
 			else
-				add = instancesTable->getInstance(predicate)->add(Instances::NEXTDELTA,
+				add = instancesTable->getInstance(predicate)->add(Instance::NEXTDELTA,
 						headAtom->atom, updated);
 
 			if (add)
 				added = true;
 		} else
-			added = instancesTable->getInstance(predicate)->add(Instances::NOFACTS,
+			added = instancesTable->getInstance(predicate)->add(Instance::NOFACTS,
 					headAtom->atom, updated);
 
 		// Duplication in head of rule
@@ -120,7 +120,7 @@ bool ProgramEvaluator::groundBody(bool disjunction, bool isRecursive,
 }
 
 void ProgramEvaluator::groundHead(Rule* r, PredicateTable* predicateTable,
-		map_term_term& var_assign, InstancesTable* instancesTable,
+		map_term_term& var_assign, InstanceTable* instancesTable,
 		StatementDependency* statementDep, GroundRule* groundRule) {
 	//*********   Ground the body   *********
 	for (auto body_it = r->getBeginBody(); body_it != r->getEndBody();
@@ -137,7 +137,7 @@ void ProgramEvaluator::groundHead(Rule* r, PredicateTable* predicateTable,
 		delete groundAtom;
 		// If the atom is not negative then exist in instance
 		// else the atom not exist and have to be created if is unstratified
-		Instances* instance = instancesTable->getInstance(predicate);
+		Instance* instance = instancesTable->getInstance(predicate);
 		if (instance != nullptr)
 			atom = instance->getGenericAtom(terms,0);
 
@@ -172,7 +172,7 @@ void ProgramEvaluator::groundConstraint(Rule* r, PredicateTable* predicateTable,
 	cout <<"."<< endl;
 }
 
-bool ProgramEvaluator::printGroundRule(InstancesTable* instancesTable,PredicateTable *predicateTable,StatementDependency * statementDep,
+bool ProgramEvaluator::printGroundRule(InstanceTable* instancesTable,PredicateTable *predicateTable,StatementDependency * statementDep,
 			Rule *r, map_term_term& var_assign, bool isRecursive, bool firstIteration) {
 	if(r->isAStrongConstraint() && !simplification){
 		groundConstraint(r, predicateTable, var_assign);

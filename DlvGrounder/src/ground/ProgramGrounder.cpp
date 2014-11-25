@@ -92,13 +92,13 @@ void ProgramGrounder::ground() {
 
 void ProgramGrounder::updateDelta(Rule* r) {
 	for (auto it = r->getBeginHead(); it != r->getEndHead(); it++) {
-		Instances* is = instancesTable->getInstance((*it)->getPredicate());
+		Instance* is = instancesTable->getInstance((*it)->getPredicate());
 		if (is != nullptr)
 			is->moveNextDeltaInDelta();
 	}
 }
 
-bool ProgramGrounder::groundBoundAtom(bool &find, bool negation, bool searchDelta, Instances* instance, Atom*& templateAtom) {
+bool ProgramGrounder::groundBoundAtom(bool &find, bool negation, bool searchDelta, Instance* instance, Atom*& templateAtom) {
 
 	current_id_match.push_back(0);
 	//  If it is a built in atom, ground it and evaluate it (Built in have not instance table, since they have not a predicate)
@@ -129,7 +129,7 @@ bool ProgramGrounder::groundBoundAtom(bool &find, bool negation, bool searchDelt
 	return true;
 }
 
-IndexAtom* ProgramGrounder::firstNextMatch( bool searchDelta, Instances* instance, bool& firstMatch,Atom*& templateAtom, bool& find) {
+void ProgramGrounder::firstNextMatch( bool searchDelta, Instance* instance, bool& firstMatch,Atom*& templateAtom, bool& find) {
 	// Otherwise a search is made in instance in order to provide bind variables with a value
 	IndexAtom* indexingStrategy = instance->getIndex();
 	// Determine if it is needed to perform a first or next match
@@ -148,7 +148,6 @@ IndexAtom* ProgramGrounder::firstNextMatch( bool searchDelta, Instances* instanc
 		unsigned int id = current_id_match.back();
 		indexingStrategy->nextMatch(id, current_var_assign, find);
 	}
-	return indexingStrategy;
 }
 
 bool ProgramGrounder::groundRule(Rule* r, bool firstIteraction, bool isRecursive, const unordered_set<index_object>* predicateInHead) {
@@ -190,7 +189,7 @@ bool ProgramGrounder::groundRule(Rule* r, bool firstIteraction, bool isRecursive
 		Predicate* current_predicate = current_atom->getPredicate();
 		negation = current_atom->isNegative();
 		bool firstMatch;
-		Instances * instance;
+		Instance * instance;
 		bool searchDelta;
 		if(current_predicate!=nullptr){
 			instance = instancesTable->getInstance(current_predicate);

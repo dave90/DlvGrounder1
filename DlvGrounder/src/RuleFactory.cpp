@@ -18,7 +18,7 @@ RuleFactory::RuleFactory() {
 	binop=Binop::NONE_OP;
 
 	predicateTable=new PredicateTable;
-	instancesTable=new InstancesTable;
+	instancesTable=new InstanceTable;
 	statementDependency=new StatementDependency;
 }
 
@@ -30,7 +30,7 @@ void RuleFactory::addFact(Atom *fact) {
 	instancesTable->addInstance(predicate);
 	GenericAtom* atomFact=new GenericAtom(fact->getTerms());
 	bool up=false;
-	instancesTable->getInstance(predicate)->add(Instances::FACTS,atomFact,up);
+	instancesTable->getInstance(predicate)->add(Instance::FACTS,atomFact,up);
 	delete fact;
 }
 

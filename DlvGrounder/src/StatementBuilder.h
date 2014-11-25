@@ -91,7 +91,7 @@ public:
 	void removeLastTerm(){termsFactory.removeLastTerm();};
 
 	/// Return the InstanceTable
-	InstancesTable* getInstanceTable(){return ruleFactory.getInstancesTable();};
+	InstanceTable* getInstanceTable(){return ruleFactory.getInstancesTable();};
 	/// Return the StatementDependency
 	StatementDependency* getStatementDependency(){return ruleFactory.getStatementDependency();};
 	/// Return the PredicateTable
