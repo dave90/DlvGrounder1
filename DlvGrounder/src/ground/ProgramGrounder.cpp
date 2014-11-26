@@ -189,8 +189,8 @@ bool ProgramGrounder::groundRule(Rule* r, bool firstIteraction, bool isRecursive
 		Predicate* current_predicate = current_atom->getPredicate();
 		negation = current_atom->isNegative();
 		bool firstMatch;
-		Instance * instance;
-		bool searchDelta;
+		Instance * instance=nullptr;
+		bool searchDelta=false;
 		if(current_predicate!=nullptr){
 			instance = instancesTable->getInstance(current_predicate);
 			searchDelta = isRecursive && predicateInHead->count(current_predicate->getIndex()) && !firstIteraction;
