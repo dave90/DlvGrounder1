@@ -22,7 +22,6 @@ RuleFactory::RuleFactory() {
 	statementDependency=new StatementDependency;
 }
 
-
 void RuleFactory::addFact(Atom *fact) {
 	// Add a Instances in instaces table and then add the fact
 

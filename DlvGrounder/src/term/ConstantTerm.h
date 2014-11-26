@@ -11,6 +11,7 @@
 #include <stdlib.h>
 
 #include "Term.h"
+#include "../hash/HashString.h"
 #include <boost/lexical_cast.hpp>
 
 
@@ -29,6 +30,8 @@ public:
 	virtual TermType getType()const{return TermType::CONSTANT;};
 	virtual bool contain(TermType type){if(TermType::CONSTANT==type)return true;return false;};
 	virtual bool isGround(){return true;}
+	virtual size_t hash(){return HashString::getHashStringFromConfig()->computeHash(getName());};
+
 
 
 	/// Return the value of the constant
