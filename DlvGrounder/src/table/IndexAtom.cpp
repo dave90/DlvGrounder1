@@ -58,32 +58,8 @@ unsigned int SimpleIndexAtom::firstMatch(bool searchInDelta,Atom *templateAtom,m
 		if(templateAtom->getTerm(i)->contain(TermType::VARIABLE))bind.push_back(i);
 	ResultMatch *rm = new ResultMatch(bind);
 
-	//Search only in delta for match
-//	if(searchInDelta){
-//		//Search in delta for match
-//		if(searchForFirstMatch(delta,rm)){
-//			find=true;
-//			matches_id.insert({id,rm});
-//			return id;
-//		}
-//	}
-//	else{
-//		//Search in facts for match
-//		if(searchForFirstMatch(facts,rm)){
-//			find=true;
-//			matches_id.insert({id,rm});
-//			return id;
-//		}
-//
-//		//If it is EDB and not terms are bound, search also in no facts for match
-//		if(!predicate->isEdb()){
-//			if(searchForFirstMatch(nofacts,rm)){
-//				find=true;
-//				matches_id.insert({id,rm});
-//				return id;
-//			}
-//		}
-//	}
+//	    Search only in delta if searchInDelta is true
+//		else search in fact or nofact if predicate is EDB
 	if(( searchInDelta && searchForFirstMatch(delta,rm) ) ||
 	   (!searchInDelta &&
 					   (searchForFirstMatch(facts,rm) ||
@@ -147,29 +123,6 @@ void SimpleIndexAtom::nextMatch(unsigned int id,map_term_term& currentAssignment
 void SimpleIndexAtom::findIfExist(bool searchInDelta,Atom *templateAtom,bool& find,bool& isUndef) {
 	this->templateAtom=templateAtom;
 
-//	//Search only in delta for match
-//	if(searchInDelta){
-//		//Search in delta for match
-//		if(findIfExists(delta,isUndef)){
-//			find=true;
-//			return ;
-//		}
-//	}
-//	else{
-//		//Search in facts for match
-//		if(findIfExists(facts,isUndef)){
-//			find=true;
-//			return ;
-//		}
-//
-//		//If it is EDB and not terms are bound, search also in no facts for match
-//		if(!predicate->isEdb()){
-//			if(findIfExists(nofacts,isUndef)){
-//				find=true;
-//				return ;
-//			}
-//		}
-//	}
 	if((searchInDelta && findIfExists(delta,isUndef) ) ||
 	  (!searchInDelta &&
 			  (findIfExists(facts,isUndef) ||
@@ -241,7 +194,7 @@ pair<bool, index_object> SingleTermIndexAtom::createIndex(vector<unsigned int>& 
 		if(positionOfIndexingSetByUser && i == positionOfIndexing && t->isGround()) {
 			termBoundIndex.first = true;
 			termBoundIndex.second = t->getIndex();
-			if (templateAtom->isGround() && !instantiateIndexMaps)
+			if (!templateAtom->isGround() && !instantiateIndexMaps)
 				initializeIndexMaps();
 		}
 	}
@@ -271,55 +224,7 @@ unsigned int SingleTermIndexAtom::firstMatch(bool searchInDelta, Atom *templateA
 
 	ResultMatch *rm = new ResultMatch(bind);
 	AtomTable* matchingTable;
-//
-//
-//	//Search only in delta
-//	if(searchInDelta){
-//		AtomTable* matchingTable;
-//
-//		if(termBoundIndex.first)
-//			matchingTable=&deltaIndexMap[termBoundIndex.second];
-//		else
-//			matchingTable=delta;
-//		if(delta!=nullptr){
-//			if(searchForFirstMatch(matchingTable,rm)){
-//				find=true;
-//				matches_id.insert({id,rm});
-//				return id;
-//			}
-//		}
-//	}
-//	//Search in facts and no facts
-//	else{
-//
-//		AtomTable* matchingTable;
-//
-//		if(termBoundIndex.first)
-//			matchingTable=&factsIndexMap[termBoundIndex.second];
-//		else
-//			matchingTable=facts;
-//
-//		//Search in facts for match
-//		if(searchForFirstMatch(matchingTable,rm)){
-//			find=true;
-//			matches_id.insert({id,rm});
-//			return id;
-//		}
-//
-//		//If it is EDB and it is not all bound, search also in no facts for match
-//		if(!predicate->isEdb() && nofacts->size()>0){
-//			if(termBoundIndex.first)
-//				matchingTable=&nofactsIndexMap[termBoundIndex.second];
-//			else
-//				matchingTable=nofacts;
-//
-//			if(searchForFirstMatch(matchingTable,rm)){
-//				find=true;
-//				matches_id.insert({id,rm});
-//				return id;
-//			}
-//		}
-//	}
+
 
 	if(( searchInDelta && getMatchingTable(matchingTable,deltaIndexMap,delta,termBoundIndex) && searchForFirstMatch(matchingTable,rm) ) ||
 	   (!searchInDelta &&
@@ -411,7 +316,7 @@ pair<bool, index_object> SingleTermIndexAtomMultiMap::createIndex(vector<unsigne
 		if(positionOfIndexingSetByUser && i == positionOfIndexing && t->isGround()) {
 			termBoundIndex.first = true;
 			termBoundIndex.second = t->getIndex();
-			if (templateAtom->isGround() && !instantiateIndexMaps)
+			if (!templateAtom->isGround() && !instantiateIndexMaps)
 				initializeIndexMaps();
 		}
 	}
@@ -487,22 +392,6 @@ void SingleTermIndexAtomMultiMap::initializeIndexMaps(){
 }
 
 
-// Deleted methods
-//void SingleTermIndexAtom::determineTermToBeIndexed(vec_pair_index_object& bound) {
-//	///If the position of the indexing term is not set by the user the first admissible term is the first bound term
-//	if(!positionOfIndexingSetByUser && bound.size()>0){
-//		positionOfIndexing = bound[0].first;
-//		positionOfIndexingSetByUser = true;
-//	}
-//}
-//
-//void SingleTermIndexAtomMultiMap::determineTermToBeIndexed(vec_pair_index_object& bound) {
-//	///If the position of the indexing term is not set by the user the first admissible term is the first bound term
-//	if(!positionOfIndexingSetByUser && bound.size()>0){
-//		positionOfIndexing = bound[0].first;
-//		positionOfIndexingSetByUser = true;
-//	}
-//}
 
 
 
