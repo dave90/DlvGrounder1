@@ -39,6 +39,11 @@ public:
 	virtual unsigned int getSizeOperator()const{return operators.size();}
 	virtual Operator getOperator(int i) const {return operators[i];}
 
+	virtual void getVariable(set_term& variables){
+		for(auto term:terms)
+			term->getVariable(variables);
+	};
+
 	/// Calculate the value based on the operators and terms
 	virtual Term* calculate();
 	virtual void popTerm(){terms.pop_back();};
