@@ -54,6 +54,22 @@ void  Rule::print(){
 	cout<<"."<<endl;
 }
 
+bool Rule::isSafe()
+{
+	for(unsigned int i=0;i<body.size();i++)
+	{
+		for(unsigned int j=i+1;j<body.size();j++)//controllo della safety,
+												 //dovrei controllare che ogni atomo che compone la regola è safe
+												 //quindi forse dovrei fare un metodo isSafe() per gli atomi?
+		{
+			//
+		}
+
+
+
+	}
+	return true;
+}
 
 bool Rule::operator ==(const Rule& r) {
 	  if(getSizeBody()!=r.getSizeBody())return false;

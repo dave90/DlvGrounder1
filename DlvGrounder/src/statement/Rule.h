@@ -75,7 +75,7 @@ public:
 
 	///Printer method
 	void print();
-
+	bool isSafe();
 	/** @brief Equal-to operator for rules
 	 *  @details Two rules are equal if they have the same atoms in the body and in the head regardless the order in which they appear
 	 */
