@@ -56,19 +56,48 @@ void  Rule::print(){
 
 bool Rule::isSafe()
 {
-	for(unsigned int i=0;i<body.size();i++)
+	vector<Term> VariableInNegativeAtom;
+	vector<Term> VariableInPositiveAtom;
+	if(isAStrongConstraint())				//primo caso testa vuota
 	{
-		for(unsigned int j=i+1;j<body.size();j++)//controllo della safety,
-												 //dovrei controllare che ogni atomo che compone la regola è safe
-												 //quindi forse dovrei fare un metodo isSafe() per gli atomi?
+		for(auto atom:body)
 		{
-			//
+			if(atom->isNegative())
+			{
+				for(auto VariableTerm:atom->getVariable())
+				{
+					VariableInNegativeAtom.push_back(VariableTerm);
+				}
+			}
+			else			//riempio i vector con le variabili
+			{
+				for(auto VariableTerm:atom->getVariable())
+				{
+					VariableInPositiveAtom.push_back((VariableTerm));
+				}
+			}
 		}
-
-
-
+		bool trovato=false;			//controllo se ogni variabile che compare in un atomo negativo
+									// compare almeno una volta in un atomo positivo
+		for(int i=0;i<VariableInNegativeAtom.size();i++)
+		{
+			for(int j=0;j<VariableInPositiveAtom.size();j++)
+			{
+				if(VariableInNegativeAtom[i].getName().compare("_")==0)
+					return false;
+				if(VariableInNegativeAtom[i].getName().compare(VariableInPositiveAtom[j].getName())==0)
+				{
+					trovato=true;
+					break;
+				}
+			}
+			if(!trovato)
+				return false;
+			trovato=false;
+		}
+		return true;
 	}
-	return true;
+	return false;
 }
 
 bool Rule::operator ==(const Rule& r) {
