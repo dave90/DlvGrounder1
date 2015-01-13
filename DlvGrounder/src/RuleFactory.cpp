@@ -76,6 +76,11 @@ void RuleFactory::addRule() {
 	// If a rule have one literal in a head is a fact and add it in InstanceTable
 	// else set the predicate in the rule IDB and add the rule in the StatementDependency
 
+	if(!currentRule->isSafe()){
+		cout<<"Safety Error. This rule is not safe: "<<endl;
+		currentRule->print();
+		exit(0);
+	}
 
 	if(currentRule->isAFact()){
 		Atom *fact=*currentRule->getBeginHead();
