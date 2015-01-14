@@ -56,48 +56,36 @@ void  Rule::print(){
 
 bool Rule::isSafe()
 {
-	vector<Term> VariableInNegativeAtom;
-	vector<Term> VariableInPositiveAtom;
-	if(isAStrongConstraint())				//primo caso testa vuota
-	{
+	set_term variableInNegativeAtom;
+	set_term variableInPositiveAtom;
+
 		for(auto atom:body)
 		{
 			if(atom->isNegative())
 			{
 				for(auto VariableTerm:atom->getVariable())
 				{
-					VariableInNegativeAtom.push_back(VariableTerm);
+					variableInNegativeAtom.insert(VariableTerm);
 				}
 			}
-			else			//riempio i vector con le variabili
+			else
 			{
 				for(auto VariableTerm:atom->getVariable())
 				{
-					VariableInPositiveAtom.push_back((VariableTerm));
+					variableInPositiveAtom.insert(VariableTerm);
 				}
 			}
 		}
-		bool trovato=false;			//controllo se ogni variabile che compare in un atomo negativo
-									// compare almeno una volta in un atomo positivo
-		for(int i=0;i<VariableInNegativeAtom.size();i++)
+
+		for(auto Term:variableInNegativeAtom)
 		{
-			for(int j=0;j<VariableInPositiveAtom.size();j++)
-			{
-				if(VariableInNegativeAtom[i].getName().compare("_")==0)
+				if(Term->contain(TermType::ANONYMOUS))
 					return false;
-				if(VariableInNegativeAtom[i].getName().compare(VariableInPositiveAtom[j].getName())==0)
-				{
-					trovato=true;
-					break;
-				}
-			}
-			if(!trovato)
-				return false;
-			trovato=false;
+				if(variableInPositiveAtom.count(Term)!=1)
+					return false;
 		}
 		return true;
-	}
-	return false;
+
 }
 
 bool Rule::operator ==(const Rule& r) {
