@@ -56,8 +56,21 @@ void  Rule::print(){
 
 bool Rule::isSafe()
 {
-	set_term variableInNegativeAtom;
+	set_term variableToCheck;
 	set_term variableInPositiveAtom;
+
+
+		for(auto atom:head)
+		{
+			if(atom->isNegative())
+				return false;
+			for(auto VariableTerm:atom->getVariable())
+			{
+				if(VariableTerm->contain(TermType::ANONYMOUS))
+					return false;
+				variableToCheck.insert(VariableTerm);
+			}
+		}
 
 		for(auto atom:body)
 		{
@@ -65,7 +78,9 @@ bool Rule::isSafe()
 			{
 				for(auto VariableTerm:atom->getVariable())
 				{
-					variableInNegativeAtom.insert(VariableTerm);
+					if(VariableTerm->contain(TermType::ANONYMOUS))
+						return false;
+					variableToCheck.insert(VariableTerm);
 				}
 			}
 			else
@@ -77,10 +92,12 @@ bool Rule::isSafe()
 			}
 		}
 
-		for(auto Term:variableInNegativeAtom)
+	if(variableInPositiveAtom.empty() && !variableToCheck.empty())
+		return false;
+
+
+		for(auto Term:variableToCheck)
 		{
-				if(Term->contain(TermType::ANONYMOUS))
-					return false;
 				if(variableInPositiveAtom.count(Term)!=1)
 					return false;
 		}
