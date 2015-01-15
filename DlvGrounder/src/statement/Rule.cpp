@@ -59,16 +59,14 @@ bool Rule::isSafe()
 	set_term variableToCheck;
 	set_term variableInPositiveAtom;
 
-
 		for(auto atom:head)
 		{
-			if(atom->isNegative())
-				return false;
-			for(auto VariableTerm:atom->getVariable())
+			for(auto term:atom->getTerms())
 			{
-				if(VariableTerm->contain(TermType::ANONYMOUS))
+				if(term->contain(TermType::ANONYMOUS))
 					return false;
-				variableToCheck.insert(VariableTerm);
+				if(term->contain(TermType::VARIABLE))
+					variableToCheck.insert(term);
 			}
 		}
 
@@ -76,29 +74,31 @@ bool Rule::isSafe()
 		{
 			if(atom->isNegative())
 			{
-				for(auto VariableTerm:atom->getVariable())
+				for(auto variableTerm:atom->getTerms())
 				{
-					if(VariableTerm->contain(TermType::ANONYMOUS))
+					if(variableTerm->contain(TermType::ANONYMOUS))
 						return false;
-					variableToCheck.insert(VariableTerm);
+					if(variableTerm->contain(TermType::VARIABLE))
+						variableToCheck.insert(variableTerm);
 				}
 			}
 			else
 			{
-				for(auto VariableTerm:atom->getVariable())
+				for(auto variableTerm:atom->getTerms())
 				{
-					variableInPositiveAtom.insert(VariableTerm);
+					if(variableTerm->contain(TermType::VARIABLE))
+						variableInPositiveAtom.insert(variableTerm);
 				}
 			}
 		}
 
-	if(variableInPositiveAtom.empty() && !variableToCheck.empty())
+	if(variableInPositiveAtom.size()<variableToCheck.size())
 		return false;
 
 
-		for(auto Term:variableToCheck)
+		for(auto term:variableToCheck)
 		{
-				if(variableInPositiveAtom.count(Term)!=1)
+				if(variableInPositiveAtom.count(term)!=1)
 					return false;
 		}
 		return true;
