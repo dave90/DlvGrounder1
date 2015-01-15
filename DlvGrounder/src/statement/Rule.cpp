@@ -61,10 +61,10 @@ bool Rule::isSafe()
 
 		for(auto atom:head)
 		{
+			if(atom->containsAnonymous())
+				return false;
 			for(auto term:atom->getTerms())
 			{
-				if(term->contain(TermType::ANONYMOUS))
-					return false;
 				if(term->contain(TermType::VARIABLE))
 					variableToCheck.insert(term);
 			}
@@ -74,10 +74,10 @@ bool Rule::isSafe()
 		{
 			if(atom->isNegative())
 			{
+				if(atom->containsAnonymous())
+					return false;
 				for(auto variableTerm:atom->getTerms())
 				{
-					if(variableTerm->contain(TermType::ANONYMOUS))
-						return false;
 					if(variableTerm->contain(TermType::VARIABLE))
 						variableToCheck.insert(variableTerm);
 				}
