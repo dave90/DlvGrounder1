@@ -3,3 +3,6 @@
 /test3.txt
 /test4.txt
 /Release
+.settings/
+.cproject
+.project
