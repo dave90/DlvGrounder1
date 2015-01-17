@@ -66,7 +66,7 @@ bool Rule::isSafe()
 			for(auto term:atom->getTerms())
 			{
 				if(term->contain(TermType::VARIABLE))
-					variableToCheck.insert(term);
+					term->getVariable(variableToCheck);
 			}
 		}
 
@@ -76,18 +76,18 @@ bool Rule::isSafe()
 			{
 				if(atom->containsAnonymous())
 					return false;
-				for(auto variableTerm:atom->getTerms())
+				for(auto term:atom->getTerms())
 				{
-					if(variableTerm->contain(TermType::VARIABLE))
-						variableToCheck.insert(variableTerm);
+					if(term->contain(TermType::VARIABLE))
+						term->getVariable(variableToCheck);
 				}
 			}
 			else
 			{
-				for(auto variableTerm:atom->getTerms())
+				for(auto term:atom->getTerms())
 				{
-					if(variableTerm->contain(TermType::VARIABLE))
-						variableInPositiveAtom.insert(variableTerm);
+					if(term->contain(TermType::VARIABLE))
+						term->getVariable(variableInPositiveAtom);
 				}
 			}
 		}
