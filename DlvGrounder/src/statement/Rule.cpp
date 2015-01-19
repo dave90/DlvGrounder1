@@ -81,8 +81,8 @@ bool Rule::isSafe()
 			insertVariables(atom,variableInPositiveAtom,true);
 	if(variableInPositiveAtom.size()<variableToCheck.size())
 		return false;
-	for(auto term:variableToCheck)
-		if(variableInPositiveAtom.count(term)!=1)
+	for(auto variable:variableToCheck)
+		if(variableInPositiveAtom.count(variable)!=1)
 			return false;
 	return true;
 }
