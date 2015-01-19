@@ -54,47 +54,37 @@ void  Rule::print(){
 	cout<<"."<<endl;
 }
 
+bool insertVariables(Atom* atom,set_term& variables,bool anonymusSafe)
+{
+	if(!anonymusSafe)
+		if(atom->containsAnonymous())
+			return false;
+	set_term tempVariables=atom->getVariable();
+	variables.insert(tempVariables.begin(),tempVariables.end());
+	return true;
+
+}
+
 bool Rule::isSafe()
 {
 	set_term variableToCheck;
 	set_term variableInPositiveAtom;
-	set_term tempVariables;
-
 	for(auto atom:head)
-	{
-		if(atom->containsAnonymous())
+		if(!insertVariables(atom,variableToCheck,false))
 			return false;
-		tempVariables=atom->getVariable();
-		variableToCheck.insert(tempVariables.begin(),tempVariables.end());
-	}
-
 	for(auto atom:body)
-	{
-		if(atom->isNegative())
-		{
-			if(atom->containsAnonymous())
+		if(atom->isNegative()){
+			if(!insertVariables(atom,variableToCheck,false))
 				return false;
-			tempVariables=atom->getVariable();
-			variableToCheck.insert(tempVariables.begin(),tempVariables.end());
 		}
 		else
-		{
-			tempVariables=atom->getVariable();
-				variableInPositiveAtom.insert(tempVariables.begin(),tempVariables.end());
-		}
-	}
-
+			insertVariables(atom,variableInPositiveAtom,true);
 	if(variableInPositiveAtom.size()<variableToCheck.size())
 		return false;
-
 	for(auto term:variableToCheck)
-	{
-			if(variableInPositiveAtom.count(term)!=1)
-				return false;
-	}
-
+		if(variableInPositiveAtom.count(term)!=1)
+			return false;
 	return true;
-
 }
 
 bool Rule::operator ==(const Rule& r) {
